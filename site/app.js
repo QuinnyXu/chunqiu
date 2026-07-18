@@ -370,6 +370,7 @@ function applyView(box) {
 }
 
 function renderMap() {
+  resetPlacePanel();
   const canvas = $("#map-canvas");
   canvas.innerHTML = baseMapText;
   const svg = canvas.querySelector("svg");
@@ -566,10 +567,11 @@ function updateScopeBtn() {
   b.setAttribute("aria-pressed", String(mapState.mode === "fit"));
 }
 
-/* ---------- 地点详情：桌面侧栏 / 移动端与全屏态底部抽屉 ---------- */
+/* ---------- 地点详情：内嵌态（含窄屏）走地图下方文档流卡片 / 仅全屏态走底部抽屉 ----------
+ * 窄屏内嵌视图曾用 fixed 抽屉，与页面缩放冲突（只露一角），round6 回归文档流卡片。 */
 const drawer = { open: false, lastFocus: null, dragY: null };
 function useDrawer() {
-  return mapState.overlay || window.matchMedia("(max-width: 680px)").matches;
+  return mapState.overlay;
 }
 function showPlace(pl, evts) {
   const title = pl.ancient_name + (pl.state ? "（" + pl.state + "）" : "");
@@ -588,7 +590,23 @@ function showPlace(pl, evts) {
     h3.textContent = title;
     panel.appendChild(h3);
     panel.appendChild(content);
+    // 窄屏内嵌视图：卡片位于地图下方，轻滚使其进入视野（block:nearest 只做最小滚动，
+    // 不与用户的页面缩放状态冲突；地图与选中点尽量保持可见）
+    if (window.matchMedia("(max-width: 680px)").matches) {
+      panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
   }
+}
+function resetPlacePanel() {
+  const panel = $("#place-panel");
+  panel.textContent = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = "地点详情";
+  panel.appendChild(h3);
+  const p = document.createElement("p");
+  p.className = "map-status";
+  p.textContent = "点击地图上的地点查看古名、今地与相关事件。";
+  panel.appendChild(p);
 }
 function markSelectedAnchor(placeId) {
   document.querySelectorAll(".anchor.selected").forEach(g => g.classList.remove("selected"));

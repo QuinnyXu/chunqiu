@@ -17,6 +17,9 @@
 <meta name="twitter:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
 <meta name="twitter:description" content="八条春秋人物线的可考订时间线、活动地图与关系图谱，每条事件皆有出处。">
 <meta name="twitter:image" content="https://quinnyxu.github.io/chunqiu/assets/og/og-card.png">
+<!-- image_src 与下方首屏 <img>：供不读 og 协议的爬虫（微信等）抓取分享缩略图；
+     绝对 URL 为约定特批例外（分享协议头两处），页面内资源一律相对路径 -->
+<link rel="image_src" href="https://quinnyxu.github.io/chunqiu/assets/og/og-card.png">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -38,10 +41,16 @@
     <h2 class="screen-title" id="home-title">人物线 · 择一而入</h2>
     <ul class="person-grid" id="person-grid"></ul>
     <p class="home-extra">
-      <button type="button" class="library-entry" id="home-relations-entry">三十二人关系图谱 →</button>
+      <button type="button" class="library-entry" id="home-relations-entry">四十人关系图谱 →</button>
       <button type="button" class="library-entry" id="home-library-entry">背景 · 考古 · 来源 —— 资料库 →</button>
       <button type="button" class="library-entry" id="home-about-entry">关于本站与数据凡例 →</button>
     </p>
+    <!-- 站铭卡：兼作分享缩略图的可抓取来源（部分爬虫忽略隐藏图，故以可见小图呈现，勿隐藏） -->
+    <figure class="brand-card">
+      <img src="assets/og/og-card.png" width="1200" height="630"
+           alt="春秋人物志——左传与国语中的人物、时间线与地图">
+      <figcaption>把这一页分享给同好，从八条人物线任一条进入春秋。</figcaption>
+    </figure>
   </section>
 
   <section id="view-timeline" hidden aria-labelledby="timeline-title">

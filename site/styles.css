@@ -538,6 +538,20 @@ body.no-scroll { overflow: hidden; }
   cursor: pointer;
 }
 .library-entry:hover { color: var(--ochre); border-color: var(--ochre); }
+.brand-card { margin: 1.8rem 0 0; }
+.brand-card img {
+  display: block;
+  width: min(320px, 100%);
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(46, 42, 36, 0.08);
+}
+.brand-card figcaption {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin-top: 0.35rem;
+}
 
 /* ---------- 选中锚点与入口按钮 ---------- */
 .anchor.selected circle.dot {
@@ -628,7 +642,7 @@ body.no-scroll { overflow: hidden; }
 .about-body p, .about-body li { font-size: 0.92rem; }
 .about-body a { color: var(--ochre); }
 
-/* ---------- 底部抽屉（移动端/全屏态地点卡） ---------- */
+/* ---------- 底部抽屉（仅全屏放大态的地点卡） ---------- */
 .drawer-backdrop {
   position: fixed;
   inset: 0;
@@ -717,6 +731,6 @@ body.no-scroll { overflow: hidden; }
   #lib-search { flex: 1 1 auto; min-width: 0; width: 100%; }
   .rel-layout { flex-direction: column; }
   .rel-panel { flex-basis: auto; width: 100%; max-height: none; }
-  .map-side #place-panel { display: none; } /* 窄屏地点详情走底部抽屉 */
+  /* 窄屏内嵌视图：地点详情为地图下方文档流卡片（round6 回归）；抽屉仅用于全屏态 */
   .inline-entry { display: inline-block; margin: 0.3rem 0 0; }
 }
