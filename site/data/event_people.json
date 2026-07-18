@@ -1209,5 +1209,40 @@
     "role_in_event": "乱源被论",
     "directness": "indirect",
     "presence": "相关"
+  },
+  {
+    "event_id": "E003",
+    "person_id": "P_QIXI",
+    "role_in_event": "齐君亲送女文姜于讙（左传评齐侯亲送为非礼）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E031",
+    "person_id": "P_QIXI",
+    "role_in_event": "会盟约期共伐宋之齐君（隐十年公会齐侯于中丘、老桃）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E032",
+    "person_id": "P_QIXI",
+    "role_in_event": "会伐入许之齐君（隐十一年公会齐侯郑伯伐许）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E035",
+    "person_id": "P_QIXI",
+    "role_in_event": "乞师于郑、受郑师献捷之齐君（北戎伐齐，战在齐境）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E036",
+    "person_id": "P_QIXI",
+    "role_in_event": "两请以女妻太子忽之齐君（主导议婚）",
+    "directness": "direct",
+    "presence": "亲至"
   }
 ]

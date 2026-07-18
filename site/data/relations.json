@@ -754,5 +754,41 @@
     "rel_label": "姊妹",
     "reliability": "medium",
     "source_note": "通说戴公文公之姊妹，世系细节从简"
+  },
+  {
+    "id": "R085",
+    "person_a": "P_QIXI",
+    "person_b": "P_WENJIANG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传桓公三年齐侯送姜氏、桓公六年齐侯欲以文姜妻忽（齐侯即僖公，父女关系经传可证）"
+  },
+  {
+    "id": "R086",
+    "person_a": "P_QIXI",
+    "person_b": "P_QIXIANG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传桓公十四年齐侯禄父卒、诸儿继立；史记齐世家僖公卒太子诸儿立是为襄公"
+  },
+  {
+    "id": "R087",
+    "person_a": "P_QIXI",
+    "person_b": "P_QIHUAN",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "史记齐世家桓公小白僖公之子、襄公之弟（通说无异说，与R024同据）"
+  },
+  {
+    "id": "R088",
+    "person_a": "P_QIXI",
+    "person_b": "P_ZIJIU",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "史记齐世家公子纠僖公之子；纠桓孰长有异说不影响父子（参R026）"
   }
 ]
