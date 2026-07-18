@@ -1,0 +1,426 @@
+[
+  {
+    "id": "Q001",
+    "event_id": "E003",
+    "source_id": "Z001",
+    "quote_original": "公子翬如齊逆女，九月，齊侯送姜氏于讙，公會齊侯于讙，夫人姜氏至自齊。",
+    "modern_note": "文姜入鲁的《春秋》经文；重在行礼、迎送与身份。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q002",
+    "event_id": "E003",
+    "source_id": "Z001",
+    "quote_original": "齊侯送姜氏，非禮也。",
+    "modern_note": "《左传》传文直评齐侯亲送为非礼。",
+    "quote_type": "评论"
+  },
+  {
+    "id": "Q003",
+    "event_id": "E004",
+    "source_id": "Z002",
+    "quote_original": "九月，丁卯，子同生。",
+    "modern_note": "鲁庄公出生。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q004",
+    "event_id": "E036",
+    "source_id": "Z002",
+    "quote_original": "齊侯欲以文姜妻鄭大子忽，大子忽辭。人問其故，大子曰：人各有耦，齊大，非吾耦也。",
+    "modern_note": "郑太子忽拒婚文姜的核心语句。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q004A",
+    "event_id": "E005A",
+    "source_id": "Z017",
+    "quote_original": "曼伯為右拒，祭仲足為左拒，原繁、高渠彌以中軍奉公，為魚麗之陳。",
+    "modern_note": "郑太子忽与高渠弥同见于繻葛之战军阵。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q005",
+    "event_id": "E039",
+    "source_id": "Z003",
+    "quote_original": "宋人執鄭祭仲。突歸于鄭。鄭忽出奔衛。",
+    "modern_note": "忽第一次失位。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q006",
+    "event_id": "E008",
+    "source_id": "Z005",
+    "quote_original": "初，鄭伯將以高渠彌為卿，昭公惡之，固諫，不聽。昭公立，懼其殺己也。辛卯，弒昭公，而立公子亹。",
+    "modern_note": "郑昭公被弑的动因叙述。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q007",
+    "event_id": "E009",
+    "source_id": "Z006",
+    "quote_original": "申繻曰：女有家，男有室，無相瀆也，謂之有禮。易此必敗。",
+    "modern_note": "鲁桓公携文姜如齐前的礼法警告。",
+    "quote_type": "言论"
+  },
+  {
+    "id": "Q008",
+    "event_id": "E010",
+    "source_id": "Z006",
+    "quote_original": "公會齊侯于濼，遂及文姜如齊。齊侯通焉，公謫之，以告。",
+    "modern_note": "《左传》关于齐襄公与文姜私通的直接记载。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q009",
+    "event_id": "E010",
+    "source_id": "Z006",
+    "quote_original": "夏，四月，丙子，享公。使公子彭生乘公，公薨于車。",
+    "modern_note": "鲁桓公死亡现场的简洁记载。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q010",
+    "event_id": "E011",
+    "source_id": "Z006",
+    "quote_original": "齊侯師于首止。子亹會之，高渠彌相。七月，戊戌，齊人殺子亹，而轘高渠彌。",
+    "modern_note": "齐襄公处置郑国内乱人物。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q011",
+    "event_id": "E013",
+    "source_id": "Z008",
+    "quote_original": "二年，冬，夫人姜氏會齊侯于禚，書姦也。",
+    "modern_note": "《左传》对文姜会齐襄公的道德定性。",
+    "quote_type": "评论"
+  },
+  {
+    "id": "Q012",
+    "event_id": "E016",
+    "source_id": "Z011",
+    "quote_original": "七年，春，夫人姜氏會齊侯于防。……冬，夫人姜氏會齊侯于穀。",
+    "modern_note": "文姜与齐襄公两次会见。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q013",
+    "event_id": "E018",
+    "source_id": "Z012",
+    "quote_original": "冬，十有一月，癸未，齊無知弒其君諸兒。",
+    "modern_note": "齐襄公之死的《春秋》经文。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q014",
+    "event_id": "E018",
+    "source_id": "S001",
+    "quote_original": "見彘，從者曰「彭生」。公怒，射之，彘人立而啼。",
+    "modern_note": "《史记》叙齐襄公死前猎豕见彭生怪异，文学性强。",
+    "quote_type": "后出叙事"
+  },
+  {
+    "id": "Q015",
+    "event_id": "E019",
+    "source_id": "Z013",
+    "quote_original": "秋，七月，戊戌，夫人姜氏薨。",
+    "modern_note": "文姜去世。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q016",
+    "event_id": "E020",
+    "source_id": "Z014",
+    "quote_original": "癸丑，葬我小君文姜。",
+    "modern_note": "鲁以小君礼葬文姜。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q017",
+    "event_id": null,
+    "source_id": "P001",
+    "quote_original": "南山崔崔，雄狐綏綏。魯道有蕩，齊子由歸。既曰歸止，曷又懷止？",
+    "modern_note": "传统以为刺文姜归鲁后仍怀齐；属于诗歌舆论，不等同史实。",
+    "quote_type": "诗歌"
+  },
+  {
+    "id": "Q018",
+    "event_id": null,
+    "source_id": "P002",
+    "quote_original": "敝笱在梁，其魚魴鰥。齊子歸止，其從如雲。",
+    "modern_note": "传统以为刺文姜随从盛而礼防坏。",
+    "quote_type": "诗歌"
+  },
+  {
+    "id": "Q019",
+    "event_id": null,
+    "source_id": "P003",
+    "quote_original": "載驅薄薄，簟茀朱鞹。魯道有蕩，齊子發夕。",
+    "modern_note": "传统以为刺文姜频繁往来齐鲁。",
+    "quote_type": "诗歌"
+  },
+  {
+    "id": "Q020",
+    "event_id": "E022",
+    "source_id": "Z018",
+    "quote_original": "初，鄭武公娶于申，曰武姜。生莊公及共叔段。莊公寤生，驚姜氏，故名曰寤生，遂惡之。",
+    "modern_note": "出自《左传·隐公元年》追叙：庄公因难产受名寤生，母亲从此厌恶他。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q021",
+    "event_id": "E024",
+    "source_id": "Z018",
+    "quote_original": "命子封帥車二百乘以伐京。京叛大叔段。段入于鄢。公伐諸鄢。五月辛丑，大叔出奔共。",
+    "modern_note": "《左传·隐公元年》：庄公伐京，京人背叛段，段节节败退，最终出奔共国。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q022",
+    "event_id": "E024",
+    "source_id": "Z018",
+    "quote_original": "公入而賦：大隧之中，其樂也融融。姜出而賦：大隧之外，其樂也洩洩。遂為母子如初。",
+    "modern_note": "《左传·隐公元年》：掘地及泉后母子隧中相见，以赋诗完成和解。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q023",
+    "event_id": "E026",
+    "source_id": "Z019",
+    "quote_original": "鄭武公、莊公為平王卿士。王貳于虢。鄭伯怨王。王曰：無之。故周鄭交質。王子狐為質於鄭，鄭公子忽為質於周。",
+    "modern_note": "《左传·隐公三年》：周王与郑伯互换人质，天子之尊与诸侯并列，公子忽入质于周。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q024",
+    "event_id": "E027",
+    "source_id": "Z019",
+    "quote_original": "四月，鄭祭足帥師取溫之麥。秋，又取成周之禾。周鄭交惡。",
+    "modern_note": "《左传·隐公三年》：平王死后郑两次抢收王畿庄稼示威，周郑关系公开破裂。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q025",
+    "event_id": "E028",
+    "source_id": "Z016",
+    "quote_original": "書曰公矢魚于棠，非禮也，且言遠地也。",
+    "modern_note": "《左传·隐公五年》：对隐公棠地观鱼的礼法定性——非礼，且远离国都。",
+    "quote_type": "评论"
+  },
+  {
+    "id": "Q026",
+    "event_id": "E029",
+    "source_id": "Z020",
+    "quote_original": "我周之東遷，晉、鄭焉依。善鄭以勸來者，猶懼不蔇，況不禮焉？鄭不來矣。",
+    "modern_note": "《左传·隐公六年》周桓公谏语：周室东迁全靠晋郑扶持，如今慢待郑伯，郑不会再来朝了。",
+    "quote_type": "言论"
+  },
+  {
+    "id": "Q027",
+    "event_id": "E034",
+    "source_id": "Z017",
+    "quote_original": "祝聃射王中肩，王亦能軍。……公曰：君子不欲多上人，況敢陵天子乎？苟自救也，社稷無隕，多矣。",
+    "modern_note": "《左传·桓公五年》：祝聃射中桓王肩，庄公止追——只求自保社稷，不敢凌越天子。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q028",
+    "event_id": "E021",
+    "source_id": "G001",
+    "quote_original": "王室將卑，戎、狄必昌，不可偪也。……其濟、洛、河、潁之間乎！",
+    "modern_note": "《国语·郑语》史伯对郑桓公语：预言王室将衰，指点济洛河颍之间为可居之地。",
+    "quote_type": "言论"
+  },
+  {
+    "id": "Q029",
+    "event_id": "E023",
+    "source_id": "G003",
+    "quote_original": "鄭在天子，兄弟也。鄭武、莊有大勳力于平、桓。",
+    "modern_note": "《国语·周语中》富辰谏周襄王时追述：郑武公、庄公对平王、桓王有大功勋。",
+    "quote_type": "言论"
+  },
+  {
+    "id": "Q030",
+    "event_id": "E037",
+    "source_id": "Z003",
+    "quote_original": "夏，五月，癸未，鄭伯寤生卒。",
+    "modern_note": "《春秋》桓公十一年经文：郑庄公去世。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q031",
+    "event_id": "E038",
+    "source_id": "Z003",
+    "quote_original": "初，祭封人仲足有寵於莊公，莊公使為卿。為公娶鄧曼，生昭公，故祭仲立之。",
+    "modern_note": "《左传·桓公十一年》：祭仲之所以立昭公——他既是庄公宠臣，又是昭公生母邓曼婚事的经手人。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q032",
+    "event_id": "E039",
+    "source_id": "Z003",
+    "quote_original": "故誘祭仲而執之，曰：不立突，將死。亦執厲公而求賂焉。祭仲與宋人盟，以厲公歸而立之。",
+    "modern_note": "《左传·桓公十一年》：宋人以死胁迫祭仲改立公子突，昭公被迫出奔。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q033",
+    "event_id": "E030",
+    "source_id": "Z023",
+    "quote_original": "三月，鄭伯以璧假許田，為周公、祊故也。",
+    "modern_note": "《左传·桓公元年》：祊、许田之易在桓公元年以璧最终完成。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q034",
+    "event_id": "E035",
+    "source_id": "Z002",
+    "quote_original": "北戎伐齊，齊侯使乞師于鄭。鄭大子忽帥師救齊。六月，大敗戎師，獲其二帥大良、少良，甲首三百，以獻於齊。",
+    "modern_note": "《左传·桓公六年》：太子忽救齐大胜，斩获献功，军事声望达到顶点。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q035",
+    "event_id": "E036",
+    "source_id": "Z002",
+    "quote_original": "及其敗戎師也，齊侯又請妻之。固辭。人問其故。大子曰：無事於齊，吾猶不敢。今以君命奔齊之急，而受室以歸，是以師昏也。",
+    "modern_note": "《左传·桓公六年》：败戎之后齐侯再次请婚，忽以'借出兵换婚姻等于以军队做聘礼'为由再辞。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q036",
+    "event_id": "E040",
+    "source_id": "Z009",
+    "quote_original": "紀侯不能下齊，以與紀季。夏，紀侯大去其國，違齊難也。",
+    "modern_note": "《左传·庄公四年》：纪侯不肯屈服于齐，把国家托付纪季后永远离开本国，以避齐国之难；纪国实亡于齐襄公之世。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q037",
+    "event_id": "E041",
+    "source_id": "Z012",
+    "quote_original": "鮑叔牙曰：君使民慢，亂將作矣。奉公子小白出奔莒。亂作，管夷吾、召忽奉公子糾來奔。",
+    "modern_note": "《左传·庄公八年》：鲍叔牙预判齐乱将起，先奉小白出奔莒；乱起后管仲、召忽奉公子纠奔鲁。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q038",
+    "event_id": "E043",
+    "source_id": "Z024",
+    "quote_original": "九年春，雍廩殺無知。……夏，公伐齊，納子糾。桓公自莒先入。",
+    "modern_note": "《左传·庄公九年》：无知被杀后鲁国出兵送公子纠回国争位，小白抢先自莒入齐即位。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q039",
+    "event_id": "E044",
+    "source_id": "Z024",
+    "quote_original": "秋，師及齊師戰于乾時，我師敗績。公喪戎路，傳乘而歸。",
+    "modern_note": "《左传·庄公九年》：乾时之战鲁大败，庄公丢弃兵车换乘轻车逃归。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q040",
+    "event_id": "E045",
+    "source_id": "Z024",
+    "quote_original": "鮑叔帥師來言曰：子糾，親也，請君討之。管、召，讎也，請受而甘心焉。乃殺子糾于生竇。召忽死之。",
+    "modern_note": "《左传·庄公九年》：鲍叔牙代表齐国施压——子纠请鲁自行处置，管仲召忽是齐君之仇请交还；鲁杀子纠，召忽殉死。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q041",
+    "event_id": "E046",
+    "source_id": "Z024",
+    "quote_original": "管仲請囚，鮑叔受之，及堂阜而稅之。歸而以告曰：管夷吾治於高傒，使相可也。公從之。",
+    "modern_note": "《左传·庄公九年》：管仲请求被囚送齐，鲍叔在堂阜为他解械，随即向桓公荐其为相。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q042",
+    "event_id": "E046",
+    "source_id": "G002",
+    "quote_original": "桓公自莒反於齊，使鮑叔為宰。辭曰：臣，君之庸臣也。……若必治國家者，則其管夷吾乎。",
+    "modern_note": "《国语·齐语》开篇：鲍叔辞相让贤，断言治国家非管夷吾不可——齐语霸政问对的起点。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q043",
+    "event_id": "E047",
+    "source_id": "Z025",
+    "quote_original": "夫戰，勇氣也。一鼓作氣，再而衰，三而竭。彼竭我盈，故克之。",
+    "modern_note": "《左传·庄公十年》曹刿战后释胜因：士气之消长决定攻守时机。",
+    "quote_type": "言论"
+  },
+  {
+    "id": "Q044",
+    "event_id": "E047",
+    "source_id": "Z025",
+    "quote_original": "十年春，齊師伐我。公將戰，曹劌請見。其鄉人曰：肉食者謀之，又何間焉？劌曰：肉食者鄙，未能遠謀。",
+    "modern_note": "《左传·庄公十年》：平民曹刿主动求见问战，'肉食者鄙'成为对贵族政治的著名讥评。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q045",
+    "event_id": "E050",
+    "source_id": "Z026",
+    "quote_original": "十三年春，會于北杏，以平宋亂，遂人不至。",
+    "modern_note": "《左传·庄公十三年》：齐首次以主盟身份会诸侯平宋乱，遂国缺席。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q046",
+    "event_id": "E052",
+    "source_id": "Z026",
+    "quote_original": "冬，盟于柯，始及齊平也。",
+    "modern_note": "《左传·庄公十三年》：柯之盟，鲁与齐正式媾和。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q047",
+    "event_id": "E052",
+    "source_id": "S001",
+    "quote_original": "魯將盟，曹沬以匕首劫桓公於壇上，曰：反魯之侵地！桓公許之。已而曹沬去匕首，北面就臣位。",
+    "modern_note": "《史记·齐太公世家》：曹沫坛上劫盟求返侵地，桓公被劫而许；此为汉代叙事层，《左传》仅书盟于柯。",
+    "quote_type": "后出叙事"
+  },
+  {
+    "id": "Q048",
+    "event_id": "E053",
+    "source_id": "Z028",
+    "quote_original": "十五年春，復會焉，齊始霸也。",
+    "modern_note": "《左传·庄公十五年》：鄄之复会，'齐始霸'三字为齐桓霸业系年之始。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q049",
+    "event_id": "E054",
+    "source_id": "Z007",
+    "quote_original": "元年春，不稱即位，文姜出故也。",
+    "modern_note": "《左传·庄公元年》：庄公即位而经不书即位，因母亲文姜出奔在齐。",
+    "quote_type": "评论"
+  },
+  {
+    "id": "Q050",
+    "event_id": "E057",
+    "source_id": "Z029",
+    "quote_original": "秋，哀姜至。公使宗婦覿，用幣，非禮也。",
+    "modern_note": "《左传·庄公二十四年》：哀姜入鲁，庄公让同姓大夫之妇以币帛相见，被讥非礼。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q051",
+    "event_id": "E058",
+    "source_id": "Z030",
+    "quote_original": "八月癸亥，公薨于路寢。子般即位，次于黨氏。",
+    "modern_note": "《左传·庄公三十二年》：庄公薨于正寝，子般即位，居丧于党氏。",
+    "quote_type": "原文"
+  },
+  {
+    "id": "Q052",
+    "event_id": "E059",
+    "source_id": "Z030",
+    "quote_original": "冬十月己未，共仲使圉人犖賊子般于黨氏。成季奔陳。",
+    "modern_note": "《左传·庄公三十二年》：庆父指使圉人荦在党氏弑杀子般，季友出奔陈国。",
+    "quote_type": "原文"
+  }
+]

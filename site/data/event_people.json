@@ -1,0 +1,996 @@
+[
+  {
+    "event_id": "E002",
+    "person_id": "P_LUHUAN",
+    "role_in_event": "被拥立为鲁君",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E003",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "新妇/夫人姜氏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E003",
+    "person_id": "P_LUHUAN",
+    "role_in_event": "鲁君/迎亲一方",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E003",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "此时为齐太子或公子；齐侯为其父齐僖公",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E004",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "母",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E004",
+    "person_id": "P_LUHUAN",
+    "role_in_event": "父",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E005A",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "曼伯/太子忽，为右拒",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E005A",
+    "person_id": "P_GAOQUMI",
+    "role_in_event": "奉中军护卫郑伯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E007",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "复归为郑君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E007",
+    "person_id": "P_ZHENGLI",
+    "role_in_event": "出奔蔡",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E008",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "被弑",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E008",
+    "person_id": "P_GAOQUMI",
+    "role_in_event": "弑君者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E008",
+    "person_id": "P_ZIWEI",
+    "role_in_event": "被拥立",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E009",
+    "person_id": "P_LUHUAN",
+    "role_in_event": "赴齐者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E009",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "随行者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E009",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "齐侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E010",
+    "person_id": "P_LUHUAN",
+    "role_in_event": "遇害者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E010",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "与齐侯通",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E010",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "主谋/齐侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E010",
+    "person_id": "P_PENGSHENG",
+    "role_in_event": "同乘并致死者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E011",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "杀郑君者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E011",
+    "person_id": "P_ZIWEI",
+    "role_in_event": "被杀",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E011",
+    "person_id": "P_GAOQUMI",
+    "role_in_event": "被轘",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E011",
+    "person_id": "P_JIZHONG",
+    "role_in_event": "称疾免祸，迎郑子",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E012",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "孙于齐",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E013",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "会齐侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E013",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "会夫人姜氏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E014",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "享齐侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E014",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "受享",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E015",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "如齐师",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E015",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "齐师背景",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E016",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "两会齐侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E016",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "齐侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E017",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "齐师之君",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E018",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "被弑",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E018",
+    "person_id": "P_WUZHI",
+    "role_in_event": "弑君自立者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E018",
+    "person_id": "P_PENGSHENG",
+    "role_in_event": "怪异叙事中被提及",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E019",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "薨",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E020",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "以小君礼葬",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E021",
+    "person_id": "P_ZHENGHUAN",
+    "role_in_event": "问计谋迁者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E022",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "出生（寤生）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E022",
+    "person_id": "P_WUJIANG",
+    "role_in_event": "生母、恶之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E023",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "即位、继为卿士",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E024",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "平叛并掘地见母",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E024",
+    "person_id": "P_GONGSHUDUAN",
+    "role_in_event": "叛乱失败出奔",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E024",
+    "person_id": "P_WUJIANG",
+    "role_in_event": "与段通谋、被置城颍",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E024",
+    "person_id": "P_YINGKAOSHU",
+    "role_in_event": "献隧而相见之策",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E025",
+    "person_id": "P_LUYIN",
+    "role_in_event": "摄位",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E025",
+    "person_id": "P_LUHUAN",
+    "role_in_event": "年少待立之君",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E026",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "怨王交质",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E026",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "公子忽为质于周",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E027",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "主使",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E027",
+    "person_id": "P_JIZHONG",
+    "role_in_event": "帅师取麦",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E028",
+    "person_id": "P_LUYIN",
+    "role_in_event": "观鱼者",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E028",
+    "person_id": "P_ZANGXIBO",
+    "role_in_event": "谏者",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E029",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "朝王受慢",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E029",
+    "person_id": "P_ZHOUHUAN",
+    "role_in_event": "不礼郑伯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E030",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "以祊易许田",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E030",
+    "person_id": "P_LUYIN",
+    "role_in_event": "受祊之鲁君",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E031",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "以王命伐宋",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E031",
+    "person_id": "P_LUYIN",
+    "role_in_event": "败宋师于菅",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E031",
+    "person_id": "P_YUFU",
+    "role_in_event": "帅师会伐",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E032",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "入许并处置许国",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E032",
+    "person_id": "P_LUYIN",
+    "role_in_event": "会伐",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E032",
+    "person_id": "P_YINGKAOSHU",
+    "role_in_event": "先登阵亡",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E033",
+    "person_id": "P_LUHUAN",
+    "role_in_event": "即位改元",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E033",
+    "person_id": "P_YUFU",
+    "role_in_event": "弑隐拥立、求大宰",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E034",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "抗王师之郑伯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E034",
+    "person_id": "P_ZHOUHUAN",
+    "role_in_event": "亲征中箭",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E034",
+    "person_id": "P_ZHUDAN",
+    "role_in_event": "射王中肩",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E035",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "帅师救齐",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E036",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "两辞齐婚",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E036",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "初次拟婚对象",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E037",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "卒",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E037",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "嗣立在即",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E038",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "即位",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E038",
+    "person_id": "P_JIZHONG",
+    "role_in_event": "拥立",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E039",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "出奔卫",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E039",
+    "person_id": "P_ZHENGLI",
+    "role_in_event": "被立为君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E039",
+    "person_id": "P_JIZHONG",
+    "role_in_event": "被执与宋盟",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E002",
+    "person_id": "P_LUYIN",
+    "role_in_event": "被弑者（配合E002修正合入）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E002",
+    "person_id": "P_YUFU",
+    "role_in_event": "主谋弑君（配合E002修正合入）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E003",
+    "person_id": "P_YUFU",
+    "role_in_event": "如齐逆女",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E040",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "主导迫纪",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E041",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "出奔莒",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E041",
+    "person_id": "P_BAOSHUYA",
+    "role_in_event": "预判乱作、奉小白出奔",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E041",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "奉公子纠奔鲁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E041",
+    "person_id": "P_SHAOHU",
+    "role_in_event": "奉公子纠奔鲁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E041",
+    "person_id": "P_ZIJIU",
+    "role_in_event": "出奔鲁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E041",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "政令无常之乱源",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E042",
+    "person_id": "P_WUZHI",
+    "role_in_event": "被杀",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E042",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "得归国之机",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E043",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "自莒先入即位",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E043",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "遮莒道射钩（《史记》层）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E043",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "伐齐纳纠未及",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E043",
+    "person_id": "P_ZIJIU",
+    "role_in_event": "争位失败",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E044",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "亲征败绩、丧戎路",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E044",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "齐师之君、亲在无文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E045",
+    "person_id": "P_ZIJIU",
+    "role_in_event": "被杀于生窦",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E045",
+    "person_id": "P_SHAOHU",
+    "role_in_event": "死之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E045",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "请囚",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E045",
+    "person_id": "P_BAOSHUYA",
+    "role_in_event": "帅师来言、受管仲",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E045",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "迫于齐命行诛",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E045",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "主令讨纠",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E046",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "堂阜脱械、入齐为相",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E046",
+    "person_id": "P_BAOSHUYA",
+    "role_in_event": "脱之并荐相",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E046",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "释怨拜相（拜相在齐都，未至堂阜）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E047",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "亲战长勺",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E047",
+    "person_id": "P_CAOGUI",
+    "role_in_event": "请见论战、指挥鼓进",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E047",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "伐鲁之君、亲在无文",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E048",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "败宋师于乘丘",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E049",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "主令灭谭、亲往无文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E050",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "主盟北杏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E051",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "主令灭遂、亲往无文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E052",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "盟主、受劫而许（劫盟为《史记》层）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E052",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "与齐盟、始及齐平",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E052",
+    "person_id": "P_CAOGUI",
+    "role_in_event": "劫盟者（《史记》作曹沫）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E053",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "始霸之会",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E054",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "即位",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E054",
+    "person_id": "P_WENJIANG",
+    "role_in_event": "出居于齐故不称即位",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E055",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "主王姬之婚、筑馆于外",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E055",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "娶王姬（受之于齐）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E056",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "如齐观社",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E056",
+    "person_id": "P_CAOGUI",
+    "role_in_event": "谏（谏于鲁，未随往无文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E056",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "社祭所在之君、亲在无文",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E057",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "如齐逆女",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E057",
+    "person_id": "P_AIJIANG",
+    "role_in_event": "入鲁为夫人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E057",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "遣嫁公室女",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E058",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "病笃问后、薨于路寝",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E058",
+    "person_id": "P_JIYOU",
+    "role_in_event": "请奉子般、以君命鸩叔牙",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E058",
+    "person_id": "P_SHUYA",
+    "role_in_event": "言庆父材、被鸩",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E058",
+    "person_id": "P_QINGFU",
+    "role_in_event": "立嗣之争暗线",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E059",
+    "person_id": "P_ZIBAN",
+    "role_in_event": "被弑于党氏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E059",
+    "person_id": "P_QINGFU",
+    "role_in_event": "主使（使圉人荦行弑）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E059",
+    "person_id": "P_JIYOU",
+    "role_in_event": "弑后奔陈",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E059",
+    "person_id": "P_AIJIANG",
+    "role_in_event": "与庆父通而党之",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E004",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "出生（子同）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E017",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "拒击齐师",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E019",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "母薨居丧",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E020",
+    "person_id": "P_LUZHUANG",
+    "role_in_event": "主小君之葬",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E001",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "少年从军（曼伯是否即忽有异说，从杨注系于忽）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E060",
+    "person_id": "P_ZHENGZHAO",
+    "role_in_event": "寄居卫都",
+    "directness": "direct",
+    "presence": "亲至"
+  }
+]

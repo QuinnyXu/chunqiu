@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# 临时/中间产物
+*.tmp
+*.bak
+
+# 私有层与内部材料（本地保留，不入公开仓库）
+private/
+wenjiang_research/
+build_wenjiang_database.py
+team/

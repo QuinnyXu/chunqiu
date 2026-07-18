@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>春秋人物志</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <h1 class="site-title">春秋人物志<small>前773 — 前662</small></h1>
+  <span class="person-flag" id="person-flag" aria-live="polite"></span>
+  <nav class="main-nav" aria-label="视图切换">
+    <button type="button" data-view="home" aria-current="true">选人</button>
+    <button type="button" data-view="timeline" disabled>时间线</button>
+    <button type="button" data-view="map" disabled>地图</button>
+    <button type="button" data-view="library">资料库</button>
+  </nav>
+</header>
+
+<main>
+  <section id="view-home" aria-labelledby="home-title">
+    <h2 class="screen-title" id="home-title">人物线 · 择一而入</h2>
+    <ul class="person-grid" id="person-grid"></ul>
+    <p class="home-extra"><button type="button" class="library-entry" id="home-library-entry">背景 · 考古 · 来源 —— 进入资料库 →</button></p>
+  </section>
+
+  <section id="view-timeline" hidden aria-labelledby="timeline-title">
+    <h2 class="screen-title" id="timeline-title">人物时间线</h2>
+    <div class="ruler-wrap" id="ruler"></div>
+    <ol class="timeline" id="timeline-list"></ol>
+  </section>
+
+  <section id="view-map" hidden aria-labelledby="map-title">
+    <h2 class="screen-title" id="map-title">人物地图</h2>
+    <div class="map-layout">
+      <div class="map-main">
+        <div class="map-toolbar">
+          <button type="button" id="btn-play">▶ 轨迹按时间播放</button>
+          <button type="button" id="btn-scope" aria-pressed="true">视野：活动范围</button>
+          <button type="button" id="btn-zoom">⛶ 放大查看</button>
+          <span class="map-status" id="map-status"></span>
+        </div>
+        <div class="map-frame">
+          <div class="map-canvas" id="map-canvas" role="application" aria-label="人物活动地图"></div>
+          <div class="map-legend" id="map-legend">
+            <span><i class="lg-dot lg-solid"></i>亲至</span>
+            <span><i class="lg-dot lg-hollow"></i>相关</span>
+            <span><i class="lg-line"></i>轨迹（按年序）</span>
+          </div>
+          <details class="map-nogeo" id="map-nogeo" hidden>
+            <summary id="map-nogeo-summary">0 条事件无地望</summary>
+            <ul id="map-nogeo-list"></ul>
+          </details>
+          <button type="button" class="map-disclaimer" id="btn-disclaimer" aria-expanded="false">示意底图 ⓘ</button>
+          <div class="disclaimer-pop" id="disclaimer-pop" hidden>
+            <p><strong>列国底色与水系为艺术示意，非考据疆界。</strong></p>
+            <p>水系走向与地望大势参照谭其骧《中国历史地图集》通说绘制并作平滑简化；各地点坐标的逐点依据与确定性分级，见地点弹窗。</p>
+            <p>「相关」判定从严：史文未载其人亲在事发地者，一律标「相关」，不入轨迹。</p>
+          </div>
+        </div>
+        <p class="map-note">淡圈为库中其他地点；点击任意地点查看古名、今地与相关事件。</p>
+      </div>
+      <div class="map-side">
+        <aside class="panel" id="place-panel" aria-live="polite">
+          <h3>地点详情</h3>
+          <p class="map-status">点击地图上的地点查看古名、今地与相关事件。</p>
+        </aside>
+        <aside class="panel" id="nocoord-panel" hidden>
+          <h3>未定位地点</h3>
+          <ul class="place-list" id="nocoord-list"></ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-library" hidden aria-labelledby="library-title">
+    <h2 class="screen-title" id="library-title">资料库</h2>
+    <div class="lib-toolbar">
+      <div class="lib-tabs" role="tablist" aria-label="资料类别">
+        <button type="button" role="tab" data-tab="background" aria-selected="true">写作背景</button>
+        <button type="button" role="tab" data-tab="archaeology" aria-selected="false">考古线索</button>
+        <button type="button" role="tab" data-tab="sources" aria-selected="false">来源文献</button>
+      </div>
+      <input type="search" id="lib-search" placeholder="关键词过滤…" aria-label="资料库关键词过滤">
+    </div>
+    <div class="lib-layout">
+      <ul class="lib-list" id="lib-list"></ul>
+      <aside class="panel lib-detail" id="lib-detail" aria-live="polite">
+        <h3>条目详情</h3>
+        <p class="map-status">从左侧列表选择一条资料。</p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<div class="map-overlay" id="map-overlay" hidden role="dialog" aria-modal="true" aria-label="地图全屏查看">
+  <div class="map-overlay-bar">
+    <span class="map-overlay-hint">拖移平移 · 滚轮/双指缩放 · 点击地点看详情</span>
+    <button type="button" id="btn-overlay-close">✕ 关闭（Esc）</button>
+  </div>
+  <div class="map-overlay-body" id="map-overlay-body"></div>
+</div>
+
+<footer class="site-footer" id="site-footer">数据加载中…</footer>
+<script src="app.js"></script>
+</body>
+</html>

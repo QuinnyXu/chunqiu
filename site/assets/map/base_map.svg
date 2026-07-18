@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="春秋早期黄淮下游示意底图">
+  <title>春秋人物志 · 底图</title>
+  <desc>覆盖东经110–122、北纬32–38.5；投影见 docs/conventions.md：x=(lng-110)/12*1200，y=700-(lat-32)/6.5*700。水系取春秋大势（河水走故道东北入海），列国底色仅示势力范围，非考据疆界。</desc>
+
+  <rect width="1200" height="700" fill="#F4EDDF"/>
+
+  <!-- 海域与海岸 -->
+  <g id="layer-sea">
+    <path fill="#E3E6D8" d="M700 0 C760 45 830 62 880 70 C900 76 898 110 890 140 C886 158 902 170 930 166 C1010 154 1080 150 1140 165 C1180 175 1196 200 1186 225 C1160 260 1100 270 1050 280 C1000 290 965 315 950 345 C935 380 928 400 922 420 C915 460 925 500 960 540 C1000 585 1080 645 1160 690 L1200 700 L1200 0 Z"/>
+    <path fill="none" stroke="#AEB69E" stroke-width="1.5" d="M700 0 C760 45 830 62 880 70 C900 76 898 110 890 140 C886 158 902 170 930 166 C1010 154 1080 150 1140 165 C1180 175 1196 200 1186 225 C1160 260 1100 270 1050 280 C1000 290 965 315 950 345 C935 380 928 400 922 420 C915 460 925 500 960 540 C1000 585 1080 645 1160 690"/>
+  </g>
+
+  <!-- 列国淡色底（示意，非考据疆界） -->
+  <g id="layer-states" fill-opacity="0.32" stroke="none">
+    <ellipse cx="250" cy="410" rx="92" ry="62" fill="#C9B78A"/>
+    <ellipse cx="480" cy="300" rx="82" ry="58" fill="#A9A0B8"/>
+    <ellipse cx="570" cy="440" rx="88" ry="58" fill="#C4B292"/>
+    <ellipse cx="490" cy="527" rx="58" ry="42" fill="#A8B79F"/>
+    <ellipse cx="430" cy="572" rx="52" ry="38" fill="#B8A98F"/>
+    <ellipse cx="375" cy="450" rx="85" ry="62" fill="#9DB58A"/>
+    <ellipse cx="400" cy="492" rx="40" ry="30" fill="#B5AF8C"/>
+    <ellipse cx="700" cy="320" rx="88" ry="62" fill="#C79E7E"/>
+    <ellipse cx="830" cy="185" rx="145" ry="82" fill="#8FADB8"/>
+    <ellipse cx="880" cy="190" rx="45" ry="34" fill="#93B3A5"/>
+  </g>
+
+  <!-- 水系 -->
+  <g id="layer-rivers" fill="none" stroke="#7FA3A8" stroke-width="2" stroke-linecap="round" opacity="0.9">
+    <path stroke-width="3.2" d="M0 420 C120 400 240 390 360 382 C420 378 432 352 450 323 C480 275 502 268 530 237 C570 195 586 172 600 129 C612 95 655 40 682 0"/>
+    <path d="M368 380 C420 390 500 378 560 366 C602 356 600 344 612 332 C640 298 672 238 702 194 C740 176 792 168 830 162 C856 158 880 146 898 130"/>
+    <path d="M762 246 C732 254 692 270 654 300 C640 310 628 316 616 320"/>
+    <path d="M732 306 C712 314 684 324 662 334 C656 360 670 386 690 409 C700 440 706 470 718 505 C726 532 734 562 730 600"/>
+    <path d="M302 436 C332 452 342 460 352 468 C392 500 432 516 466 528 C522 550 592 600 630 634"/>
+    <path stroke-width="1.5" d="M322 444 C356 456 392 468 424 476 C436 479 446 484 452 490"/>
+    <path stroke-width="2.6" d="M330 656 C450 640 560 624 630 634 C666 622 700 610 728 602 C800 584 862 558 902 538 C912 532 918 510 920 484"/>
+  </g>
+
+  <!-- 山地示意 -->
+  <g id="layer-mountains" fill="none" stroke="#8C8272" stroke-width="1.8" stroke-linejoin="round">
+    <path d="M692 252l10-14 7 9 5-7 9 12"/>
+    <path d="M284 438l8-11 6 7 4-5 7 9"/>
+  </g>
+
+  <!-- 古名标注（今地名不入底图） -->
+  <g id="layer-labels" font-family="'Songti SC','Noto Serif CJK SC','STSong','SimSun',serif">
+    <g font-size="17" fill="#6E6155">
+      <text x="242" y="416">周</text>
+      <text x="366" y="460">郑</text>
+      <text x="806" y="196">齐</text>
+      <text x="688" y="330">鲁</text>
+      <text x="470" y="308">卫</text>
+      <text x="560" y="448">宋</text>
+      <text x="481" y="534">陈</text>
+      <text x="422" y="580">蔡</text>
+      <text x="872" y="200">纪</text>
+      <text x="392" y="500">许</text>
+    </g>
+    <g font-size="12" fill="#8A8072">
+      <text x="498" y="252">河水</text>
+      <text x="648" y="262">济水</text>
+      <text x="688" y="282">汶水</text>
+      <text x="694" y="470">泗水</text>
+      <text x="446" y="516">颍水</text>
+      <text x="694" y="624">淮水</text>
+      <text x="724" y="238">泰山</text>
+      <text x="306" y="428">嵩山</text>
+    </g>
+  </g>
+
+  <!-- 城邑锚点：由 app.js 按 places.json 经纬度投影后动态填充 -->
+  <g id="layer-anchors"></g>
+</svg>
