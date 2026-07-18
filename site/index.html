@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>春秋人物志——左传与国语中的人物、时间线与地图</title>
-<meta name="description" content="以《左传》《国语》为本的春秋早期历史科普站：九条人物线的可考订时间线、活动地图、关系图谱与史料摘录，每条事件都能回答出自哪一年哪部书。">
+<meta name="description" content="以《左传》《国语》为经纬，缀连春秋人物的时间、行迹与关系：可考订的时间线、活动地图、关系图谱与史料摘录，条条有出处。">
 <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
-<meta property="og:description" content="九条春秋人物线的可考订时间线、活动地图与关系图谱；可靠度分级、亲至/相关判定、后出叙事分层，每条事件皆有出处。">
+<meta property="og:description" content="春秋人物线的可考订时间线、活动地图与关系图谱；可靠度分级、亲至/相关判定、后出叙事分层，每条事件皆有出处。">
 <meta property="og:url" content="https://chunqiu.timechorus.com/">
 <meta property="og:image" content="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
-<meta name="twitter:description" content="九条春秋人物线的可考订时间线、活动地图与关系图谱，每条事件皆有出处。">
+<meta name="twitter:description" content="春秋人物线的可考订时间线、活动地图与关系图谱，每条事件皆有出处。">
 <meta name="twitter:image" content="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <!-- image_src 与下方首屏 <img>：供不读 og 协议的爬虫（微信等）抓取分享缩略图；
      绝对 URL 为约定特批例外（分享协议头两处），页面内资源一律相对路径。
@@ -26,22 +26,33 @@
 </head>
 <body>
 <header class="site-header">
-  <h1 class="site-title">春秋人物志<small>前773 — 前628</small></h1>
-  <span class="person-flag" id="person-flag" aria-live="polite"></span>
-  <nav class="main-nav" aria-label="视图切换">
+  <!-- 站名＋徽记整体是回首页（选人）的链接 -->
+  <a class="site-brand" href="#/" title="回到选人页">
+    <img class="brand-badge" src="assets/icons/favicon.svg" alt="" aria-hidden="true" width="24" height="24">
+    <h1 class="site-title">春秋人物志<small id="site-range">前773 — 前628</small></h1>
+  </a>
+  <nav class="main-nav" aria-label="主导航">
     <button type="button" data-view="home" aria-current="true">选人</button>
-    <button type="button" data-view="timeline" disabled>时间线</button>
-    <button type="button" data-view="map" disabled>地图</button>
     <button type="button" data-view="relations">关系</button>
     <button type="button" data-view="library">资料库</button>
     <button type="button" data-view="about">关于</button>
     <a class="nav-feedback" href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">反馈</a>
-    <!-- 邮件反馈占位：待 Xiangtao/领队确认 Email Routing 邮箱可收发后启用（2026-07-18 复测 timechorus.com
-         已出现 MX 记录，route1/2/3.mx.cloudflare.net，指向 Cloudflare Email Routing；是否已配好转发规则、
-         chunqiu@timechorus.com 是否可用尚待确认，本轮不启用）。启用时取消注释：
+    <!-- 导航邮件入口占位（关于页反馈句已按 copy_r8 终审版挂出 chunqiu@timechorus.com；
+         导航项不在文案对照表内，是否并列入口待领队示意）。启用时取消注释：
     <a class="nav-feedback" href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E6%98%A5%E7%A7%8B%E4%BA%BA%E7%89%A9%E5%BF%97%E3%80%91%E5%8F%8D%E9%A6%88" title="史实纠错请附出处">✉ 邮件</a> -->
   </nav>
 </header>
+
+<!-- 人物子导航：选定人物后出现，视觉从属于主导航 -->
+<nav class="person-nav" id="person-nav" hidden aria-label="当前人物视图">
+  <span class="pn-badge" id="pn-badge" aria-hidden="true"></span>
+  <span class="pn-name" id="pn-name"></span>
+  <span class="pn-sep" aria-hidden="true">·</span>
+  <button type="button" data-pview="timeline">时间线</button>
+  <button type="button" data-pview="map">地图</button>
+  <button type="button" data-pview="relations">关系</button>
+  <button type="button" class="pn-exit" id="pn-exit">✕ 换人</button>
+</nav>
 
 <main>
   <section id="view-home" aria-labelledby="home-title">
@@ -49,16 +60,17 @@
     <nav class="state-tabs" id="state-tabs" aria-label="按国别定位"></nav>
     <div id="person-groups"></div>
     <p class="home-extra">
-      <button type="button" class="library-entry" id="home-guide-entry">新来的朋友从这里开始 →</button>
-      <button type="button" class="library-entry" id="home-relations-entry">全景人物关系图谱 →</button>
-      <button type="button" class="library-entry" id="home-library-entry">背景 · 考古 · 来源 —— 资料库 →</button>
+      <button type="button" class="library-entry" id="home-guide-entry">初识春秋 →</button>
+      <button type="button" class="library-entry" id="home-relations-entry">全景关系图谱 →</button>
+      <button type="button" class="library-entry" id="home-library-entry">资料库 · 背景 · 考古 · 来源 →</button>
       <button type="button" class="library-entry" id="home-about-entry">关于本站与数据凡例 →</button>
     </p>
-    <!-- 站铭卡：兼作分享缩略图的可抓取来源（部分爬虫忽略隐藏图，故以可见小图呈现，勿隐藏） -->
+    <!-- 站铭卡：兼作分享缩略图的可抓取来源（部分爬虫忽略隐藏图，故以可见小图呈现，勿隐藏）；
+         图注人数由 JS 从数据注入（R15），此处为无 JS 兜底 -->
     <figure class="brand-card">
       <img src="assets/og/og-card.png" width="1200" height="630"
            alt="春秋人物志——左传与国语中的人物、时间线与地图">
-      <figcaption>把这一页分享给同好，从九条人物线任一条进入春秋。</figcaption>
+      <figcaption id="brand-caption">分享给同好——人物线择一而入。</figcaption>
     </figure>
   </section>
 
@@ -95,17 +107,17 @@
           <p class="play-caption" id="play-caption" aria-live="polite" hidden></p>
           <button type="button" class="map-disclaimer" id="btn-disclaimer" aria-expanded="false">示意底图 ⓘ</button>
           <div class="disclaimer-pop" id="disclaimer-pop" hidden>
-            <p><strong>列国底色与水系为艺术示意，非考据疆界。</strong></p>
-            <p>水系走向与地望大势参照谭其骧《中国历史地图集》通说绘制并作平滑简化；各地点坐标的逐点依据与确定性分级，见地点弹窗。</p>
+            <p><strong>列国底色与水系皆艺术示意，非考据疆界。</strong></p>
+            <p>水系与地望大势参照谭其骧《中国历史地图集》通说，作平滑简化；各点坐标的逐一依据与确定性分级，见地点弹窗。</p>
             <p>「相关」判定从严：史文未载其人亲在事发地者，一律标「相关」，不入轨迹。</p>
           </div>
         </div>
-        <p class="map-note">淡圈为库中其他地点；点击任意地点查看古名、今地与相关事件。</p>
+        <p class="map-note">淡圈为库中其他地点；点击任一处，看古名、今地与相关事件。</p>
       </div>
       <div class="map-side">
         <aside class="panel" id="place-panel" aria-live="polite">
           <h3>地点详情</h3>
-          <p class="map-status">点击地图上的地点查看古名、今地与相关事件。</p>
+          <p class="map-status">点地图上任一地点，看古名、今地与相关事件。</p>
         </aside>
         <aside class="panel" id="nocoord-panel" hidden>
           <h3>未定位地点</h3>
@@ -132,7 +144,7 @@
       </div>
       <aside class="panel rel-panel" id="rel-panel" aria-live="polite">
         <h3>关系详情</h3>
-        <p class="map-status">点击图中人物即以其为中心重绘，可沿关系网游走；点击连线查看出处。</p>
+        <p class="map-status">点图中人物，即以其为中心重绘，可沿关系网游走；点连线看出处。</p>
       </aside>
     </div>
   </section>
@@ -151,7 +163,7 @@
       <ul class="lib-list" id="lib-list"></ul>
       <aside class="panel lib-detail" id="lib-detail" aria-live="polite">
         <h3>条目详情</h3>
-        <p class="map-status">从左侧列表选择一条资料。</p>
+        <p class="map-status">从左侧选一条资料。</p>
       </aside>
     </div>
   </section>
@@ -160,30 +172,31 @@
     <h2 class="screen-title" id="about-title">关于本站</h2>
     <div class="about-body">
       <section id="guide-start">
-        <h3>新来的朋友从这里开始</h3>
-        <p>不知从谁读起，可以先走这三条线：</p>
+        <h3>初识春秋</h3>
+        <p>初入春秋，可由此四线一观：</p>
         <ul>
-          <li><a href="#person=P_WENJIANG&amp;view=timeline">文姜线</a> —— 最戏剧性的命运线。齐国公室之女、鲁国国母，前694年那场变故之后，她的每次出行都被史官记下一笔。</li>
-          <li><a href="#person=P_ZHENGZHUANG&amp;view=timeline">郑庄公线</a> —— 《左传》开篇的雄主。克段于鄢、周郑交质、繻葛之战，都在这条线上。</li>
-          <li><a href="#person=P_QIHUAN&amp;view=timeline">齐桓公线</a> —— 从内乱到霸业。自莒返国、管仲为相、北杏与柯之盟，一路走到九合诸侯。</li>
+          <li><a href="#/p/P_WENJIANG/timeline">文姜线</a> —— 齐国公室之女、鲁国国母；前694年那场变故后，她每一次出行都被史官记下一笔。</li>
+          <li><a href="#/p/P_ZHENGZHUANG/timeline">郑庄公线</a> —— 《左传》开篇的雄主：克段于鄢、周郑交质、繻葛之战，皆在此线。</li>
+          <li><a href="#/p/P_QIHUAN/timeline">齐桓公线</a> —— 从内乱到霸业：自莒返国、管仲为相、北杏之会与柯之盟，终至九合诸侯。</li>
+          <li><a href="#/p/P_JINWEN/timeline">晋文公线</a> —— 流亡十九年的归国者：自骊姬之乱出奔，遍历列国，暮年返晋即位，终成城濮之霸。</li>
         </ul>
         <p>怎么读：时间线上每条事件前的小图标是事件类别（交戈为战争、鼎为会盟、双环为婚嫁……悬停可见名称），事件展开后的色签标注可靠度——high 可当骨架，medium 宜复核，low 只是线索。地图上实心点是其人亲至之地，空心点是与其相关而本人未到之处，轨迹只连亲至。</p>
         <p>读到可疑之处，欢迎经页顶「反馈」告诉我们——指出一处错误，比转发十次更帮得上忙。</p>
       </section>
       <section>
         <h3>这是什么</h3>
-        <p>春秋人物志是一个面向大众的春秋早期历史科普站：以文姜、鲁桓公、齐襄公、郑昭公、郑庄公、鲁隐公、鲁庄公、齐桓公、晋文公九条人物线为骨架，把《左传》《国语》等传世文献中的记事整理成可交互的时间线、活动地图与关系图谱。<strong>每一条事件都能回答"出自哪一年、哪部书"</strong>——数据表中逐条挂有来源编号与鲁君纪年。</p>
+        <p>以《左传》《国语》为经纬，缀连春秋人物的时间、行迹与关系。郑庄公、鲁隐公、文姜、齐桓公、晋文公多条人物线织成可游走的时间线、地图与关系网。<strong>条条有出处</strong>，数据表里有具体来源编号与鲁君纪年。</p>
       </section>
       <section>
         <h3>数据凡例（我们的规矩）</h3>
-        <p><strong>可靠度三级</strong>：每条事件、地望与关系都标注 high / medium / low——high 可作骨架直接使用；medium 宜复核（多为追叙、纪年推算或异说并存）；low 只是线索。<strong>亲至与相关</strong>：人物与事件的关联区分"亲至"（史文明确记载其人身在事发地）与"相关"（与其相关但本人不在场，如遣使代行、为其议婚）；判定从严——史无明文即标相关，地图轨迹只连亲至事件。</p>
-        <p><strong>坐标确定性</strong>：古地名的今地定位按"谭其骧《中国历史地图集》通说 → 杨伯峻《春秋左传注》 → 其他历史地理著作"的优先序考订，异说并存时坐标降级并注明依据；确址无考的给区域近似并标 low，个别事件明确"不落图"。<strong>后出叙事分层</strong>：《史记》等晚出文献中的戏剧性情节（管仲射钩、曹沫劫盟、病榻论三竖等）一律标注"后出叙事"层，与《春秋》经传的当代记事分开呈现，不混为一谈。</p>
-        <p>地图为示意图：列国底色与水系走向是艺术化简化，<strong>不是考据疆界</strong>。</p>
+        <p><strong>可靠度三级</strong>：事件、地望、关系皆标 high / medium / low——high 可当骨架，medium 宜复核（多为追叙、纪年推算或异说并存），low 只作线索。<strong>亲至与相关</strong>：分"亲至"（史文明记其人身在事发地）与"相关"（事与其相关而本人不在场，如遣使代行、为其议婚）；判定从严——史无明文即标相关，地图轨迹只连亲至。</p>
+        <p><strong>坐标确定性</strong>：古地今址按"谭其骧《中国历史地图集》通说 → 杨伯峻《春秋左传注》 → 其他历史地理著作"的次第考订，异说并存则坐标降级、注明所据；确址无考者给区域近似并标 low，个别事件径注"不落图"。<strong>后出叙事分层</strong>：《史记》等晚出文献里的戏剧情节（管仲射钩、曹沫劫盟、病榻论三竖），一律另标"后出叙事"层，与《春秋》经传的当代记事分列，不相混。</p>
+        <p>地图只是示意：列国底色与水系皆艺术化简笔，<strong>非考据疆界</strong>。</p>
       </section>
       <section>
         <h3>主要参考</h3>
         <ul>
-          <li>《春秋左传》《国语》《史记》《诗经》（原文均标注篇章，外链至 ctext.org）</li>
+          <li>《春秋左传》《国语》《史记》《诗经》（皆注篇章，外链 ctext.org）</li>
           <li>杨伯峻《春秋左传注》</li>
           <li>谭其骧主编《中国历史地图集》</li>
           <li>韩茂莉等历史地理著作；曲阜鲁国故城、临淄齐国故城、郑韩故城等考古资料</li>
@@ -191,17 +204,16 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.6（选人页按国分组 · 姓名行与姓氏科普 · 晋文公线）。</p>
+        <p id="about-version">当前版本 v0.7（导航分层 · 关系并线 · 文案落版）。</p>
         <ul>
+          <li>v0.7 —— 主导航与人物子导航分层，旧链接自动跳转；关系图并线与多重关系徽记；全站文案雅化；桌面全屏地点抽屉修复</li>
           <li>v0.6 —— 选人页按国分组与国别选项卡；姓名行（姓/氏/名/字）显示；晋文公全线上线</li>
           <li>v0.5 —— 关系图改以人为中心可游走；轨迹播放地图内字幕；导览与反馈入口</li>
           <li>v0.4 —— 关系结构表与图谱；数据凡例成文</li>
           <li>v0.3 —— 科普定位；八人物；资料库视图；移动端地图</li>
           <li>更早 —— 数据管线与三屏原型</li>
         </ul>
-        <p>发现史实错误或地望异议？欢迎到 <a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> 反馈，史实纠错请附出处；数据与代码见 <a href="https://github.com/QuinnyXu/chunqiu" target="_blank" rel="noopener">开源仓库</a>。<!-- 邮件反馈占位：待 Xiangtao/领队确认 Email Routing 邮箱可收发后启用（2026-07-18 复测 timechorus.com
-         已有 MX 记录指向 Cloudflare Email Routing，但转发规则与实际可用性未确认，本轮不启用）。启用时在「GitHub Issues 反馈」后并列插入：
-        也可来信 <a href="mailto:chunqiu@timechorus.com">chunqiu@timechorus.com</a>（史实纠错请附出处） --></p>
+        <p>异议雅正？欢迎经 <a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> 或 <a href="mailto:chunqiu@timechorus.com">chunqiu@timechorus.com</a> 见告，纠错请附出处；数据与代码俱在<a href="https://github.com/QuinnyXu/chunqiu" target="_blank" rel="noopener">开源仓库</a>。</p>
       </section>
     </div>
   </section>

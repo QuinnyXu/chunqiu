@@ -29,6 +29,14 @@ const CAT_ICON = {
   "灾异": "zaiyi", "礼俗": "lisu", "其他": "qita",
 };
 const REL_LABEL = { high: "可靠性 高", medium: "可靠性 中", low: "可靠性 低" };
+/* 分享卡文案（copy_r8 终审 N2–N5）：生成分享卡/复制链接功能本轮未实现，
+ * 文案先入常量备用，实现时直接取用，勿另拟。 */
+const SHARE_COPY = {
+  invite: "观人物行迹，知天下春秋——处处有据。", // N2 分享图邀请语
+  makeCard: "生成分享卡",                        // N3 按钮
+  copyLink: "复制链接",                          // N4 按钮
+  copied: "链接已复制，去分享给同好",            // N5 toast
+};
 const SRC_PREFIX = { Z: "左传", S: "史记", G: "国语", P: "诗经", A: "考古", B: "现代研究" };
 const MAP_W = 1200, MAP_H = 700;
 
@@ -56,33 +64,80 @@ async function fetchSVG(name) {
   return SVG_CACHE[name];
 }
 
-/* ---------- 状态（URL hash 即状态） ---------- */
-function parseHash() {
-  const st = { view: "home", person: null, tab: "background", q: "" };
-  const h = location.hash.replace(/^#/, "");
+/* ---------- 状态（URL hash 即状态） ----------
+ * 新结构（r10 导航分层）：
+ *   #/                        选人（首页）
+ *   #/p/<PID>/timeline|map|relations   人物视图（relations=以其为中心的 ego 图）
+ *   #/relations               全景关系图谱（56 人）
+ *   #/library[/<tab>][?q=…]   资料库
+ *   #/about                   关于
+ * 旧格式（#person=X&view=…）由 legacyToNewHash 就地改写重定向，外部旧链接不失效。 */
+const PERSON_VIEWS = ["timeline", "map", "relations"];
+const LIB_TABS = ["background", "archaeology", "sources"];
+
+function legacyToNewHash(h) {
+  const o = {};
   for (const kv of h.split("&")) {
     const [k, v] = kv.split("=");
-    if (k === "view" && ["home", "timeline", "map", "library", "relations", "about"].includes(v)) st.view = v;
-    if (k === "person" && PROTAGONISTS.some(p => p.id === v)) st.person = v;
-    if (k === "tab" && ["background", "archaeology", "sources"].includes(v)) st.tab = v;
-    if (k === "q" && v) { try { st.q = decodeURIComponent(v); } catch { st.q = v; } }
+    if (k && v !== undefined) o[k] = v;
   }
-  if ((st.view === "timeline" || st.view === "map") && !st.person) st.view = "home";
+  const person = PROTAGONISTS.some(p => p.id === o.person) ? o.person : null;
+  let view = ["home", "timeline", "map", "library", "relations", "about"].includes(o.view) ? o.view : null;
+  if (person && (!view || view === "home")) view = "timeline"; // 旧 #person=X 落其时间线
+  if (person && PERSON_VIEWS.includes(view)) return buildHash(person, view);
+  // 库/关于/全景等全局视图：旧链接中的 person 语境不再入 hash
+  if (view === "library") {
+    let q = "";
+    if (o.q) { try { q = decodeURIComponent(o.q); } catch { q = o.q; } }
+    return buildHash(null, "library", LIB_TABS.includes(o.tab) ? o.tab : "background", q);
+  }
+  if (view === "relations" || view === "about") return buildHash(null, view);
+  return "#/";
+}
+
+function parseHash() {
+  let raw = location.hash.replace(/^#/, "");
+  if (raw && !raw.startsWith("/") && raw.includes("=")) {
+    const next = legacyToNewHash(raw);
+    history.replaceState(null, "", next); // 就地改写，不增历史条目
+    raw = next.replace(/^#/, "");
+  }
+  const st = { view: "home", person: null, tab: "background", q: "" };
+  const [pathPart, queryPart] = raw.split("?");
+  const segs = pathPart.split("/").filter(Boolean);
+  if (!segs.length) return st;
+  if (segs[0] === "p") {
+    if (PROTAGONISTS.some(p => p.id === segs[1])) {
+      st.person = segs[1];
+      st.view = PERSON_VIEWS.includes(segs[2]) ? segs[2] : "timeline";
+    }
+    return st;
+  }
+  if (segs[0] === "relations" || segs[0] === "about") { st.view = segs[0]; return st; }
+  if (segs[0] === "library") {
+    st.view = "library";
+    if (LIB_TABS.includes(segs[1])) st.tab = segs[1];
+    for (const kv of (queryPart || "").split("&")) {
+      const [k, v] = kv.split("=");
+      if (k === "q" && v) { try { st.q = decodeURIComponent(v); } catch { st.q = v; } }
+    }
+  }
   return st;
 }
 function buildHash(person, view, tab, q) {
-  const parts = [];
-  if (person) parts.push("person=" + person);
-  if (view && view !== "home") parts.push("view=" + view);
+  if (person && PERSON_VIEWS.includes(view)) return "#/p/" + person + "/" + view;
+  if (view === "relations" || view === "about") return "#/" + view;
   if (view === "library") {
-    if (tab && tab !== "background") parts.push("tab=" + tab);
-    if (q) parts.push("q=" + encodeURIComponent(q));
+    let h = "#/library";
+    if (tab && tab !== "background") h += "/" + tab;
+    if (q) h += "?q=" + encodeURIComponent(q);
+    return h;
   }
-  return "#" + parts.join("&");
+  return "#/";
 }
 function setHash(person, view, tab, q) {
   const next = buildHash(person, view, tab, q);
-  if (next === location.hash || (next === "#" && !location.hash)) render();
+  if (next === location.hash || (next === "#/" && !location.hash)) render();
   else location.hash = next;
 }
 
@@ -168,22 +223,24 @@ function nameLineNode(p, cls) {
 /* ---------- 渲染骨架 ---------- */
 const $ = (sel) => document.querySelector(sel);
 let state = { view: "home", person: null, tab: "background", q: "" };
+/* 人物语境：进过人物视图后记住，逛资料库/关于时子导航仍在，可一键回其时间线；
+ * 「✕ 换人」清除。全局视图的 hash 不含人物（分享库/关于链接不携带人物语境）。 */
+let personCtx = null;
 
 function render() {
   state = parseHash();
+  if (state.person) personCtx = state.person;
   closeOverlay();
   closeDrawer();
-  const meta = PROTAGONISTS.find(p => p.id === state.person);
-  document.documentElement.style.setProperty("--theme", meta ? meta.color : "#B4652F");
+  const ctxMeta = PROTAGONISTS.find(p => p.id === personCtx);
+  document.documentElement.style.setProperty("--theme", ctxMeta ? ctxMeta.color : "#B4652F");
 
-  const person = state.person ? PEOPLE[state.person] : null;
-  $("#person-flag").textContent = person ? person.name : "";
-
+  renderPersonNav(ctxMeta);
+  // 主导航高亮：人物视图（时间线/地图）由子导航高亮，主导航不标当前；
+  // 关系视图无论 ego/全景皆归「关系」。
+  const navCur = state.person && state.view !== "relations" ? null : state.view;
   document.querySelectorAll(".main-nav button").forEach(btn => {
-    btn.setAttribute("aria-current", String(btn.dataset.view === state.view));
-    if (btn.dataset.view === "timeline" || btn.dataset.view === "map") {
-      btn.disabled = !state.person;
-    }
+    btn.setAttribute("aria-current", String(btn.dataset.view === navCur));
   });
   for (const v of ["home", "timeline", "map", "library", "relations", "about"]) {
     $("#view-" + v).hidden = (state.view !== v);
@@ -195,6 +252,23 @@ function render() {
   if (state.view === "map") renderMap();
   if (state.view === "library") renderLibrary();
   if (state.view === "relations") renderRelations();
+}
+
+/* 人物子导航（次级条）：〔人物名〕· 时间线 | 地图 | 关系 | ✕ 换人 */
+function renderPersonNav(ctxMeta) {
+  const nav = $("#person-nav");
+  const person = personCtx ? PEOPLE[personCtx] : null;
+  nav.hidden = !person;
+  if (!person) return;
+  $("#pn-name").textContent = person.name;
+  const badge = $("#pn-badge");
+  if (badge.dataset.for !== personCtx && ctxMeta) {
+    badge.dataset.for = personCtx;
+    fetchSVG(ctxMeta.badge).then(t => { badge.innerHTML = t; });
+  }
+  nav.querySelectorAll("button[data-pview]").forEach(btn => {
+    btn.setAttribute("aria-current", String(!!state.person && btn.dataset.pview === state.view));
+  });
 }
 
 /* ---------- 屏1 选人（按 state 首国分组，顶部国别选项卡滚动定位） ---------- */
@@ -757,7 +831,7 @@ function resetPlacePanel() {
   panel.appendChild(h3);
   const p = document.createElement("p");
   p.className = "map-status";
-  p.textContent = "点击地图上的地点查看古名、今地与相关事件。";
+  p.textContent = "点地图上任一地点，看古名、今地与相关事件。";
   panel.appendChild(p);
 }
 function markSelectedAnchor(placeId) {
@@ -845,15 +919,19 @@ function svgPoint(svg, clientX, clientY) {
           b.y + (clientY - rect.top) / rect.height * b.h];
 }
 function bindPanZoom(svg) {
+  /* 指针捕获延迟到「确认拖移/捏合」才设置：pointerdown 即捕获会把桌面鼠标的 click
+   * 重定向到 svg 本身，锚点 click 永不触发——即「桌面全屏点地点无反应」bug（r10 修复）。
+   * 触屏的 click 由触摸序列合成、不受指针捕获影响，故此前仅手机端幸免。 */
+  const capture = (id) => { try { svg.setPointerCapture(id); } catch { /* 指针已释放 */ } };
   svg.addEventListener("pointerdown", (e) => {
     if (!mapState.overlay) return;
-    svg.setPointerCapture(e.pointerId);
     mapState.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     mapState.panDist = 0;
     if (mapState.pointers.size === 1) {
       mapState.panStart = { box: { ...mapState.box }, x: e.clientX, y: e.clientY };
       mapState.pinch = null;
     } else if (mapState.pointers.size === 2) {
+      for (const id of mapState.pointers.keys()) capture(id); // 双指=明确的捏合意图
       const pts = [...mapState.pointers.values()];
       mapState.pinch = {
         box: { ...mapState.box },
@@ -866,6 +944,11 @@ function bindPanZoom(svg) {
   svg.addEventListener("pointermove", (e) => {
     if (!mapState.overlay || !mapState.pointers.has(e.pointerId)) return;
     mapState.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    // 单指移动超过阈值＝确认拖移，此时才捕获指针（出画布仍可继续拖）
+    if (mapState.panStart && !svg.hasPointerCapture(e.pointerId)) {
+      const moved = Math.hypot(e.clientX - mapState.panStart.x, e.clientY - mapState.panStart.y);
+      if (moved > 4) capture(e.pointerId);
+    }
     const rect = svg.getBoundingClientRect();
     if (mapState.pointers.size === 2 && mapState.pinch) {
       const pts = [...mapState.pointers.values()];
@@ -1197,6 +1280,52 @@ const REL_COLORS = {
 const STATE_ORDER = ["齐", "鲁", "郑", "晋", "周", "卫", "楚", "秦", "曹", "许", "申", "宋"];
 const SIDE_TYPES = ["君臣", "拥立", "敌对", "师友", "其他"];
 const isProto = (pid) => PROTAGONISTS.some(m => m.id === pid);
+
+/* ----- 同对人物并线（r10）：一对人物只画一条边；多重关系加数字徽记，
+ * 关系卡按类型列出全部关系。可靠度虚线：该对全部关系皆非 high 才虚线（规则详注入卡内）。 ----- */
+const REL_TYPE_ORDER = Object.keys(REL_COLORS);
+function relTypeRank(t) {
+  const i = REL_TYPE_ORDER.indexOf(t);
+  return i < 0 ? REL_TYPE_ORDER.length : i;
+}
+function sortRelsByType(rels) {
+  return [...rels].sort((a, b) => relTypeRank(a.rel_type) - relTypeRank(b.rel_type) || a.id.localeCompare(b.id));
+}
+/* 过滤条件下把 relations 归组为 [{a, b, rels}]，rels 已按类型排序（首条定边色） */
+function groupRelPairs(filter) {
+  const pairs = new Map();
+  for (const rel of DATA.relations) {
+    if (filter && !filter(rel)) continue;
+    const key = [rel.person_a, rel.person_b].sort().join("|");
+    if (!pairs.has(key)) pairs.set(key, { a: rel.person_a, b: rel.person_b, rels: [] });
+    pairs.get(key).rels.push(rel);
+  }
+  for (const p of pairs.values()) p.rels = sortRelsByType(p.rels);
+  return [...pairs.values()];
+}
+const pairDashed = (rels) => !rels.some(r => r.reliability === "high");
+const pairTip = (rels) => rels.map(r =>
+  personName(r.person_a) + " ·" + r.rel_label + "· " + personName(r.person_b) +
+  (r.source_note ? "（" + r.source_note + "）" : "")).join("\n");
+/* 多重关系数字徽记（置于边中点，点击同边） */
+function edgeBadgeEl(x, y, n, color, onOpen) {
+  const NS = "http://www.w3.org/2000/svg";
+  const g = document.createElementNS(NS, "g");
+  g.setAttribute("class", "edge-multi");
+  const c = document.createElementNS(NS, "circle");
+  c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 7.2);
+  c.setAttribute("fill", "#FBF7EC");
+  c.setAttribute("stroke", color);
+  c.setAttribute("stroke-width", "1.3");
+  g.appendChild(c);
+  const t = document.createElementNS(NS, "text");
+  t.setAttribute("x", x); t.setAttribute("y", y + 3.2);
+  t.setAttribute("text-anchor", "middle");
+  t.textContent = String(n);
+  g.appendChild(t);
+  g.addEventListener("click", onOpen);
+  return g;
+}
 const relView = {
   mode: "ego",           // ego=以人为中心 | pano=全景
   center: null,          // 当前中心人物
@@ -1204,7 +1333,6 @@ const relView = {
   collapsed: new Set(),  // ego 两侧折叠的分组（窄屏默认全折叠）
   collapsedInit: false,
   protoOnly: false,      // 全景「仅主角边」
-  wantPano: false,       // 首页全景入口的一次性请求
   nodes: new Map(), edges: [], focus: null, isolated: new Set(), // 全景态
 };
 
@@ -1216,10 +1344,9 @@ function renderRelations() {
       for (const t of SIDE_TYPES) relView.collapsed.add(t);
     }
   }
-  // 首页「四十人图谱」入口明确要全景；带人物语境进入 → 以其为中心 ego 视图
-  if (relView.wantPano) { relView.wantPano = false; relView.mode = "pano"; }
-  else if (state.person) { relView.mode = "ego"; relView.center = state.person; relView.stack = []; }
-  else if (!relView.center) relView.mode = "pano";
+  // 路由即语义：#/p/X/relations → 以 X 为中心 ego；#/relations → 全景（带「仅主角边」过滤器）
+  if (state.person) { relView.mode = "ego"; relView.center = state.person; relView.stack = []; }
+  else relView.mode = "pano";
   drawRel();
 }
 function drawRel() {
@@ -1306,7 +1433,7 @@ function buildRelLegend() {
   }
   const dash = document.createElement("span");
   dash.className = "rel-legend-dash";
-  dash.textContent = "虚线＝可靠度中/低";
+  dash.textContent = "虚线＝可靠度中/低 · 数字＝多重关系（点开看）";
   box.appendChild(dash);
 }
 /* ----- ego 视图：中轴纵向家系 + 两侧按类型分组的其余一度关系 ----- */
@@ -1355,19 +1482,21 @@ function egoModel(pid) {
   return { edges, fam, side };
 }
 
-function relEdgePath(x1, y1, x2, y2, k, famArc) {
-  // 同排/近水平边走弧线（家系弧向上、其余向下），避免横穿同排节点；k 为同对重边序号
+/* 返回 {d, mx, my}：d 为路径，(mx,my) 为路径中点（二次曲线 t=.5 处），供多重徽记落位 */
+function quadPath(x1, y1, cx, cy, x2, y2) {
+  return {
+    d: "M" + x1 + " " + y1 + " Q" + cx + " " + cy + " " + x2 + " " + y2,
+    mx: 0.25 * x1 + 0.5 * cx + 0.25 * x2,
+    my: 0.25 * y1 + 0.5 * cy + 0.25 * y2,
+  };
+}
+function relEdgePath(x1, y1, x2, y2, famArc) {
+  // 同排/近水平边走弧线（家系弧向上、其余向下），避免横穿同排节点
   if (Math.abs(y2 - y1) < (famArc ? 8 : 34)) {
-    const mx = (x1 + x2) / 2;
-    const off = 44 + Math.abs(x2 - x1) * 0.06 + k * 20;
-    const my = (y1 + y2) / 2 + (famArc ? -off : off);
-    return "M" + x1 + " " + y1 + " Q" + mx + " " + my + " " + x2 + " " + y2;
+    const off = 44 + Math.abs(x2 - x1) * 0.06;
+    return quadPath(x1, y1, (x1 + x2) / 2, (y1 + y2) / 2 + (famArc ? -off : off), x2, y2);
   }
-  if (k > 0) {
-    const mx = (x1 + x2) / 2 + (k % 2 ? 1 : -1) * (14 + k * 8);
-    return "M" + x1 + " " + y1 + " Q" + mx + " " + ((y1 + y2) / 2) + " " + x2 + " " + y2;
-  }
-  return "M" + x1 + " " + y1 + " L" + x2 + " " + y2;
+  return { d: "M" + x1 + " " + y1 + " L" + x2 + " " + y2, mx: (x1 + x2) / 2, my: (y1 + y2) / 2 };
 }
 
 function drawEgoGraph(pid) {
@@ -1459,41 +1588,49 @@ function drawEgoGraph(pid) {
   svg.appendChild(edgeLayer);
   svg.appendChild(nodeLayer);
 
-  // 边：库中任意一条、两端都已落位者皆画（家系内部与两侧人物间的边一并呈现）
-  const dupCount = new Map();
-  for (const rel of DATA.relations) {
-    const A = placed.get(rel.person_a), B = placed.get(rel.person_b);
+  // 边：库中任意一对、两端都已落位者皆画（家系内部与两侧人物间的边一并呈现）；
+  // 同对人物并为一线，多重关系加数字徽记（r10）
+  const badgeLayer = document.createElementNS(NS, "g");
+  for (const pair of groupRelPairs()) {
+    const A = placed.get(pair.a), B = placed.get(pair.b);
     if (!A || !B) continue;
-    const key = [rel.person_a, rel.person_b].sort().join("|");
-    const k = dupCount.get(key) || 0;
-    dupCount.set(key, k + 1);
-    const famArc = ["亲属-直系", "亲属-同辈", "婚姻"].includes(rel.rel_type);
-    const touches = rel.person_a === pid || rel.person_b === pid;
-    let d;
+    const first = pair.rels[0];
+    const famArc = ["亲属-直系", "亲属-同辈", "婚姻"].includes(first.rel_type);
+    const touches = pair.a === pid || pair.b === pid;
+    let seg;
     if ((A.side ? 1 : 0) + (B.side ? 1 : 0) === 1) {
       // 侧组边：弧线向外侧让开家系行，避免横穿同排节点与名签
       const S = A.side ? A : B, T = A.side ? B : A;
-      const bow = Math.max(24, Math.abs(T.x - S.x) * 0.12) + k * 18;
-      const cy = S.y + (S.y <= T.y ? -bow : bow);
-      d = "M" + S.x + " " + S.y + " Q" + ((S.x + T.x) / 2) + " " + cy + " " + T.x + " " + T.y;
+      const bow = Math.max(24, Math.abs(T.x - S.x) * 0.12);
+      seg = quadPath(S.x, S.y, (S.x + T.x) / 2, S.y + (S.y <= T.y ? -bow : bow), T.x, T.y);
     } else {
-      d = relEdgePath(A.x, A.y, B.x, B.y, k, famArc);
+      seg = relEdgePath(A.x, A.y, B.x, B.y, famArc);
     }
+    const color = REL_COLORS[first.rel_type] || "#8A8072";
     const path = document.createElementNS(NS, "path");
-    path.setAttribute("d", d);
+    path.setAttribute("d", seg.d);
     path.setAttribute("fill", "none");
-    path.setAttribute("stroke", REL_COLORS[rel.rel_type] || "#8A8072");
+    path.setAttribute("stroke", color);
     path.setAttribute("stroke-width", touches ? "2.4" : "1.4");
     path.style.opacity = touches ? "0.9" : "0.4";
     path.setAttribute("class", "rel-edge");
-    if (rel.reliability !== "high") path.setAttribute("stroke-dasharray", "5 4");
+    if (pairDashed(pair.rels)) path.setAttribute("stroke-dasharray", "5 4");
     const tip = document.createElementNS(NS, "title");
-    tip.textContent = personName(rel.person_a) + " ·" + rel.rel_label + "· " + personName(rel.person_b) +
-      (rel.source_note ? "（" + rel.source_note + "）" : "");
+    tip.textContent = pairTip(pair.rels);
     path.appendChild(tip);
-    path.addEventListener("click", () => showRelDetail([rel], null));
+    const open = () => showRelDetail(pair.rels, null);
+    path.addEventListener("click", open);
     edgeLayer.appendChild(path);
+    if (pair.rels.length > 1) {
+      const badge = edgeBadgeEl(seg.mx, seg.my, pair.rels.length, color, open);
+      const btip = document.createElementNS(NS, "title");
+      btip.textContent = pairTip(pair.rels);
+      badge.appendChild(btip);
+      if (!touches) badge.style.opacity = "0.55";
+      badgeLayer.appendChild(badge);
+    }
   }
+  edgeLayer.appendChild(badgeLayer); // 徽记压在边之上、节点之下
 
   // 节点
   for (const [id, pos] of placed) {
@@ -1648,27 +1785,40 @@ function drawPanoGraph() {
   });
 
   relView.edges = [];
-  for (const rel of DATA.relations) {
-    if (relView.protoOnly && !isProto(rel.person_a) && !isProto(rel.person_b)) continue; // 仅主角边
-    const A = relView.nodes.get(rel.person_a), B = relView.nodes.get(rel.person_b);
+  const badgeLayer = document.createElementNS(NS, "g");
+  const pairs = groupRelPairs(rel =>
+    !relView.protoOnly || isProto(rel.person_a) || isProto(rel.person_b)); // 仅主角边
+  for (const pair of pairs) {
+    const A = relView.nodes.get(pair.a), B = relView.nodes.get(pair.b);
     if (!A || !B) continue;
+    const first = pair.rels[0];
+    const color = REL_COLORS[first.rel_type] || "#8A8072";
     const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
-    const cx = mx + (CX - mx) * 0.45, cy = my + (CY - my) * 0.45;
+    const seg = quadPath(A.x, A.y, mx + (CX - mx) * 0.45, my + (CY - my) * 0.45, B.x, B.y);
     const path = document.createElementNS(NS, "path");
-    path.setAttribute("d", "M" + A.x + " " + A.y + " Q" + cx + " " + cy + " " + B.x + " " + B.y);
+    path.setAttribute("d", seg.d);
     path.setAttribute("fill", "none");
-    path.setAttribute("stroke", REL_COLORS[rel.rel_type] || "#8A8072");
+    path.setAttribute("stroke", color);
     path.setAttribute("stroke-width", "1.6");
     path.setAttribute("class", "rel-edge");
-    if (rel.reliability !== "high") path.setAttribute("stroke-dasharray", "5 4");
+    if (pairDashed(pair.rels)) path.setAttribute("stroke-dasharray", "5 4");
     const tip = document.createElementNS(NS, "title");
-    tip.textContent = personName(rel.person_a) + " · " + rel.rel_label + " · " + personName(rel.person_b) +
-      (rel.source_note ? "（" + rel.source_note + "）" : "");
+    tip.textContent = pairTip(pair.rels);
     path.appendChild(tip);
-    path.addEventListener("click", () => showRelDetail([rel], null));
+    const open = () => showRelDetail(pair.rels, null);
+    path.addEventListener("click", open);
     edgeLayer.appendChild(path);
-    relView.edges.push({ rel, el: path });
+    let badge = null;
+    if (pair.rels.length > 1) {
+      badge = edgeBadgeEl(seg.mx, seg.my, pair.rels.length, color, open);
+      const btip = document.createElementNS(NS, "title");
+      btip.textContent = pairTip(pair.rels);
+      badge.appendChild(btip);
+      badgeLayer.appendChild(badge);
+    }
+    relView.edges.push({ a: pair.a, b: pair.b, rels: pair.rels, el: path, badge });
   }
+  edgeLayer.appendChild(badgeLayer);
 
   for (const node of relView.nodes.values()) {
     const g = document.createElementNS(NS, "g");
@@ -1714,7 +1864,7 @@ function drawPanoGraph() {
   relView.isolated.clear();
   if (relView.protoOnly) {
     const linked = new Set();
-    for (const { rel } of relView.edges) { linked.add(rel.person_a); linked.add(rel.person_b); }
+    for (const e of relView.edges) { linked.add(e.a); linked.add(e.b); }
     for (const node of relView.nodes.values()) {
       if (!linked.has(node.p.id) && !node.proto) relView.isolated.add(node.p.id);
     }
@@ -1729,14 +1879,15 @@ function focusRelNode(pid) {
   relView.focus = pid;
   const neighbors = new Set([pid]);
   const mine = [];
-  for (const { rel, el } of relView.edges) {
-    const hit = rel.person_a === pid || rel.person_b === pid;
-    el.style.opacity = hit ? "0.95" : "0.06";
-    el.setAttribute("stroke-width", hit ? "2.6" : "1.2");
+  for (const edge of relView.edges) {
+    const hit = edge.a === pid || edge.b === pid;
+    edge.el.style.opacity = hit ? "0.95" : "0.06";
+    edge.el.setAttribute("stroke-width", hit ? "2.6" : "1.2");
+    if (edge.badge) edge.badge.style.opacity = hit ? "1" : "0.08";
     if (hit) {
-      mine.push(rel);
-      neighbors.add(rel.person_a);
-      neighbors.add(rel.person_b);
+      mine.push(...edge.rels);
+      neighbors.add(edge.a);
+      neighbors.add(edge.b);
     }
   }
   for (const node of relView.nodes.values()) {
@@ -1747,9 +1898,10 @@ function focusRelNode(pid) {
 }
 function resetRelFocus() {
   relView.focus = null;
-  for (const { el } of relView.edges) {
-    el.style.opacity = "";
-    el.setAttribute("stroke-width", "1.6");
+  for (const edge of relView.edges) {
+    edge.el.style.opacity = "";
+    edge.el.setAttribute("stroke-width", "1.6");
+    if (edge.badge) edge.badge.style.opacity = "";
   }
   for (const node of relView.nodes.values()) {
     node.el.style.opacity = relView.isolated.has(node.p.id) ? "0.25" : "";
@@ -1762,14 +1914,18 @@ function resetRelFocus() {
   panel.appendChild(h3);
   const p = document.createElement("p");
   p.className = "map-status";
-  p.textContent = "点击人物节点高亮其一度关系；点击连线查看出处。";
+  p.textContent = "点人物节点，高亮其一度关系；点连线看出处。";
   panel.appendChild(p);
 }
 function showRelDetail(rels, pid) {
+  rels = sortRelsByType(rels);
   const panel = $("#rel-panel");
   panel.textContent = "";
   const h3 = document.createElement("h3");
-  h3.textContent = pid ? personName(pid) + " 的一度关系（" + rels.length + "）" : "这条关系";
+  if (pid) h3.textContent = personName(pid) + " 的一度关系（" + rels.length + "）";
+  else if (rels.length > 1) h3.textContent = personName(rels[0].person_a) + " — " + personName(rels[0].person_b) +
+    "（" + rels.length + " 重关系）";
+  else h3.textContent = "这条关系";
   panel.appendChild(h3);
   if (pid && PEOPLE[pid]) {
     // 人物详情姓名行：完整形式（如 管仲 → 姬姓管氏，名夷吾，字仲）
@@ -1808,6 +1964,13 @@ function showRelDetail(rels, pid) {
     ul.appendChild(li);
   }
   panel.appendChild(ul);
+  if (!pid && rels.length > 1) {
+    // 并线规则随卡注明：同对人物合并为一线，虚线含义在此交代（图例只留提示）
+    const note = document.createElement("p");
+    note.className = "rel-pair-note";
+    note.textContent = "两人的多重关系在图上并为一线、以数字徽记标记；连线虚线表示所列关系可靠度皆为中/低，实线表示至少一条为 high。";
+    panel.appendChild(note);
+  }
   const acts = document.createElement("p");
   acts.className = "rel-actions";
   if (pid && relView.mode === "pano") {
@@ -1847,28 +2010,40 @@ async function boot() {
   baseMapText = await mapResp.text();
 
   document.querySelectorAll(".main-nav button").forEach(btn => {
-    btn.addEventListener("click", () => setHash(state.person, btn.dataset.view, state.tab, state.q));
+    btn.addEventListener("click", () => {
+      const v = btn.dataset.view;
+      if (v === "relations") setHash(personCtx, "relations"); // 已选人→其 ego 图，未选人→全景
+      else if (v === "library") setHash(null, "library", state.tab, state.q);
+      else if (v === "about") setHash(null, "about");
+      else setHash(null, "home");
+    });
+  });
+  // 人物子导航：时间线 | 地图 | 关系 | ✕ 换人
+  document.querySelectorAll("#person-nav button[data-pview]").forEach(btn => {
+    btn.addEventListener("click", () => { if (personCtx) setHash(personCtx, btn.dataset.pview); });
+  });
+  $("#pn-exit").addEventListener("click", () => {
+    personCtx = null; // 清人物语境，回选人页
+    setHash(null, "home");
   });
   document.querySelectorAll(".lib-tabs button").forEach(btn => {
-    btn.addEventListener("click", () => setHash(state.person, "library", btn.dataset.tab, state.q));
+    btn.addEventListener("click", () => setHash(null, "library", btn.dataset.tab, state.q));
   });
   $("#lib-search").addEventListener("input", (e) => {
     state.q = e.target.value;
-    history.replaceState(null, "", buildHash(state.person, "library", state.tab, state.q));
+    history.replaceState(null, "", buildHash(null, "library", state.tab, state.q));
     renderLibList();
   });
-  $("#home-library-entry").addEventListener("click", () => setHash(state.person, "library", state.tab, state.q));
-  $("#home-relations-entry").textContent = "全景 " + DATA.people.length + " 人关系图谱 →";
-  $("#home-relations-entry").addEventListener("click", () => {
-    relView.wantPano = true; // 该入口明确指向全景
-    setHash(state.person, "relations");
-  });
-  $("#home-about-entry").addEventListener("click", () => setHash(state.person, "about"));
-  $("#home-guide-entry").addEventListener("click", () => { // 关于页顶部导览小节
+  $("#home-library-entry").addEventListener("click", () => setHash(null, "library", state.tab, state.q));
+  // 全景入口：人数动态注入（R13 + 规模数字动态化）
+  $("#home-relations-entry").textContent = "全景关系图谱 · " + DATA.meta.tables.people + " 人 →";
+  $("#home-relations-entry").addEventListener("click", () => setHash(null, "relations")); // 该入口明确指向全景
+  $("#home-about-entry").addEventListener("click", () => setHash(null, "about"));
+  $("#home-guide-entry").addEventListener("click", () => { // 关于页「初识春秋」小节
     const go = () => { const s = $("#guide-start"); if (s) s.scrollIntoView({ block: "start" }); };
     if (state.view === "about") { go(); return; }
     window.addEventListener("hashchange", () => requestAnimationFrame(go), { once: true });
-    setHash(state.person, "about");
+    setHash(null, "about");
   });
   $("#timeline-relations-entry").addEventListener("click", () => setHash(state.person, "relations"));
   // 关系图工具条
@@ -1931,6 +2106,10 @@ async function boot() {
     " · 地点 " + m.tables.places + " · 摘录 " + m.tables.passages +
     " · 背景 " + m.tables.background + " · 考古 " + m.tables.archaeology +
     " · 年代 " + yearLabel(m.year_range_bce.min) + "—" + yearLabel(m.year_range_bce.max);
+  // 规模数字一律动态注入（R15、站头年代范围），HTML 内不写死
+  $("#site-range").textContent = yearLabel(m.year_range_bce.min) + " — " + yearLabel(m.year_range_bce.max);
+  const nLines = DATA.people.filter(p => p.is_protagonist).length;
+  $("#brand-caption").textContent = "分享给同好——" + nLines + " 条人物线，择一而入。";
   render();
 }
 boot().catch(err => {
