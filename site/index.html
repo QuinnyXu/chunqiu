@@ -9,17 +9,19 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
 <meta property="og:description" content="九条春秋人物线的可考订时间线、活动地图与关系图谱；可靠度分级、亲至/相关判定、后出叙事分层，每条事件皆有出处。">
-<meta property="og:url" content="https://quinnyxu.github.io/chunqiu/">
-<meta property="og:image" content="https://quinnyxu.github.io/chunqiu/assets/og/og-card.png">
+<meta property="og:url" content="https://chunqiu.timechorus.com/">
+<meta property="og:image" content="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
 <meta name="twitter:description" content="九条春秋人物线的可考订时间线、活动地图与关系图谱，每条事件皆有出处。">
-<meta name="twitter:image" content="https://quinnyxu.github.io/chunqiu/assets/og/og-card.png">
+<meta name="twitter:image" content="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <!-- image_src 与下方首屏 <img>：供不读 og 协议的爬虫（微信等）抓取分享缩略图；
-     绝对 URL 为约定特批例外（分享协议头两处），页面内资源一律相对路径 -->
-<link rel="image_src" href="https://quinnyxu.github.io/chunqiu/assets/og/og-card.png">
+     绝对 URL 为约定特批例外（分享协议头两处），页面内资源一律相对路径。
+     主站已切至 Cloudflare Pages 自定义域 chunqiu.timechorus.com（2026-07-18），github.io 保留为镜像 -->
+<link rel="image_src" href="https://chunqiu.timechorus.com/assets/og/og-card.png">
+<link rel="canonical" href="https://chunqiu.timechorus.com/">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -34,8 +36,9 @@
     <button type="button" data-view="library">资料库</button>
     <button type="button" data-view="about">关于</button>
     <a class="nav-feedback" href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">反馈</a>
-    <!-- 邮件反馈占位：待 Xiangtao 确认 Email Routing 生效后启用（2026-07-18 实测 timechorus.com 无 MX 记录，
-         nslookup -type=mx @1.1.1.1/@8.8.8.8 均仅返回 SOA）。启用时取消注释：
+    <!-- 邮件反馈占位：待 Xiangtao/领队确认 Email Routing 邮箱可收发后启用（2026-07-18 复测 timechorus.com
+         已出现 MX 记录，route1/2/3.mx.cloudflare.net，指向 Cloudflare Email Routing；是否已配好转发规则、
+         chunqiu@timechorus.com 是否可用尚待确认，本轮不启用）。启用时取消注释：
     <a class="nav-feedback" href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E6%98%A5%E7%A7%8B%E4%BA%BA%E7%89%A9%E5%BF%97%E3%80%91%E5%8F%8D%E9%A6%88" title="史实纠错请附出处">✉ 邮件</a> -->
   </nav>
 </header>
@@ -196,7 +199,8 @@
           <li>v0.3 —— 科普定位；八人物；资料库视图；移动端地图</li>
           <li>更早 —— 数据管线与三屏原型</li>
         </ul>
-        <p>发现史实错误或地望异议？欢迎到 <a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> 反馈，史实纠错请附出处；数据与代码见 <a href="https://github.com/QuinnyXu/chunqiu" target="_blank" rel="noopener">开源仓库</a>。<!-- 邮件反馈占位：待 Xiangtao 确认 Email Routing 生效后启用（2026-07-18 实测 timechorus.com 无 MX 记录）。启用时在「GitHub Issues 反馈」后并列插入：
+        <p>发现史实错误或地望异议？欢迎到 <a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> 反馈，史实纠错请附出处；数据与代码见 <a href="https://github.com/QuinnyXu/chunqiu" target="_blank" rel="noopener">开源仓库</a>。<!-- 邮件反馈占位：待 Xiangtao/领队确认 Email Routing 邮箱可收发后启用（2026-07-18 复测 timechorus.com
+         已有 MX 记录指向 Cloudflare Email Routing，但转发规则与实际可用性未确认，本轮不启用）。启用时在「GitHub Issues 反馈」后并列插入：
         也可来信 <a href="mailto:chunqiu@timechorus.com">chunqiu@timechorus.com</a>（史实纠错请附出处） --></p>
       </section>
     </div>

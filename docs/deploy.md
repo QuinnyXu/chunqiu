@@ -2,6 +2,8 @@
 
 站点为纯静态（`site/` 目录），部署走 GitHub Actions（工作流已备好：`.github/workflows/pages.yml`，自动发布 `site/`，每次推 main 自动重新部署，部署前会先跑数据校验）。
 
+> **2026-07-18 起主站已切换为 Cloudflare Pages + 自定义域名 `chunqiu.timechorus.com`**（Xiangtao 已完成部署与绑定）。本文档描述的 GitHub Pages 部署继续保留，作为镜像与 `pages.yml` 自检目标（自检验证的是 GH Pages 工件是否发布成功，与 Cloudflare Pages 是否上线无关，后者由 Cloudflare 控制台自行监控）。Cloudflare Pages 侧的配置步骤见 [docs/deploy_cloudflare.md](deploy_cloudflare.md)。
+
 ## 1. 建仓并推送
 
 1. 在 GitHub 网页上新建仓库：建议名 `chunqiu-figures`（或自定，**名字影响最终网址**）。选 Private/Public 均可（Private 需付费版才能开 Pages，个人免费账户请选 Public）。不要勾选任何初始化文件（README/.gitignore/license 都不要）。
