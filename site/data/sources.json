@@ -578,5 +578,155 @@
     "source_type": "primary",
     "url": "https://ctext.org/book-of-poetry/zai-chi/zh",
     "notes": "许穆夫人闵卫之亡；与《左传·闵公二年》'许穆夫人赋载驰'互证。"
+  },
+  {
+    "id": "Z044",
+    "title": "《春秋左传·僖公十年》",
+    "work": "春秋左传",
+    "section": "僖公十年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-shi-nian/zh",
+    "notes": "晋惠公背秦赂而杀里克；里克伏剑前对欲加之罪其无辞乎。"
+  },
+  {
+    "id": "Z045",
+    "title": "《春秋左传·僖公十五年》",
+    "work": "春秋左传",
+    "section": "僖公十五年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-shi-wu-nian/zh",
+    "notes": "秦晋韩原之战；晋惠公乘小驷陷濘被俘，秦获晋侯以归。"
+  },
+  {
+    "id": "Z046",
+    "title": "《春秋左传·僖公二十二年》",
+    "work": "春秋左传",
+    "section": "僖公二十二年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-er-nian/zh",
+    "notes": "晋太子圉质秦将逃归谓嬴氏而遂逃归。"
+  },
+  {
+    "id": "Z047",
+    "title": "《春秋左传·僖公二十三年》",
+    "work": "春秋左传",
+    "section": "僖公二十三年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-san-nian/zh",
+    "notes": "重耳出亡过狄卫齐曹宋郑楚秦之叙事总纲；懷與安实败名、退避三舍、怀嬴奉匜等。"
+  },
+  {
+    "id": "Z048",
+    "title": "《春秋左传·僖公二十四年》",
+    "work": "春秋左传",
+    "section": "僖公二十四年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-si-nian/zh",
+    "notes": "重耳济河入晋即位、杀怀公于高梁、介之推不言禄隐绵上。"
+  },
+  {
+    "id": "Z049",
+    "title": "《春秋左传·僖公二十五年》",
+    "work": "春秋左传",
+    "section": "僖公二十五年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-wu-nian/zh",
+    "notes": "晋文公勤王纳周襄王杀王子带；围原退舍示信。"
+  },
+  {
+    "id": "Z050",
+    "title": "《春秋左传·僖公二十八年》",
+    "work": "春秋左传",
+    "section": "僖公二十八年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-ba-nian/zh",
+    "notes": "城濮之战晋退三舍败楚；践土之盟王策命晋侯为侯伯。"
+  },
+  {
+    "id": "Z051",
+    "title": "《春秋左传·僖公三十二年》",
+    "work": "春秋左传",
+    "section": "僖公三十二年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-san-shi-er-nian/zh",
+    "notes": "晋文公卒将殡于曲沃，柩有声如牛，卜偃预言西师过轶（殽之战张本）。"
+  },
+  {
+    "id": "Z052",
+    "title": "《春秋左传·庄公二十八年》",
+    "work": "春秋左传",
+    "section": "庄公二十八年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/zhuang-gong-er-shi-ba-nian/zh",
+    "notes": "晋献公娶二女于戎生重耳夷吾、伐骊戎得骊姬生奚齐，骊姬嬖欲立其子——骊姬之乱张本。"
+  },
+  {
+    "id": "G004",
+    "title": "《国语·晋语一》",
+    "work": "国语",
+    "section": "晋语一",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/guo-yu/jin-yu-yi/zh",
+    "notes": "晋献公卜伐骊戎、史苏占胜而不吉、骊姬始嬖等骊姬乱起前史。"
+  },
+  {
+    "id": "G005",
+    "title": "《国语·晋语二》",
+    "work": "国语",
+    "section": "晋语二",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/guo-yu/jin-yu-er/zh",
+    "notes": "骊姬谮杀申生、优施教骊姬歌暇豫以间里克、谮逐二公子、惠公入国等。"
+  },
+  {
+    "id": "G006",
+    "title": "《国语·晋语三》",
+    "work": "国语",
+    "section": "晋语三",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/guo-yu/jin-yu-san/zh",
+    "notes": "晋惠公背秦赂、闭籴、韩之战被俘及杀庆郑等。"
+  },
+  {
+    "id": "G007",
+    "title": "《国语·晋语四》",
+    "work": "国语",
+    "section": "晋语四",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/guo-yu/jin-yu-si/zh",
+    "notes": "重耳流亡过列国之问对（过卫、齐姜、曹僖负羁、宋、郑、楚成王、秦纳怀嬴、赋诗、济河入晋）——晋语独有主力。"
+  },
+  {
+    "id": "S004",
+    "title": "《史记·晋世家》",
+    "work": "史记",
+    "section": "晋世家",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/shiji/jin-shi-jia/zh",
+    "notes": "骊姬之乱、重耳流亡、文公霸业之汉代综合叙事；焚绵山、割股等戏剧化情节属晚出传说层。"
+  },
+  {
+    "id": "S005",
+    "title": "《史记·秦本纪》",
+    "work": "史记",
+    "section": "秦本纪",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/shiji/qin-ben-ji/zh",
+    "notes": "秦穆公纳夷吾、韩原之战、纳重耳入晋之秦方叙事；汉代综合。"
   }
 ]

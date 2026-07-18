@@ -1244,5 +1244,488 @@
     "role_in_event": "两请以女妻太子忽之齐君（主导议婚）",
     "directness": "direct",
     "presence": "亲至"
+  },
+  {
+    "event_id": "E076",
+    "person_id": "P_JINXIAN",
+    "role_in_event": "伐骊戎娶骊姬（乱源之君）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E076",
+    "person_id": "P_LIJI",
+    "role_in_event": "归晋生奚齐而嬖（欲立其子）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E076",
+    "person_id": "P_SHENSHENG",
+    "role_in_event": "齐姜所生之嫡太子（追叙出身）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E076",
+    "person_id": "P_JINWEN",
+    "role_in_event": "大戎狐姬所生（追叙出身）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E076",
+    "person_id": "P_JINHUI",
+    "role_in_event": "小戎子所生（追叙出身）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E077",
+    "person_id": "P_JINXIAN",
+    "role_in_event": "作二军自将上军",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E077",
+    "person_id": "P_SHENSHENG",
+    "role_in_event": "将下军（士蒍知其不立）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E078",
+    "person_id": "P_SHENSHENG",
+    "role_in_event": "帅师伐东山皋落氏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E078",
+    "person_id": "P_JINXIAN",
+    "role_in_event": "衣太子偏衣佩金玦以遣",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E079",
+    "person_id": "P_LIJI",
+    "role_in_event": "置鸩谮太子",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E079",
+    "person_id": "P_SHENSHENG",
+    "role_in_event": "被谮奔新城自缢",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E079",
+    "person_id": "P_JINXIAN",
+    "role_in_event": "受谮者（祭之地墳）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E080",
+    "person_id": "P_JINWEN",
+    "role_in_event": "居蒲被伐逾垣奔狄",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E080",
+    "person_id": "P_JINHUI",
+    "role_in_event": "居屈被伐后奔梁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E080",
+    "person_id": "P_JINXIAN",
+    "role_in_event": "使寺人披伐蒲屈",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E080",
+    "person_id": "P_LIJI",
+    "role_in_event": "谮二公子",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E081",
+    "person_id": "P_JINXIAN",
+    "role_in_event": "假道于虞灭虢灭虞（遣师）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E082",
+    "person_id": "P_JINXIAN",
+    "role_in_event": "卒于绛",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E082",
+    "person_id": "P_LIJI",
+    "role_in_event": "奚齐卓子之党（史记载乱后被杀）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E083",
+    "person_id": "P_JINHUI",
+    "role_in_event": "赂秦入立而杀里克",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E083",
+    "person_id": "P_QINMU",
+    "role_in_event": "发兵纳夷吾（后遭背赂）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E084",
+    "person_id": "P_JINHUI",
+    "role_in_event": "战败被俘于韩原",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E084",
+    "person_id": "P_QINMU",
+    "role_in_event": "亲战获晋侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E085",
+    "person_id": "P_JINHUI",
+    "role_in_event": "卒于绛",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E085",
+    "person_id": "P_JINHUAI",
+    "role_in_event": "自秦逃归即位为怀公",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E085",
+    "person_id": "P_QINMU",
+    "role_in_event": "质子圉而怨其逃归",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E086",
+    "person_id": "P_JINWEN",
+    "role_in_event": "过卫乞食于五鹿",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E086",
+    "person_id": "P_HUYAN",
+    "role_in_event": "受块稽首（天赐之谏）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E086",
+    "person_id": "P_ZHAOCUI",
+    "role_in_event": "从亡在行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E086",
+    "person_id": "P_WEIWEN",
+    "role_in_event": "不礼晋公子",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E087",
+    "person_id": "P_JINWEN",
+    "role_in_event": "安于齐被醉遣",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E087",
+    "person_id": "P_QIJIANG",
+    "role_in_event": "与子犯谋醉遣公子",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E087",
+    "person_id": "P_HUYAN",
+    "role_in_event": "与齐姜谋而被戈逐",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E087",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "妻以宗女厚遇之",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E087",
+    "person_id": "P_ZHAOCUI",
+    "role_in_event": "从亡在行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E088",
+    "person_id": "P_JINWEN",
+    "role_in_event": "过曹被观骈胁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E088",
+    "person_id": "P_XIFUJI",
+    "role_in_event": "馈盘飧置璧示礼",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E088",
+    "person_id": "P_ZHAOCUI",
+    "role_in_event": "从亡在行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E089",
+    "person_id": "P_JINWEN",
+    "role_in_event": "过宋受赠马",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E089",
+    "person_id": "P_HUYAN",
+    "role_in_event": "从亡在行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E090",
+    "person_id": "P_JINWEN",
+    "role_in_event": "过郑不见礼",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E090",
+    "person_id": "P_HUYAN",
+    "role_in_event": "从亡在行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E091",
+    "person_id": "P_JINWEN",
+    "role_in_event": "对楚王诺退三舍",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E091",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "享晋公子而问报",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E091",
+    "person_id": "P_HUYAN",
+    "role_in_event": "从亡在行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E091",
+    "person_id": "P_ZHAOCUI",
+    "role_in_event": "从亡在行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E092",
+    "person_id": "P_JINWEN",
+    "role_in_event": "受秦纳与五女赋诗",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E092",
+    "person_id": "P_QINMU",
+    "role_in_event": "归女五人纳之入晋",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E092",
+    "person_id": "P_ZHAOCUI",
+    "role_in_event": "相礼赞赋诗（重耳拜赐）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E092",
+    "person_id": "P_HUYAN",
+    "role_in_event": "子犯让赵衰从",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E093",
+    "person_id": "P_JINWEN",
+    "role_in_event": "济河入晋即位为文公",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E093",
+    "person_id": "P_HUYAN",
+    "role_in_event": "河上授璧请由此亡",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E093",
+    "person_id": "P_QINMU",
+    "role_in_event": "以师送入晋",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E093",
+    "person_id": "P_ZHAOCUI",
+    "role_in_event": "从入",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E094",
+    "person_id": "P_JINWEN",
+    "role_in_event": "入而使杀怀公",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E094",
+    "person_id": "P_JINHUAI",
+    "role_in_event": "被杀于高梁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E095",
+    "person_id": "P_JIEZHITUI",
+    "role_in_event": "不言禄偕母隐于绵上",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E095",
+    "person_id": "P_JINWEN",
+    "role_in_event": "行赏求之不获以绵上为田",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E096",
+    "person_id": "P_JINWEN",
+    "role_in_event": "勤王纳襄王杀子带",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E096",
+    "person_id": "P_ZHOUXIANG",
+    "role_in_event": "赖晋复位赐田",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E096",
+    "person_id": "P_HUYAN",
+    "role_in_event": "进勤王之义",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E097",
+    "person_id": "P_JINWEN",
+    "role_in_event": "围原退舍示信",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E098",
+    "person_id": "P_JINWEN",
+    "role_in_event": "退三舍而战败楚师",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E098",
+    "person_id": "P_XIANZHEN",
+    "role_in_event": "中军将定城濮之谋",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E098",
+    "person_id": "P_HUYAN",
+    "role_in_event": "将上军师直为壮",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E098",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "楚方之君（退居于申未亲至）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E099",
+    "person_id": "P_JINWEN",
+    "role_in_event": "会诸侯受策为侯伯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E099",
+    "person_id": "P_ZHOUXIANG",
+    "role_in_event": "策命晋侯为侯伯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E100",
+    "person_id": "P_JINWEN",
+    "role_in_event": "卒于绛将殡曲沃",
+    "directness": "direct",
+    "presence": "亲至"
   }
 ]

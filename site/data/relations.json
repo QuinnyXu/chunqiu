@@ -790,5 +790,221 @@
     "rel_label": "父",
     "reliability": "high",
     "source_note": "史记齐世家公子纠僖公之子；纠桓孰长有异说不影响父子（参R026）"
+  },
+  {
+    "id": "R089",
+    "person_a": "P_JINXIAN",
+    "person_b": "P_SHENSHENG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年（烝于齐姜生太子申生）"
+  },
+  {
+    "id": "R090",
+    "person_a": "P_JINXIAN",
+    "person_b": "P_JINWEN",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年（大戎狐姬生重耳）"
+  },
+  {
+    "id": "R091",
+    "person_a": "P_JINXIAN",
+    "person_b": "P_JINHUI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年（小戎子生夷吾）"
+  },
+  {
+    "id": "R092",
+    "person_a": "P_JINHUI",
+    "person_b": "P_JINHUAI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传僖公二十二至二十四年、史记晋世家（惠公子圉即怀公）"
+  },
+  {
+    "id": "R093",
+    "person_a": "P_SHENSHENG",
+    "person_b": "P_JINWEN",
+    "rel_type": "亲属-同辈",
+    "rel_label": "异母兄",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年（申生嫡长·重耳庶出）"
+  },
+  {
+    "id": "R094",
+    "person_a": "P_JINWEN",
+    "person_b": "P_JINHUI",
+    "rel_type": "亲属-同辈",
+    "rel_label": "异母兄",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年（重耳兄·夷吾弟）"
+  },
+  {
+    "id": "R095",
+    "person_a": "P_JINXIAN",
+    "person_b": "P_LIJI",
+    "rel_type": "婚姻",
+    "rel_label": "夫人（嬖）",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年（骊姬嬖欲立其子）"
+  },
+  {
+    "id": "R096",
+    "person_a": "P_LIJI",
+    "person_b": "P_SHENSHENG",
+    "rel_type": "敌对",
+    "rel_label": "谮而致其死",
+    "reliability": "high",
+    "source_note": "左传僖公四年（置鸩谮太子申生自缢）"
+  },
+  {
+    "id": "R097",
+    "person_a": "P_LIJI",
+    "person_b": "P_JINWEN",
+    "rel_type": "敌对",
+    "rel_label": "谮而逐之",
+    "reliability": "high",
+    "source_note": "左传僖公五年（谮二公子重耳出奔）"
+  },
+  {
+    "id": "R098",
+    "person_a": "P_JINWEN",
+    "person_b": "P_HUYAN",
+    "rel_type": "君臣",
+    "rel_label": "从亡股肱之舅氏（子犯）",
+    "reliability": "high",
+    "source_note": "左传僖公二十三至二十八年、国语晋语四"
+  },
+  {
+    "id": "R099",
+    "person_a": "P_HUYAN",
+    "person_b": "P_JINWEN",
+    "rel_type": "其他",
+    "rel_label": "母舅（不同辈旁系暂挂其他）",
+    "reliability": "high",
+    "source_note": "狐偃为重耳母舅（狐姬之弟）·旁系8类无专项参fix6处理"
+  },
+  {
+    "id": "R100",
+    "person_a": "P_JINWEN",
+    "person_b": "P_ZHAOCUI",
+    "rel_type": "君臣",
+    "rel_label": "从亡股肱",
+    "reliability": "high",
+    "source_note": "左传僖公二十三年、国语晋语四"
+  },
+  {
+    "id": "R101",
+    "person_a": "P_JINWEN",
+    "person_b": "P_XIANZHEN",
+    "rel_type": "君臣",
+    "rel_label": "城濮中军将",
+    "reliability": "high",
+    "source_note": "左传僖公二十七、二十八年"
+  },
+  {
+    "id": "R102",
+    "person_a": "P_JINWEN",
+    "person_b": "P_JIEZHITUI",
+    "rel_type": "君臣",
+    "rel_label": "从亡之臣（不言禄隐去）",
+    "reliability": "high",
+    "source_note": "左传僖公二十四年"
+  },
+  {
+    "id": "R103",
+    "person_a": "P_JINWEN",
+    "person_b": "P_QIJIANG",
+    "rel_type": "婚姻",
+    "rel_label": "夫人（齐女）",
+    "reliability": "high",
+    "source_note": "左传僖公二十三年（齐桓公妻之）"
+  },
+  {
+    "id": "R104",
+    "person_a": "P_QINMU",
+    "person_b": "P_JINHUI",
+    "rel_type": "拥立",
+    "rel_label": "纳之入晋（后遭背赂）",
+    "reliability": "high",
+    "source_note": "左传僖公九至十年、国语晋语二"
+  },
+  {
+    "id": "R105",
+    "person_a": "P_QINMU",
+    "person_b": "P_JINHUI",
+    "rel_type": "敌对",
+    "rel_label": "韩原俘之",
+    "reliability": "high",
+    "source_note": "左传僖公十五年"
+  },
+  {
+    "id": "R106",
+    "person_a": "P_QINMU",
+    "person_b": "P_JINWEN",
+    "rel_type": "拥立",
+    "rel_label": "纳之入晋而成其霸",
+    "reliability": "high",
+    "source_note": "左传僖公二十三至二十四年"
+  },
+  {
+    "id": "R107",
+    "person_a": "P_QINMU",
+    "person_b": "P_JINHUAI",
+    "rel_type": "敌对",
+    "rel_label": "怨其自秦逃归",
+    "reliability": "high",
+    "source_note": "左传僖公二十二至二十四年"
+  },
+  {
+    "id": "R108",
+    "person_a": "P_XIFUJI",
+    "person_b": "P_JINWEN",
+    "rel_type": "其他",
+    "rel_label": "馈飧置璧之惠",
+    "reliability": "high",
+    "source_note": "左传僖公二十三年、国语晋语四"
+  },
+  {
+    "id": "R109",
+    "person_a": "P_CHUCHENG",
+    "person_b": "P_JINWEN",
+    "rel_type": "其他",
+    "rel_label": "享之厚遇而问报",
+    "reliability": "high",
+    "source_note": "左传僖公二十三年、国语晋语四"
+  },
+  {
+    "id": "R110",
+    "person_a": "P_CHUCHENG",
+    "person_b": "P_JINWEN",
+    "rel_type": "敌对",
+    "rel_label": "城濮对垒",
+    "reliability": "high",
+    "source_note": "左传僖公二十八年"
+  },
+  {
+    "id": "R111",
+    "person_a": "P_ZHOUXIANG",
+    "person_b": "P_JINWEN",
+    "rel_type": "君臣",
+    "rel_label": "策命为侯伯",
+    "reliability": "high",
+    "source_note": "左传僖公二十八年（践土策命）"
+  },
+  {
+    "id": "R112",
+    "person_a": "P_JINWEN",
+    "person_b": "P_ZHOUXIANG",
+    "rel_type": "其他",
+    "rel_label": "勤王纳王复位",
+    "reliability": "high",
+    "source_note": "左传僖公二十五年"
   }
 ]
