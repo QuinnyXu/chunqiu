@@ -1,0 +1,13 @@
+id,person_a,person_b,rel_type,rel_label,reliability,source_note
+R073,P_XIPENG,P_QIHUAN,君臣,大夫,high,左传僖公九年隰朋帅师纳晋惠公
+R074,P_XIPENG,P_GUANZHONG,师友,同朝同志（管仲荐之自代）,medium,荐相语出《史记》后出层
+R075,P_SHUDIAO,P_QIHUAN,君臣,内宠寺人,high,左传僖公十七年（作寺人貂）
+R076,P_YIYA,P_QIHUAN,君臣,近幸主膳,high,左传僖公十七年（作雍巫）
+R077,P_KAIFANG,P_QIHUAN,君臣,近幸,medium,三竖并称出《管子》《史记》；左传之乱未及其名
+R078,P_GUANZHONG,P_SHUDIAO,敌对,临终论其不可近,medium,《史记》齐太公世家（后出叙事）
+R079,P_GUANZHONG,P_YIYA,敌对,临终论其不可近,medium,《史记》齐太公世家（后出叙事）
+R080,P_GUANZHONG,P_KAIFANG,敌对,临终论其不可近,medium,《史记》齐太公世家（后出叙事）
+R081,P_ZAIKONG,P_QIHUAN,其他,代王赐胙而私论其乱,high,左传僖公九年
+R082,P_QUWAN,P_QIHUAN,敌对,对垒之使（终与之盟）,high,左传僖公四年
+R083,P_WEIWEN,P_QIHUAN,其他,受存国封城之惠,high,左传闵公二年、僖公二年
+R084,P_XUMU,P_WEIWEN,亲属-同辈,姊妹,medium,通说戴公文公之姊妹，世系细节从简
