@@ -214,6 +214,15 @@ def main():
                 err(f"people.csv 第{i}行：{field} '{val}' 必须是负整数")
             elif not (YEAR_MIN <= int(val) <= YEAR_MAX):
                 err(f"people.csv 第{i}行：{field} {val} 超出范围 [{YEAR_MIN}, {YEAR_MAX}]")
+        # xing/shi/ming/zi（姓氏名字，fix7）：宽校验，不设枚举——非空时须为合规字符串
+        for field in ("xing", "shi", "ming", "zi"):
+            val = (row.get(field) or "").strip()
+            if not val:
+                continue
+            if val.upper() in {"NULL", "N/A", "NA"}:
+                err(f"people.csv 第{i}行：{field} 不得写 '{val}'，留空理由请写入 notes、字段本身留空字符串（conventions §6）")
+            if "," in val:
+                err(f"people.csv 第{i}行：{field} 含 ASCII 逗号 '{val}'，与 CSV 分隔符冲突")
 
     # ---- relations ----
     seen_rel = {}
