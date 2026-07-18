@@ -31,10 +31,13 @@ YEAR_MIN, YEAR_MAX = -800, -600
 LNG_MIN, LNG_MAX = 110.0, 122.0
 LAT_MIN, LAT_MAX = 32.0, 38.5
 
+REL_TYPES = {"亲属-直系", "亲属-同辈", "婚姻", "君臣", "拥立", "敌对", "师友", "其他"}
+
 ID_PATTERNS = {
     "events": re.compile(r"^E\d{3}[A-Z]?$"),
     "people": re.compile(r"^P_[A-Z]+$"),
     "places": re.compile(r"^L_[A-Z]+$"),
+    "relations": re.compile(r"^R\d{3}$"),
     # Z=左传 S=史记 G=国语 A=考古；P=诗经、B=现代研究为旧库沿用前缀
     "sources": re.compile(r"^[ZSGAPB]\d{3}$"),
     "passages": re.compile(r"^Q\d{3}[A-Z]?$"),
@@ -117,7 +120,8 @@ def main():
     tables = {
         name: load(name)
         for name in ("sources", "people", "places", "events",
-                     "event_people", "passages", "background", "archaeology")
+                     "event_people", "passages", "background", "archaeology",
+                     "relations")
     }
     if errors:
         report()
@@ -210,6 +214,26 @@ def main():
                 err(f"people.csv 第{i}行：{field} '{val}' 必须是负整数")
             elif not (YEAR_MIN <= int(val) <= YEAR_MAX):
                 err(f"people.csv 第{i}行：{field} {val} 超出范围 [{YEAR_MIN}, {YEAR_MAX}]")
+
+    # ---- relations ----
+    seen_rel = {}
+    for i, row in enumerate(tables["relations"], start=2):
+        pa = (row.get("person_a") or "").strip()
+        pb = (row.get("person_b") or "").strip()
+        check_ref("relations.csv", i, "person_a", pa, ids["people"], "people")
+        check_ref("relations.csv", i, "person_b", pb, ids["people"], "people")
+        if not pa or not pb:
+            err(f"relations.csv 第{i}行：person_a/person_b 不得为空")
+        if pa and pa == pb:
+            err(f"relations.csv 第{i}行：person_a 与 person_b 相同")
+        check_enum("relations.csv", i, "rel_type", (row.get("rel_type") or "").strip(), REL_TYPES)
+        check_enum("relations.csv", i, "reliability", (row.get("reliability") or "").strip(), HML)
+        if not (row.get("rel_label") or "").strip():
+            err(f"relations.csv 第{i}行：rel_label 不得为空")
+        key = (frozenset((pa, pb)), (row.get("rel_type") or "").strip())
+        if key in seen_rel:
+            err(f"relations.csv 第{i}行：与第{seen_rel[key]}行同对同类重复（含反向重复）")
+        seen_rel[key] = i
 
     # ---- background / archaeology ----
     for name in ("background", "archaeology"):

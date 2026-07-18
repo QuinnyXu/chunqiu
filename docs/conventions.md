@@ -1,6 +1,7 @@
 # 春秋人物志 · 项目约定（conventions）
 
-版本：v1.4（2026-07-18：私有层规则扩展为一切写作向列；校验器加公开表头护栏；私有文件改三列通用格式）
+版本：v1.5（2026-07-18：新增 relations 关系结构表）
+历史：v1.4（私有层规则扩展为一切写作向列；校验器加公开表头护栏；私有文件改三列通用格式）
 历史：v1.3（写作向备注列移出公开数据；presence 从严通例、后出叙事分层通例）
 历史：v1.2（event_people 加 presence、events 加 sort_key；ID 退役规则）；v1.1（分类枚举 15 类增「相会」；来源六前缀；事件 ID 后缀口径）
 
@@ -39,6 +40,7 @@ data/csv/*.csv  →  tools/csv_to_json.py  →  site/data/*.json + meta.json
 | passages | `Q###`（可带后缀） | Q004A | |
 | background | `BKG###` | BKG001 | |
 | archaeology | `ARC###` | ARC001 | |
+| relations | `R###` | R001 | 人物关系结构表，供图谱用 |
 
 ID 一经使用不得复用或改义；删除记录时其 ID 作废封存。
 
@@ -98,6 +100,10 @@ y = 700 - (lat - 32.0) / 6.5 * 700
 - 新增数据先进 `data/incoming/`，复核后合入 `data/csv/`。
 - `event_people.presence`：枚举 `{亲至, 相关}`，允许暂空（**空视同亲至**）。亲至=此人当时身在事发地；相关=事件与其相关但本人不在场（如为其议婚、他人代行）。
 - `events.sort_key`：可空整数；同一 `year_bce` 内按 sort_key 升序排列，按经传季月定值，建议以 10、20、30 间隔留插空。同一年内非空 sort_key 不得重复。
+
+## 6.5 relations 表（v1.5）
+
+表头 `id,person_a,person_b,rel_type,rel_label,reliability,source_note`。rel_type 枚举 8 类：`亲属-直系, 亲属-同辈, 婚姻, 君臣, 拥立, 敌对, 师友, 其他`。方向约定：**person_a 是 rel_label 的主语**（a=郑庄公、b=郑昭公、label=父）。每条关系只录一行、不录反向重复；同一对人物允许多行但 rel_type 必须不同。异说关系降 reliability 并在 source_note 说明。`people.relations` 自由文本列保留（人读友好），结构表供图谱等程序使用。
 
 ## 7. 私有层与叙事分层（v1.3）
 
