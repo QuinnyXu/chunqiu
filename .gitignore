@@ -23,3 +23,6 @@ private/
 wenjiang_research/
 build_wenjiang_database.py
 team/
+
+# Claude Code 子代理配置（内部材料）
+.claude/
