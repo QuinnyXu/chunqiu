@@ -33,6 +33,7 @@
     <button type="button" data-view="relations">关系</button>
     <button type="button" data-view="library">资料库</button>
     <button type="button" data-view="about">关于</button>
+    <a class="nav-feedback" href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">反馈</a>
   </nav>
 </header>
 
@@ -41,6 +42,7 @@
     <h2 class="screen-title" id="home-title">人物线 · 择一而入</h2>
     <ul class="person-grid" id="person-grid"></ul>
     <p class="home-extra">
+      <button type="button" class="library-entry" id="home-guide-entry">新来的朋友从这里开始 →</button>
       <button type="button" class="library-entry" id="home-relations-entry">四十人关系图谱 →</button>
       <button type="button" class="library-entry" id="home-library-entry">背景 · 考古 · 来源 —— 资料库 →</button>
       <button type="button" class="library-entry" id="home-about-entry">关于本站与数据凡例 →</button>
@@ -82,6 +84,7 @@
             <summary id="map-nogeo-summary">0 条事件无地望</summary>
             <ul id="map-nogeo-list"></ul>
           </details>
+          <p class="play-caption" id="play-caption" aria-live="polite" hidden></p>
           <button type="button" class="map-disclaimer" id="btn-disclaimer" aria-expanded="false">示意底图 ⓘ</button>
           <div class="disclaimer-pop" id="disclaimer-pop" hidden>
             <p><strong>列国底色与水系为艺术示意，非考据疆界。</strong></p>
@@ -106,6 +109,14 @@
 
   <section id="view-relations" hidden aria-labelledby="relations-title">
     <h2 class="screen-title" id="relations-title">人物关系图谱</h2>
+    <div class="rel-toolbar">
+      <nav class="rel-crumbs" id="rel-crumbs" aria-label="关系图游走路径"></nav>
+      <div class="rel-tools">
+        <button type="button" id="btn-rel-back" hidden>← 返回上一个中心</button>
+        <label class="rel-filter" id="rel-filter-label" hidden><input type="checkbox" id="rel-proto-only">仅主角边</label>
+        <button type="button" id="btn-rel-mode" aria-pressed="false">全景</button>
+      </div>
+    </div>
     <div class="rel-layout">
       <div class="rel-main">
         <div class="rel-canvas" id="rel-canvas" role="application" aria-label="人物关系图谱"></div>
@@ -113,7 +124,7 @@
       </div>
       <aside class="panel rel-panel" id="rel-panel" aria-live="polite">
         <h3>关系详情</h3>
-        <p class="map-status">点击人物节点高亮其一度关系；点击连线查看出处。主角节点可双击或经按钮跳转时间线。</p>
+        <p class="map-status">点击图中人物即以其为中心重绘，可沿关系网游走；点击连线查看出处。</p>
       </aside>
     </div>
   </section>
@@ -122,7 +133,7 @@
     <h2 class="screen-title" id="library-title">资料库</h2>
     <div class="lib-toolbar">
       <div class="lib-tabs" role="tablist" aria-label="资料类别">
-        <button type="button" role="tab" data-tab="background" aria-selected="true">写作背景</button>
+        <button type="button" role="tab" data-tab="background" aria-selected="true">历史背景</button>
         <button type="button" role="tab" data-tab="archaeology" aria-selected="false">考古线索</button>
         <button type="button" role="tab" data-tab="sources" aria-selected="false">来源文献</button>
       </div>
@@ -140,6 +151,17 @@
   <section id="view-about" hidden aria-labelledby="about-title">
     <h2 class="screen-title" id="about-title">关于本站</h2>
     <div class="about-body">
+      <section id="guide-start">
+        <h3>新来的朋友从这里开始</h3>
+        <p>不知从谁读起，可以先走这三条线：</p>
+        <ul>
+          <li><a href="#person=P_WENJIANG&amp;view=timeline">文姜线</a> —— 最戏剧性的命运线。齐国公室之女、鲁国国母，前694年那场变故之后，她的每次出行都被史官记下一笔。</li>
+          <li><a href="#person=P_ZHENGZHUANG&amp;view=timeline">郑庄公线</a> —— 《左传》开篇的雄主。克段于鄢、周郑交质、繻葛之战，都在这条线上。</li>
+          <li><a href="#person=P_QIHUAN&amp;view=timeline">齐桓公线</a> —— 从内乱到霸业。自莒返国、管仲为相、北杏与柯之盟，一路走到九合诸侯。</li>
+        </ul>
+        <p>怎么读：时间线上每条事件前的小图标是事件类别（交戈为战争、鼎为会盟、双环为婚嫁……悬停可见名称），事件展开后的色签标注可靠度——high 可当骨架，medium 宜复核，low 只是线索。地图上实心点是其人亲至之地，空心点是与其相关而本人未到之处，轨迹只连亲至。</p>
+        <p>读到可疑之处，欢迎经页顶「反馈」告诉我们——指出一处错误，比转发十次更帮得上忙。</p>
+      </section>
       <section>
         <h3>这是什么</h3>
         <p>春秋人物志是一个面向大众的春秋早期历史科普站：以文姜、鲁桓公、齐襄公、郑昭公、郑庄公、鲁隐公、鲁庄公、齐桓公八条人物线为骨架，把《左传》《国语》等传世文献中的记事整理成可交互的时间线、活动地图与关系图谱。<strong>每一条事件都能回答"出自哪一年、哪部书"</strong>——数据表中逐条挂有来源编号与鲁君纪年。</p>
@@ -161,8 +183,9 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.4（隐私层闭环 · 八人物 · 关系图谱）。</p>
+        <p id="about-version">当前版本 v0.5（以人为中心的关系图 · 播放字幕 · 试用导览）。</p>
         <ul>
+          <li>v0.5 —— 关系图改以人为中心可游走；轨迹播放地图内字幕；导览与反馈入口</li>
           <li>v0.4 —— 关系结构表与图谱；数据凡例成文</li>
           <li>v0.3 —— 科普定位；八人物；资料库视图；移动端地图</li>
           <li>更早 —— 数据管线与三屏原型</li>

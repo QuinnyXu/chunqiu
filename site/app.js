@@ -476,6 +476,7 @@ function renderMap() {
     }
     const open = () => {
       if (mapState.panDist > 6) return; // 拖移后误触不算点击
+      if (play.raf) return; // 播放期间不展开卡片/抽屉，画面聚焦地图；暂停或播完后恢复
       showPlace(pl, slot ? slot.events : []);
     };
     g.addEventListener("click", open);
@@ -769,6 +770,7 @@ function openOverlay() {
   const overlay = $("#map-overlay");
   overlay.hidden = false;
   $("#map-overlay-body").appendChild(mapState.svg);
+  $("#map-overlay-body").appendChild($("#play-caption")); // 字幕条随地图入全屏
   mapState.overlay = true;
   document.body.classList.add("no-scroll");
   $("#btn-overlay-close").focus();
@@ -779,6 +781,8 @@ function closeOverlay() {
   overlay.hidden = true;
   document.body.classList.remove("no-scroll");
   if (mapState.svg) $("#map-canvas").appendChild(mapState.svg);
+  const frame = document.querySelector(".map-frame");
+  if (frame) frame.appendChild($("#play-caption")); // 字幕条归位内嵌地图
   mapState.overlay = false;
   mapState.pointers.clear();
   mapState.pinch = null;
@@ -786,10 +790,32 @@ function closeOverlay() {
   applyView(mapState.mode === "fit" ? mapState.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
 }
 
-/* ---------- 轨迹播放：分段缓动，全程≤8秒，可暂停 ---------- */
+/* ---------- 轨迹播放：分段缓动，全程≤8秒，可暂停 ----------
+ * 播放期间画面聚焦地图：到站信息走地图内字幕条（#play-caption，aria-live=polite），
+ * 不展开下方卡片/抽屉、不滚动页面；暂停或播完后字幕淡出，点击站点恢复正常展开。 */
 const play = { raf: null, paused: false, startTs: 0, elapsed: 0, traj: null,
                marker: null, segs: null, dur: 0, lastStation: -1 };
 const easeInOut = (u) => (u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2);
+
+function showCaption(text) {
+  const c = $("#play-caption");
+  c.textContent = text;
+  c.hidden = false;
+  requestAnimationFrame(() => c.classList.add("show"));
+}
+function hideCaption(immediate) {
+  const c = $("#play-caption");
+  if (!c) return;
+  c.classList.remove("show");
+  if (immediate) { c.hidden = true; c.textContent = ""; }
+  else setTimeout(() => { if (!c.classList.contains("show")) c.hidden = true; }, 300);
+}
+function captionText(idx) {
+  const t = play.traj[idx];
+  return "第" + (idx + 1) + "/" + play.traj.length + "站 " + t.placeNames.join("/") +
+    " · " + yearLabel(t.events[0].year_bce) +
+    " · " + t.events.map(e => e.title).join("；");
+}
 
 function togglePlayback(traj, anchors, theme) {
   const btn = $("#btn-play");
@@ -798,12 +824,14 @@ function togglePlayback(traj, anchors, theme) {
     play.raf = null;
     play.paused = true;
     btn.textContent = "▶ 继续播放";
+    hideCaption();
     return;
   }
   if (play.paused && play.marker) { // 续播
     play.paused = false;
     play.startTs = performance.now() - play.elapsed;
     btn.textContent = "⏸ 暂停";
+    if (play.lastStation >= 0) showCaption(captionText(play.lastStation));
     play.raf = requestAnimationFrame(stepPlayback);
     return;
   }
@@ -877,17 +905,14 @@ function stepPlayback(ts) {
 }
 function announceStation(idx) {
   play.lastStation = idx;
-  const t = play.traj[idx];
-  $("#map-status").textContent =
-    "第 " + (idx + 1) + "/" + play.traj.length + " 站 · " + t.placeNames.join("/") + " · " +
-    t.events.map(e => yearLabel(e.year_bce) + " " + e.title).join("；");
-  // 抽屉模式下播放不逐站弹抽屉（避免打断），状态行播报即可
-  if (!useDrawer()) showPlace(t.place, t.events);
+  // 到站信息只走地图内字幕条：不开卡片/抽屉、不滚动页面（内嵌与全屏同规则）
+  showCaption(captionText(idx));
 }
 function finishPlayback() {
   if (play.raf) cancelAnimationFrame(play.raf);
   play.raf = null;
   play.paused = false;
+  hideCaption();
   if (play.traj && play.marker) { // 归位：停在末站，按钮复位可重播
     const last = play.traj[play.traj.length - 1];
     play.marker.setAttribute("cx", last.x);
@@ -903,6 +928,7 @@ function stopPlayback() {
   play.paused = false;
   play.marker = null;
   play.traj = null;
+  hideCaption(true);
   const btn = $("#btn-play");
   if (btn) btn.textContent = "▶ 轨迹按时间播放";
   const marker = document.querySelector("#play-marker");
@@ -1011,20 +1037,105 @@ function showLibDetail(r) {
   }
 }
 
-/* ---------- 屏5 关系图谱（分组环形布局，零依赖） ---------- */
+/* ---------- 屏5 关系图谱：默认「以人为中心」ego 视图，可沿关系网游走；
+ * 40 人全景保留为次级入口（分组环形布局），加「仅主角边」过滤。零依赖。 ---------- */
 const REL_COLORS = {
   "亲属-直系": "#A9622B", "亲属-同辈": "#C79E7E", "婚姻": "#BC4433", "君臣": "#56707E",
   "拥立": "#44766B", "敌对": "#35302A", "师友": "#8A6D1F", "其他": "#8A8072",
 };
 const STATE_ORDER = ["齐", "鲁", "郑", "周", "卫", "楚", "许", "申", "宋"];
-const relView = { nodes: new Map(), edges: [], focus: null };
+const SIDE_TYPES = ["君臣", "拥立", "敌对", "师友", "其他"];
+const isProto = (pid) => PROTAGONISTS.some(m => m.id === pid);
+const relView = {
+  mode: "ego",           // ego=以人为中心 | pano=全景
+  center: null,          // 当前中心人物
+  stack: [],             // 游走历史（面包屑）
+  collapsed: new Set(),  // ego 两侧折叠的分组（窄屏默认全折叠）
+  collapsedInit: false,
+  protoOnly: false,      // 全景「仅主角边」
+  wantPano: false,       // 首页全景入口的一次性请求
+  nodes: new Map(), edges: [], focus: null, isolated: new Set(), // 全景态
+};
 
 function renderRelations() {
   buildRelLegend();
-  drawRelGraph();
-  const want = state.person && relView.nodes.has(state.person) ? state.person : relView.focus;
-  if (want && relView.nodes.has(want)) focusRelNode(want);
-  else resetRelFocus();
+  if (!relView.collapsedInit) {
+    relView.collapsedInit = true;
+    if (window.matchMedia("(max-width: 680px)").matches) {
+      for (const t of SIDE_TYPES) relView.collapsed.add(t);
+    }
+  }
+  // 首页「四十人图谱」入口明确要全景；带人物语境进入 → 以其为中心 ego 视图
+  if (relView.wantPano) { relView.wantPano = false; relView.mode = "pano"; }
+  else if (state.person) { relView.mode = "ego"; relView.center = state.person; relView.stack = []; }
+  else if (!relView.center) relView.mode = "pano";
+  drawRel();
+}
+function drawRel() {
+  if (relView.mode === "ego" && !relView.center) relView.mode = "pano";
+  updateRelToolbar();
+  if (relView.mode === "ego") drawEgoGraph(relView.center);
+  else drawPanoGraph();
+}
+function relRecenter(pid) {
+  if (!PEOPLE[pid]) return;
+  if (relView.mode === "ego" && pid === relView.center) return;
+  if (relView.mode === "ego" && relView.center) {
+    relView.stack.push(relView.center);
+    if (relView.stack.length > 30) relView.stack.shift();
+  }
+  relView.center = pid;
+  relView.mode = "ego";
+  drawRel();
+}
+function updateRelToolbar() {
+  const ego = relView.mode === "ego";
+  $("#btn-rel-back").hidden = !(ego && relView.stack.length);
+  $("#rel-filter-label").hidden = ego;
+  const modeBtn = $("#btn-rel-mode");
+  modeBtn.textContent = ego ? "全景 " + DATA.people.length + " 人" : "◎ 以人为中心";
+  modeBtn.setAttribute("aria-pressed", String(!ego));
+  const crumbs = $("#rel-crumbs");
+  crumbs.textContent = "";
+  if (!ego) {
+    const s = document.createElement("span");
+    s.className = "crumb-cur";
+    s.textContent = "全景 · " + DATA.people.length + " 人 · " + DATA.relations.length + " 条关系";
+    crumbs.appendChild(s);
+    return;
+  }
+  const trail = [...relView.stack, relView.center];
+  const shown = trail.slice(-5);
+  const base = trail.length - shown.length;
+  const sep = (txt) => {
+    const e = document.createElement("span");
+    e.className = "crumb-sep";
+    e.textContent = txt;
+    return e;
+  };
+  if (base > 0) crumbs.appendChild(sep("… ›"));
+  shown.forEach((pid, i) => {
+    if (i) crumbs.appendChild(sep("›"));
+    if (i === shown.length - 1) {
+      const cur = document.createElement("span");
+      cur.className = "crumb-cur";
+      cur.setAttribute("aria-current", "true");
+      cur.textContent = personName(pid);
+      crumbs.appendChild(cur);
+    } else {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = personName(pid);
+      const k = base + i;
+      b.addEventListener("click", () => {
+        relView.stack = trail.slice(0, k);
+        relView.center = trail[k];
+        relView.mode = "ego";
+        drawRel();
+      });
+      crumbs.appendChild(b);
+    }
+  });
 }
 function buildRelLegend() {
   const box = $("#rel-legend");
@@ -1042,7 +1153,316 @@ function buildRelLegend() {
   dash.textContent = "虚线＝可靠度中/低";
   box.appendChild(dash);
 }
-function drawRelGraph() {
+/* ----- ego 视图：中轴纵向家系 + 两侧按类型分组的其余一度关系 ----- */
+function egoModel(pid) {
+  const edges = DATA.relations.filter(r =>
+    (r.person_a === pid || r.person_b === pid) && PEOPLE[r.person_a] && PEOPLE[r.person_b]);
+  const fam = { grandparents: [], parents: [], siblings: [], spouses: [], children: [], grandchildren: [] };
+  const side = new Map();         // rel_type -> Map(person -> rels)
+  const sideHome = new Map();     // person -> 首见分组的 rels（同人多类型边并入一个节点，如周桓王之于郑庄公）
+  const pushU = (arr, id) => { if (id !== pid && !arr.includes(id)) arr.push(id); };
+  for (const r of edges) {
+    const other = r.person_a === pid ? r.person_b : r.person_a;
+    const otherIsSubject = r.person_a === other; // 约定：person_a 是 rel_label 的主语
+    if (r.rel_type === "亲属-直系" && (r.rel_label === "父" || r.rel_label === "母")) {
+      pushU(otherIsSubject ? fam.parents : fam.children, other);
+    } else if (r.rel_type === "亲属-直系" && (r.rel_label === "祖父" || r.rel_label === "祖母")) {
+      pushU(otherIsSubject ? fam.grandparents : fam.grandchildren, other);
+    } else if (r.rel_type === "亲属-同辈") {
+      pushU(fam.siblings, other);
+    } else if (r.rel_type === "婚姻") {
+      pushU(fam.spouses, other);
+    } else {
+      if (sideHome.has(other)) { sideHome.get(other).push(r); continue; }
+      const t = SIDE_TYPES.includes(r.rel_type) ? r.rel_type : "其他";
+      if (!side.has(t)) side.set(t, new Map());
+      const m = side.get(t);
+      if (!m.has(other)) m.set(other, []);
+      m.get(other).push(r);
+      sideHome.set(other, m.get(other));
+    }
+  }
+  // 沿家系再推一代：父母之父母＝祖辈，子女之子女＝孙辈（连边本身在库中，照常绘出）
+  for (const r of DATA.relations) {
+    if (r.rel_type !== "亲属-直系" || (r.rel_label !== "父" && r.rel_label !== "母")) continue;
+    if (!PEOPLE[r.person_a] || !PEOPLE[r.person_b]) continue;
+    if (fam.parents.includes(r.person_b)) pushU(fam.grandparents, r.person_a);
+    if (fam.children.includes(r.person_a)) pushU(fam.grandchildren, r.person_b);
+  }
+  // 家系已占位者不再入侧组（其非家系边直接画到家系节点上，如襄公·私通·文姜）
+  const famSet = new Set([pid, ...fam.grandparents, ...fam.parents, ...fam.siblings,
+                          ...fam.spouses, ...fam.children, ...fam.grandchildren]);
+  for (const [t, m] of [...side]) {
+    for (const id of [...m.keys()]) if (famSet.has(id)) m.delete(id);
+    if (!m.size) side.delete(t);
+  }
+  return { edges, fam, side };
+}
+
+function relEdgePath(x1, y1, x2, y2, k, famArc) {
+  // 同排/近水平边走弧线（家系弧向上、其余向下），避免横穿同排节点；k 为同对重边序号
+  if (Math.abs(y2 - y1) < (famArc ? 8 : 34)) {
+    const mx = (x1 + x2) / 2;
+    const off = 44 + Math.abs(x2 - x1) * 0.06 + k * 20;
+    const my = (y1 + y2) / 2 + (famArc ? -off : off);
+    return "M" + x1 + " " + y1 + " Q" + mx + " " + my + " " + x2 + " " + y2;
+  }
+  if (k > 0) {
+    const mx = (x1 + x2) / 2 + (k % 2 ? 1 : -1) * (14 + k * 8);
+    return "M" + x1 + " " + y1 + " Q" + mx + " " + ((y1 + y2) / 2) + " " + x2 + " " + y2;
+  }
+  return "M" + x1 + " " + y1 + " L" + x2 + " " + y2;
+}
+
+function drawEgoGraph(pid) {
+  const NS = "http://www.w3.org/2000/svg";
+  const { edges, fam, side } = egoModel(pid);
+
+  // 侧组分列：按固定类型序贪心放入较矮一侧
+  const sideCols = { left: [], right: [] };
+  const colH = { left: 0, right: 0 };
+  for (const t of SIDE_TYPES) {
+    if (!side.has(t)) continue;
+    const collapsed = relView.collapsed.has(t);
+    const h = 40 + (collapsed ? 0 : side.get(t).size * 44) + 14;
+    const col = colH.left <= colH.right ? "left" : "right";
+    sideCols[col].push({ type: t, entries: side.get(t), collapsed });
+    colH[col] += h;
+  }
+  const hasSide = sideCols.left.length + sideCols.right.length > 0;
+  const anyExpanded = [...sideCols.left, ...sideCols.right].some(g => !g.collapsed);
+
+  // 画布宽度按内容自适应（窄屏折叠侧组后中轴占满可视宽）
+  const nSib = fam.siblings.length, nSp = fam.spouses.length;
+  const egoHalf = Math.max(
+    150 + Math.max(0, nSib - 1) * 104 + (nSib ? 60 : 0),
+    150 + Math.max(0, nSp - 1) * 132 + (nSp ? 60 : 0));
+  let rowHalf = 0;
+  for (const row of [fam.grandparents, fam.parents, fam.children, fam.grandchildren]) {
+    if (row.length) rowHalf = Math.max(rowHalf, (row.length - 1) / 2 * 168 + 60);
+  }
+  const centerHalf = Math.max(230, egoHalf, rowHalf);
+  const sideW = anyExpanded ? 250 : (hasSide ? 130 : 40);
+  const W = Math.min(1500, 2 * (centerHalf + sideW));
+  const CX = W / 2;
+  const LX = anyExpanded ? 100 : 70;
+  const RX = W - LX;
+
+  // 家系行（只保留出现的世代，中轴纵向）
+  const rows = [];
+  if (fam.grandparents.length) rows.push({ ids: fam.grandparents, kind: "gp" });
+  if (fam.parents.length) rows.push({ ids: fam.parents, kind: "parents" });
+  rows.push({ ids: [...fam.siblings, pid, ...fam.spouses], kind: "ego" });
+  if (fam.children.length) rows.push({ ids: fam.children, kind: "children" });
+  if (fam.grandchildren.length) rows.push({ ids: fam.grandchildren, kind: "gc" });
+  let y0 = 96;
+  const STEP = 118;
+  const egoIdx = rows.findIndex(r => r.kind === "ego");
+  if (hasSide && y0 + egoIdx * STEP < 205) y0 += 205 - (y0 + egoIdx * STEP);
+
+  const placed = new Map(); // pid -> {x, y, side?, col?, rels?}
+  rows.forEach((row, ri) => {
+    const y = y0 + ri * STEP;
+    if (row.kind === "ego") {
+      placed.set(pid, { x: CX, y });
+      fam.siblings.forEach((id, i) => placed.set(id, { x: CX - 150 - i * 104, y }));
+      fam.spouses.forEach((id, i) => placed.set(id, { x: CX + 150 + i * 132, y }));
+    } else {
+      const x0 = CX - 168 * (row.ids.length - 1) / 2;
+      row.ids.forEach((id, i) => placed.set(id, { x: x0 + i * 168, y }));
+    }
+  });
+
+  // 侧组节点与表头位置
+  const sideMeta = [];
+  for (const col of ["left", "right"]) {
+    let y = 92;
+    const x = col === "left" ? LX : RX;
+    for (const g of sideCols[col]) {
+      sideMeta.push({ type: g.type, entries: g.entries, collapsed: g.collapsed, x, headY: y, col });
+      y += 40;
+      if (!g.collapsed) {
+        for (const [id, rels] of g.entries) {
+          placed.set(id, { x, y, side: true, col, rels });
+          y += 44;
+        }
+      }
+      y += 14;
+    }
+  }
+  const H = Math.max(y0 + (rows.length - 1) * STEP + 96,
+                     92 + Math.max(colH.left, colH.right) + 30, 430);
+
+  const canvas = $("#rel-canvas");
+  canvas.textContent = "";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  canvas.appendChild(svg);
+  const edgeLayer = document.createElementNS(NS, "g");
+  const nodeLayer = document.createElementNS(NS, "g");
+  svg.appendChild(edgeLayer);
+  svg.appendChild(nodeLayer);
+
+  // 边：库中任意一条、两端都已落位者皆画（家系内部与两侧人物间的边一并呈现）
+  const dupCount = new Map();
+  for (const rel of DATA.relations) {
+    const A = placed.get(rel.person_a), B = placed.get(rel.person_b);
+    if (!A || !B) continue;
+    const key = [rel.person_a, rel.person_b].sort().join("|");
+    const k = dupCount.get(key) || 0;
+    dupCount.set(key, k + 1);
+    const famArc = ["亲属-直系", "亲属-同辈", "婚姻"].includes(rel.rel_type);
+    const touches = rel.person_a === pid || rel.person_b === pid;
+    let d;
+    if ((A.side ? 1 : 0) + (B.side ? 1 : 0) === 1) {
+      // 侧组边：弧线向外侧让开家系行，避免横穿同排节点与名签
+      const S = A.side ? A : B, T = A.side ? B : A;
+      const bow = Math.max(24, Math.abs(T.x - S.x) * 0.12) + k * 18;
+      const cy = S.y + (S.y <= T.y ? -bow : bow);
+      d = "M" + S.x + " " + S.y + " Q" + ((S.x + T.x) / 2) + " " + cy + " " + T.x + " " + T.y;
+    } else {
+      d = relEdgePath(A.x, A.y, B.x, B.y, k, famArc);
+    }
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", REL_COLORS[rel.rel_type] || "#8A8072");
+    path.setAttribute("stroke-width", touches ? "2.4" : "1.4");
+    path.style.opacity = touches ? "0.9" : "0.4";
+    path.setAttribute("class", "rel-edge");
+    if (rel.reliability !== "high") path.setAttribute("stroke-dasharray", "5 4");
+    const tip = document.createElementNS(NS, "title");
+    tip.textContent = personName(rel.person_a) + " ·" + rel.rel_label + "· " + personName(rel.person_b) +
+      (rel.source_note ? "（" + rel.source_note + "）" : "");
+    path.appendChild(tip);
+    path.addEventListener("click", () => showRelDetail([rel], null));
+    edgeLayer.appendChild(path);
+  }
+
+  // 节点
+  for (const [id, pos] of placed) {
+    nodeLayer.appendChild(egoNodeEl(id, pos, id === pid));
+  }
+
+  // 分组表头（点击/回车折叠展开）
+  for (const g of sideMeta) {
+    const gh = document.createElementNS(NS, "g");
+    gh.setAttribute("class", "rel-ghead");
+    gh.setAttribute("tabindex", "0");
+    gh.setAttribute("role", "button");
+    gh.setAttribute("aria-expanded", String(!g.collapsed));
+    gh.setAttribute("aria-label", g.type + " 关系分组，" + g.entries.size + " 人，点击" + (g.collapsed ? "展开" : "折叠"));
+    const bar = document.createElementNS(NS, "rect");
+    bar.setAttribute("x", g.col === "left" ? g.x - 2 : g.x - 16);
+    bar.setAttribute("y", g.headY - 10);
+    bar.setAttribute("width", 18); bar.setAttribute("height", 3);
+    bar.setAttribute("fill", REL_COLORS[g.type] || "#8A8072");
+    gh.appendChild(bar);
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("x", g.x);
+    t.setAttribute("y", g.headY + 8);
+    t.setAttribute("text-anchor", g.col === "left" ? "start" : "end");
+    t.textContent = (g.collapsed ? "▸ " : "▾ ") + g.type + " " + g.entries.size;
+    gh.appendChild(t);
+    const toggle = () => {
+      if (relView.collapsed.has(g.type)) relView.collapsed.delete(g.type);
+      else relView.collapsed.add(g.type);
+      drawRel();
+    };
+    gh.addEventListener("click", toggle);
+    gh.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+    });
+    nodeLayer.appendChild(gh);
+  }
+
+  showRelDetail(edges, pid);
+}
+
+function egoNodeEl(id, pos, isEgo) {
+  const NS = "http://www.w3.org/2000/svg";
+  const proto = PROTAGONISTS.find(m => m.id === id) || null;
+  const g = document.createElementNS(NS, "g");
+  g.setAttribute("class", "rel-node" + (proto ? " proto" : "") + (isEgo ? " ego" : ""));
+  const r = isEgo ? (proto ? 17 : 12) : (pos.side ? 5.5 : (proto ? 12 : 7));
+  if (isEgo) { // 中心人物：朱砂细环标记
+    const ring = document.createElementNS(NS, "circle");
+    ring.setAttribute("cx", pos.x); ring.setAttribute("cy", pos.y);
+    ring.setAttribute("r", r + 4.5);
+    ring.setAttribute("fill", "none");
+    ring.setAttribute("stroke", "#BC4433");
+    ring.setAttribute("stroke-width", "1.4");
+    g.appendChild(ring);
+  }
+  const c = document.createElementNS(NS, "circle");
+  c.setAttribute("cx", pos.x); c.setAttribute("cy", pos.y); c.setAttribute("r", r);
+  if (proto) {
+    c.setAttribute("fill", proto.color);
+    c.setAttribute("stroke", "#F4EDDF");
+    c.setAttribute("stroke-width", isEgo ? 2.4 : 2);
+  } else {
+    c.setAttribute("fill", "#FBF7EC");
+    c.setAttribute("stroke", isEgo ? "#2E2A24" : "#7A7166");
+    c.setAttribute("stroke-width", isEgo ? 2.2 : 1.4);
+  }
+  g.appendChild(c);
+  if (proto && !pos.side) {
+    const bs = isEgo ? 22 : 15;
+    fetchSVG(proto.badge).then(t => {
+      if (!t) return;
+      const doc = new DOMParser().parseFromString(t, "image/svg+xml");
+      const b = document.importNode(doc.documentElement, true);
+      b.setAttribute("x", pos.x - bs / 2); b.setAttribute("y", pos.y - bs / 2);
+      b.setAttribute("width", bs); b.setAttribute("height", bs);
+      b.style.color = "#F4EDDF";
+      b.style.pointerEvents = "none";
+      g.appendChild(b);
+    });
+  }
+  const label = document.createElementNS(NS, "text");
+  if (pos.side) {
+    label.setAttribute("x", pos.col === "left" ? pos.x + 10 : pos.x - 10);
+    label.setAttribute("y", pos.y + 4.5);
+    label.setAttribute("text-anchor", pos.col === "left" ? "start" : "end");
+    label.textContent = personName(id);
+    const labels = [...new Set(pos.rels.map(r2 => r2.rel_label))].join("／");
+    const sub = document.createElementNS(NS, "tspan");
+    sub.setAttribute("class", "sublabel");
+    sub.setAttribute("dx", "6");
+    sub.textContent = labels.length > 9 ? labels.slice(0, 8) + "…" : labels;
+    label.appendChild(sub);
+  } else {
+    label.setAttribute("x", pos.x);
+    label.setAttribute("y", pos.y + r + 17);
+    label.setAttribute("text-anchor", "middle");
+    label.textContent = personName(id);
+  }
+  g.appendChild(label);
+  if (isEgo) {
+    g.setAttribute("aria-current", "true");
+    g.setAttribute("aria-label", personName(id) + "：当前中心");
+  } else {
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", "button");
+    g.setAttribute("aria-label", personName(id) + "：以其为中心重绘");
+    if (pos.rels) {
+      const tip = document.createElementNS(NS, "title");
+      tip.textContent = pos.rels.map(r2 =>
+        personName(r2.person_a) + " ·" + r2.rel_label + "· " + personName(r2.person_b) +
+        (r2.source_note ? "（" + r2.source_note + "）" : "")).join("\n");
+      g.appendChild(tip);
+    }
+    g.addEventListener("click", () => relRecenter(id));
+    g.addEventListener("dblclick", () => { if (proto) setHash(id, "timeline"); });
+    g.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); relRecenter(id); }
+    });
+  }
+  return g;
+}
+
+/* ----- 全景视图（分组环形布局，round6 原样保留；本轮仅加过滤器） ----- */
+function drawPanoGraph() {
   const NS = "http://www.w3.org/2000/svg";
   const W = 1000, H = 680, CX = 500, CY = 330, R = 252;
   const canvas = $("#rel-canvas");
@@ -1073,6 +1493,7 @@ function drawRelGraph() {
 
   relView.edges = [];
   for (const rel of DATA.relations) {
+    if (relView.protoOnly && !isProto(rel.person_a) && !isProto(rel.person_b)) continue; // 仅主角边
     const A = relView.nodes.get(rel.person_a), B = relView.nodes.get(rel.person_b);
     if (!A || !B) continue;
     const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
@@ -1132,6 +1553,19 @@ function drawRelGraph() {
     nodeLayer.appendChild(g);
     node.el = g;
   }
+
+  // 「仅主角边」下无边可挂的配角淡出
+  relView.isolated.clear();
+  if (relView.protoOnly) {
+    const linked = new Set();
+    for (const { rel } of relView.edges) { linked.add(rel.person_a); linked.add(rel.person_b); }
+    for (const node of relView.nodes.values()) {
+      if (!linked.has(node.p.id) && !node.proto) relView.isolated.add(node.p.id);
+    }
+  }
+
+  if (relView.focus && relView.nodes.has(relView.focus)) focusRelNode(relView.focus);
+  else resetRelFocus();
 }
 const personName = (id) => (PEOPLE[id] ? PEOPLE[id].name : id);
 
@@ -1162,7 +1596,7 @@ function resetRelFocus() {
     el.setAttribute("stroke-width", "1.6");
   }
   for (const node of relView.nodes.values()) {
-    node.el.style.opacity = "";
+    node.el.style.opacity = relView.isolated.has(node.p.id) ? "0.25" : "";
     node.el.classList.remove("focused");
   }
   const panel = $("#rel-panel");
@@ -1215,6 +1649,13 @@ function showRelDetail(rels, pid) {
   panel.appendChild(ul);
   const acts = document.createElement("p");
   acts.className = "rel-actions";
+  if (pid && relView.mode === "pano") {
+    const center = document.createElement("button");
+    center.type = "button";
+    center.textContent = "◎ 以 " + personName(pid) + " 为中心";
+    center.addEventListener("click", () => relRecenter(pid));
+    acts.appendChild(center);
+  }
   if (pid && PROTAGONISTS.some(m => m.id === pid)) {
     const go = document.createElement("button");
     go.type = "button";
@@ -1222,11 +1663,13 @@ function showRelDetail(rels, pid) {
     go.addEventListener("click", () => setHash(pid, "timeline"));
     acts.appendChild(go);
   }
-  const clear = document.createElement("button");
-  clear.type = "button";
-  clear.textContent = "清除高亮";
-  clear.addEventListener("click", resetRelFocus);
-  acts.appendChild(clear);
+  if (relView.mode === "pano") {
+    const clear = document.createElement("button");
+    clear.type = "button";
+    clear.textContent = "清除高亮";
+    clear.addEventListener("click", resetRelFocus);
+    acts.appendChild(clear);
+  }
   panel.appendChild(acts);
 }
 
@@ -1254,9 +1697,42 @@ async function boot() {
     renderLibList();
   });
   $("#home-library-entry").addEventListener("click", () => setHash(state.person, "library", state.tab, state.q));
-  $("#home-relations-entry").addEventListener("click", () => setHash(state.person, "relations"));
+  $("#home-relations-entry").addEventListener("click", () => {
+    relView.wantPano = true; // 该入口明确指向全景
+    setHash(state.person, "relations");
+  });
   $("#home-about-entry").addEventListener("click", () => setHash(state.person, "about"));
+  $("#home-guide-entry").addEventListener("click", () => { // 关于页顶部导览小节
+    const go = () => { const s = $("#guide-start"); if (s) s.scrollIntoView({ block: "start" }); };
+    if (state.view === "about") { go(); return; }
+    window.addEventListener("hashchange", () => requestAnimationFrame(go), { once: true });
+    setHash(state.person, "about");
+  });
   $("#timeline-relations-entry").addEventListener("click", () => setHash(state.person, "relations"));
+  // 关系图工具条
+  $("#btn-rel-back").addEventListener("click", () => {
+    if (relView.stack.length) {
+      relView.center = relView.stack.pop();
+      relView.mode = "ego";
+      drawRel();
+    }
+  });
+  $("#btn-rel-mode").addEventListener("click", () => {
+    if (relView.mode === "ego") relView.mode = "pano";
+    else {
+      if (!relView.center) {
+        const m = PROTAGONISTS.find(mm => mm.id === state.person) ||
+                  PROTAGONISTS.find(mm => PEOPLE[mm.id]);
+        relView.center = m ? m.id : null;
+      }
+      relView.mode = relView.center ? "ego" : "pano";
+    }
+    drawRel();
+  });
+  $("#rel-proto-only").addEventListener("change", (e) => {
+    relView.protoOnly = e.target.checked;
+    if (relView.mode === "pano") drawRel();
+  });
   $("#btn-overlay-close").addEventListener("click", closeOverlay);
   // 抽屉：X / 点外区域 / 下滑手势 / ESC
   $("#drawer-close").addEventListener("click", closeDrawer);

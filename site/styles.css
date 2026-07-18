@@ -61,7 +61,7 @@ body {
 }
 .person-flag:empty { display: none; }
 
-.main-nav { margin-left: auto; display: flex; gap: 0.4rem; }
+.main-nav { margin-left: auto; display: flex; gap: 0.4rem; align-items: center; }
 .main-nav button {
   font: inherit;
   font-family: var(--serif);
@@ -79,6 +79,17 @@ body {
   border-color: var(--ink);
 }
 .main-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+.main-nav a.nav-feedback {
+  font-family: var(--serif);
+  letter-spacing: 0.1em;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 0.3rem 0.9rem;
+  border-radius: 2px;
+  text-decoration: none;
+  line-height: normal;
+}
+.main-nav a.nav-feedback:hover { color: var(--ochre); border-color: var(--ochre); }
 
 main { max-width: 1240px; margin: 0 auto; padding: 1.4rem 1.2rem 3rem; }
 section[hidden] { display: none; }
@@ -395,6 +406,36 @@ footer.site-footer {
 .disclaimer-pop p { margin: 0 0 0.4rem; }
 .disclaimer-pop p:last-child { margin-bottom: 0; }
 
+/* ---------- 播放字幕条（到站信息叠加地图内，融入绢帛底） ---------- */
+.play-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%);
+  max-width: min(92%, 640px);
+  margin: 0;
+  background: rgba(251, 247, 236, 0.88);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--theme);
+  border-radius: 3px;
+  padding: 0.28rem 0.85rem;
+  font-family: var(--serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+.play-caption.show { opacity: 1; }
+.play-caption[hidden] { display: none; }
+.map-overlay-body { position: relative; }
+.map-overlay-body .play-caption { bottom: 18px; }
+
 /* ---------- 无地望计数与全屏浮层 ---------- */
 .map-nogeo {
   position: absolute;
@@ -575,6 +616,76 @@ body.no-scroll { overflow: hidden; }
 .inline-entry:hover { color: var(--ochre); border-color: var(--ochre); }
 
 /* ---------- 屏5 关系图谱 ---------- */
+.rel-toolbar {
+  display: flex;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+}
+.rel-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.35rem;
+  align-items: baseline;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  min-width: 0;
+}
+.rel-crumbs button {
+  font: inherit;
+  font-family: var(--serif);
+  background: none;
+  border: none;
+  padding: 0 0.1rem;
+  color: var(--ochre);
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+.rel-crumbs .crumb-cur { font-family: var(--serif); color: var(--ink); font-weight: 700; }
+.rel-crumbs .crumb-sep { color: var(--line); }
+.rel-tools {
+  margin-left: auto;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+.rel-tools button {
+  font: inherit;
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  background: var(--silk-panel);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 0.22rem 0.7rem;
+  cursor: pointer;
+  color: var(--ink);
+}
+.rel-tools button:hover { color: var(--ochre); border-color: var(--ochre); }
+.rel-filter {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.rel-filter[hidden] { display: none; }
+.rel-filter input { accent-color: var(--bronze); }
+.rel-ghead { cursor: pointer; }
+.rel-ghead text {
+  font-family: var(--serif);
+  font-size: 13px;
+  fill: var(--ink-soft);
+}
+.rel-ghead:hover text, .rel-ghead:focus text { fill: var(--ochre); }
+.rel-node text .sublabel {
+  font-size: 10.5px;
+  fill: var(--ink-soft);
+  font-weight: 400;
+}
+.rel-node.ego { cursor: default; }
 .rel-layout { display: flex; gap: 1rem; align-items: flex-start; }
 .rel-main { flex: 1 1 auto; min-width: 0; }
 .rel-canvas {
@@ -714,8 +825,8 @@ body.no-scroll { overflow: hidden; }
 /* ---------- 窄屏 ---------- */
 @media (max-width: 680px) {
   .site-header { padding: 0.7rem 0.8rem; }
-  .main-nav { margin-left: 0; width: 100%; }
-  .main-nav button { flex: 1 1 auto; }
+  .main-nav { margin-left: 0; width: 100%; flex-wrap: wrap; }
+  .main-nav button, .main-nav a.nav-feedback { flex: 1 1 auto; text-align: center; }
   main { padding: 1rem 0.8rem 2.5rem; }
   .person-grid { grid-template-columns: 1fr; }
   .event summary { flex-wrap: wrap; }
@@ -731,6 +842,12 @@ body.no-scroll { overflow: hidden; }
   #lib-search { flex: 1 1 auto; min-width: 0; width: 100%; }
   .rel-layout { flex-direction: column; }
   .rel-panel { flex-basis: auto; width: 100%; max-height: none; }
+  .rel-tools { margin-left: 0; width: 100%; justify-content: flex-start; }
+  /* 窄屏图例为文档流（在图下方），字幕条抬高到图面之上避让 */
+  .play-caption { bottom: 3.1rem; max-width: 96%; font-size: 0.8rem; }
+  /* 窄屏关系图与地图同策略：横向滚动保住可读尺寸 */
+  .rel-canvas { overflow-x: auto; }
+  .rel-canvas svg { min-width: 640px; }
   /* 窄屏内嵌视图：地点详情为地图下方文档流卡片（round6 回归）；抽屉仅用于全屏态 */
   .inline-entry { display: inline-block; margin: 0.3rem 0 0; }
 }
