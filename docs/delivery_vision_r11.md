@@ -58,6 +58,7 @@
 4. 页脚「直接分享」在桌面 Edge/Safari 也会出现（系统有原生分享面板即为真支持），非仅手机——与任务书「多为手机」描述一致，不做 UA 嗅探压制。
 5. 分享卡对话框预览按 CSS 缩到 300px 宽显示，导出仍为全尺寸 1080 宽 PNG；下载文件名 `chunqiu-share-<宽>x<高>.png`。
 6. r10 已知问题延续：人物语境为内存态（刷新丢失）；全景面包屑关系计数口径 112 条（数据事实）与并线 101 线并存；国别选项卡 aria-current 不随滚动联动。
+7. **Cloudflare 邮箱混淆（观察记录）**：主站 chunqiu.timechorus.com 开着 Cloudflare「Email Address Obfuscation」，静态 HTML 里的 mailto 被边缘改写为 `/cdn-cgi/l/email-protection`，真实浏览器由其脚本解回——已用 headless Edge 对线上实测，三处 mailto 均正确还原为 `mailto:chunqiu@timechorus.com`，用户无感；github.io 镜像为明文 mailto。仅纯文本爬虫在主域看不到明文邮箱（顺带有防采集之效），如需主域明文可在 CF 面板关闭该项（Xiangtao 权限）。
 
 ## 部署
 
