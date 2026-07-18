@@ -61,4 +61,4 @@
 
 ## 部署
 
-提交 `<本次 commit>` push 后 GitHub Actions（validate 护栏＋Pages 部署＋部署自检）须全绿；Cloudflare Pages 主站同源自动同步。分享卡二维码指向主站 `https://chunqiu.timechorus.com`（既有资产 `site/assets/share/qr.png`，本轮未改）。
+提交 `088fbb2` push 后 GitHub Actions（validate 护栏＋Pages 部署＋部署自检）已全绿（run 88132133882，含 meta.json generated_at 线上比对）；Cloudflare Pages 主站同源自动同步。分享卡二维码指向主站 `https://chunqiu.timechorus.com`（既有资产 `site/assets/share/qr.png`，本轮未改）。
