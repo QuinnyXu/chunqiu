@@ -38,3 +38,38 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Post-deploy self-check（meta.json generated_at 比对）
+        run: |
+          set -e
+          LOCAL=$(python3 -c "import json; print(json.load(open('site/data/meta.json'))['generated_at'])")
+          # 裸 URL 可能被 CDN 边缘缓存误导，必须带 cache-bust 参数
+          URL="${{ steps.deployment.outputs.page_url }}data/meta.json?v=${{ github.sha }}"
+          echo "本地 generated_at: $LOCAL"
+          echo "线上请求 URL（带 cache-bust）：$URL"
+
+          MAX_ATTEMPTS=4  # 1 次初始请求 + 3 次重试
+          ATTEMPT=1
+          REMOTE=""
+          while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
+            echo "第 $ATTEMPT 次请求..."
+            REMOTE_JSON=$(curl -fsSL "$URL" || echo "")
+            if [ -n "$REMOTE_JSON" ]; then
+              REMOTE=$(echo "$REMOTE_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin).get('generated_at',''))" 2>/dev/null || echo "")
+              echo "线上 generated_at: $REMOTE"
+              if [ "$REMOTE" = "$LOCAL" ] && [ -n "$REMOTE" ]; then
+                echo "OK：线上 meta.json 与仓库一致，部署已生效"
+                exit 0
+              fi
+            else
+              echo "请求失败或响应为空"
+            fi
+            if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+              echo "不一致，30 秒后重试..."
+              sleep 30
+            fi
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+
+          echo "::error::部署后自检失败：线上 meta.json（generated_at=$REMOTE）与仓库（generated_at=$LOCAL）不一致，已重试 3 次仍失败——疑似「推了没上线」"
+          exit 1
