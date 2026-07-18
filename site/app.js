@@ -53,7 +53,7 @@ function parseHash() {
   const h = location.hash.replace(/^#/, "");
   for (const kv of h.split("&")) {
     const [k, v] = kv.split("=");
-    if (k === "view" && ["home", "timeline", "map", "library"].includes(v)) st.view = v;
+    if (k === "view" && ["home", "timeline", "map", "library", "relations", "about"].includes(v)) st.view = v;
     if (k === "person" && PROTAGONISTS.some(p => p.id === v)) st.person = v;
     if (k === "tab" && ["background", "archaeology", "sources"].includes(v)) st.tab = v;
     if (k === "q" && v) { try { st.q = decodeURIComponent(v); } catch { st.q = v; } }
@@ -111,6 +111,7 @@ let state = { view: "home", person: null, tab: "background", q: "" };
 function render() {
   state = parseHash();
   closeOverlay();
+  closeDrawer();
   const meta = PROTAGONISTS.find(p => p.id === state.person);
   document.documentElement.style.setProperty("--theme", meta ? meta.color : "#B4652F");
 
@@ -123,14 +124,16 @@ function render() {
       btn.disabled = !state.person;
     }
   });
-  for (const v of ["home", "timeline", "map", "library"]) {
+  for (const v of ["home", "timeline", "map", "library", "relations", "about"]) {
     $("#view-" + v).hidden = (state.view !== v);
   }
+  $("#timeline-relations-entry").hidden = !state.person;
   stopPlayback();
   if (state.view === "home") renderHome();
   if (state.view === "timeline") renderTimeline();
   if (state.view === "map") renderMap();
   if (state.view === "library") renderLibrary();
+  if (state.view === "relations") renderRelations();
 }
 
 /* ---------- 屏1 选人 ---------- */
@@ -434,6 +437,7 @@ function renderMap() {
     g.setAttribute("class", "anchor");
     g.setAttribute("tabindex", "0");
     g.setAttribute("role", "button");
+    g.dataset.place = pl.id;
     const dot = document.createElementNS(NS, "circle");
     dot.setAttribute("class", "dot");
     dot.setAttribute("cx", px); dot.setAttribute("cy", py);
@@ -562,12 +566,74 @@ function updateScopeBtn() {
   b.setAttribute("aria-pressed", String(mapState.mode === "fit"));
 }
 
+/* ---------- 地点详情：桌面侧栏 / 移动端与全屏态底部抽屉 ---------- */
+const drawer = { open: false, lastFocus: null, dragY: null };
+function useDrawer() {
+  return mapState.overlay || window.matchMedia("(max-width: 680px)").matches;
+}
 function showPlace(pl, evts) {
-  const panel = $("#place-panel");
-  panel.textContent = "";
-  const h3 = document.createElement("h3");
-  h3.textContent = pl.ancient_name + (pl.state ? "（" + pl.state + "）" : "");
-  panel.appendChild(h3);
+  const title = pl.ancient_name + (pl.state ? "（" + pl.state + "）" : "");
+  const content = buildPlaceContent(pl, evts);
+  markSelectedAnchor(pl.id);
+  if (useDrawer()) {
+    openDrawer(title, content);
+    if (pl.lat != null && pl.lng != null) {
+      const [px, py] = project(pl.lng, pl.lat);
+      ensureVisiblePoint(px, py);
+    }
+  } else {
+    const panel = $("#place-panel");
+    panel.textContent = "";
+    const h3 = document.createElement("h3");
+    h3.textContent = title;
+    panel.appendChild(h3);
+    panel.appendChild(content);
+  }
+}
+function markSelectedAnchor(placeId) {
+  document.querySelectorAll(".anchor.selected").forEach(g => g.classList.remove("selected"));
+  const g = document.querySelector('.anchor[data-place="' + placeId + '"]');
+  if (g) g.classList.add("selected");
+}
+function clearAnchorSelection() {
+  document.querySelectorAll(".anchor.selected").forEach(g => g.classList.remove("selected"));
+}
+function ensureVisiblePoint(px, py) {
+  const b = mapState.box;
+  if (!b) return;
+  // 抽屉约占视口下方45%，把选中点收进上半可见区
+  if (py > b.y + b.h * 0.5 || py < b.y + b.h * 0.06) {
+    const ny = Math.max(0, Math.min(py - b.h * 0.28, MAP_H - b.h));
+    applyView({ x: b.x, y: ny, w: b.w, h: b.h });
+  }
+}
+function openDrawer(title, contentNode) {
+  const d = $("#place-drawer"), bd = $("#drawer-backdrop");
+  $("#drawer-title").textContent = title;
+  const c = $("#drawer-content");
+  c.textContent = "";
+  c.appendChild(contentNode);
+  c.scrollTop = 0;
+  if (!drawer.open) drawer.lastFocus = document.activeElement;
+  bd.hidden = false;
+  d.hidden = false;
+  requestAnimationFrame(() => { d.classList.add("open"); bd.classList.add("open"); });
+  drawer.open = true;
+  $("#drawer-close").focus();
+}
+function closeDrawer() {
+  if (!drawer.open) return;
+  const d = $("#place-drawer"), bd = $("#drawer-backdrop");
+  d.classList.remove("open");
+  bd.classList.remove("open");
+  drawer.open = false;
+  setTimeout(() => {
+    if (!drawer.open) { d.hidden = true; bd.hidden = true; }
+  }, 250);
+  clearAnchorSelection();
+  if (drawer.lastFocus && drawer.lastFocus.isConnected) drawer.lastFocus.focus();
+}
+function buildPlaceContent(pl, evts) {
   const dl = document.createElement("dl");
   const row = (dt, dd) => {
     if (!dd) return;
@@ -580,7 +646,6 @@ function showPlace(pl, evts) {
   row("坐标", pl.lat != null ? pl.lat + ", " + pl.lng + "（" + (pl.coord_certainty || "?") + "）" : "未定位");
   row("坐标依据", pl.coord_basis);
   row("说明", pl.description);
-  panel.appendChild(dl);
   if (evts && evts.length) {
     const t = document.createElement("dt"); t.textContent = "相关事件";
     dl.appendChild(t);
@@ -592,6 +657,7 @@ function showPlace(pl, evts) {
     }
     const d = document.createElement("dd"); d.appendChild(ul); dl.appendChild(d);
   }
+  return dl;
 }
 
 /* ---------- 全屏查看：拖移 + 滚轮/双指缩放 ---------- */
@@ -797,7 +863,8 @@ function announceStation(idx) {
   $("#map-status").textContent =
     "第 " + (idx + 1) + "/" + play.traj.length + " 站 · " + t.placeNames.join("/") + " · " +
     t.events.map(e => yearLabel(e.year_bce) + " " + e.title).join("；");
-  showPlace(t.place, t.events);
+  // 抽屉模式下播放不逐站弹抽屉（避免打断），状态行播报即可
+  if (!useDrawer()) showPlace(t.place, t.events);
 }
 function finishPlayback() {
   if (play.raf) cancelAnimationFrame(play.raf);
@@ -926,10 +993,229 @@ function showLibDetail(r) {
   }
 }
 
+/* ---------- 屏5 关系图谱（分组环形布局，零依赖） ---------- */
+const REL_COLORS = {
+  "亲属-直系": "#A9622B", "亲属-同辈": "#C79E7E", "婚姻": "#BC4433", "君臣": "#56707E",
+  "拥立": "#44766B", "敌对": "#35302A", "师友": "#8A6D1F", "其他": "#8A8072",
+};
+const STATE_ORDER = ["齐", "鲁", "郑", "周", "卫", "楚", "许", "申", "宋"];
+const relView = { nodes: new Map(), edges: [], focus: null };
+
+function renderRelations() {
+  buildRelLegend();
+  drawRelGraph();
+  const want = state.person && relView.nodes.has(state.person) ? state.person : relView.focus;
+  if (want && relView.nodes.has(want)) focusRelNode(want);
+  else resetRelFocus();
+}
+function buildRelLegend() {
+  const box = $("#rel-legend");
+  box.textContent = "";
+  for (const [type, color] of Object.entries(REL_COLORS)) {
+    const s = document.createElement("span");
+    const i = document.createElement("i");
+    i.style.borderTopColor = color;
+    s.appendChild(i);
+    s.appendChild(document.createTextNode(type));
+    box.appendChild(s);
+  }
+  const dash = document.createElement("span");
+  dash.className = "rel-legend-dash";
+  dash.textContent = "虚线＝可靠度中/低";
+  box.appendChild(dash);
+}
+function drawRelGraph() {
+  const NS = "http://www.w3.org/2000/svg";
+  const W = 1000, H = 680, CX = 500, CY = 330, R = 252;
+  const canvas = $("#rel-canvas");
+  canvas.textContent = "";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  canvas.appendChild(svg);
+  const edgeLayer = document.createElementNS(NS, "g");
+  const nodeLayer = document.createElementNS(NS, "g");
+  svg.appendChild(edgeLayer);
+  svg.appendChild(nodeLayer);
+
+  const people = [...DATA.people].sort((a, b) => {
+    const sa = STATE_ORDER.indexOf((a.state || "").split("/")[0]);
+    const sb = STATE_ORDER.indexOf((b.state || "").split("/")[0]);
+    return ((sa < 0 ? 99 : sa) - (sb < 0 ? 99 : sb)) ||
+           ((b.is_protagonist || 0) - (a.is_protagonist || 0)) ||
+           a.id.localeCompare(b.id);
+  });
+  relView.nodes.clear();
+  people.forEach((p, i) => {
+    const ang = (i / people.length) * Math.PI * 2 - Math.PI / 2;
+    relView.nodes.set(p.id, {
+      p, x: CX + R * Math.cos(ang), y: CY + R * Math.sin(ang), ang,
+      proto: PROTAGONISTS.find(m => m.id === p.id) || null, el: null,
+    });
+  });
+
+  relView.edges = [];
+  for (const rel of DATA.relations) {
+    const A = relView.nodes.get(rel.person_a), B = relView.nodes.get(rel.person_b);
+    if (!A || !B) continue;
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+    const cx = mx + (CX - mx) * 0.45, cy = my + (CY - my) * 0.45;
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", "M" + A.x + " " + A.y + " Q" + cx + " " + cy + " " + B.x + " " + B.y);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", REL_COLORS[rel.rel_type] || "#8A8072");
+    path.setAttribute("stroke-width", "1.6");
+    path.setAttribute("class", "rel-edge");
+    if (rel.reliability !== "high") path.setAttribute("stroke-dasharray", "5 4");
+    const tip = document.createElementNS(NS, "title");
+    tip.textContent = personName(rel.person_a) + " · " + rel.rel_label + " · " + personName(rel.person_b) +
+      (rel.source_note ? "（" + rel.source_note + "）" : "");
+    path.appendChild(tip);
+    path.addEventListener("click", () => showRelDetail([rel], null));
+    edgeLayer.appendChild(path);
+    relView.edges.push({ rel, el: path });
+  }
+
+  for (const node of relView.nodes.values()) {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "rel-node" + (node.proto ? " proto" : ""));
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", "button");
+    g.setAttribute("aria-label", node.p.name + "：查看其关系");
+    const c = document.createElementNS(NS, "circle");
+    c.setAttribute("cx", node.x); c.setAttribute("cy", node.y);
+    c.setAttribute("r", node.proto ? 15 : 8);
+    c.setAttribute("fill", node.proto ? node.proto.color : "#FBF7EC");
+    c.setAttribute("stroke", node.proto ? "#F4EDDF" : "#7A7166");
+    c.setAttribute("stroke-width", node.proto ? 2 : 1.4);
+    g.appendChild(c);
+    if (node.proto) {
+      fetchSVG(node.proto.badge).then(t => {
+        const doc = new DOMParser().parseFromString(t, "image/svg+xml");
+        const b = document.importNode(doc.documentElement, true);
+        b.setAttribute("x", node.x - 10); b.setAttribute("y", node.y - 10);
+        b.setAttribute("width", 20); b.setAttribute("height", 20);
+        b.style.color = "#F4EDDF";
+        b.style.pointerEvents = "none";
+        g.appendChild(b);
+      });
+    }
+    const label = document.createElementNS(NS, "text");
+    const out = node.proto ? 24 : 15;
+    label.setAttribute("x", node.x + Math.cos(node.ang) * out);
+    label.setAttribute("y", node.y + Math.sin(node.ang) * out + 4);
+    label.setAttribute("text-anchor", Math.cos(node.ang) > 0.25 ? "start" : (Math.cos(node.ang) < -0.25 ? "end" : "middle"));
+    label.textContent = node.p.name;
+    g.appendChild(label);
+    g.addEventListener("click", () => focusRelNode(node.p.id));
+    g.addEventListener("dblclick", () => { if (node.proto) setHash(node.p.id, "timeline"); });
+    g.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); focusRelNode(node.p.id); }
+    });
+    nodeLayer.appendChild(g);
+    node.el = g;
+  }
+}
+const personName = (id) => (PEOPLE[id] ? PEOPLE[id].name : id);
+
+function focusRelNode(pid) {
+  relView.focus = pid;
+  const neighbors = new Set([pid]);
+  const mine = [];
+  for (const { rel, el } of relView.edges) {
+    const hit = rel.person_a === pid || rel.person_b === pid;
+    el.style.opacity = hit ? "0.95" : "0.06";
+    el.setAttribute("stroke-width", hit ? "2.6" : "1.2");
+    if (hit) {
+      mine.push(rel);
+      neighbors.add(rel.person_a);
+      neighbors.add(rel.person_b);
+    }
+  }
+  for (const node of relView.nodes.values()) {
+    node.el.style.opacity = neighbors.has(node.p.id) ? "1" : "0.22";
+    node.el.classList.toggle("focused", node.p.id === pid);
+  }
+  showRelDetail(mine, pid);
+}
+function resetRelFocus() {
+  relView.focus = null;
+  for (const { el } of relView.edges) {
+    el.style.opacity = "";
+    el.setAttribute("stroke-width", "1.6");
+  }
+  for (const node of relView.nodes.values()) {
+    node.el.style.opacity = "";
+    node.el.classList.remove("focused");
+  }
+  const panel = $("#rel-panel");
+  panel.textContent = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = "关系详情";
+  panel.appendChild(h3);
+  const p = document.createElement("p");
+  p.className = "map-status";
+  p.textContent = "点击人物节点高亮其一度关系；点击连线查看出处。";
+  panel.appendChild(p);
+}
+function showRelDetail(rels, pid) {
+  const panel = $("#rel-panel");
+  panel.textContent = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = pid ? personName(pid) + " 的一度关系（" + rels.length + "）" : "这条关系";
+  panel.appendChild(h3);
+  if (pid && PEOPLE[pid] && PEOPLE[pid].short_bio) {
+    const bio = document.createElement("p");
+    bio.className = "rel-bio";
+    bio.textContent = PEOPLE[pid].short_bio;
+    panel.appendChild(bio);
+  }
+  const ul = document.createElement("ul");
+  ul.className = "rel-list";
+  for (const rel of rels) {
+    const li = document.createElement("li");
+    const line = document.createElement("div");
+    line.textContent = personName(rel.person_a) + " ·" + rel.rel_label + "· " + personName(rel.person_b);
+    li.appendChild(line);
+    const meta = document.createElement("div");
+    meta.className = "rel-meta";
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.style.borderColor = REL_COLORS[rel.rel_type];
+    chip.style.color = REL_COLORS[rel.rel_type];
+    chip.textContent = rel.rel_type;
+    meta.appendChild(chip);
+    addChip(meta, "可靠度 " + rel.reliability, "rel-" + rel.reliability);
+    if (rel.source_note) {
+      const note = document.createElement("span");
+      note.className = "rel-note";
+      note.textContent = rel.source_note;
+      meta.appendChild(note);
+    }
+    li.appendChild(meta);
+    ul.appendChild(li);
+  }
+  panel.appendChild(ul);
+  const acts = document.createElement("p");
+  acts.className = "rel-actions";
+  if (pid && PROTAGONISTS.some(m => m.id === pid)) {
+    const go = document.createElement("button");
+    go.type = "button";
+    go.textContent = "查看 " + personName(pid) + " 的时间线 →";
+    go.addEventListener("click", () => setHash(pid, "timeline"));
+    acts.appendChild(go);
+  }
+  const clear = document.createElement("button");
+  clear.type = "button";
+  clear.textContent = "清除高亮";
+  clear.addEventListener("click", resetRelFocus);
+  acts.appendChild(clear);
+  panel.appendChild(acts);
+}
+
 /* ---------- 启动 ---------- */
 async function boot() {
   const names = ["people", "events", "event_people", "places", "passages", "sources",
-                 "background", "archaeology", "meta"];
+                 "background", "archaeology", "relations", "meta"];
   const results = await Promise.all(names.map(fetchJSON));
   names.forEach((n, i) => { DATA[n] = results[i]; });
   PEOPLE = byId(DATA.people);
@@ -950,9 +1236,36 @@ async function boot() {
     renderLibList();
   });
   $("#home-library-entry").addEventListener("click", () => setHash(state.person, "library", state.tab, state.q));
+  $("#home-relations-entry").addEventListener("click", () => setHash(state.person, "relations"));
+  $("#home-about-entry").addEventListener("click", () => setHash(state.person, "about"));
+  $("#timeline-relations-entry").addEventListener("click", () => setHash(state.person, "relations"));
   $("#btn-overlay-close").addEventListener("click", closeOverlay);
+  // 抽屉：X / 点外区域 / 下滑手势 / ESC
+  $("#drawer-close").addEventListener("click", closeDrawer);
+  $("#drawer-backdrop").addEventListener("click", closeDrawer);
+  const grip = $("#place-drawer");
+  grip.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".drawer-content")) return; // 内容区滚动优先
+    drawer.dragY = e.clientY;
+  });
+  grip.addEventListener("pointermove", (e) => {
+    if (drawer.dragY == null) return;
+    const dy = e.clientY - drawer.dragY;
+    grip.style.transform = dy > 0 ? "translateY(" + dy + "px)" : "";
+  });
+  const endDrag = (e) => {
+    if (drawer.dragY == null) return;
+    const dy = e.clientY - drawer.dragY;
+    drawer.dragY = null;
+    grip.style.transform = "";
+    if (dy > 60) closeDrawer();
+  };
+  grip.addEventListener("pointerup", endDrag);
+  grip.addEventListener("pointercancel", endDrag);
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && mapState.overlay) closeOverlay();
+    if (e.key !== "Escape") return;
+    if (drawer.open) closeDrawer();
+    else if (mapState.overlay) closeOverlay();
   });
   window.addEventListener("hashchange", render);
 
