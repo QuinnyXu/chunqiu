@@ -646,5 +646,113 @@
     "rel_label": "盟好",
     "reliability": "high",
     "source_note": "祊田、伐宋、入许（隐公八至十一年）"
+  },
+  {
+    "id": "R073",
+    "person_a": "P_XIPENG",
+    "person_b": "P_QIHUAN",
+    "rel_type": "君臣",
+    "rel_label": "大夫",
+    "reliability": "high",
+    "source_note": "左传僖公九年隰朋帅师纳晋惠公"
+  },
+  {
+    "id": "R074",
+    "person_a": "P_XIPENG",
+    "person_b": "P_GUANZHONG",
+    "rel_type": "师友",
+    "rel_label": "同朝同志（管仲荐之自代）",
+    "reliability": "medium",
+    "source_note": "荐相语出《史记》后出层"
+  },
+  {
+    "id": "R075",
+    "person_a": "P_SHUDIAO",
+    "person_b": "P_QIHUAN",
+    "rel_type": "君臣",
+    "rel_label": "内宠寺人",
+    "reliability": "high",
+    "source_note": "左传僖公十七年（作寺人貂）"
+  },
+  {
+    "id": "R076",
+    "person_a": "P_YIYA",
+    "person_b": "P_QIHUAN",
+    "rel_type": "君臣",
+    "rel_label": "近幸主膳",
+    "reliability": "high",
+    "source_note": "左传僖公十七年（作雍巫）"
+  },
+  {
+    "id": "R077",
+    "person_a": "P_KAIFANG",
+    "person_b": "P_QIHUAN",
+    "rel_type": "君臣",
+    "rel_label": "近幸",
+    "reliability": "medium",
+    "source_note": "三竖并称出《管子》《史记》；左传之乱未及其名"
+  },
+  {
+    "id": "R078",
+    "person_a": "P_GUANZHONG",
+    "person_b": "P_SHUDIAO",
+    "rel_type": "敌对",
+    "rel_label": "临终论其不可近",
+    "reliability": "medium",
+    "source_note": "《史记》齐太公世家（后出叙事）"
+  },
+  {
+    "id": "R079",
+    "person_a": "P_GUANZHONG",
+    "person_b": "P_YIYA",
+    "rel_type": "敌对",
+    "rel_label": "临终论其不可近",
+    "reliability": "medium",
+    "source_note": "《史记》齐太公世家（后出叙事）"
+  },
+  {
+    "id": "R080",
+    "person_a": "P_GUANZHONG",
+    "person_b": "P_KAIFANG",
+    "rel_type": "敌对",
+    "rel_label": "临终论其不可近",
+    "reliability": "medium",
+    "source_note": "《史记》齐太公世家（后出叙事）"
+  },
+  {
+    "id": "R081",
+    "person_a": "P_ZAIKONG",
+    "person_b": "P_QIHUAN",
+    "rel_type": "其他",
+    "rel_label": "代王赐胙而私论其乱",
+    "reliability": "high",
+    "source_note": "左传僖公九年"
+  },
+  {
+    "id": "R082",
+    "person_a": "P_QUWAN",
+    "person_b": "P_QIHUAN",
+    "rel_type": "敌对",
+    "rel_label": "对垒之使（终与之盟）",
+    "reliability": "high",
+    "source_note": "左传僖公四年"
+  },
+  {
+    "id": "R083",
+    "person_a": "P_WEIWEN",
+    "person_b": "P_QIHUAN",
+    "rel_type": "其他",
+    "rel_label": "受存国封城之惠",
+    "reliability": "high",
+    "source_note": "左传闵公二年、僖公二年"
+  },
+  {
+    "id": "R084",
+    "person_a": "P_XUMU",
+    "person_b": "P_WEIWEN",
+    "rel_type": "亲属-同辈",
+    "rel_label": "姊妹",
+    "reliability": "medium",
+    "source_note": "通说戴公文公之姊妹，世系细节从简"
   }
 ]

@@ -992,5 +992,222 @@
     "role_in_event": "寄居卫都",
     "directness": "direct",
     "presence": "亲至"
+  },
+  {
+    "event_id": "E061",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "救燕伐山戎（《史记》明书亲征）；公及齐侯遇于鲁济（庄公三十年经）与齐侯来献戎捷（三十一年经）为亲与旁证",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E062",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "纳谏出师",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E062",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "谏'诸夏不可弃'",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E063",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "使公子无亏戍曹",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E064",
+    "person_id": "P_XUMU",
+    "role_in_event": "赋载驰闵卫（至漕与否有异说）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E064",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "戍曹归公乘马",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E065",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "合诸侯救邢迁邢",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E066",
+    "person_id": "P_WEIWEN",
+    "role_in_event": "受封居楚丘",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E066",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "主城楚丘之役",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E067",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "怒归蔡姬",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E068",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "亲将伐楚主盟",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E068",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "责包茅、昭王之问",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E068",
+    "person_id": "P_QUWAN",
+    "role_in_event": "如师对答与盟",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E069",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "会王世子",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E070",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "主盟谋王室",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E071",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "受胙下拜、主盟",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E071",
+    "person_id": "P_ZAIKONG",
+    "role_in_event": "代王赐胙而论之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E072",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "平戎于王、辞上卿礼",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E072",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "遣使于王",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E073",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "卒",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E073",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "病榻问相（《史记》层）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E073",
+    "person_id": "P_XIPENG",
+    "role_in_event": "被荐、同岁前后卒",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E073",
+    "person_id": "P_YIYA",
+    "role_in_event": "被论当远",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E073",
+    "person_id": "P_SHUDIAO",
+    "role_in_event": "被论当远",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E073",
+    "person_id": "P_KAIFANG",
+    "role_in_event": "被论当远",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E074",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "卒",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E074",
+    "person_id": "P_YIYA",
+    "role_in_event": "因内宠杀群吏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E074",
+    "person_id": "P_SHUDIAO",
+    "role_in_event": "与乱立无亏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E074",
+    "person_id": "P_KAIFANG",
+    "role_in_event": "后出层并称与乱",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E075",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "使仲孙湫省难",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E075",
+    "person_id": "P_QINGFU",
+    "role_in_event": "乱源被论",
+    "directness": "indirect",
+    "presence": "相关"
   }
 ]
