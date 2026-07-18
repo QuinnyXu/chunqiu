@@ -3,16 +3,25 @@
 "use strict";
 
 /* ---------- 设计配置（见 docs/design/design_notes.md） ---------- */
+/* 顺序即选人页分区内顺序；分组按 people.state 首国自动生成，新国加入只增分区 */
 const PROTAGONISTS = [
   { id: "P_WENJIANG",    color: "#B23A2F", badge: "badge_wenjiang",    fallback: "文姜" },
-  { id: "P_LUHUAN",      color: "#A9622B", badge: "badge_luhuan",      fallback: "鲁桓公" },
   { id: "P_QIXIANG",     color: "#35302A", badge: "badge_qixiang",     fallback: "齐襄公" },
-  { id: "P_ZHENGZHAO",   color: "#3F7A6C", badge: "badge_zhengzhao",   fallback: "郑昭公" },
-  { id: "P_ZHENGZHUANG", color: "#5C4632", badge: "badge_zhengzhuang", fallback: "郑庄公" },
-  { id: "P_LUYIN",       color: "#56707E", badge: "badge_luyin",       fallback: "鲁隐公" },
-  { id: "P_LUZHUANG",    color: "#55603A", badge: "badge_luzhuang",    fallback: "鲁庄公" },
   { id: "P_QIHUAN",      color: "#8A6D1F", badge: "badge_qihuan",      fallback: "齐桓公" },
+  { id: "P_LUYIN",       color: "#56707E", badge: "badge_luyin",       fallback: "鲁隐公" },
+  { id: "P_LUHUAN",      color: "#A9622B", badge: "badge_luhuan",      fallback: "鲁桓公" },
+  { id: "P_LUZHUANG",    color: "#55603A", badge: "badge_luzhuang",    fallback: "鲁庄公" },
+  { id: "P_ZHENGZHUANG", color: "#5C4632", badge: "badge_zhengzhuang", fallback: "郑庄公" },
+  { id: "P_ZHENGZHAO",   color: "#3F7A6C", badge: "badge_zhengzhao",   fallback: "郑昭公" },
+  { id: "P_JINWEN",      color: "#8C3041", badge: "badge_jinwen",      fallback: "晋文公" },
 ];
+/* 各国一句话气质注（界面文案，非史料叙述；无注之国只显国名） */
+const STATE_EPITHET = {
+  "齐": "山海鱼盐之国",
+  "鲁": "周公之胤，秉礼之邦",
+  "郑": "四战之地，新造之邦",
+  "晋": "表里山河之国",
+};
 const CAT_ICON = {
   "即位": "jiwei", "战争": "zhanzheng", "会盟": "huimeng", "相会": "xianghui",
   "婚嫁": "hunjia", "生育": "shengyu", "出奔": "chuben", "弑杀": "shisha",
@@ -104,6 +113,58 @@ function personEvents(pid) {
 }
 const yearLabel = (y) => (y == null ? "—" : "前" + (-y));
 
+/* ---------- 姓名行拼装（docs/display_rules_naming.md）----------
+ * 姓/氏/名/字任一可空（空＝无考，直接省略该段）；「X姓Y氏」黏排，再以「，」连「名…」「字…」。 */
+function nameLineText(p, full) {
+  if (!p) return "";
+  const X = p.xing || "", S = p.shi || "", M = p.ming || "", Z = p.zi || "";
+  const seg = X && S ? X + "姓" + S + "氏" : (X ? X + "姓" : (S ? S + "氏" : ""));
+  const parts = [];
+  if (seg) parts.push(seg);
+  if (M) parts.push("名" + M);
+  if (Z) parts.push("字" + Z);
+  if (!parts.length) return full ? "姓名无考" : "";
+  let line = parts.join("，");
+  // 「（名无考）」括注仅用于名、字皆缺者（如文姜），且只在完整形式（详情/时间线头部）显示
+  if (full && seg && !M && !Z) line += "（名无考）";
+  return line;
+}
+/* 「姓氏有别」一句科普（文案取自 docs/display_rules_naming.md 的核心区分） */
+const XSNOTE = "先秦「姓」与「氏」有别：姓别婚姻，故女子系姓（文姜之「姜」即姓）；氏别贵贱，故男子称氏不称姓。空缺处即史无可考，从省不显。";
+let xsSeq = 0;
+function xsInfoNode() {
+  const wrap = document.createElement("span");
+  wrap.className = "xs-wrap";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "xs-info";
+  btn.textContent = "姓氏有别？";
+  btn.title = XSNOTE;
+  btn.setAttribute("aria-expanded", "false");
+  const note = document.createElement("span");
+  note.className = "xs-note";
+  note.id = "xs-note-" + (++xsSeq);
+  note.hidden = true;
+  note.textContent = XSNOTE;
+  btn.setAttribute("aria-controls", note.id);
+  btn.addEventListener("click", () => {
+    note.hidden = !note.hidden;
+    btn.setAttribute("aria-expanded", String(!note.hidden));
+  });
+  wrap.appendChild(btn);
+  wrap.appendChild(note);
+  return wrap;
+}
+function nameLineNode(p, cls) {
+  const t = nameLineText(p, true);
+  if (!t) return null;
+  const el = document.createElement("p");
+  el.className = "person-nameline" + (cls ? " " + cls : "");
+  el.appendChild(document.createTextNode(t));
+  el.appendChild(xsInfoNode());
+  return el;
+}
+
 /* ---------- 渲染骨架 ---------- */
 const $ = (sel) => document.querySelector(sel);
 let state = { view: "home", person: null, tab: "background", q: "" };
@@ -136,63 +197,153 @@ function render() {
   if (state.view === "relations") renderRelations();
 }
 
-/* ---------- 屏1 选人 ---------- */
+/* ---------- 屏1 选人（按 state 首国分组，顶部国别选项卡滚动定位） ---------- */
 function renderHome() {
-  const grid = $("#person-grid");
-  grid.textContent = "";
+  const tabsBox = $("#state-tabs");
+  const groupsBox = $("#person-groups");
+  tabsBox.textContent = "";
+  groupsBox.textContent = "";
+
+  // 分组：按 people.state 首国（跨国者归首国，卡上另标流向）；组序随 PROTAGONISTS 配置
+  const groups = [];
+  const byState = new Map();
   for (const meta of PROTAGONISTS) {
     const person = PEOPLE[meta.id];
-    const ready = !!person;
-    const li = document.createElement("li");
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "person-card";
-    card.style.setProperty("--card-color", meta.color);
-    card.disabled = !ready;
-
-    const badge = document.createElement("span");
-    badge.className = "badge";
-    badge.setAttribute("aria-hidden", "true");
-    fetchSVG(meta.badge).then(t => { badge.innerHTML = t; });
-    card.appendChild(badge);
-
-    const info = document.createElement("span");
-    const h3 = document.createElement("h3");
-    h3.textContent = ready ? person.name : meta.fallback;
-    info.appendChild(h3);
-    const yrs = document.createElement("div");
-    yrs.className = "years";
-    if (ready) {
-      const b = person.birth_year_bce, d = person.death_year_bce;
-      yrs.textContent = (b ? yearLabel(b) : "生年不详") + " — " + (d ? yearLabel(d) : "卒年不详") +
-        (person.active_years_bce ? " · " + person.active_years_bce : "");
-    } else {
-      yrs.textContent = "——";
+    const st = ((person && person.state) || "").split("/")[0] || "其他";
+    if (!byState.has(st)) {
+      const g = { state: st, metas: [] };
+      byState.set(st, g);
+      groups.push(g);
     }
-    info.appendChild(yrs);
-    const p = document.createElement("p");
-    if (ready && person.short_bio) p.textContent = person.short_bio;
-    else if (ready) p.textContent = person.notes || "";
-    else {
-      const s = document.createElement("span");
-      s.className = "pending";
-      s.textContent = "资料整理中";
-      p.appendChild(s);
-    }
-    info.appendChild(p);
-    card.appendChild(info);
-
-    if (ready) {
-      card.setAttribute("aria-label", person.name + "：进入时间线");
-      card.addEventListener("click", () => setHash(meta.id, "timeline"));
-    }
-    li.appendChild(card);
-    grid.appendChild(li);
+    byState.get(st).metas.push(meta);
   }
+
+  const setActive = (label) => {
+    tabsBox.querySelectorAll("button").forEach(b =>
+      b.setAttribute("aria-current", String(b.dataset.state === label)));
+  };
+  const mkTab = (label, onGo) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.dataset.state = label;
+    b.textContent = label;
+    b.setAttribute("aria-current", "false");
+    b.addEventListener("click", () => { setActive(label); onGo(); });
+    tabsBox.appendChild(b);
+    return b;
+  };
+  mkTab("全部", () => $("#home-title").scrollIntoView({ block: "start" }))
+    .setAttribute("aria-current", "true");
+
+  groups.forEach((g, i) => {
+    const sec = document.createElement("section");
+    sec.className = "state-group";
+    sec.id = "state-group-" + i;
+    sec.setAttribute("aria-label", g.state + " 国人物");
+    const head = document.createElement("h3");
+    head.className = "state-head";
+    const nm = document.createElement("span");
+    nm.className = "state-name";
+    nm.textContent = g.state;
+    head.appendChild(nm);
+    if (STATE_EPITHET[g.state]) {
+      const note = document.createElement("span");
+      note.className = "state-note";
+      note.textContent = STATE_EPITHET[g.state];
+      head.appendChild(note);
+    }
+    sec.appendChild(head);
+    const ul = document.createElement("ul");
+    ul.className = "person-grid";
+    for (const meta of g.metas) ul.appendChild(personCardLi(meta));
+    sec.appendChild(ul);
+    groupsBox.appendChild(sec);
+    mkTab(g.state, () => sec.scrollIntoView({ block: "start" }));
+  });
+}
+
+function personCardLi(meta) {
+  const person = PEOPLE[meta.id];
+  const ready = !!person;
+  const li = document.createElement("li");
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "person-card";
+  card.style.setProperty("--card-color", meta.color);
+  card.disabled = !ready;
+
+  const badge = document.createElement("span");
+  badge.className = "badge";
+  badge.setAttribute("aria-hidden", "true");
+  fetchSVG(meta.badge).then(t => { badge.innerHTML = t; });
+  card.appendChild(badge);
+
+  const info = document.createElement("span");
+  const h3 = document.createElement("h3");
+  h3.textContent = ready ? person.name : meta.fallback;
+  // 跨国人物标注流向（state 如「齐/鲁」→「齐→鲁」）
+  if (ready && (person.state || "").includes("/")) {
+    const flow = document.createElement("span");
+    flow.className = "flow-chip";
+    flow.textContent = person.state.split("/").join("→");
+    h3.appendChild(flow);
+  }
+  info.appendChild(h3);
+  // 姓名行小字（压缩形式：无考段直接省略，不加括注；科普全文见时间线头部）
+  if (ready) {
+    const nl = nameLineText(person, false);
+    if (nl) {
+      const d = document.createElement("div");
+      d.className = "name-line";
+      d.textContent = nl;
+      d.title = XSNOTE;
+      info.appendChild(d);
+    }
+  }
+  const yrs = document.createElement("div");
+  yrs.className = "years";
+  if (ready) {
+    const b = person.birth_year_bce, d = person.death_year_bce;
+    yrs.textContent = (b ? yearLabel(b) : "生年不详") + " — " + (d ? yearLabel(d) : "卒年不详") +
+      (person.active_years_bce ? " · " + person.active_years_bce : "");
+  } else {
+    yrs.textContent = "——";
+  }
+  info.appendChild(yrs);
+  const p = document.createElement("p");
+  if (ready && person.short_bio) p.textContent = person.short_bio;
+  else if (ready) p.textContent = person.notes || "";
+  else {
+    const s = document.createElement("span");
+    s.className = "pending";
+    s.textContent = "资料整理中";
+    p.appendChild(s);
+  }
+  info.appendChild(p);
+  card.appendChild(info);
+
+  if (ready) {
+    card.setAttribute("aria-label", person.name + "：进入时间线");
+    card.addEventListener("click", () => setHash(meta.id, "timeline"));
+  }
+  li.appendChild(card);
+  return li;
 }
 
 /* ---------- 屏2 时间线 ---------- */
 function renderTimeline() {
+  // 头部姓名行：完整形式（姓/氏/名/字可考部分）＋「姓氏有别」科普
+  const nlBox = $("#timeline-nameline");
+  nlBox.textContent = "";
+  nlBox.hidden = true;
+  const person = PEOPLE[state.person];
+  if (person) {
+    const nl = nameLineNode(person);
+    if (nl) {
+      while (nl.firstChild) nlBox.appendChild(nl.firstChild);
+      nlBox.hidden = false;
+    }
+  }
   const events = personEvents(state.person);
   renderRuler(events);
   const list = $("#timeline-list");
@@ -1043,7 +1194,7 @@ const REL_COLORS = {
   "亲属-直系": "#A9622B", "亲属-同辈": "#C79E7E", "婚姻": "#BC4433", "君臣": "#56707E",
   "拥立": "#44766B", "敌对": "#35302A", "师友": "#8A6D1F", "其他": "#8A8072",
 };
-const STATE_ORDER = ["齐", "鲁", "郑", "周", "卫", "楚", "许", "申", "宋"];
+const STATE_ORDER = ["齐", "鲁", "郑", "晋", "周", "卫", "楚", "秦", "曹", "许", "申", "宋"];
 const SIDE_TYPES = ["君臣", "拥立", "敌对", "师友", "其他"];
 const isProto = (pid) => PROTAGONISTS.some(m => m.id === pid);
 const relView = {
@@ -1100,7 +1251,12 @@ function updateRelToolbar() {
   if (!ego) {
     const s = document.createElement("span");
     s.className = "crumb-cur";
-    s.textContent = "全景 · " + DATA.people.length + " 人 · " + DATA.relations.length + " 条关系";
+    // 关系计数随「仅主角边」过滤动态变化（口径与绘图一致：两端皆在库中）
+    const nEdges = DATA.relations.filter(r =>
+      PEOPLE[r.person_a] && PEOPLE[r.person_b] &&
+      (!relView.protoOnly || isProto(r.person_a) || isProto(r.person_b))).length;
+    s.textContent = "全景 · " + DATA.people.length + " 人 · " + nEdges + " 条关系" +
+      (relView.protoOnly ? "（仅主角边）" : "");
     crumbs.appendChild(s);
     return;
   }
@@ -1615,6 +1771,11 @@ function showRelDetail(rels, pid) {
   const h3 = document.createElement("h3");
   h3.textContent = pid ? personName(pid) + " 的一度关系（" + rels.length + "）" : "这条关系";
   panel.appendChild(h3);
+  if (pid && PEOPLE[pid]) {
+    // 人物详情姓名行：完整形式（如 管仲 → 姬姓管氏，名夷吾，字仲）
+    const nl = nameLineNode(PEOPLE[pid], "small");
+    if (nl) panel.appendChild(nl);
+  }
   if (pid && PEOPLE[pid] && PEOPLE[pid].short_bio) {
     const bio = document.createElement("p");
     bio.className = "rel-bio";
@@ -1697,6 +1858,7 @@ async function boot() {
     renderLibList();
   });
   $("#home-library-entry").addEventListener("click", () => setHash(state.person, "library", state.tab, state.q));
+  $("#home-relations-entry").textContent = "全景 " + DATA.people.length + " 人关系图谱 →";
   $("#home-relations-entry").addEventListener("click", () => {
     relView.wantPano = true; // 该入口明确指向全景
     setHash(state.person, "relations");

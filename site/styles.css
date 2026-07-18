@@ -102,6 +102,60 @@ section[hidden] { display: none; }
   color: var(--ink-soft);
   margin: 0.4rem 0 1.2rem;
 }
+/* 国别选项卡（滚动定位到分区；680px 下可横滑） */
+.state-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.35rem 0 0.55rem;
+  margin: -0.35rem 0 0.6rem;
+  background: var(--silk);
+}
+.state-tabs button {
+  font: inherit;
+  font-family: var(--serif);
+  letter-spacing: 0.12em;
+  background: var(--silk-panel);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 0.22rem 0.85rem;
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.state-tabs button:hover { color: var(--ochre); border-color: var(--ochre); }
+.state-tabs button[aria-current="true"] {
+  background: var(--ink);
+  color: var(--silk-panel);
+  border-color: var(--ink);
+}
+
+/* 按国分区 */
+.state-group { margin: 0 0 1.7rem; scroll-margin-top: 3.3rem; }
+.state-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-weight: 400;
+}
+.state-name {
+  font-size: 1.55rem;
+  letter-spacing: 0.28em;
+  font-weight: 700;
+}
+.state-note {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+}
+
 .person-grid {
   list-style: none;
   padding: 0;
@@ -109,6 +163,28 @@ section[hidden] { display: none; }
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
+}
+/* 跨国人物流向标注（如 齐→鲁） */
+.flow-chip {
+  display: inline-block;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 0.5em;
+  margin-left: 0.55em;
+  letter-spacing: 0.08em;
+  vertical-align: 0.15em;
+}
+/* 卡上姓名行小字 */
+.person-card .name-line {
+  font-family: var(--serif);
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+  margin-top: 0.1rem;
 }
 .person-card {
   width: 100%;
@@ -161,6 +237,51 @@ section[hidden] { display: none; }
 }
 
 /* ---------- 屏2 时间线 ---------- */
+/* 头部姓名行（完整形式）与「姓氏有别」科普 */
+.person-nameline {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+  margin: -0.7rem 0 1rem;
+}
+.person-nameline[hidden] { display: none; }
+.person-nameline.small { font-size: 0.8rem; margin: -0.2rem 0 0.5rem; }
+.xs-wrap { display: inline; }
+.xs-info {
+  font: inherit;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  letter-spacing: normal;
+  background: none;
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  padding: 0 0.55em;
+  margin-left: 0.55em;
+  cursor: help;
+  vertical-align: 0.12em;
+}
+.xs-info:hover, .xs-info[aria-expanded="true"] {
+  color: var(--bronze);
+  border-color: var(--bronze);
+}
+.xs-note {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: normal;
+  color: var(--ink);
+  background: var(--silk-panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--bronze);
+  border-radius: 3px;
+  padding: 0.35rem 0.7rem;
+  margin-top: 0.4rem;
+  max-width: 34rem;
+}
+.xs-note[hidden] { display: none; }
+
 .ruler-wrap { margin-bottom: 1rem; }
 .ruler-wrap svg { width: 100%; height: auto; display: block; }
 
@@ -829,6 +950,9 @@ body.no-scroll { overflow: hidden; }
   .main-nav button, .main-nav a.nav-feedback { flex: 1 1 auto; text-align: center; }
   main { padding: 1rem 0.8rem 2.5rem; }
   .person-grid { grid-template-columns: 1fr; }
+  /* 窄屏：分区纵排天然成立；选项卡一行横滑 */
+  .state-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .state-group { scroll-margin-top: 3rem; }
   .event summary { flex-wrap: wrap; }
   .event .when { min-width: 0; }
   .event .role-chip { margin-left: 0; }

@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>春秋人物志——左传与国语中的人物、时间线与地图</title>
-<meta name="description" content="以《左传》《国语》为本的春秋早期历史科普站：八条人物线的可考订时间线、活动地图、关系图谱与史料摘录，每条事件都能回答出自哪一年哪部书。">
+<meta name="description" content="以《左传》《国语》为本的春秋早期历史科普站：九条人物线的可考订时间线、活动地图、关系图谱与史料摘录，每条事件都能回答出自哪一年哪部书。">
 <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
-<meta property="og:description" content="八条春秋人物线的可考订时间线、活动地图与关系图谱；可靠度分级、亲至/相关判定、后出叙事分层，每条事件皆有出处。">
+<meta property="og:description" content="九条春秋人物线的可考订时间线、活动地图与关系图谱；可靠度分级、亲至/相关判定、后出叙事分层，每条事件皆有出处。">
 <meta property="og:url" content="https://quinnyxu.github.io/chunqiu/">
 <meta property="og:image" content="https://quinnyxu.github.io/chunqiu/assets/og/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
-<meta name="twitter:description" content="八条春秋人物线的可考订时间线、活动地图与关系图谱，每条事件皆有出处。">
+<meta name="twitter:description" content="九条春秋人物线的可考订时间线、活动地图与关系图谱，每条事件皆有出处。">
 <meta name="twitter:image" content="https://quinnyxu.github.io/chunqiu/assets/og/og-card.png">
 <!-- image_src 与下方首屏 <img>：供不读 og 协议的爬虫（微信等）抓取分享缩略图；
      绝对 URL 为约定特批例外（分享协议头两处），页面内资源一律相对路径 -->
@@ -24,7 +24,7 @@
 </head>
 <body>
 <header class="site-header">
-  <h1 class="site-title">春秋人物志<small>前773 — 前643</small></h1>
+  <h1 class="site-title">春秋人物志<small>前773 — 前628</small></h1>
   <span class="person-flag" id="person-flag" aria-live="polite"></span>
   <nav class="main-nav" aria-label="视图切换">
     <button type="button" data-view="home" aria-current="true">选人</button>
@@ -34,16 +34,20 @@
     <button type="button" data-view="library">资料库</button>
     <button type="button" data-view="about">关于</button>
     <a class="nav-feedback" href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">反馈</a>
+    <!-- 邮件反馈占位：待 Xiangtao 确认 Email Routing 生效后启用（2026-07-18 实测 timechorus.com 无 MX 记录，
+         nslookup -type=mx @1.1.1.1/@8.8.8.8 均仅返回 SOA）。启用时取消注释：
+    <a class="nav-feedback" href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E6%98%A5%E7%A7%8B%E4%BA%BA%E7%89%A9%E5%BF%97%E3%80%91%E5%8F%8D%E9%A6%88" title="史实纠错请附出处">✉ 邮件</a> -->
   </nav>
 </header>
 
 <main>
   <section id="view-home" aria-labelledby="home-title">
     <h2 class="screen-title" id="home-title">人物线 · 择一而入</h2>
-    <ul class="person-grid" id="person-grid"></ul>
+    <nav class="state-tabs" id="state-tabs" aria-label="按国别定位"></nav>
+    <div id="person-groups"></div>
     <p class="home-extra">
       <button type="button" class="library-entry" id="home-guide-entry">新来的朋友从这里开始 →</button>
-      <button type="button" class="library-entry" id="home-relations-entry">四十人关系图谱 →</button>
+      <button type="button" class="library-entry" id="home-relations-entry">全景人物关系图谱 →</button>
       <button type="button" class="library-entry" id="home-library-entry">背景 · 考古 · 来源 —— 资料库 →</button>
       <button type="button" class="library-entry" id="home-about-entry">关于本站与数据凡例 →</button>
     </p>
@@ -51,7 +55,7 @@
     <figure class="brand-card">
       <img src="assets/og/og-card.png" width="1200" height="630"
            alt="春秋人物志——左传与国语中的人物、时间线与地图">
-      <figcaption>把这一页分享给同好，从八条人物线任一条进入春秋。</figcaption>
+      <figcaption>把这一页分享给同好，从九条人物线任一条进入春秋。</figcaption>
     </figure>
   </section>
 
@@ -59,6 +63,7 @@
     <h2 class="screen-title" id="timeline-title">人物时间线
       <button type="button" class="inline-entry" id="timeline-relations-entry">查看其关系 →</button>
     </h2>
+    <p class="person-nameline" id="timeline-nameline" hidden></p>
     <div class="ruler-wrap" id="ruler"></div>
     <ol class="timeline" id="timeline-list"></ol>
   </section>
@@ -164,7 +169,7 @@
       </section>
       <section>
         <h3>这是什么</h3>
-        <p>春秋人物志是一个面向大众的春秋早期历史科普站：以文姜、鲁桓公、齐襄公、郑昭公、郑庄公、鲁隐公、鲁庄公、齐桓公八条人物线为骨架，把《左传》《国语》等传世文献中的记事整理成可交互的时间线、活动地图与关系图谱。<strong>每一条事件都能回答"出自哪一年、哪部书"</strong>——数据表中逐条挂有来源编号与鲁君纪年。</p>
+        <p>春秋人物志是一个面向大众的春秋早期历史科普站：以文姜、鲁桓公、齐襄公、郑昭公、郑庄公、鲁隐公、鲁庄公、齐桓公、晋文公九条人物线为骨架，把《左传》《国语》等传世文献中的记事整理成可交互的时间线、活动地图与关系图谱。<strong>每一条事件都能回答"出自哪一年、哪部书"</strong>——数据表中逐条挂有来源编号与鲁君纪年。</p>
       </section>
       <section>
         <h3>数据凡例（我们的规矩）</h3>
@@ -183,14 +188,16 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.5（以人为中心的关系图 · 播放字幕 · 试用导览）。</p>
+        <p id="about-version">当前版本 v0.6（选人页按国分组 · 姓名行与姓氏科普 · 晋文公线）。</p>
         <ul>
+          <li>v0.6 —— 选人页按国分组与国别选项卡；姓名行（姓/氏/名/字）显示；晋文公全线上线</li>
           <li>v0.5 —— 关系图改以人为中心可游走；轨迹播放地图内字幕；导览与反馈入口</li>
           <li>v0.4 —— 关系结构表与图谱；数据凡例成文</li>
           <li>v0.3 —— 科普定位；八人物；资料库视图；移动端地图</li>
           <li>更早 —— 数据管线与三屏原型</li>
         </ul>
-        <p>发现史实错误或地望异议？欢迎到 <a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> 反馈；数据与代码见 <a href="https://github.com/QuinnyXu/chunqiu" target="_blank" rel="noopener">开源仓库</a>。</p>
+        <p>发现史实错误或地望异议？欢迎到 <a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> 反馈，史实纠错请附出处；数据与代码见 <a href="https://github.com/QuinnyXu/chunqiu" target="_blank" rel="noopener">开源仓库</a>。<!-- 邮件反馈占位：待 Xiangtao 确认 Email Routing 生效后启用（2026-07-18 实测 timechorus.com 无 MX 记录）。启用时在「GitHub Issues 反馈」后并列插入：
+        也可来信 <a href="mailto:chunqiu@timechorus.com">chunqiu@timechorus.com</a>（史实纠错请附出处） --></p>
       </section>
     </div>
   </section>
