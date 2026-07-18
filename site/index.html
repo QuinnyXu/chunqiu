@@ -31,15 +31,24 @@
     <img class="brand-badge" src="assets/icons/favicon.svg" alt="" aria-hidden="true" width="24" height="24">
     <h1 class="site-title">春秋人物志<small id="site-range">前773 — 前628</small></h1>
   </a>
+  <!-- 全站搜索：一框检索人物/地点/事件/原文；680px 下收纳为图标展开 -->
+  <div class="site-search" id="site-search">
+    <button type="button" class="search-toggle" id="search-toggle" aria-expanded="false" aria-label="展开搜索">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.6" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="15" y1="15" x2="20" y2="20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <input type="search" id="global-search" placeholder="搜人物 · 地点 · 事件 · 原文"
+           autocomplete="off" role="combobox" aria-expanded="false" aria-haspopup="listbox"
+           aria-controls="search-pop" aria-autocomplete="list" aria-label="全站搜索">
+    <div class="search-pop" id="search-pop" role="listbox" aria-label="搜索结果" hidden></div>
+  </div>
   <nav class="main-nav" aria-label="主导航">
     <button type="button" data-view="home" aria-current="true">选人</button>
     <button type="button" data-view="relations">关系</button>
     <button type="button" data-view="library">资料库</button>
     <button type="button" data-view="about">关于</button>
     <a class="nav-feedback" href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">反馈</a>
-    <!-- 导航邮件入口占位（关于页反馈句已按 copy_r8 终审版挂出 chunqiu@timechorus.com；
-         导航项不在文案对照表内，是否并列入口待领队示意）。启用时取消注释：
-    <a class="nav-feedback" href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E6%98%A5%E7%A7%8B%E4%BA%BA%E7%89%A9%E5%BF%97%E3%80%91%E5%8F%8D%E9%A6%88" title="史实纠错请附出处">✉ 邮件</a> -->
+    <!-- 邮件反馈入口（r11 启用，Xiangtao 确认邮箱就绪）；文案按 copy_r8 R6「纠错请附出处」口径 -->
+    <a class="nav-feedback" href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E6%98%A5%E7%A7%8B%E4%BA%BA%E7%89%A9%E5%BF%97%E3%80%91%E5%8F%8D%E9%A6%88" title="史实纠错请附出处">✉ 邮件</a>
   </nav>
 </header>
 
@@ -204,8 +213,9 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.7（导航分层 · 关系并线 · 文案落版）。</p>
+        <p id="about-version">当前版本 v0.8（全站搜索 · 分享卡 · 邮件反馈）。</p>
         <ul>
+          <li>v0.8 —— 全站一框搜索（人物/地点/事件/原文，键盘可达）；分享卡生成器（两版尺寸、扫码直达）；邮件反馈入口启用</li>
           <li>v0.7 —— 主导航与人物子导航分层，旧链接自动跳转；关系图并线与多重关系徽记；全站文案雅化；桌面全屏地点抽屉修复</li>
           <li>v0.6 —— 选人页按国分组与国别选项卡；姓名行（姓/氏/名/字）显示；晋文公全线上线</li>
           <li>v0.5 —— 关系图改以人为中心可游走；轨迹播放地图内字幕；导览与反馈入口</li>
@@ -237,7 +247,40 @@
   <div class="drawer-content" id="drawer-content"></div>
 </aside>
 
-<footer class="site-footer" id="site-footer">数据加载中…</footer>
+<!-- 分享卡生成器：canvas 运行时合成（约定「预生成静态图」限制不适用于运行时导出） -->
+<div class="share-overlay" id="share-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="share-title">
+  <div class="share-box">
+    <div class="share-head">
+      <h3 id="share-title">生成分享卡</h3>
+      <button type="button" id="share-close" aria-label="关闭分享卡">✕</button>
+    </div>
+    <div class="share-sizes" role="group" aria-label="分享卡尺寸">
+      <button type="button" data-size="1080x1440" aria-pressed="true">竖版 3:4 · 1080×1440</button>
+      <button type="button" data-size="1080x1080" aria-pressed="false">方版 1:1 · 1080×1080</button>
+    </div>
+    <div class="share-preview">
+      <canvas id="share-canvas" width="1080" height="1440" role="img" aria-label="分享卡预览：站名、邀请语与站点二维码"></canvas>
+    </div>
+    <div class="share-actions">
+      <button type="button" id="btn-share-download">下载 PNG</button>
+      <button type="button" id="btn-share-copy">复制链接</button>
+      <button type="button" id="btn-share-native" hidden>直接分享</button>
+    </div>
+    <p class="share-toast" id="share-toast" role="status"></p>
+  </div>
+</div>
+
+<footer class="site-footer" id="site-footer">
+  <!-- 底部分享与反馈（Xiangtao 反馈 5：分享卡入口置于「反馈」邻近处） -->
+  <div class="footer-share">
+    <button type="button" id="btn-share-card">生成分享卡</button>
+    <button type="button" id="btn-copy-link">复制链接</button>
+    <button type="button" id="btn-web-share" hidden>直接分享</button>
+    <span class="share-toast" id="footer-toast" role="status"></span>
+  </div>
+  <p class="footer-feedback">反馈：<a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> · <a href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E6%98%A5%E7%A7%8B%E4%BA%BA%E7%89%A9%E5%BF%97%E3%80%91%E5%8F%8D%E9%A6%88">chunqiu@timechorus.com</a>，史实纠错请附出处。</p>
+  <p class="footer-stats" id="footer-stats">数据加载中…</p>
+</footer>
 <script src="app.js"></script>
 </body>
 </html>

@@ -29,14 +29,18 @@ const CAT_ICON = {
   "灾异": "zaiyi", "礼俗": "lisu", "其他": "qita",
 };
 const REL_LABEL = { high: "可靠性 高", medium: "可靠性 中", low: "可靠性 低" };
-/* 分享卡文案（copy_r8 终审 N2–N5）：生成分享卡/复制链接功能本轮未实现，
- * 文案先入常量备用，实现时直接取用，勿另拟。 */
+/* 分享卡文案（copy_r8 终审 N2–N5，r11 起用于分享卡生成器与复制链接） */
 const SHARE_COPY = {
   invite: "观人物行迹，知天下春秋——处处有据。", // N2 分享图邀请语
   makeCard: "生成分享卡",                        // N3 按钮
   copyLink: "复制链接",                          // N4 按钮
   copied: "链接已复制，去分享给同好",            // N5 toast
 };
+/* 分享用主站绝对 URL（约定的相对路径例外仅限分享面：协议头与分享功能） */
+const SITE_URL = "https://chunqiu.timechorus.com/";
+const SITE_DOMAIN = "chunqiu.timechorus.com";
+/* 搜索无结果提示：copy_r8 无对应项（交付说明报备），自拟一句合基调 */
+const SEARCH_EMPTY = "库中未见此语——换一个词，或减一二字试试。";
 const SRC_PREFIX = { Z: "左传", S: "史记", G: "国语", P: "诗经", A: "考古", B: "现代研究" };
 const MAP_W = 1200, MAP_H = 700;
 
@@ -143,7 +147,7 @@ function setHash(person, view, tab, q) {
 
 /* ---------- 数据检索 ---------- */
 const byId = (rows) => Object.fromEntries(rows.map(r => [r.id, r]));
-let PEOPLE, PLACES, SOURCES;
+let PEOPLE, PLACES, SOURCES, EVENTS;
 
 // 统一排序：(year_bce, sort_key, id)
 function evtCompare(a, b) {
@@ -226,10 +230,13 @@ let state = { view: "home", person: null, tab: "background", q: "" };
 /* 人物语境：进过人物视图后记住，逛资料库/关于时子导航仍在，可一键回其时间线；
  * 「✕ 换人」清除。全局视图的 hash 不含人物（分享库/关于链接不携带人物语境）。 */
 let personCtx = null;
+/* 搜索直达的落点动作：点结果后设置，目标视图渲染完毕即消费（视图不符则作废） */
+let pendingSpot = null; // { view, type: "event"|"quote"|"place"|"ego", ... }
 
 function render() {
   state = parseHash();
   if (state.person) personCtx = state.person;
+  if (pendingSpot && pendingSpot.view !== state.view) pendingSpot = null;
   closeOverlay();
   closeDrawer();
   const ctxMeta = PROTAGONISTS.find(p => p.id === personCtx);
@@ -426,6 +433,7 @@ function renderTimeline() {
     const li = document.createElement("li");
     const det = document.createElement("details");
     det.className = "event" + (evt.importance === 1 ? " major" : "");
+    det.dataset.eid = evt.id;
 
     const sum = document.createElement("summary");
     const ico = document.createElement("span");
@@ -476,6 +484,7 @@ function renderTimeline() {
     for (const q of DATA.passages.filter(p => p.event_id === evt.id)) {
       const bq = document.createElement("blockquote");
       bq.className = "quote";
+      bq.dataset.qid = q.id;
       const qp = document.createElement("p");
       qp.textContent = q.quote_original;
       bq.appendChild(qp);
@@ -491,6 +500,26 @@ function renderTimeline() {
     li.appendChild(det);
     list.appendChild(li);
   }
+  consumeTimelineSpot(list);
+}
+/* 搜索直达：展开目标事件并滚动定位（原文命中再定位到具体引文块） */
+function consumeTimelineSpot(list) {
+  if (!pendingSpot || (pendingSpot.type !== "event" && pendingSpot.type !== "quote")) return;
+  const spot = pendingSpot;
+  pendingSpot = null;
+  const det = list.querySelector('details[data-eid="' + spot.eid + '"]');
+  if (!det) return;
+  det.open = true;
+  const target = spot.type === "quote"
+    ? det.querySelector('[data-qid="' + spot.qid + '"]') || det
+    : det;
+  det.classList.add("spotlight");
+  setTimeout(() => det.classList.remove("spotlight"), 2400);
+  requestAnimationFrame(() => {
+    target.scrollIntoView({ block: "center", behavior: "smooth" });
+    const sum = det.querySelector("summary");
+    if (sum) sum.focus({ preventScroll: true });
+  });
 }
 function addChip(parent, text, extra) {
   const c = document.createElement("span");
@@ -786,6 +815,25 @@ function renderMap() {
     pop.hidden = !pop.hidden;
     disBtn.setAttribute("aria-expanded", String(!pop.hidden));
   };
+
+  // 搜索直达：打开目标地点详情并保证锚点入镜（活动范围外则切全图视野）
+  if (pendingSpot && pendingSpot.type === "place") {
+    const pl = PLACES[pendingSpot.placeId];
+    pendingSpot = null;
+    if (pl) {
+      if (pl.lat != null && pl.lng != null) {
+        const [px, py] = project(pl.lng, pl.lat);
+        const b = mapState.box;
+        if (b && (px < b.x || px > b.x + b.w || py < b.y || py > b.y + b.h)) {
+          mapState.mode = "full";
+          applyView({ x: 0, y: 0, w: MAP_W, h: MAP_H });
+          updateScopeBtn();
+        }
+      }
+      const slot = related.get(pl.id);
+      showPlace(pl, slot ? slot.events : []);
+    }
+  }
 }
 function updateScopeBtn() {
   const b = $("#btn-scope");
@@ -1347,6 +1395,15 @@ function renderRelations() {
   // 路由即语义：#/p/X/relations → 以 X 为中心 ego；#/relations → 全景（带「仅主角边」过滤器）
   if (state.person) { relView.mode = "ego"; relView.center = state.person; relView.stack = []; }
   else relView.mode = "pano";
+  // 搜索直达：非主角人物落其 ego 图（hash 保持全景 #/relations，语义同「以人为中心」游走态）
+  if (pendingSpot && pendingSpot.type === "ego") {
+    if (PEOPLE[pendingSpot.pid]) {
+      relView.mode = "ego";
+      relView.center = pendingSpot.pid;
+      relView.stack = [];
+    }
+    pendingSpot = null;
+  }
   drawRel();
 }
 function drawRel() {
@@ -1997,6 +2054,548 @@ function showRelDetail(rels, pid) {
   panel.appendChild(acts);
 }
 
+/* ---------- 全站搜索（r11）：一框检索人物/地点/事件/原文，纯前端包含匹配 ----------
+ * 匹配口径：小写化＋去空格的包含匹配；字段间以「|」隔断，避免跨字段误连。
+ * 直达语义：人物（主角）→时间线，人物（非主角）→其 ego 关系图；地点→地图并高亮；
+ * 事件→所属主角时间线定位展开；原文→事件详情内定位到引文块。 */
+const searchNorm = (s) => (s || "").toLowerCase().replace(/\s+/g, "");
+const SEARCH_GROUPS = [
+  { key: "people", name: "人物" },
+  { key: "places", name: "地点" },
+  { key: "events", name: "事件" },
+  { key: "passages", name: "原文" },
+];
+const SEARCH_LIMIT = 8; // 每组先显 8 条，「更多」展开
+let SEARCH_INDEX = [];
+let PLACE_PROTOS = new Map(); // place_id → 在此地有事件的主角（按主角序）
+const search = { opts: [], active: -1, expanded: new Set(), timer: 0 };
+
+const protoRank = (pid) => {
+  const i = PROTAGONISTS.findIndex(m => m.id === pid);
+  return i < 0 ? 99 : i;
+};
+/* 事件归哪位主角的时间线：当前人物语境优先，其次主角序中首个亲至者，再次任一关联主角 */
+function protoForEvent(eid) {
+  const links = DATA.event_people.filter(l =>
+    l.event_id === eid && isProto(l.person_id) && PEOPLE[l.person_id]);
+  if (!links.length) return null;
+  if (personCtx && links.some(l => l.person_id === personCtx)) return personCtx;
+  links.sort((a, b) => protoRank(a.person_id) - protoRank(b.person_id));
+  const visit = links.find(l => (l.presence || "亲至") !== "相关");
+  return (visit || links[0]).person_id;
+}
+
+function buildSearchIndex() {
+  PLACE_PROTOS = new Map();
+  const evPlace = Object.fromEntries(DATA.events.map(e => [e.id, e.place_id]));
+  for (const l of DATA.event_people) {
+    if (!isProto(l.person_id) || !PEOPLE[l.person_id]) continue;
+    const plid = evPlace[l.event_id];
+    if (!plid) continue;
+    if (!PLACE_PROTOS.has(plid)) PLACE_PROTOS.set(plid, []);
+    const arr = PLACE_PROTOS.get(plid);
+    if (!arr.includes(l.person_id)) arr.push(l.person_id);
+  }
+  for (const arr of PLACE_PROTOS.values()) arr.sort((a, b) => protoRank(a) - protoRank(b));
+
+  SEARCH_INDEX = [];
+  for (const p of DATA.people) {
+    SEARCH_INDEX.push({
+      group: "people",
+      text: searchNorm([p.name, p.alt_names, p.xing, p.shi, p.ming, p.zi].filter(Boolean).join("|")),
+      label: p.name,
+      sub: [nameLineText(p, false), p.state, isProto(p.id) ? "主角" : ""].filter(Boolean).join(" · "),
+      go: () => goSearchPerson(p.id),
+    });
+  }
+  for (const pl of DATA.places) {
+    SEARCH_INDEX.push({
+      group: "places",
+      text: searchNorm([pl.ancient_name, pl.modern_location].filter(Boolean).join("|")),
+      label: pl.ancient_name,
+      sub: [pl.state, pl.modern_location || "地望不详"].filter(Boolean).join(" · "),
+      go: () => goSearchPlace(pl.id),
+    });
+  }
+  for (const e of DATA.events) {
+    if (!protoForEvent(e.id)) continue; // 无主角关联的事件无时间线落点（当前库为 0 条）
+    const pl = e.place_id ? PLACES[e.place_id] : null;
+    SEARCH_INDEX.push({
+      group: "events",
+      // 事发地古名/今地一并入检索文本：搜「临淄」应见发生于临淄之事
+      text: searchNorm([e.title, e.summary, pl && pl.ancient_name, pl && pl.modern_location]
+        .filter(Boolean).join("|")),
+      label: e.title,
+      sub: [yearLabel(e.year_bce), e.lu_reign, e.category, pl && pl.ancient_name]
+        .filter(Boolean).join(" · "),
+      go: () => goSearchEvent(e.id, null),
+    });
+  }
+  for (const q of DATA.passages) {
+    if (!protoForEvent(q.event_id)) continue;
+    const src = SOURCES[q.source_id];
+    const evt = EVENTS[q.event_id];
+    const snippet = q.quote_original.length > 24 ? q.quote_original.slice(0, 24) + "…" : q.quote_original;
+    SEARCH_INDEX.push({
+      group: "passages",
+      text: searchNorm([q.quote_original, q.modern_note].filter(Boolean).join("|")),
+      label: snippet,
+      sub: [(src ? src.title : q.source_id) + (q.quote_type && q.quote_type !== "原文" ? "（" + q.quote_type + "）" : ""),
+            evt ? yearLabel(evt.year_bce) + " " + evt.title : ""].filter(Boolean).join(" · "),
+      go: () => goSearchEvent(q.event_id, q.id),
+    });
+  }
+}
+
+function goSearchPerson(pid) {
+  if (isProto(pid) && PEOPLE[pid]) { setHash(pid, "timeline"); return; }
+  pendingSpot = { view: "relations", type: "ego", pid };
+  setHash(null, "relations");
+}
+function goSearchPlace(plid) {
+  const cands = PLACE_PROTOS.get(plid) || [];
+  const pid = (personCtx && cands.includes(personCtx) ? personCtx : cands[0]) ||
+              personCtx || (PROTAGONISTS.find(m => PEOPLE[m.id]) || {}).id;
+  if (!pid) return;
+  pendingSpot = { view: "map", type: "place", placeId: plid };
+  setHash(pid, "map");
+}
+function goSearchEvent(eid, qid) {
+  const pid = protoForEvent(eid);
+  if (!pid) return;
+  pendingSpot = qid
+    ? { view: "timeline", type: "quote", eid, qid }
+    : { view: "timeline", type: "event", eid };
+  setHash(pid, "timeline");
+}
+
+function initSearch() {
+  buildSearchIndex();
+  const box = $("#site-search");
+  const input = $("#global-search");
+  const pop = $("#search-pop");
+  const toggle = $("#search-toggle");
+  const isNarrow = () => window.matchMedia("(max-width: 680px)").matches;
+
+  const openPop = () => {
+    pop.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  };
+  const closePop = () => {
+    pop.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+    search.opts = [];
+    search.active = -1;
+  };
+  const collapseNarrow = () => {
+    if (isNarrow()) {
+      box.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  };
+
+  toggle.addEventListener("click", () => {
+    const open = box.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+    if (open) input.focus();
+    else closePop();
+  });
+
+  const markActive = () => {
+    search.opts.forEach((el, i) => {
+      el.classList.toggle("active", i === search.active);
+      el.setAttribute("aria-selected", String(i === search.active));
+    });
+    const cur = search.opts[search.active];
+    if (cur) {
+      input.setAttribute("aria-activedescendant", cur.id);
+      cur.scrollIntoView({ block: "nearest" });
+    } else {
+      input.removeAttribute("aria-activedescendant");
+    }
+  };
+  const choose = (go) => {
+    closePop();
+    collapseNarrow();
+    input.blur();
+    go();
+  };
+
+  function runSearch(raw) {
+    const q = searchNorm(raw);
+    if (!q) { closePop(); return; }
+    pop.textContent = "";
+    search.opts = [];
+    search.active = -1;
+    let optSeq = 0, total = 0;
+    for (const g of SEARCH_GROUPS) {
+      const hits = SEARCH_INDEX.filter(en => en.group === g.key && en.text.includes(q));
+      if (!hits.length) continue;
+      total += hits.length;
+      const head = document.createElement("div");
+      head.className = "search-ghead";
+      head.setAttribute("role", "presentation");
+      head.textContent = g.name + " · " + hits.length;
+      pop.appendChild(head);
+      const showAll = search.expanded.has(g.key);
+      for (const en of (showAll ? hits : hits.slice(0, SEARCH_LIMIT))) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "search-opt";
+        b.id = "sr-opt-" + (optSeq++);
+        b.setAttribute("role", "option");
+        b.setAttribute("aria-selected", "false");
+        const lab = document.createElement("strong");
+        lab.textContent = en.label;
+        b.appendChild(lab);
+        if (en.sub) {
+          const sub = document.createElement("span");
+          sub.className = "search-sub";
+          sub.textContent = en.sub;
+          b.appendChild(sub);
+        }
+        b.addEventListener("click", () => choose(en.go));
+        pop.appendChild(b);
+        search.opts.push(b);
+      }
+      if (!showAll && hits.length > SEARCH_LIMIT) {
+        const more = document.createElement("button");
+        more.type = "button";
+        more.className = "search-opt search-more";
+        more.id = "sr-opt-" + (optSeq++);
+        more.setAttribute("role", "option");
+        more.setAttribute("aria-selected", "false");
+        more.textContent = "更多（还有 " + (hits.length - SEARCH_LIMIT) + " 条）→";
+        more.addEventListener("click", () => {
+          const keep = search.opts.indexOf(more);
+          search.expanded.add(g.key);
+          runSearch(raw);
+          search.active = Math.min(keep, search.opts.length - 1);
+          markActive();
+          input.focus();
+        });
+        pop.appendChild(more);
+        search.opts.push(more);
+      }
+    }
+    if (!total) {
+      const em = document.createElement("div");
+      em.className = "search-empty";
+      em.textContent = SEARCH_EMPTY;
+      pop.appendChild(em);
+    }
+    openPop();
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(search.timer);
+    search.timer = setTimeout(() => {
+      search.expanded.clear();
+      runSearch(input.value);
+    }, 200); // 输入防抖 200ms
+  });
+  input.addEventListener("focus", () => {
+    if (searchNorm(input.value)) runSearch(input.value);
+  });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closePop();
+      collapseNarrow();
+      return;
+    }
+    if (pop.hidden || !search.opts.length) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const n = search.opts.length;
+      search.active = e.key === "ArrowDown"
+        ? (search.active + 1) % n
+        : (search.active - 1 + n) % n;
+      markActive();
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      (search.opts[Math.max(search.active, 0)] || search.opts[0]).click();
+    }
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (box.contains(e.target)) return;
+    closePop();
+    if (isNarrow() && !searchNorm(input.value)) collapseNarrow();
+  });
+}
+
+/* ---------- 分享卡生成器（r11）：canvas 运行时合成，零依赖 ----------
+ * 构图：青铜双线框＋回纹带（几何抽象，非纹理贴图）＋站名＋九主角色签＋
+ * 邀请语（SHARE_COPY.invite）＋站点二维码（assets/share/qr.png）＋域名。
+ * 两版尺寸：1080×1440（3:4 竖图）与 1080×1080（方图）。 */
+const SHARE_SERIF = '"Songti SC","Noto Serif CJK SC","STSong","SimSun",serif';
+const SHARE_SANS = 'system-ui,"PingFang SC","Microsoft YaHei",sans-serif';
+const shareView = { w: 1080, h: 1440, qr: null, qrFailed: false };
+const shareDialog = { close: () => {}, isOpen: () => false };
+
+function showToast(el, msg) {
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._toastTimer);
+  el._toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+}
+async function copySiteLink(toastEl) {
+  let ok = true;
+  try {
+    await navigator.clipboard.writeText(SITE_URL);
+  } catch {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = SITE_URL;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      ok = document.execCommand("copy");
+      ta.remove();
+    } catch { ok = false; }
+  }
+  showToast(toastEl, ok ? SHARE_COPY.copied : "复制未成——链接是 " + SITE_URL);
+}
+
+function loadShareQR() {
+  return new Promise((resolve) => {
+    if (shareView.qr || shareView.qrFailed) return resolve(shareView.qr);
+    const im = new Image();
+    im.onload = () => { shareView.qr = im; resolve(im); };
+    im.onerror = () => { shareView.qrFailed = true; resolve(null); };
+    im.src = "assets/share/qr.png";
+  });
+}
+/* 手动字距逐字绘制（canvas letterSpacing 兼容性不齐），居中于 cx */
+function drawSpacedLine(ctx, text, cx, y, spacing) {
+  const chars = [...text];
+  const widths = chars.map(ch => ctx.measureText(ch).width);
+  const total = widths.reduce((a, b) => a + b, 0) + spacing * (chars.length - 1);
+  let x = cx - total / 2;
+  chars.forEach((ch, i) => {
+    ctx.fillText(ch, x, y);
+    x += widths[i] + spacing;
+  });
+}
+/* 中文换行：超宽即断，标点不落行首 */
+function wrapCJK(ctx, text, maxW) {
+  const NO_HEAD = "，。、；：？！——…»」』）·";
+  const lines = [];
+  let cur = "";
+  for (const ch of text) {
+    if (cur && ctx.measureText(cur + ch).width > maxW && !NO_HEAD.includes(ch)) {
+      lines.push(cur);
+      cur = ch;
+    } else cur += ch;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+/* 回纹带（雷纹钥匙纹）——「青铜的线」，单元几何绘制 */
+function drawMeanderBand(ctx, cx, y, width, u, color) {
+  const step = u * 1.5;
+  const n = Math.max(1, Math.floor(width / step));
+  let x = cx - (n * step - (step - u)) / 2;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(2, u / 8);
+  ctx.lineCap = "butt";
+  ctx.lineJoin = "miter";
+  for (let i = 0; i < n; i++) {
+    ctx.beginPath();
+    ctx.moveTo(x, y + u);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x + u, y);
+    ctx.lineTo(x + u, y + u * 0.7);
+    ctx.lineTo(x + u * 0.32, y + u * 0.7);
+    ctx.lineTo(x + u * 0.32, y + u * 0.36);
+    ctx.lineTo(x + u * 0.64, y + u * 0.36);
+    ctx.stroke();
+    x += step;
+  }
+  ctx.restore();
+}
+
+function drawShareCard() {
+  const canvas = $("#share-canvas");
+  const W = shareView.w, H = shareView.h;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const square = H <= W;
+
+  // 绢帛底＋青铜双线框
+  ctx.fillStyle = "#F4EDDF";
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "rgba(68, 118, 107, 0.9)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(30, 30, W - 60, H - 60);
+  ctx.lineWidth = 1.2;
+  ctx.strokeRect(44, 44, W - 88, H - 88);
+
+  const L = square
+    ? { band: 88, title: 240, titleSize: 104, ticks: 320, invite: 428, inviteSize: 40, qrTop: 500, qrBox: 380, domain: 944, bandBottom: H - 92 }
+    : { band: 118, title: 330, titleSize: 122, ticks: 424, invite: 556, inviteSize: 50, qrTop: 716, qrBox: 430, domain: 1240, bandBottom: H - 156 };
+
+  drawMeanderBand(ctx, W / 2, L.band, W * 0.5, 26, "rgba(68, 118, 107, 0.6)");
+  drawMeanderBand(ctx, W / 2, L.bandBottom, W * 0.5, 26, "rgba(68, 118, 107, 0.6)");
+
+  // 站名
+  ctx.fillStyle = "#2E2A24";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.font = "700 " + L.titleSize + "px " + SHARE_SERIF;
+  drawSpacedLine(ctx, "春秋人物志", W / 2, L.title, L.titleSize * 0.16);
+
+  // 九主角主题色签（品牌色阶，取自 PROTAGONISTS 设计配置）
+  const tw = 26, gap = 14;
+  let tx = W / 2 - (PROTAGONISTS.length * tw + (PROTAGONISTS.length - 1) * gap) / 2;
+  for (const m of PROTAGONISTS) {
+    ctx.fillStyle = m.color;
+    ctx.fillRect(tx, L.ticks, tw, 8);
+    tx += tw + gap;
+  }
+
+  // 邀请语（N2）：一行放不下时优先在「——」处分行，再退一般换行
+  ctx.fillStyle = "#2E2A24";
+  ctx.font = "400 " + L.inviteSize + "px " + SHARE_SERIF;
+  const invite = SHARE_COPY.invite;
+  const maxW = W - 240;
+  const spacing = L.inviteSize * 0.1;
+  const fits = (t) => ctx.measureText(t).width + spacing * Math.max(0, [...t].length - 1) <= maxW;
+  let lines;
+  if (fits(invite)) lines = [invite];
+  else if (invite.includes("——")) {
+    const cut = invite.indexOf("——") + 2;
+    lines = [invite.slice(0, cut), invite.slice(cut)];
+    if (!lines.every(fits)) lines = wrapCJK(ctx, invite, maxW);
+  } else lines = wrapCJK(ctx, invite, maxW);
+  lines.forEach((ln, i) => {
+    drawSpacedLine(ctx, ln, W / 2, L.invite + i * L.inviteSize * 1.62, spacing);
+  });
+
+  // 二维码：生绢衬块＋整数倍缩放绘制（关平滑，保模块锐利可扫）
+  const box = L.qrBox;
+  const bx = W / 2 - box / 2, by = L.qrTop;
+  ctx.fillStyle = "#FBF7EC";
+  ctx.fillRect(bx, by, box, box);
+  ctx.strokeStyle = "#DCD2BC";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(bx, by, box, box);
+  if (shareView.qr) {
+    const im = shareView.qr;
+    const scale = Math.max(1, Math.floor((box - 48) / im.width));
+    const qs = im.width * scale;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(im, Math.round(W / 2 - qs / 2), Math.round(by + box / 2 - qs / 2), qs, qs);
+    ctx.imageSmoothingEnabled = true;
+  } else {
+    ctx.fillStyle = "#7A7166";
+    ctx.font = "400 32px " + SHARE_SANS;
+    ctx.textAlign = "center";
+    ctx.fillText("扫码请访问 " + SITE_DOMAIN, W / 2, by + box / 2);
+    ctx.textAlign = "left";
+  }
+
+  // 域名
+  ctx.fillStyle = "#7A7166";
+  ctx.font = "400 " + (square ? 32 : 36) + "px " + SHARE_SANS;
+  drawSpacedLine(ctx, SITE_DOMAIN, W / 2, L.domain, 2);
+}
+
+function initShare() {
+  const overlay = $("#share-overlay");
+  const closeBtn = $("#share-close");
+  let lastFocus = null;
+
+  const hasShareAPI = typeof navigator.share === "function";
+  if (hasShareAPI) {
+    $("#btn-web-share").hidden = false;
+    $("#btn-share-native").hidden = false;
+  }
+
+  const openShare = async () => {
+    lastFocus = document.activeElement;
+    overlay.hidden = false;
+    document.body.classList.add("no-scroll");
+    await loadShareQR();
+    drawShareCard();
+    closeBtn.focus();
+  };
+  const closeShare = () => {
+    if (overlay.hidden) return;
+    overlay.hidden = true;
+    document.body.classList.remove("no-scroll");
+    if (lastFocus && lastFocus.isConnected) lastFocus.focus();
+  };
+  shareDialog.close = closeShare;
+  shareDialog.isOpen = () => !overlay.hidden;
+
+  $("#btn-share-card").addEventListener("click", openShare);
+  closeBtn.addEventListener("click", closeShare);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeShare(); });
+  // 简易焦点圈定（对话框内 Tab 循环）
+  overlay.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    const f = overlay.querySelectorAll("button:not([hidden])");
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  document.querySelectorAll(".share-sizes button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".share-sizes button").forEach(b =>
+        b.setAttribute("aria-pressed", String(b === btn)));
+      const [w, h] = btn.dataset.size.split("x").map(Number);
+      shareView.w = w;
+      shareView.h = h;
+      drawShareCard();
+    });
+  });
+
+  $("#btn-share-download").addEventListener("click", () => {
+    const name = "chunqiu-share-" + shareView.w + "x" + shareView.h + ".png";
+    $("#share-canvas").toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      showToast($("#share-toast"), "分享卡已下载");
+    }, "image/png");
+  });
+  $("#btn-share-copy").addEventListener("click", () => copySiteLink($("#share-toast")));
+  $("#btn-copy-link").addEventListener("click", () => copySiteLink($("#footer-toast")));
+
+  const nativeShare = (withImage) => async () => {
+    const data = { title: "春秋人物志", text: SHARE_COPY.invite, url: SITE_URL };
+    try {
+      if (withImage) {
+        const blob = await new Promise(res => $("#share-canvas").toBlob(res, "image/png"));
+        if (blob) {
+          const file = new File([blob], "chunqiu-share.png", { type: "image/png" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: data.title, text: data.text });
+            return;
+          }
+        }
+      }
+      await navigator.share(data);
+    } catch { /* 用户取消或环境受限：静默 */ }
+  };
+  if (hasShareAPI) {
+    $("#btn-share-native").addEventListener("click", nativeShare(true));
+    $("#btn-web-share").addEventListener("click", nativeShare(false));
+  }
+}
+
 /* ---------- 启动 ---------- */
 async function boot() {
   const names = ["people", "events", "event_people", "places", "passages", "sources",
@@ -2006,6 +2605,7 @@ async function boot() {
   PEOPLE = byId(DATA.people);
   PLACES = byId(DATA.places);
   SOURCES = byId(DATA.sources);
+  EVENTS = byId(DATA.events);
   const mapResp = await fetch("assets/map/base_map.svg");
   baseMapText = await mapResp.text();
 
@@ -2095,13 +2695,17 @@ async function boot() {
   grip.addEventListener("pointercancel", endDrag);
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (drawer.open) closeDrawer();
+    if (shareDialog.isOpen()) shareDialog.close();
+    else if (drawer.open) closeDrawer();
     else if (mapState.overlay) closeOverlay();
   });
   window.addEventListener("hashchange", render);
 
+  initSearch();
+  initShare();
+
   const m = DATA.meta;
-  $("#site-footer").textContent =
+  $("#footer-stats").textContent =
     "数据 " + m.generated_at + " 生成 · 事件 " + m.tables.events + " · 人物 " + m.tables.people +
     " · 地点 " + m.tables.places + " · 摘录 " + m.tables.passages +
     " · 背景 " + m.tables.background + " · 考古 " + m.tables.archaeology +
@@ -2113,5 +2717,5 @@ async function boot() {
   render();
 }
 boot().catch(err => {
-  $("#site-footer").textContent = "加载失败：" + err.message + "（请经 http 访问并确认已运行 tools/csv_to_json.py）";
+  $("#footer-stats").textContent = "加载失败：" + err.message + "（请经 http 访问并确认已运行 tools/csv_to_json.py）";
 });
