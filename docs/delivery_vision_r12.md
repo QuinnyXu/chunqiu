@@ -63,4 +63,6 @@
 ## 部署
 
 提交并 push 后确认 Actions 全绿（含 validate 守卫与部署后 meta.json 自检）。
-（提交号与线上结果推送后补记。）
+- 提交：`9babe2b`（main）。
+- Actions run 29667381076：**success**，含 validate 守卫、部署、部署后 meta.json 自检全过。
+  （唯一注记为 runner 侧 Node 20 弃用提示，属 GitHub 基础设施层，与本站无关。）
