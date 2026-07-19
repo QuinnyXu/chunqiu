@@ -232,6 +232,8 @@
         <h3>版本与反馈</h3>
         <p id="about-version">当前版本 v0.10（首访引导 · 人物卡简介两行 · 事件卡可点暗示）。
           <button type="button" class="tour-replay" id="tour-replay">重看引导</button></p>
+        <!-- 支持本站入口：链接待 Xiangtao 提供（爱发电或 GitHub Sponsors），到位前先留占位文案，不外链 -->
+        <p class="support-line">若愿支持本站长期考订，可移步<span id="support-link">支持链接（筹备中）</span>。</p>
         <ul>
           <li>v0.10 —— 首访三步引导（可重看）；人物卡简介两行显示、桌面 hover 见全文、手机卡内完整；时间线事件卡加「原文 ▾」可点暗示；进人物、切视图滚动复位到顶</li>
           <li>v0.9 —— 首页改地图导航（点国入人、列表模式可切换）；齐僖公、武姜、祭仲三线上线，主角十二人；人物子导航升格；底图增晋与汾水</li>
@@ -318,5 +320,8 @@
   <p class="footer-stats" id="footer-stats">数据加载中…</p>
 </footer>
 <script src="app.js"></script>
+<!-- Cloudflare Web Analytics：领队特批外部资源例外（隐私友好、无 cookie 的访问统计）；
+     token 出现在页面源码为 CF 官方设计如此，不构成信息泄露，见 docs/conventions.md §9.2 -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "972676e4c141408481d7b8cb54dc8cb5"}'></script>
 </body>
 </html>

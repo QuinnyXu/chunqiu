@@ -1315,6 +1315,8 @@ body.no-scroll { overflow: hidden; }
 .about-body section:first-child h3 { margin-top: 0.2rem; }
 .about-body p, .about-body li { font-size: 0.92rem; }
 .about-body a { color: var(--ochre); }
+.support-line { font-size: 0.82rem; color: var(--ink-soft); margin-top: 0.4rem; }
+.support-line a { color: var(--ink-soft); text-decoration-color: var(--line); }
 
 /* ---------- 底部抽屉（仅全屏放大态的地点卡） ---------- */
 .drawer-backdrop {
