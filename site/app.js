@@ -258,13 +258,24 @@ let personCtx = null;
 /* 搜索直达的落点动作：点结果后设置，目标视图渲染完毕即消费（视图不符则作废） */
 let pendingSpot = null; // { view, type: "event"|"quote"|"place"|"ego", ... }
 
+/* 滚动复位（r14，Xiangtao 反馈 2）：Chrome 的自动 scroll restoration 会在 hash 导航后异步
+ * 把旧滚动位置补回来（即「切视图仍停在原滚动处」的 bug）。故改 history.scrollRestoration='manual'
+ * 自管：前向导航回顶、后退/前进按 scrollMem 恢复（等效浏览器自然恢复，用户可见结果一致）。 */
+let navByPop = false;          // 由 popstate 置位（先于 hashchange）
+const scrollMem = new Map();   // hash → 离开该视图时的滚动位置
+let prevHash = null;
+
 function render() {
+  // 记下离开当前视图时的滚动位置（供其被 back/forward 回访时恢复）
+  if (prevHash !== null) scrollMem.set(prevHash, window.scrollY);
   state = parseHash();
   if (state.view === "home") homeMode = state.home;
   if (state.person) personCtx = state.person;
   if (pendingSpot && pendingSpot.view !== state.view) pendingSpot = null;
+  const spotForThisView = !!pendingSpot; // 搜索直达本视图：自有定位，回顶让路
   closeOverlay();
   closeDrawer();
+  hideCardPop();
   const ctxMeta = PROTAGONISTS.find(p => p.id === personCtx);
   document.documentElement.style.setProperty("--theme", ctxMeta ? ctxMeta.color : "#B4652F");
 
@@ -285,6 +296,31 @@ function render() {
   if (state.view === "map") renderMap();
   if (state.view === "library") renderLibrary();
   if (state.view === "relations") renderRelations();
+
+  // 滚动复位（r14，Xiangtao 反馈 2）：凡前向导航（点卡/切人/切视图/关于页内链/搜索直达）一律回顶，
+  // 时间线从最早一张卡开始；唯浏览器前进/后退（popstate 先于 hashchange 置位 navByPop）不干预，
+  // 交 history 自然恢复。搜索直达的事件定位在 consume* 里经 rAF 于此之后执行，不受影响。
+  // 后退/前进：恢复该历史项滚动位（等效浏览器自然恢复）；前向导航：回顶（时间线从最早卡起）；
+  // 搜索直达本视图不动，交 consume* 的 scrollIntoView 定位。rAF 兜一帧，防被当帧布局变化覆盖。
+  if (navByPop) {
+    navByPop = false;
+    const y = scrollMem.get(location.hash) || 0;
+    scrollToY(y);
+    requestAnimationFrame(() => scrollToY(y));
+  } else if (!spotForThisView) {
+    scrollToY(0);
+    requestAnimationFrame(() => scrollToY(0));
+  }
+  prevHash = location.hash;
+}
+/* 即时滚动到 y：临时关平滑，强制回流保证新视图布局已生效 */
+function scrollToY(y) {
+  const html = document.documentElement;
+  const prev = html.style.scrollBehavior;
+  html.style.scrollBehavior = "auto";
+  void html.offsetHeight;
+  window.scrollTo(0, y);
+  html.style.scrollBehavior = prev;
 }
 
 /* 人物子导航（次级条）：〔人物名〕· 时间线 | 地图 | 关系 | ✕ 换人 */
@@ -593,9 +629,38 @@ function personCardLi(meta) {
   if (ready) {
     card.setAttribute("aria-label", person.name + "：进入时间线");
     card.addEventListener("click", () => setHash(meta.id, "timeline"));
+    // 桌面简介截两行后仍溢出者，hover/focus 出全文浮层（手机端简介不截断→不触发）
+    if (person.short_bio) {
+      const show = () => showCardPop(card, p, person.short_bio, meta.color);
+      card.addEventListener("mouseenter", show);
+      card.addEventListener("focus", show);
+      card.addEventListener("mouseleave", hideCardPop);
+      card.addEventListener("blur", hideCardPop);
+    }
   }
   li.appendChild(card);
   return li;
+}
+/* 人物卡简介全文浮层：仅当简介被截断（scrollHeight>clientHeight）才显示，故手机端完整显示时自动不弹 */
+function showCardPop(card, bioEl, text, color) {
+  if (bioEl.scrollHeight <= bioEl.clientHeight + 1) return;
+  const pop = $("#card-pop");
+  pop.textContent = text;
+  if (color) pop.style.setProperty("--card-pop-color", color);
+  pop.hidden = false;
+  pop.setAttribute("aria-hidden", "false");
+  const r = card.getBoundingClientRect();
+  pop.style.width = Math.round(r.width) + "px";
+  pop.style.left = Math.round(Math.max(6, Math.min(r.left, window.innerWidth - r.width - 6))) + "px";
+  const ph = pop.offsetHeight;
+  let top = r.bottom + 6;
+  if (top + ph > window.innerHeight - 6) top = Math.max(6, r.top - ph - 6);
+  pop.style.top = Math.round(top) + "px";
+}
+function hideCardPop() {
+  const pop = $("#card-pop");
+  pop.hidden = true;
+  pop.setAttribute("aria-hidden", "true");
 }
 
 /* ---------- 屏2 时间线 ---------- */
@@ -619,7 +684,8 @@ function renderTimeline() {
   for (const evt of events) {
     const li = document.createElement("li");
     const det = document.createElement("details");
-    det.className = "event" + (evt.importance === 1 ? " major" : "");
+    const hasQuote = DATA.passages.some(pp => pp.event_id === evt.id);
+    det.className = "event" + (evt.importance === 1 ? " major" : "") + (hasQuote ? " has-quote" : "");
     det.dataset.eid = evt.id;
 
     const sum = document.createElement("summary");
@@ -648,6 +714,11 @@ function renderTimeline() {
       role.textContent = evt.role + (evt.presence === "相关" ? " · 相关" : "");
       sum.appendChild(role);
     }
+    // 可点暗示：右下角常驻「原文 ▾ / 详情 ▾」，展开转「收起 ▴」（文案由 CSS 依 has-quote/open 切换）
+    const hint = document.createElement("span");
+    hint.className = "evt-hint";
+    hint.setAttribute("aria-hidden", "true");
+    sum.appendChild(hint);
     det.appendChild(sum);
 
     const body = document.createElement("div");
@@ -2951,6 +3022,105 @@ function initShare() {
 }
 
 /* ---------- 启动 ---------- */
+/* ---------- 首访三步引导（r14，Xiangtao 反馈四）：一次性 spotlight，localStorage 记忆 ----------
+ * 步骤：①首页高亮齐国「点一个国，选一个人」；②文姜时间线实际展开首卡「每张卡都能点开」；
+ * ③高亮人物子导航「三面看一个人」。跳过/开始探索后记 localStorage，关于页可重看。 */
+const TOUR_KEY = "chunqiu_tour_v1";
+const tour = { active: false, i: 0, steps: null, prevFocus: null };
+function tourSeen() { try { return !!localStorage.getItem(TOUR_KEY); } catch { return true; } }
+function tourMarkSeen() { try { localStorage.setItem(TOUR_KEY, "1"); } catch { /* 隐私模式：本会话内不复弹 */ } }
+function tourStepDefs() {
+  return [
+    { go: () => setHash(null, "home"),
+      find: () => document.querySelector('.home-state[data-state="齐"]'),
+      label: "第一步 / 三", text: "点一个国，选一个人" },
+    { go: () => setHash("P_WENJIANG", "timeline"),
+      prep: () => { const d = $("#timeline-list").querySelector("details"); if (d) d.open = true; },
+      find: () => $("#timeline-list").querySelector("details"),
+      label: "第二步 / 三", text: "每张卡都能点开：原文、出处、可靠度" },
+    { go: () => setHash("P_WENJIANG", "timeline"),
+      find: () => $("#person-nav"),
+      label: "第三步 / 三", text: "时间线、地图、关系，三面看一个人" },
+  ];
+}
+function startTour() {
+  tour.active = true;
+  tour.i = 0;
+  tour.steps = tourStepDefs();
+  tour.prevFocus = document.activeElement;
+  showTourStep();
+}
+function showTourStep() {
+  const step = tour.steps[tour.i];
+  step.go(); // 导航到该步视图（幂等：已在则原地 render）
+  // render 或异步 hashchange 后目标才出现，rAF 轮询直至就绪
+  waitForEl(step.find, () => {
+    if (step.prep) step.prep();
+    requestAnimationFrame(() => placeTour(step));
+  });
+}
+function waitForEl(find, cb, tries) {
+  tries = tries == null ? 40 : tries;
+  if (find() || tries <= 0) { cb(); return; }
+  requestAnimationFrame(() => waitForEl(find, cb, tries - 1));
+}
+function placeTour(step) {
+  const overlay = $("#tour");
+  overlay.hidden = false;
+  const last = tour.i === tour.steps.length - 1;
+  $("#tour-step").textContent = step.label;
+  $("#tour-text").textContent = step.text;
+  $("#tour-next").textContent = last ? "开始探索" : "下一步";
+  const el = step.find();
+  const hole = $("#tour-hole");
+  const pop = $("#tour-pop");
+  if (!el) {
+    hole.style.display = "none";
+    pop.style.left = "50%"; pop.style.top = "50%"; pop.style.transform = "translate(-50%,-50%)";
+    $("#tour-next").focus();
+    return;
+  }
+  pop.style.transform = "";
+  el.scrollIntoView({ block: "center", behavior: "instant" });
+  requestAnimationFrame(() => { drawTourHole(el); $("#tour-next").focus(); });
+}
+function drawTourHole(el) {
+  const r = el.getBoundingClientRect();
+  const pad = 6;
+  const hole = $("#tour-hole");
+  hole.style.display = "block";
+  hole.style.top = Math.max(2, r.top - pad) + "px";
+  hole.style.left = Math.max(2, r.left - pad) + "px";
+  hole.style.width = Math.min(r.width + pad * 2, window.innerWidth - 6) + "px";
+  hole.style.height = (r.height + pad * 2) + "px";
+  const pop = $("#tour-pop");
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let top = r.bottom + 12;
+  if (top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 12);
+  const left = Math.min(Math.max(8, r.left), window.innerWidth - pw - 8);
+  pop.style.top = Math.round(top) + "px";
+  pop.style.left = Math.round(left) + "px";
+}
+function tourNext() {
+  if (!tour.active) return;
+  if (tour.i >= tour.steps.length - 1) { endTour(); return; }
+  tour.i++;
+  showTourStep();
+}
+function endTour() {
+  tour.active = false;
+  $("#tour").hidden = true;
+  tourMarkSeen();
+  const pf = tour.prevFocus;
+  if (pf && typeof pf.focus === "function") { try { pf.focus(); } catch { /* 元素已移除 */ } }
+}
+function repositionTour() {
+  if (!tour.active) return;
+  const step = tour.steps[tour.i];
+  const el = step && step.find();
+  if (el) drawTourHole(el);
+}
+
 async function boot() {
   const names = ["people", "events", "event_people", "places", "passages", "sources",
                  "background", "archaeology", "relations", "meta"];
@@ -3054,11 +3224,35 @@ async function boot() {
   grip.addEventListener("pointerup", endDrag);
   grip.addEventListener("pointercancel", endDrag);
   document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
-    if (shareDialog.isOpen()) shareDialog.close();
-    else if (drawer.open) closeDrawer();
-    else if (mapState.overlay || relZoom.active) closeOverlay();
+    if (e.key === "Escape") {
+      if (tour.active) { endTour(); return; }        // 引导优先：Esc 跳过
+      if (shareDialog.isOpen()) shareDialog.close();
+      else if (drawer.open) closeDrawer();
+      else if (mapState.overlay || relZoom.active) closeOverlay();
+      return;
+    }
+    // 引导蒙层焦点圈定：Tab 在 跳过/下一步 间循环（Enter 由聚焦按钮原生触发→下一步）
+    if (tour.active && e.key === "Tab") {
+      const f = [$("#tour-skip"), $("#tour-next")];
+      const idx = f.indexOf(document.activeElement);
+      e.preventDefault();
+      const to = e.shiftKey ? (idx <= 0 ? f.length - 1 : idx - 1) : (idx >= f.length - 1 ? 0 : idx + 1);
+      f[to].focus();
+    }
   });
+  // 首访引导：按钮 + 关于页重看入口 + 视口变化时重定位高亮孔
+  $("#tour-next").addEventListener("click", tourNext);
+  $("#tour-skip").addEventListener("click", endTour);
+  $("#tour-replay").addEventListener("click", () => {
+    try { localStorage.removeItem(TOUR_KEY); } catch { /* 隐私模式 */ }
+    startTour();
+  });
+  window.addEventListener("resize", repositionTour);
+  window.addEventListener("scroll", () => { hideCardPop(); repositionTour(); }, { passive: true });
+  // 自管滚动复位：关掉浏览器自动 restoration（其异步补回旧位置正是「切视图不回顶」的 bug 源）
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  // popstate 先于 hashchange 派发：标记本次 render 为历史回溯，按 scrollMem 恢复
+  window.addEventListener("popstate", () => { navByPop = true; });
   window.addEventListener("hashchange", render);
 
   initSearch();
@@ -3075,6 +3269,8 @@ async function boot() {
   const nLines = DATA.people.filter(p => p.is_protagonist).length;
   $("#brand-caption").textContent = "分享给同好——" + nLines + " 条人物线，择一而入。";
   render();
+  // 首访三步引导：仅首次、且落在首页视图（深链入站者不打扰）
+  if (!tourSeen() && state.view === "home") startTour();
 }
 boot().catch(err => {
   $("#footer-stats").textContent = "加载失败：" + err.message + "（请经 http 访问并确认已运行 tools/csv_to_json.py）";

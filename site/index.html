@@ -230,8 +230,10 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.9（首页地图导航 · 十二人物线）。</p>
+        <p id="about-version">当前版本 v0.10（首访引导 · 人物卡简介两行 · 事件卡可点暗示）。
+          <button type="button" class="tour-replay" id="tour-replay">重看引导</button></p>
         <ul>
+          <li>v0.10 —— 首访三步引导（可重看）；人物卡简介两行显示、桌面 hover 见全文、手机卡内完整；时间线事件卡加「原文 ▾」可点暗示；进人物、切视图滚动复位到顶</li>
           <li>v0.9 —— 首页改地图导航（点国入人、列表模式可切换）；齐僖公、武姜、祭仲三线上线，主角十二人；人物子导航升格；底图增晋与汾水</li>
           <li>v0.8 —— 全站一框搜索（人物/地点/事件/原文，键盘可达）；分享卡生成器（两版尺寸、扫码直达）；邮件反馈入口启用</li>
           <li>v0.7 —— 主导航与人物子导航分层，旧链接自动跳转；关系图并线与多重关系徽记；全站文案雅化；桌面全屏地点抽屉修复</li>
@@ -285,6 +287,22 @@
       <button type="button" id="btn-share-native" hidden>直接分享</button>
     </div>
     <p class="share-toast" id="share-toast" role="status"></p>
+  </div>
+</div>
+
+<!-- 人物卡简介全文浮层（桌面 hover/focus；手机端简介已完整显示故不用） -->
+<div class="card-pop" id="card-pop" hidden role="tooltip" aria-hidden="true"></div>
+
+<!-- 首访三步引导蒙层（一次性，localStorage 记忆；键盘可达） -->
+<div class="tour" id="tour" hidden role="dialog" aria-modal="true" aria-labelledby="tour-text">
+  <div class="tour-hole" id="tour-hole" aria-hidden="true"></div>
+  <div class="tour-pop" id="tour-pop">
+    <p class="tour-step" id="tour-step"></p>
+    <p class="tour-text" id="tour-text"></p>
+    <div class="tour-actions">
+      <button type="button" class="tour-skip" id="tour-skip">跳过</button>
+      <button type="button" class="tour-next" id="tour-next">下一步</button>
+    </div>
   </div>
 </div>
 
