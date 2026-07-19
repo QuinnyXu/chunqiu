@@ -1,0 +1,11 @@
+id,person_a,person_b,rel_type,rel_label,reliability,source_note
+R113,P_WUJIANG,P_ZHENGWU,婚姻,妻,high,左传隐公元年（郑武公娶于申曰武姜）
+R114,P_ZHENGWU,P_ZHENGZHUANG,亲属-直系,父,high,左传隐公元年、史记郑世家（生庄公寤生）
+R115,P_ZHENGWU,P_GONGSHUDUAN,亲属-直系,父,high,左传隐公元年（生庄公及共叔段）
+R116,P_ZHENGHUAN,P_ZHENGWU,亲属-直系,父,high,史记郑世家（桓公友子武公掘突）
+R117,P_JIZHONG,P_YONGJI,亲属-直系,父,high,左传桓公十五年（祭仲女雍姬）
+R118,P_YONGJIU,P_YONGJI,婚姻,夫,high,左传桓公十五年（雍纠妻雍姬）
+R119,P_YONGJIU,P_JIZHONG,其他,婿（祭仲以女妻之）,high,左传桓公十五年
+R120,P_JIZHONG,P_YONGJIU,敌对,杀之（婿受命图己反被杀）,high,左传桓公十五年
+R121,P_ZHENGLI,P_YONGJIU,君臣,君（使杀祭仲）,high,左传桓公十五年
+R122,P_QIXI,P_ZHENGZHUANG,其他,石门之盟同好（齐郑相盟）,high,左传隐公三年（齐郑盟于石门）
