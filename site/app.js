@@ -3,25 +3,42 @@
 "use strict";
 
 /* ---------- 设计配置（见 docs/design/design_notes.md） ---------- */
-/* 顺序即选人页分区内顺序；分组按 people.state 首国自动生成，新国加入只增分区 */
+/* 顺序即选人页分区内顺序；分组按 people.state 首国自动生成，新国加入只增分区。
+ * home：分区归属覆盖项（武姜 state「申/郑」，人物线全在郑，归郑分区，卡上仍标流向） */
 const PROTAGONISTS = [
   { id: "P_WENJIANG",    color: "#B23A2F", badge: "badge_wenjiang",    fallback: "文姜" },
   { id: "P_QIXIANG",     color: "#35302A", badge: "badge_qixiang",     fallback: "齐襄公" },
   { id: "P_QIHUAN",      color: "#8A6D1F", badge: "badge_qihuan",      fallback: "齐桓公" },
+  { id: "P_QIXI",        color: "#2D6470", badge: "badge_qixi",        fallback: "齐僖公" },
   { id: "P_LUYIN",       color: "#56707E", badge: "badge_luyin",       fallback: "鲁隐公" },
   { id: "P_LUHUAN",      color: "#A9622B", badge: "badge_luhuan",      fallback: "鲁桓公" },
   { id: "P_LUZHUANG",    color: "#55603A", badge: "badge_luzhuang",    fallback: "鲁庄公" },
   { id: "P_ZHENGZHUANG", color: "#5C4632", badge: "badge_zhengzhuang", fallback: "郑庄公" },
   { id: "P_ZHENGZHAO",   color: "#3F7A6C", badge: "badge_zhengzhao",   fallback: "郑昭公" },
+  { id: "P_WUJIANG",     color: "#5E4B6B", badge: "badge_wujiang",     fallback: "武姜", home: "郑" },
+  { id: "P_JIZHONG",     color: "#3D4C63", badge: "badge_jizhong",     fallback: "祭仲" },
   { id: "P_JINWEN",      color: "#8C3041", badge: "badge_jinwen",      fallback: "晋文公" },
 ];
-/* 各国一句话气质注（界面文案，非史料叙述；无注之国只显国名） */
+/* 各国一句话气质注（界面文案，非史料叙述；无注之国只显国名）。
+ * r12 起首页地图上无主角之国也点得出此注（＋「整理中」提示），故补齐底图诸国 */
 const STATE_EPITHET = {
   "齐": "山海鱼盐之国",
   "鲁": "周公之胤，秉礼之邦",
   "郑": "四战之地，新造之邦",
   "晋": "表里山河之国",
+  "周": "天下共主，礼乐所自出",
+  "卫": "河淇之间，殷墟故地",
+  "宋": "殷商之后，公爵之国",
+  "陈": "帝舜之后，妫姓之国",
+  "蔡": "汝淮之间，姬姓之国",
+  "纪": "海隅姜姓之国",
+  "许": "姜姓四岳之后",
 };
+/* 首页地图（r12，docs/design/home_map_notes.md）：徽记簇簇心（底图坐标系）。
+ * 属美术布局锚点，非史料落点——史料地点一律走 conventions 投影公式 */
+const HOME_BADGE_POS = { "齐": [818, 232], "鲁": [700, 354], "郑": [400, 424], "晋": [172, 328] };
+const HOME_PENDING = "人物线整理中";
+const HOME_PENDING_HINT = "先看看有主角的国家——齐、鲁、郑、晋。";
 const CAT_ICON = {
   "即位": "jiwei", "战争": "zhanzheng", "会盟": "huimeng", "相会": "xianghui",
   "婚嫁": "hunjia", "生育": "shengyu", "出奔": "chuben", "弑杀": "shisha",
@@ -106,10 +123,19 @@ function parseHash() {
     history.replaceState(null, "", next); // 就地改写，不增历史条目
     raw = next.replace(/^#/, "");
   }
-  const st = { view: "home", person: null, tab: "background", q: "" };
+  const st = { view: "home", person: null, tab: "background", q: "", home: "map" };
   const [pathPart, queryPart] = raw.split("?");
   const segs = pathPart.split("/").filter(Boolean);
-  if (!segs.length) return st;
+  const params = {};
+  for (const kv of (queryPart || "").split("&")) {
+    const [k, v] = kv.split("=");
+    if (k && v !== undefined) params[k] = v;
+  }
+  if (!segs.length) {
+    // 首页模式记忆走 hash 参数（不用 Web Storage）：#/ = 地图，#/?home=list = 列表
+    if (params.home === "list") st.home = "list";
+    return st;
+  }
   if (segs[0] === "p") {
     if (PROTAGONISTS.some(p => p.id === segs[1])) {
       st.person = segs[1];
@@ -121,13 +147,12 @@ function parseHash() {
   if (segs[0] === "library") {
     st.view = "library";
     if (LIB_TABS.includes(segs[1])) st.tab = segs[1];
-    for (const kv of (queryPart || "").split("&")) {
-      const [k, v] = kv.split("=");
-      if (k === "q" && v) { try { st.q = decodeURIComponent(v); } catch { st.q = v; } }
-    }
+    if (params.q) { try { st.q = decodeURIComponent(params.q); } catch { st.q = params.q; } }
   }
   return st;
 }
+/* 首页模式（map|list）：内存值随 hash 同步，回首页时沿用（选择记忆即 hash 本身） */
+let homeMode = "map";
 function buildHash(person, view, tab, q) {
   if (person && PERSON_VIEWS.includes(view)) return "#/p/" + person + "/" + view;
   if (view === "relations" || view === "about") return "#/" + view;
@@ -137,7 +162,7 @@ function buildHash(person, view, tab, q) {
     if (q) h += "?q=" + encodeURIComponent(q);
     return h;
   }
-  return "#/";
+  return homeMode === "list" ? "#/?home=list" : "#/";
 }
 function setHash(person, view, tab, q) {
   const next = buildHash(person, view, tab, q);
@@ -235,6 +260,7 @@ let pendingSpot = null; // { view, type: "event"|"quote"|"place"|"ego", ... }
 
 function render() {
   state = parseHash();
+  if (state.view === "home") homeMode = state.home;
   if (state.person) personCtx = state.person;
   if (pendingSpot && pendingSpot.view !== state.view) pendingSpot = null;
   closeOverlay();
@@ -278,19 +304,32 @@ function renderPersonNav(ctxMeta) {
   });
 }
 
-/* ---------- 屏1 选人（按 state 首国分组，顶部国别选项卡滚动定位） ---------- */
+/* ---------- 屏1 选人：地图导航（r12 默认）＋分组列表（列表模式/窄屏下方） ---------- */
+let homeGroupEls = new Map(); // 分区 state → section 元素（首页地图点国滚动定位用）
+let homeGroups = new Map();   // 分区 state → metas
+
 function renderHome() {
+  const view = $("#view-home");
+  const mapMode = state.home !== "list";
+  view.classList.toggle("home-map-mode", mapMode);
+  const toggle = $("#home-mode-toggle");
+  toggle.textContent = mapMode ? "☷ 列表模式" : "◎ 地图模式";
+  toggle.setAttribute("aria-pressed", String(!mapMode));
+
   const tabsBox = $("#state-tabs");
   const groupsBox = $("#person-groups");
   tabsBox.textContent = "";
   groupsBox.textContent = "";
 
-  // 分组：按 people.state 首国（跨国者归首国，卡上另标流向）；组序随 PROTAGONISTS 配置
+  // 分组：按 people.state 首国（跨国者归首国，卡上另标流向；meta.home 可覆盖，如武姜归郑）；
+  // 组序随 PROTAGONISTS 配置
   const groups = [];
   const byState = new Map();
+  homeGroups = new Map();
+  homeGroupEls = new Map();
   for (const meta of PROTAGONISTS) {
     const person = PEOPLE[meta.id];
-    const st = ((person && person.state) || "").split("/")[0] || "其他";
+    const st = meta.home || ((person && person.state) || "").split("/")[0] || "其他";
     if (!byState.has(st)) {
       const g = { state: st, metas: [] };
       byState.set(st, g);
@@ -298,6 +337,7 @@ function renderHome() {
     }
     byState.get(st).metas.push(meta);
   }
+  for (const g of groups) homeGroups.set(g.state, g.metas);
 
   const setActive = (label) => {
     tabsBox.querySelectorAll("button").forEach(b =>
@@ -339,8 +379,154 @@ function renderHome() {
     for (const meta of g.metas) ul.appendChild(personCardLi(meta));
     sec.appendChild(ul);
     groupsBox.appendChild(sec);
+    homeGroupEls.set(g.state, sec);
     mkTab(g.state, () => sec.scrollIntoView({ block: "start" }));
   });
+
+  if (mapMode) buildHomeMap();
+}
+
+/* ----- 首页地图导航（r12，docs/design/home_map_notes.md）：
+ * 底图海报化（色块饱和提档、国名放大），每国一个键盘可达热区；
+ * 有主角之国落主题色徽记簇，无主角之国点出一句气质注＋「整理中」。 ----- */
+function buildHomeMap() {
+  const box = $("#home-map");
+  box.innerHTML = baseMapText;
+  const svg = box.querySelector("svg");
+  if (!svg) return;
+  const NS = "http://www.w3.org/2000/svg";
+  svg.setAttribute("aria-label", "春秋列国示意图：点国入其人物线");
+
+  // 海报化：色块饱和提一档、国名放大加深（人物地图用原参数，两处共用同一底图文件）
+  const states = svg.querySelector("#layer-states");
+  if (states) states.setAttribute("fill-opacity", "0.5");
+  svg.querySelectorAll("#layer-labels text[data-state]").forEach(t => {
+    t.setAttribute("font-size", "26");
+    t.setAttribute("fill", "#4E4338");
+  });
+
+  // 每国热区：色块椭圆外扩 18；hover/focus/选中显暖赭虚线环；Tab 可达、Enter/空格触发
+  const hotLayer = document.createElementNS(NS, "g");
+  svg.appendChild(hotLayer);
+  svg.querySelectorAll("#layer-states ellipse[data-state]").forEach(el => {
+    const st = el.dataset.state;
+    const metas = homeGroups.get(st);
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "home-state");
+    g.dataset.state = st;
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", "button");
+    g.setAttribute("aria-label", st + "：" + (metas
+      ? metas.map(m => (PEOPLE[m.id] ? PEOPLE[m.id].name : m.fallback)).join("、")
+      : HOME_PENDING));
+    const geo = ["cx", "cy"].map(a => el.getAttribute(a));
+    const mk = (cls, dr) => {
+      const e = document.createElementNS(NS, "ellipse");
+      e.setAttribute("class", cls);
+      e.setAttribute("cx", geo[0]); e.setAttribute("cy", geo[1]);
+      e.setAttribute("rx", parseFloat(el.getAttribute("rx")) + dr);
+      e.setAttribute("ry", parseFloat(el.getAttribute("ry")) + dr);
+      g.appendChild(e);
+      return e;
+    };
+    mk("hs-ring", 6);
+    mk("hs-hit", 18);
+    g.addEventListener("click", () => pickHomeState(st));
+    g.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pickHomeState(st); }
+    });
+    hotLayer.appendChild(g);
+  });
+
+  // 主角徽记簇：主题色圆底＋白线徽记，一行排布于簇心（HOME_BADGE_POS，美术布局锚点）
+  const BADGE_R = 13.5, BADGE_GAP = 31;
+  const clusterLayer = document.createElementNS(NS, "g");
+  clusterLayer.setAttribute("aria-hidden", "true"); // 与热区同义，读屏只走热区
+  svg.appendChild(clusterLayer);
+  for (const [st, metas] of homeGroups) {
+    const pos = HOME_BADGE_POS[st];
+    if (!pos) continue;
+    const cl = document.createElementNS(NS, "g");
+    cl.setAttribute("class", "home-cluster");
+    const x0 = pos[0] - ((metas.length - 1) * BADGE_GAP) / 2;
+    metas.forEach((meta, i) => {
+      const cx = x0 + i * BADGE_GAP;
+      const c = document.createElementNS(NS, "circle");
+      c.setAttribute("cx", cx); c.setAttribute("cy", pos[1]); c.setAttribute("r", BADGE_R);
+      c.setAttribute("fill", meta.color);
+      c.setAttribute("stroke", "#F4EDDF");
+      c.setAttribute("stroke-width", "1.6");
+      const tip = document.createElementNS(NS, "title");
+      tip.textContent = PEOPLE[meta.id] ? PEOPLE[meta.id].name : meta.fallback;
+      c.appendChild(tip);
+      cl.appendChild(c);
+      fetchSVG(meta.badge).then(t => {
+        if (!t) return;
+        const doc = new DOMParser().parseFromString(t, "image/svg+xml");
+        const b = document.importNode(doc.documentElement, true);
+        b.setAttribute("x", cx - 9); b.setAttribute("y", pos[1] - 9);
+        b.setAttribute("width", 18); b.setAttribute("height", 18);
+        b.style.color = "#FBF7EC";
+        b.style.pointerEvents = "none";
+        cl.appendChild(b);
+      });
+    });
+    cl.addEventListener("click", () => pickHomeState(st));
+    clusterLayer.appendChild(cl);
+  }
+
+  resetHomePanel();
+  $("#home-map-status").textContent = "点地图上的国名或色块，入其人物线；列国色块皆示意，非考据疆界。";
+}
+
+function pickHomeState(st) {
+  const svg = $("#home-map").querySelector("svg");
+  if (svg) svg.querySelectorAll(".home-state").forEach(g =>
+    g.classList.toggle("selected", g.dataset.state === st));
+  const metas = homeGroups.get(st) || null;
+  // 窄屏：面板隐藏，分组列表就在图下——有主角滚到分组，无主角状态行给一句提示
+  if (window.matchMedia("(max-width: 680px)").matches) {
+    if (metas && homeGroupEls.has(st)) {
+      homeGroupEls.get(st).scrollIntoView({ block: "start", behavior: "smooth" });
+    } else {
+      $("#home-map-status").textContent =
+        st + (STATE_EPITHET[st] ? " · " + STATE_EPITHET[st] : "") + "——" + HOME_PENDING + "。";
+    }
+    return;
+  }
+  const panel = $("#home-state-panel");
+  panel.textContent = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = st;
+  panel.appendChild(h3);
+  if (STATE_EPITHET[st]) {
+    const note = document.createElement("p");
+    note.className = "state-note";
+    note.textContent = STATE_EPITHET[st];
+    panel.appendChild(note);
+  }
+  if (metas) {
+    const ul = document.createElement("ul");
+    ul.className = "person-grid";
+    for (const meta of metas) ul.appendChild(personCardLi(meta));
+    panel.appendChild(ul);
+  } else {
+    const p = document.createElement("p");
+    p.className = "home-pending";
+    p.textContent = HOME_PENDING + "——" + HOME_PENDING_HINT;
+    panel.appendChild(p);
+  }
+}
+function resetHomePanel() {
+  const panel = $("#home-state-panel");
+  panel.textContent = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = "列国人物";
+  panel.appendChild(h3);
+  const p = document.createElement("p");
+  p.className = "map-status";
+  p.textContent = "点左侧地图上任一国。";
+  panel.appendChild(p);
 }
 
 function personCardLi(meta) {
@@ -360,6 +546,7 @@ function personCardLi(meta) {
   card.appendChild(badge);
 
   const info = document.createElement("span");
+  info.className = "card-info"; // 统一卡式（r12）：信息列 min-width:0，各行单行截断
   const h3 = document.createElement("h3");
   h3.textContent = ready ? person.name : meta.fallback;
   // 跨国人物标注流向（state 如「齐/鲁」→「齐→鲁」）
@@ -2325,7 +2512,7 @@ function initSearch() {
 }
 
 /* ---------- 分享卡生成器（r11）：canvas 运行时合成，零依赖 ----------
- * 构图：青铜双线框＋回纹带（几何抽象，非纹理贴图）＋站名＋九主角色签＋
+ * 构图：青铜双线框＋回纹带（几何抽象，非纹理贴图）＋站名＋主角色签＋
  * 邀请语（SHARE_COPY.invite）＋站点二维码（assets/share/qr.png）＋域名。
  * 两版尺寸：1080×1440（3:4 竖图）与 1080×1080（方图）。 */
 const SHARE_SERIF = '"Songti SC","Noto Serif CJK SC","STSong","SimSun",serif';
@@ -2448,7 +2635,7 @@ function drawShareCard() {
   ctx.font = "700 " + L.titleSize + "px " + SHARE_SERIF;
   drawSpacedLine(ctx, "春秋人物志", W / 2, L.title, L.titleSize * 0.16);
 
-  // 九主角主题色签（品牌色阶，取自 PROTAGONISTS 设计配置）
+  // 主角主题色签一行（品牌色阶，取自 PROTAGONISTS 设计配置，数量随主角数自适应）
   const tw = 26, gap = 14;
   let tx = W / 2 - (PROTAGONISTS.length * tw + (PROTAGONISTS.length - 1) * gap) / 2;
   for (const m of PROTAGONISTS) {
@@ -2617,6 +2804,11 @@ async function boot() {
       else if (v === "about") setHash(null, "about");
       else setHash(null, "home");
     });
+  });
+  // 首页 地图/列表 模式切换：记忆走 hash（#/?home=list），不用 Web Storage
+  $("#home-mode-toggle").addEventListener("click", () => {
+    homeMode = homeMode === "list" ? "map" : "list";
+    setHash(null, "home");
   });
   // 人物子导航：时间线 | 地图 | 关系 | ✕ 换人
   document.querySelectorAll("#person-nav button[data-pview]").forEach(btn => {

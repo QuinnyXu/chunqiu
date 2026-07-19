@@ -65,9 +65,25 @@
 
 <main>
   <section id="view-home" aria-labelledby="home-title">
-    <h2 class="screen-title" id="home-title">人物线 · 择一而入</h2>
-    <nav class="state-tabs" id="state-tabs" aria-label="按国别定位"></nav>
-    <div id="person-groups"></div>
+    <h2 class="screen-title" id="home-title">人物线 · 择一而入
+      <button type="button" class="inline-entry mode-toggle" id="home-mode-toggle" aria-pressed="false">列表模式</button>
+    </h2>
+    <!-- 首页地图导航（r12，设计定稿见 docs/design/home_map_notes.md）：
+         桌面=底图＋右侧列国人物面板；≤680px=底图在上（横滚）＋分组列表在下同屏纵排 -->
+    <div class="home-hero" id="home-hero">
+      <div class="home-map-main">
+        <div class="home-map" id="home-map"></div>
+        <p class="map-status home-map-status" id="home-map-status">点地图上的国名或色块，入其人物线；列国色块皆示意，非考据疆界。</p>
+      </div>
+      <aside class="panel home-state-panel" id="home-state-panel" aria-live="polite">
+        <h3>列国人物</h3>
+        <p class="map-status">点左侧地图上任一国。</p>
+      </aside>
+    </div>
+    <div class="home-list-block" id="home-list-block">
+      <nav class="state-tabs" id="state-tabs" aria-label="按国别定位"></nav>
+      <div id="person-groups"></div>
+    </div>
     <p class="home-extra">
       <button type="button" class="library-entry" id="home-guide-entry">初识春秋 →</button>
       <button type="button" class="library-entry" id="home-relations-entry">全景关系图谱 →</button>
@@ -213,8 +229,9 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.8（全站搜索 · 分享卡 · 邮件反馈）。</p>
+        <p id="about-version">当前版本 v0.9（首页地图导航 · 十二人物线）。</p>
         <ul>
+          <li>v0.9 —— 首页改地图导航（点国入人、列表模式可切换）；齐僖公、武姜、祭仲三线上线，主角十二人；人物子导航升格；底图增晋与汾水</li>
           <li>v0.8 —— 全站一框搜索（人物/地点/事件/原文，键盘可达）；分享卡生成器（两版尺寸、扫码直达）；邮件反馈入口启用</li>
           <li>v0.7 —— 主导航与人物子导航分层，旧链接自动跳转；关系图并线与多重关系徽记；全站文案雅化；桌面全屏地点抽屉修复</li>
           <li>v0.6 —— 选人页按国分组与国别选项卡；姓名行（姓/氏/名/字）显示；晋文公全线上线</li>

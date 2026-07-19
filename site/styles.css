@@ -67,41 +67,45 @@ body {
 }
 .site-brand:hover .site-title { color: var(--ochre); }
 
-/* 人物子导航：视觉从属于主导航的次级条 */
+/* 人物子导航：视觉从属于主导航的次级条。
+ * r12 升格（Xiangtao 反馈 3）：人物名主题色加粗放大一档、徽记 24px、
+ * 未激活标签加深至正文色；bar 内边距加大，与下方内容留白拉开 */
 .person-nav {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.55rem;
   flex-wrap: wrap;
-  padding: 0.4rem 1.2rem;
+  padding: 0.55rem 1.2rem 0.6rem;
   border-bottom: 1px dashed var(--line);
   background: var(--silk);
   font-size: 0.85rem;
 }
 .person-nav[hidden] { display: none; }
+.person-nav:not([hidden]) + main { padding-top: 1.9rem; }
 .pn-badge {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   color: var(--theme);
 }
 .pn-badge svg { width: 100%; height: 100%; display: block; }
 .pn-name {
   font-family: var(--serif);
   font-weight: 700;
+  font-size: 1.08rem;
   color: var(--theme);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
 }
 .pn-sep { color: var(--line); }
 .person-nav button {
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   font-family: var(--serif);
   letter-spacing: 0.08em;
   background: none;
   border: 1px solid transparent;
   border-radius: 999px;
-  color: var(--ink-soft);
-  padding: 0.12rem 0.75rem;
+  color: var(--ink);
+  padding: 0.14rem 0.75rem;
   cursor: pointer;
 }
 .person-nav button:hover { color: var(--theme); border-color: var(--line); }
@@ -335,6 +339,7 @@ section[hidden] { display: none; }
 }
 .person-card {
   width: 100%;
+  min-height: 8.5rem; /* 统一卡式（r12，Xiangtao 反馈 1）：缺项不改变卡高 */
   text-align: left;
   font: inherit;
   color: inherit;
@@ -348,6 +353,21 @@ section[hidden] { display: none; }
   gap: 0.9rem;
   align-items: flex-start;
   transition: transform 120ms ease, box-shadow 120ms ease;
+}
+/* 信息列：min-width:0 使单行截断在 flex 内生效；姓名/姓名行/生卒/简介一律单行 */
+.person-card .card-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.person-card h3,
+.person-card .name-line,
+.person-card .years,
+.person-card p {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .person-card:hover:not(:disabled),
 .person-card:focus-visible {
@@ -381,6 +401,58 @@ section[hidden] { display: none; }
   padding: 0.1rem 0.5rem;
   border-radius: 2px;
   font-size: 0.8rem;
+}
+
+/* ---------- 首页地图导航（r12，docs/design/home_map_notes.md） ---------- */
+.mode-toggle { font-size: 0.8rem; padding: 0.2rem 0.85rem; }
+.home-hero { display: none; }
+.home-map-mode .home-hero {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.3rem;
+}
+.home-map-main { flex: 1 1 auto; min-width: 0; }
+.home-map {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--silk);
+}
+.home-map svg { display: block; width: 100%; height: auto; }
+.home-map-status { margin-top: 0.45rem; }
+.home-state-panel { flex: 0 0 320px; }
+.home-state-panel .state-note {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin: -0.15rem 0 0.5rem;
+}
+.home-state-panel .person-grid {
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+}
+.home-pending { color: var(--ink-soft); font-size: 0.86rem; margin: 0; }
+/* 国家热区：hover/focus/选中显暖赭虚线环（环即焦点指示） */
+.home-state { cursor: pointer; outline: none; }
+.home-state .hs-hit { fill: transparent; }
+.home-state .hs-ring {
+  fill: none;
+  stroke: var(--ochre);
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.home-state:hover .hs-ring,
+.home-state:focus .hs-ring,
+.home-state.selected .hs-ring { opacity: 0.9; }
+.home-state.selected .hs-ring { stroke-dasharray: none; }
+.home-cluster { cursor: pointer; }
+/* 桌面地图模式：分组列表隐藏（列表模式一键切回）；窄屏两者同屏纵排 */
+@media (min-width: 681px) {
+  .home-map-mode .home-list-block { display: none; }
 }
 
 /* ---------- 屏2 时间线 ---------- */
@@ -1273,8 +1345,14 @@ body.no-scroll { overflow: hidden; }
   .site-search.open { width: 100%; }
   .site-search.open #global-search { flex: 1 1 auto; width: 0; min-width: 0; }
   .site-search.open .search-pop { left: 0; right: 0; width: auto; }
-  .person-nav { padding: 0.4rem 0.8rem; }
-  .person-nav button { padding: 0.12rem 0.6rem; }
+  .person-nav { padding: 0.5rem 0.8rem 0.55rem; }
+  .person-nav button { padding: 0.14rem 0.6rem; }
+  .person-nav:not([hidden]) + main { padding-top: 1.5rem; }
+  /* 首页地图：底图在上（横向滚动保可读），分组列表在下同屏纵排；侧面板隐藏 */
+  .home-map-mode .home-hero { flex-direction: column; }
+  .home-state-panel { display: none; }
+  .home-map { overflow-x: auto; }
+  .home-map svg { min-width: 640px; }
   .main-nav button, .main-nav a.nav-feedback { flex: 1 1 auto; text-align: center; }
   main { padding: 1rem 0.8rem 2.5rem; }
   .person-grid { grid-template-columns: 1fr; }
