@@ -101,11 +101,11 @@
     "role": "郑国权臣",
     "active_years_bce": "春秋早期",
     "relations": "先立忽，后受宋胁迫立突；子亹赴齐时称疾不往",
-    "notes": "郑国继承危机中的核心权力人物。祭氏，名足，字仲（祭仲即祭氏字仲，名足）；'祭'一说为周公之后姬姓，姓无确考故留空。",
-    "is_protagonist": 0,
+    "notes": "郑国继承危机中的核心权力人物。祭氏，名足，字仲（祭仲即祭氏字仲，名足）；'祭'一说为周公之后姬姓，姓无确考故留空。卒约前682，史无明载（见E102）。",
+    "is_protagonist": 1,
     "birth_year_bce": null,
     "death_year_bce": null,
-    "short_bio": null
+    "short_bio": "郑之权臣，废立在手——先以宠卿立昭公忽，旋受宋胁迫逐忽立厉公突；子亹赴齐会称疾不往，后迎子仪于陈而立之；厉公使雍纠图之而不克。四立郑君、权重于公室，春秋前期权臣之典型。"
   },
   {
     "id": "P_GAOQUMI",
@@ -228,7 +228,7 @@
     "active_years_bce": "春秋初",
     "relations": "申侯女；夫郑武公；子郑庄公、共叔段",
     "notes": "恶庄公而爱段，为段请制请京并将启之；城颍之置与黄泉相见后母子如初。申国之女，申为姜姓，故姓姜；名无载（'武'从夫郑武公之谥，'姜'为姓）。",
-    "is_protagonist": 0,
+    "is_protagonist": 1,
     "birth_year_bce": null,
     "death_year_bce": null,
     "short_bio": null
@@ -732,7 +732,7 @@
     "active_years_bce": "在位约前730-前698",
     "relations": "父齐前庄公（购）；子齐襄公诸儿、齐桓公小白、公子纠；女文姜（嫁鲁桓公）、宣姜（嫁卫宣公，通说）；母弟夷仲年（公孙无知之父，未入库）",
     "notes": "齐前庄公之子。起在位年据《史记·齐世家》在位三十三年上推标medium；卒年前698据《春秋·桓公十四年》\"齐侯禄父卒\"为经文明证。诸子世系（襄公、桓公、纠及女文姜）见左传、史记；宣姜为其女属通说。夷仲年、齐前庄公未入库。姜姓吕氏，名禄父，《史记》一作'禄甫'（异文）；'釐/僖'为谥之异写。",
-    "is_protagonist": 0,
+    "is_protagonist": 1,
     "birth_year_bce": null,
     "death_year_bce": -698,
     "short_bio": "齐前庄公之子，僖公一朝齐力渐张；亲送女文姜适鲁、乞师于郑而太子忽帅师救齐、两请以女妻忽，皆春秋前期齐鲁郑关系之枢；身后诸子襄公、桓公、纠相继争国。"
@@ -1006,5 +1006,59 @@
     "birth_year_bce": null,
     "death_year_bce": null,
     "short_bio": "周襄王赖晋勤王复位、策晋为伯，尊王与霸政相成之天子。"
+  },
+  {
+    "id": "P_ZHENGWU",
+    "name": "郑武公",
+    "alt_names": "掘突;姬掘突;武公",
+    "xing": "姬",
+    "shi": null,
+    "ming": "掘突",
+    "zi": null,
+    "state": "郑",
+    "role": "郑国国君、周平王卿士",
+    "active_years_bce": "在位前770-前744",
+    "relations": "父郑桓公友；夫人武姜（申女）；子郑庄公寤生、共叔段",
+    "notes": "郑桓公友之子；娶申女武姜生庄公、段；承父东迁灭郐取虢奠郑立国之基。卒年前744据《史记·郑世家》武公二十七年。姬姓，名掘突（郑公室姬姓，桓公友之后；'武'为谥）。",
+    "is_protagonist": 0,
+    "birth_year_bce": null,
+    "death_year_bce": -744,
+    "short_bio": "承父东迁之业，娶申武姜以固姻援，灭郐取虢奠郑立国之基；然武姜爱段，诸子争位之患已伏于其世。"
+  },
+  {
+    "id": "P_YONGJIU",
+    "name": "雍纠",
+    "alt_names": "雍氏",
+    "xing": null,
+    "shi": "雍",
+    "ming": "纠",
+    "zi": null,
+    "state": "郑",
+    "role": "郑大夫（郑厉公党）",
+    "active_years_bce": "春秋早期（约前697）",
+    "relations": "妻雍姬（祭仲女）；岳父祭仲；受郑厉公使",
+    "notes": "郑厉公母雍姞之族党；受厉公命将杀岳父祭仲于郊，谋泄于妻雍姬，反为祭仲所杀，尸诸周氏之汪。雍氏，名纠；姓无确考故留空。",
+    "is_protagonist": 0,
+    "birth_year_bce": null,
+    "death_year_bce": -697,
+    "short_bio": "受厉公之命图杀岳父祭仲，谋泄反被杀——郑厉公首次去祭仲之败局的牺牲者。"
+  },
+  {
+    "id": "P_YONGJI",
+    "name": "雍姬",
+    "alt_names": null,
+    "xing": null,
+    "shi": null,
+    "ming": null,
+    "zi": null,
+    "state": "郑",
+    "role": "祭仲之女、雍纠之妻",
+    "active_years_bce": "春秋早期",
+    "relations": "父祭仲；夫雍纠",
+    "notes": "祭仲之女、雍纠之妻。夫将杀父，问母「父与夫孰亲」，母曰「人尽夫也，父一而已，胡可比也」，遂以谋告父，父杀其夫。称「雍姬」从夫氏雍；父祭仲姓无确考，故姓留空。",
+    "is_protagonist": 0,
+    "birth_year_bce": null,
+    "death_year_bce": null,
+    "short_bio": "「人尽夫也」典故中人；于父与夫之间择父告变，成祭仲得免、郑厉公首败之枢。"
   }
 ]

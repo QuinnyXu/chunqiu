@@ -728,5 +728,15 @@
     "source_type": "primary_secondary",
     "url": "https://ctext.org/shiji/qin-ben-ji/zh",
     "notes": "秦穆公纳夷吾、韩原之战、纳重耳入晋之秦方叙事；汉代综合。"
+  },
+  {
+    "id": "Z053",
+    "title": "《春秋左传·桓公十四年》",
+    "work": "春秋左传",
+    "section": "桓公十四年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/huan-gong-shi-si-nian/zh",
+    "notes": "冬十有二月齐侯禄父（僖公）卒；御廪灾、宋以郕故伐郑等。「禄父」从经之明证。"
   }
 ]

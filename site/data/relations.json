@@ -1006,5 +1006,95 @@
     "rel_label": "勤王纳王复位",
     "reliability": "high",
     "source_note": "左传僖公二十五年"
+  },
+  {
+    "id": "R113",
+    "person_a": "P_WUJIANG",
+    "person_b": "P_ZHENGWU",
+    "rel_type": "婚姻",
+    "rel_label": "妻",
+    "reliability": "high",
+    "source_note": "左传隐公元年（郑武公娶于申曰武姜）"
+  },
+  {
+    "id": "R114",
+    "person_a": "P_ZHENGWU",
+    "person_b": "P_ZHENGZHUANG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传隐公元年、史记郑世家（生庄公寤生）"
+  },
+  {
+    "id": "R115",
+    "person_a": "P_ZHENGWU",
+    "person_b": "P_GONGSHUDUAN",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传隐公元年（生庄公及共叔段）"
+  },
+  {
+    "id": "R116",
+    "person_a": "P_ZHENGHUAN",
+    "person_b": "P_ZHENGWU",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "史记郑世家（桓公友子武公掘突）"
+  },
+  {
+    "id": "R117",
+    "person_a": "P_JIZHONG",
+    "person_b": "P_YONGJI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传桓公十五年（祭仲女雍姬）"
+  },
+  {
+    "id": "R118",
+    "person_a": "P_YONGJIU",
+    "person_b": "P_YONGJI",
+    "rel_type": "婚姻",
+    "rel_label": "夫",
+    "reliability": "high",
+    "source_note": "左传桓公十五年（雍纠妻雍姬）"
+  },
+  {
+    "id": "R119",
+    "person_a": "P_YONGJIU",
+    "person_b": "P_JIZHONG",
+    "rel_type": "其他",
+    "rel_label": "婿（祭仲以女妻之）",
+    "reliability": "high",
+    "source_note": "左传桓公十五年"
+  },
+  {
+    "id": "R120",
+    "person_a": "P_JIZHONG",
+    "person_b": "P_YONGJIU",
+    "rel_type": "敌对",
+    "rel_label": "杀之（婿受命图己反被杀）",
+    "reliability": "high",
+    "source_note": "左传桓公十五年"
+  },
+  {
+    "id": "R121",
+    "person_a": "P_ZHENGLI",
+    "person_b": "P_YONGJIU",
+    "rel_type": "君臣",
+    "rel_label": "君（使杀祭仲）",
+    "reliability": "high",
+    "source_note": "左传桓公十五年"
+  },
+  {
+    "id": "R122",
+    "person_a": "P_QIXI",
+    "person_b": "P_ZHENGZHUANG",
+    "rel_type": "其他",
+    "rel_label": "石门之盟同好（齐郑相盟）",
+    "reliability": "high",
+    "source_note": "左传隐公三年（齐郑盟于石门）"
   }
 ]

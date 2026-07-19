@@ -317,9 +317,9 @@
   {
     "event_id": "E024",
     "person_id": "P_WUJIANG",
-    "role_in_event": "与段通谋、被置城颍",
+    "role_in_event": "为段请制请京、将启之为内应；乱平后被置城颍、掘地见母而母子如初",
     "directness": "direct",
-    "presence": "相关"
+    "presence": "亲至"
   },
   {
     "event_id": "E024",
@@ -1725,6 +1725,125 @@
     "event_id": "E100",
     "person_id": "P_JINWEN",
     "role_in_event": "卒于绛将殡曲沃",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E101",
+    "person_id": "P_JIZHONG",
+    "role_in_event": "识雍纠之谋而杀之、尸诸周氏之汪",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E101",
+    "person_id": "P_ZHENGLI",
+    "role_in_event": "使雍纠杀祭仲、谋败载尸出奔",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E101",
+    "person_id": "P_YONGJIU",
+    "role_in_event": "受厉公命谋杀岳父祭仲、事泄被杀",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E101",
+    "person_id": "P_YONGJI",
+    "role_in_event": "「人尽夫也」问母而以谋告父",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E102",
+    "person_id": "P_JIZHONG",
+    "role_in_event": "卒（卒年史无明载、约前682）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E103",
+    "person_id": "P_QIXI",
+    "role_in_event": "与郑盟于石门之齐君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E103",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "与齐盟于石门之郑君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E104",
+    "person_id": "P_QIXI",
+    "role_in_event": "卒（齐侯禄父卒）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E104",
+    "person_id": "P_QIXIANG",
+    "role_in_event": "嗣立为齐襄公",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E105",
+    "person_id": "P_QIXI",
+    "role_in_event": "与鲁盟于艾、齐鲁始平之齐君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E105",
+    "person_id": "P_LUYIN",
+    "role_in_event": "会齐侯盟于艾之鲁君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E106",
+    "person_id": "P_ZHENGWU",
+    "role_in_event": "娶申女武姜",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E106",
+    "person_id": "P_WUJIANG",
+    "role_in_event": "自申来嫁为武公夫人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E107",
+    "person_id": "P_WUJIANG",
+    "role_in_event": "为共叔段请制请京（爱段之主动）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E107",
+    "person_id": "P_ZHENGZHUANG",
+    "role_in_event": "许段居京、纳「多行不义必自毙」之算",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E107",
+    "person_id": "P_GONGSHUDUAN",
+    "role_in_event": "受京城之封、号京城大叔",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E107",
+    "person_id": "P_JIZHONG",
+    "role_in_event": "谏「都城过百雉、国之害也」",
     "directness": "direct",
     "presence": "亲至"
   }
