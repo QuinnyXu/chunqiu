@@ -160,6 +160,7 @@
         <button type="button" id="btn-rel-back" hidden>← 返回上一个中心</button>
         <label class="rel-filter" id="rel-filter-label" hidden><input type="checkbox" id="rel-proto-only">仅主角边</label>
         <button type="button" id="btn-rel-mode" aria-pressed="false">全景</button>
+        <button type="button" id="btn-rel-zoom">⛶ 放大查看</button>
       </div>
     </div>
     <div class="rel-layout">
@@ -248,7 +249,7 @@
 
 <div class="map-overlay" id="map-overlay" hidden role="dialog" aria-modal="true" aria-label="地图全屏查看">
   <div class="map-overlay-bar">
-    <span class="map-overlay-hint">拖移平移 · 滚轮/双指缩放 · 点击地点看详情</span>
+    <span class="map-overlay-hint" id="map-overlay-hint">拖移平移 · 滚轮/双指缩放 · 点击地点看详情</span>
     <button type="button" id="btn-overlay-close">✕ 关闭（Esc）</button>
   </div>
   <div class="map-overlay-body" id="map-overlay-body"></div>

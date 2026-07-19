@@ -1245,6 +1245,7 @@ function openOverlay() {
   $("#btn-overlay-close").focus();
 }
 function closeOverlay() {
+  if (relZoom.active) { closeRelOverlay(); return; }
   if (!mapState.overlay) return;
   const overlay = $("#map-overlay");
   overlay.hidden = true;
@@ -1257,6 +1258,150 @@ function closeOverlay() {
   mapState.pinch = null;
   mapState.panStart = null;
   applyView(mapState.mode === "fit" ? mapState.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
+}
+
+/* ---------- 关系图「放大查看」：复用地图全屏浮层与手势机制（r13，Xiangtao 反馈 4）。
+ * 关系图内嵌态为纯静态、不拦截页面滚动；细看时把当前图克隆入全屏浮层，拖移/滚轮/双指缩放皆与地图一致。
+ * 克隆而非移动：内嵌图保持原位与其 recenter/看连线交互不受影响，全屏态只做取景细看。 ---------- */
+const relZoom = {
+  active: false, svg: null, vbW: 0, vbH: 0, minFrac: 0.2, box: null,
+  pointers: new Map(), pinch: null, panStart: null, panDist: 0,
+};
+function zClamp(box, vbW, vbH, minFrac) {
+  const w = Math.max(vbW * minFrac, Math.min(box.w, vbW));
+  const h = w * vbH / vbW;
+  const x = Math.max(0, Math.min(box.x, vbW - w));
+  const y = Math.max(0, Math.min(box.y, vbH - h));
+  return { x, y, w, h };
+}
+function zSvgPoint(svg, box, cx, cy) {
+  const rect = svg.getBoundingClientRect();
+  return [box.x + (cx - rect.left) / rect.width * box.w,
+          box.y + (cy - rect.top) / rect.height * box.h];
+}
+/* 通用捏合/拖移/滚轮手势绑定：与地图 bindPanZoom 同逻辑，作用于任意带 viewBox 的 svg */
+function bindZoomGesture(svg, Z) {
+  const capture = (id) => { try { svg.setPointerCapture(id); } catch { /* 指针已释放 */ } };
+  const apply = (box) => {
+    Z.box = box;
+    svg.setAttribute("viewBox", box.x + " " + box.y + " " + box.w + " " + box.h);
+  };
+  Z.apply = apply;
+  svg.addEventListener("pointerdown", (e) => {
+    if (!Z.active) return;
+    Z.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    Z.panDist = 0;
+    if (Z.pointers.size === 1) {
+      Z.panStart = { box: { ...Z.box }, x: e.clientX, y: e.clientY };
+      Z.pinch = null;
+    } else if (Z.pointers.size === 2) {
+      for (const id of Z.pointers.keys()) capture(id);
+      const pts = [...Z.pointers.values()];
+      Z.pinch = {
+        box: { ...Z.box },
+        dist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+        mid: zSvgPoint(svg, Z.box, (pts[0].x + pts[1].x) / 2, (pts[0].y + pts[1].y) / 2),
+      };
+      Z.panStart = null;
+    }
+  });
+  svg.addEventListener("pointermove", (e) => {
+    if (!Z.active || !Z.pointers.has(e.pointerId)) return;
+    Z.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (Z.panStart && !svg.hasPointerCapture(e.pointerId)) {
+      if (Math.hypot(e.clientX - Z.panStart.x, e.clientY - Z.panStart.y) > 4) capture(e.pointerId);
+    }
+    const rect = svg.getBoundingClientRect();
+    if (Z.pointers.size === 2 && Z.pinch) {
+      const pts = [...Z.pointers.values()];
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (dist < 10) return;
+      const k = Z.pinch.dist / dist;
+      const w = Math.max(Z.vbW * Z.minFrac, Math.min(Z.pinch.box.w * k, Z.vbW));
+      const h = w * Z.vbH / Z.vbW;
+      const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+      const x = Z.pinch.mid[0] - (mid.x - rect.left) / rect.width * w;
+      const y = Z.pinch.mid[1] - (mid.y - rect.top) / rect.height * h;
+      Z.panDist = 99;
+      apply(zClamp({ x, y, w, h }, Z.vbW, Z.vbH, Z.minFrac));
+    } else if (Z.panStart) {
+      const dx = e.clientX - Z.panStart.x, dy = e.clientY - Z.panStart.y;
+      Z.panDist = Math.max(Z.panDist, Math.hypot(dx, dy));
+      const b = Z.panStart.box;
+      apply(zClamp({ x: b.x - dx / rect.width * b.w, y: b.y - dy / rect.height * b.h, w: b.w, h: b.h },
+        Z.vbW, Z.vbH, Z.minFrac));
+    }
+  });
+  const lift = (e) => {
+    Z.pointers.delete(e.pointerId);
+    if (Z.pointers.size < 2) Z.pinch = null;
+    if (Z.pointers.size === 0) { Z.panStart = null; setTimeout(() => { Z.panDist = 0; }, 50); }
+  };
+  svg.addEventListener("pointerup", lift);
+  svg.addEventListener("pointercancel", lift);
+  svg.addEventListener("wheel", (e) => {
+    if (!Z.active) return;
+    e.preventDefault();
+    const k = e.deltaY < 0 ? 0.85 : 1 / 0.85;
+    const w = Math.max(Z.vbW * Z.minFrac, Math.min(Z.box.w * k, Z.vbW));
+    const h = w * Z.vbH / Z.vbW;
+    const [sx, sy] = zSvgPoint(svg, Z.box, e.clientX, e.clientY);
+    const rect = svg.getBoundingClientRect();
+    const x = sx - (e.clientX - rect.left) / rect.width * w;
+    const y = sy - (e.clientY - rect.top) / rect.height * h;
+    apply(zClamp({ x, y, w, h }, Z.vbW, Z.vbH, Z.minFrac));
+  }, { passive: false });
+}
+function openRelOverlay() {
+  const src = $("#rel-canvas").querySelector("svg");
+  if (!src) return;
+  const vb = (src.getAttribute("viewBox") || "0 0 1000 680").split(/\s+/).map(Number);
+  const clone = src.cloneNode(true);
+  const overlay = $("#map-overlay");
+  overlay.setAttribute("aria-label", "关系图全屏查看");
+  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 连线悬停见关系名";
+  const body = $("#map-overlay-body");
+  body.textContent = "";
+  body.appendChild(clone);
+  overlay.hidden = false; // 先显示再量 bbox（display:none 下 getBBox 归零）
+  document.body.classList.add("no-scroll");
+  relZoom.active = true;
+  relZoom.svg = clone;
+  relZoom.vbW = vb[2] || 1000;
+  relZoom.vbH = vb[3] || 680;
+  relZoom.minFrac = 0.2;
+  relZoom.pointers = new Map();
+  relZoom.pinch = null;
+  relZoom.panStart = null;
+  relZoom.panDist = 0;
+  // 初始取景：框到图形内容外接框（留白 10%），空白多的 ego 图开屏即见图而非全 viewBox 缩得极小
+  let box = { x: vb[0] || 0, y: vb[1] || 0, w: relZoom.vbW, h: relZoom.vbH };
+  try {
+    const bb = clone.getBBox();
+    if (bb.width > 1 && bb.height > 1) {
+      const w = Math.min(relZoom.vbW, Math.max(bb.width, bb.height * relZoom.vbW / relZoom.vbH) * 1.1);
+      const h = w * relZoom.vbH / relZoom.vbW;
+      box = zClamp({ x: bb.x + bb.width / 2 - w / 2, y: bb.y + bb.height / 2 - h / 2, w, h },
+        relZoom.vbW, relZoom.vbH, relZoom.minFrac);
+    }
+  } catch { /* getBBox 不可用则用全 viewBox */ }
+  relZoom.box = box;
+  clone.setAttribute("viewBox", box.x + " " + box.y + " " + box.w + " " + box.h);
+  bindZoomGesture(clone, relZoom);
+  $("#btn-overlay-close").focus();
+}
+function closeRelOverlay() {
+  const overlay = $("#map-overlay");
+  overlay.hidden = true;
+  overlay.setAttribute("aria-label", "地图全屏查看");
+  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点击地点看详情";
+  document.body.classList.remove("no-scroll");
+  $("#map-overlay-body").textContent = "";
+  relZoom.active = false;
+  relZoom.svg = null;
+  relZoom.pointers.clear();
+  relZoom.pinch = null;
+  relZoom.panStart = null;
 }
 
 /* ---------- 轨迹播放：分段缓动，全程≤8秒，可暂停 ----------
@@ -1454,14 +1599,29 @@ function renderLibList() {
     }
     b.appendChild(title);
     b.appendChild(sub);
-    b.addEventListener("click", () => showLibDetail(r));
+    b.addEventListener("click", () => showLibDetail(r, b));
     li.appendChild(b);
     list.appendChild(li);
   }
 }
-function showLibDetail(r) {
+function showLibDetail(r, srcCard) {
   const panel = $("#lib-detail");
   panel.textContent = "";
+  // 手机端（<680px）单栏纵排：点卡后详情在列表下方，给醒目「返回列表」并滚动直达（Xiangtao 反馈 4）。
+  // 桌面双栏此按钮 display:none，布局零变化。
+  const mobile = window.matchMedia("(max-width: 680px)").matches;
+  if (mobile && srcCard) {
+    const back = document.createElement("button");
+    back.type = "button";
+    back.className = "lib-back";
+    back.textContent = "× 返回列表";
+    back.addEventListener("click", () => {
+      // 列表未重绘，其滚动位置天然保留；滚回原卡片并聚焦
+      srcCard.scrollIntoView({ block: "center", behavior: "smooth" });
+      srcCard.focus({ preventScroll: true });
+    });
+    panel.appendChild(back);
+  }
   const h3 = document.createElement("h3");
   const dl = document.createElement("dl");
   const row = (dt, dd) => {
@@ -1503,6 +1663,13 @@ function showLibDetail(r) {
     a.rel = "noopener";
     a.textContent = "查看原文（外部链接）";
     panel.appendChild(a);
+  }
+  // 手机端：平滑滚动至详情并轻微高亮渐隐，让读者确认「这就是响应」
+  if (mobile && srcCard) {
+    panel.classList.remove("flash");
+    void panel.offsetWidth; // 重启动画
+    panel.classList.add("flash");
+    requestAnimationFrame(() => panel.scrollIntoView({ block: "start", behavior: "smooth" }));
   }
 }
 
@@ -2862,6 +3029,7 @@ async function boot() {
     relView.protoOnly = e.target.checked;
     if (relView.mode === "pano") drawRel();
   });
+  $("#btn-rel-zoom").addEventListener("click", openRelOverlay);
   $("#btn-overlay-close").addEventListener("click", closeOverlay);
   // 抽屉：X / 点外区域 / 下滑手势 / ESC
   $("#drawer-close").addEventListener("click", closeDrawer);
@@ -2889,7 +3057,7 @@ async function boot() {
     if (e.key !== "Escape") return;
     if (shareDialog.isOpen()) shareDialog.close();
     else if (drawer.open) closeDrawer();
-    else if (mapState.overlay) closeOverlay();
+    else if (mapState.overlay || relZoom.active) closeOverlay();
   });
   window.addEventListener("hashchange", render);
 
