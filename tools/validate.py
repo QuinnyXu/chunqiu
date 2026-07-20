@@ -38,9 +38,10 @@ ID_PATTERNS = {
     "people": re.compile(r"^P_[A-Z]+$"),
     "places": re.compile(r"^L_[A-Z]+$"),
     "relations": re.compile(r"^R\d{3}$"),
-    # Z=左传 S=史记 G=国语 A=考古；P=诗经、B=现代研究为旧库沿用前缀；Y=公羊传、L=穀梁传（v1.9 启用）
+    # Z=左传 S=史记 G=国语 A=考古；P=诗经、B=现代研究为旧库沿用前缀；Y=公羊传、L=穀梁传（v1.9 启用）；
+    # T=先秦诸子及秦汉说部层（v1.10 启用，分层纪律见 conventions.md §2）
     # 注：sources 的 L### 与 places 的 L_XXX 正则相异（前者 L+三位数字、后者 L+下划线+字母），命名空间不冲突
-    "sources": re.compile(r"^[ZSGAPBYL]\d{3}$"),
+    "sources": re.compile(r"^[ZSGAPBYLT]\d{3}$"),
     "passages": re.compile(r"^Q\d{3}[A-Z]?$"),
     "background": re.compile(r"^BKG\d{3}$"),
     "archaeology": re.compile(r"^ARC\d{3}$"),
