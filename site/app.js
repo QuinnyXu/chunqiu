@@ -35,8 +35,9 @@ const STATE_EPITHET = {
   "许": "姜姓四岳之后",
 };
 /* 首页地图（r12，docs/design/home_map_notes.md）：徽记簇簇心（底图坐标系）。
- * 属美术布局锚点，非史料落点——史料地点一律走 conventions 投影公式 */
-const HOME_BADGE_POS = { "齐": [818, 232], "鲁": [700, 354], "郑": [400, 424], "晋": [172, 328] };
+ * 属美术布局锚点，非史料落点——史料地点一律走 conventions 投影公式。
+ * r13 西扩：随东部一并按仿射 x'=0.7058824x+352.9412、y'=0.7222222y 换算至新投影，与色块同步。 */
+const HOME_BADGE_POS = { "齐": [930, 168], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 237] };
 const HOME_PENDING = "人物线整理中";
 const HOME_PENDING_HINT = "先看看有主角的国家——齐、鲁、郑、晋。";
 const CAT_ICON = {
@@ -427,6 +428,21 @@ function renderHome() {
 /* ----- 首页地图导航（r12，docs/design/home_map_notes.md）：
  * 底图海报化（色块饱和提档、国名放大），每国一个键盘可达热区；
  * 有主角之国落主题色徽记簇，无主角之国点出一句气质注＋「整理中」。 ----- */
+/* 取椭圆在最终 viewBox 坐标系下的中心与半径：读其父组的合并变换（东部 layer-states 有仿射矩阵、
+ * 西部 layer-states-west 无变换即单位阵），故东西两套色块统一换算，热区与色块严丝合缝。 */
+function ellipseFinalGeom(el) {
+  const cx = parseFloat(el.getAttribute("cx")), cy = parseFloat(el.getAttribute("cy"));
+  const rx = parseFloat(el.getAttribute("rx")), ry = parseFloat(el.getAttribute("ry"));
+  const list = el.parentNode.transform.baseVal;
+  const m = list.numberOfItems ? list.consolidate().matrix : null;
+  if (!m) return { cx, cy, rx, ry };
+  return {
+    cx: m.a * cx + m.c * cy + m.e,
+    cy: m.b * cx + m.d * cy + m.f,
+    rx: rx * Math.hypot(m.a, m.b),
+    ry: ry * Math.hypot(m.c, m.d),
+  };
+}
 function buildHomeMap() {
   const box = $("#home-map");
   box.innerHTML = baseMapText;
@@ -436,17 +452,19 @@ function buildHomeMap() {
   svg.setAttribute("aria-label", "春秋列国示意图：点国入其人物线");
 
   // 海报化：色块饱和提一档、国名放大加深（人物地图用原参数，两处共用同一底图文件）
-  const states = svg.querySelector("#layer-states");
-  if (states) states.setAttribute("fill-opacity", "0.5");
+  // r13 西扩：东部与西部色块（layer-states / layer-states-west）一并提档
+  svg.querySelectorAll("#layer-states, #layer-states-west").forEach(g => g.setAttribute("fill-opacity", "0.5"));
   svg.querySelectorAll("#layer-labels text[data-state]").forEach(t => {
     t.setAttribute("font-size", "26");
     t.setAttribute("fill", "#4E4338");
   });
 
-  // 每国热区：色块椭圆外扩 18；hover/focus/选中显暖赭虚线环；Tab 可达、Enter/空格触发
+  // 每国热区：色块椭圆外扩 18；hover/focus/选中显暖赭虚线环；Tab 可达、Enter/空格触发。
+  // r13 西扩：东部色块在仿射变换组内、西部在根坐标系，故按各自「父组变换」换算到最终 viewBox 坐标，
+  // 落于无变换的 hotLayer，两者热区皆与色块对齐（秦/楚亦成键盘可达热区，无主角→「整理中」）。
   const hotLayer = document.createElementNS(NS, "g");
   svg.appendChild(hotLayer);
-  svg.querySelectorAll("#layer-states ellipse[data-state]").forEach(el => {
+  svg.querySelectorAll("#layer-states ellipse[data-state], #layer-states-west ellipse[data-state]").forEach(el => {
     const st = el.dataset.state;
     const metas = homeGroups.get(st);
     const g = document.createElementNS(NS, "g");
@@ -457,13 +475,13 @@ function buildHomeMap() {
     g.setAttribute("aria-label", st + "：" + (metas
       ? metas.map(m => (PEOPLE[m.id] ? PEOPLE[m.id].name : m.fallback)).join("、")
       : HOME_PENDING));
-    const geo = ["cx", "cy"].map(a => el.getAttribute(a));
+    const gm = ellipseFinalGeom(el);
     const mk = (cls, dr) => {
       const e = document.createElementNS(NS, "ellipse");
       e.setAttribute("class", cls);
-      e.setAttribute("cx", geo[0]); e.setAttribute("cy", geo[1]);
-      e.setAttribute("rx", parseFloat(el.getAttribute("rx")) + dr);
-      e.setAttribute("ry", parseFloat(el.getAttribute("ry")) + dr);
+      e.setAttribute("cx", gm.cx); e.setAttribute("cy", gm.cy);
+      e.setAttribute("rx", gm.rx + dr);
+      e.setAttribute("ry", gm.ry + dr);
       g.appendChild(e);
       return e;
     };

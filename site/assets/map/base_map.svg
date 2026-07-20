@@ -44,6 +44,32 @@
     <path vector-effect="non-scaling-stroke" d="M284 438l8-11 6 7 4-5 7 9"/>
   </g>
 
+  <!-- 西部秦楚地形与色块（第13轮第②批·Vision，2026-07-19）：坐标直接按新投影
+       x=(lng-105)/17*1200、y=700-(lat-29.5)/9*700 落笔，**不套东部仿射变换组**。
+       Skipper 预留的 5 个具名空图层由此填充；整组由标注层「之前」上移至此，令古名标注压在色块与山水之上，
+       叠放次序与东部一致（layer id 不变，app.js/pipeline 按 id 取用，位置无关）。走向对照真实地理大势后平滑简化。 -->
+  <!-- 秦（渭水流域·关中）、楚（汉水—江淮）淡色底；色相自既有列国色系延展，fill-opacity 同 layer-states -->
+  <g id="layer-states-west" fill-opacity="0.32" stroke="none">
+    <ellipse data-state="秦" cx="150" cy="302" rx="118" ry="50" fill="#C2A468"/>
+    <ellipse data-state="楚" cx="500" cy="590" rx="140" ry="82" fill="#6F9E86"/>
+  </g>
+  <!-- 秦岭：横亘渭水（北）与汉水（南）之间的东西向山脉，示意折线记号一列，风格同泰山/嵩山 -->
+  <g id="layer-mountains-qinling" fill="none" stroke="#8C8272" stroke-width="1.8" stroke-linejoin="round">
+    <path vector-effect="non-scaling-stroke" d="M82 376 l10 -15 7 9 6 -8 9 12 M140 375 l10 -15 7 9 6 -8 9 12 M198 376 l10 -15 7 9 6 -8 9 12 M256 375 l10 -15 7 9 6 -8 9 12 M314 376 l10 -15 7 9 6 -8 9 12 M372 375 l10 -15 7 9 6 -8 9 12 M430 376 l10 -15 7 9 6 -8 9 12"/>
+  </g>
+  <!-- 渭水：自西东流，经雍城一线，入河水故道于潼关一带（约352,303，接东部河水西端） -->
+  <g id="layer-rivers-wei" fill="none" stroke="#7FA3A8" stroke-linecap="round" opacity="0.9">
+    <path stroke-width="2.4" vector-effect="non-scaling-stroke" d="M6 334 C 60 330 118 324 170 319 C 240 312 300 307 351 303"/>
+  </g>
+  <!-- 汉水：自西北（汉中）向东南，经楚境，入江于汉口一带（约655,615） -->
+  <g id="layer-rivers-han" fill="none" stroke="#7FA3A8" stroke-linecap="round" opacity="0.9">
+    <path stroke-width="2.2" vector-effect="non-scaling-stroke" d="M118 404 C 210 436 300 470 372 486 C 430 499 470 502 501 506 C 560 540 616 582 654 614"/>
+  </g>
+  <!-- 江（长江）—江淮下延示意：横贯南界自西向东，纳汉水，趋海；非考据河道，示南界方向感 -->
+  <g id="layer-rivers-jianghuai" fill="none" stroke="#7FA3A8" stroke-linecap="round" opacity="0.9">
+    <path stroke-width="3" vector-effect="non-scaling-stroke" d="M196 665 C 330 662 440 655 508 645 C 566 636 616 626 656 615 C 758 588 858 566 940 542 C 1000 524 1050 500 1085 498"/>
+  </g>
+
   <!-- 古名标注（今地名不入底图）；不整体套 transform（非均匀缩放会压扁字形），各文字 x/y 按同一仿射公式逐点重算，font-size 不变 -->
   <g id="layer-labels" font-family="'Songti SC','Noto Serif CJK SC','STSong','SimSun',serif">
     <g font-size="17" fill="#6E6155">
@@ -58,9 +84,15 @@
       <text data-state="纪" x="968.5" y="144.4">纪</text>
       <text data-state="许" x="629.6" y="361.1">许</text>
       <text data-state="晋" x="463.1" y="210.9">晋</text>
+      <text data-state="秦" x="108" y="305">秦</text>
+      <text data-state="楚" x="486" y="586">楚</text>
     </g>
     <g font-size="12" fill="#8A8072">
       <text x="704.5" y="182.0">河水</text>
+      <text x="238" y="300">渭水</text>
+      <text x="188" y="398">秦岭</text>
+      <text x="404" y="486">汉水</text>
+      <text x="726" y="582">江水</text>
       <text x="810.4" y="189.2">济水</text>
       <text x="838.6" y="203.7">汶水</text>
       <text x="842.8" y="339.4">泗水</text>
@@ -72,13 +104,8 @@
     </g>
   </g>
 
-  <!-- 西部秦楚新增地形与色块：本批（第13轮第①批·Skipper）仅占位空图层，命名供第②批 Vision 直接取用；
-       坐标请直接按新投影 x=(lng-105)/17*1200、y=700-(lat-29.5)/9*700 计算，不进上方仿射变换组 -->
-  <g id="layer-states-west"></g>      <!-- 秦、楚色块（data-state="秦"/"楚"，风格比照 layer-states 现有 11 国 ellipse） -->
-  <g id="layer-mountains-qinling"></g> <!-- 秦岭示意（风格比照 layer-mountains 现有折线记号） -->
-  <g id="layer-rivers-wei"></g>        <!-- 渭水（秦地水系，东西向注入河水故道方向） -->
-  <g id="layer-rivers-han"></g>        <!-- 汉水（楚地水系，经楚境南下） -->
-  <g id="layer-rivers-jianghuai"></g>  <!-- 江淮延伸示意（南界新增区域方向感，非考据河道） -->
+  <!-- （第13轮第①批 Skipper 预留的 5 个西部空图层，已由第②批 Vision 上移填充于「古名标注」之前，
+       见上方 layer-states-west / layer-mountains-qinling / layer-rivers-wei|han|jianghuai；此处不再重复。） -->
 
   <!-- 城邑锚点：由 app.js 按 places.json 经纬度投影后动态填充；投影常数变更后自动生效，本文件无需改动 -->
   <g id="layer-anchors"></g>
