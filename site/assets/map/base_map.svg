@@ -1,17 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="春秋早期黄淮下游示意底图">
   <title>春秋人物志 · 底图</title>
-  <desc>覆盖东经110–122、北纬32–38.5；投影见 docs/conventions.md：x=(lng-110)/12*1200，y=700-(lat-32)/6.5*700。水系取春秋大势（河水走故道东北入海），列国底色仅示势力范围，非考据疆界。</desc>
+  <desc>覆盖东经105–122、北纬29.5–38.5；投影见 docs/conventions.md：x=(lng-105)/17*1200，y=700-(lat-29.5)/9*700。水系取春秋大势（河水走故道东北入海），列国底色仅示势力范围，非考据疆界。
+  西扩（第13轮第①批，2026-07-19）：东部既有图层（海域/列国/水系/山地/标注）按仿射关系 x'=12/17*x+352.9412、y'=6.5/9*y 整体换算自旧投影（东经110–122、北纬32–38.5），几何位置不变、仅随新投影重新落点；西部秦楚新增地形与色块占位见文末 layer-*-west 空图层，绘制归 Vision（第13轮第②批）。</desc>
 
   <rect width="1200" height="700" fill="#F4EDDF"/>
 
-  <!-- 海域与海岸 -->
-  <g id="layer-sea">
-    <path fill="#E3E6D8" d="M700 0 C760 45 830 62 880 70 C900 76 898 110 890 140 C886 158 902 170 930 166 C1010 154 1080 150 1140 165 C1180 175 1196 200 1186 225 C1160 260 1100 270 1050 280 C1000 290 965 315 950 345 C935 380 928 400 922 420 C915 460 925 500 960 540 C1000 585 1080 645 1160 690 L1200 700 L1200 0 Z"/>
-    <path fill="none" stroke="#AEB69E" stroke-width="1.5" d="M700 0 C760 45 830 62 880 70 C900 76 898 110 890 140 C886 158 902 170 930 166 C1010 154 1080 150 1140 165 C1180 175 1196 200 1186 225 C1160 260 1100 270 1050 280 C1000 290 965 315 950 345 C935 380 928 400 922 420 C915 460 925 500 960 540 C1000 585 1080 645 1160 690"/>
+  <!-- 海域与海岸；transform 由旧投影(110–122E,32–38.5N)仿射换算至新投影(105–122E,29.5–38.5N)，几何形状不变 -->
+  <g id="layer-sea" transform="matrix(0.7058824,0,0,0.7222222,352.9412,0)">
+    <path fill="#E3E6D8" vector-effect="non-scaling-stroke" d="M700 0 C760 45 830 62 880 70 C900 76 898 110 890 140 C886 158 902 170 930 166 C1010 154 1080 150 1140 165 C1180 175 1196 200 1186 225 C1160 260 1100 270 1050 280 C1000 290 965 315 950 345 C935 380 928 400 922 420 C915 460 925 500 960 540 C1000 585 1080 645 1160 690 L1200 700 L1200 0 Z"/>
+    <path fill="none" stroke="#AEB69E" stroke-width="1.5" vector-effect="non-scaling-stroke" d="M700 0 C760 45 830 62 880 70 C900 76 898 110 890 140 C886 158 902 170 930 166 C1010 154 1080 150 1140 165 C1180 175 1196 200 1186 225 C1160 260 1100 270 1050 280 C1000 290 965 315 950 345 C935 380 928 400 922 420 C915 460 925 500 960 540 C1000 585 1080 645 1160 690"/>
   </g>
 
-  <!-- 列国淡色底（示意，非考据疆界）；data-state 供首页地图导航绑定热区 -->
-  <g id="layer-states" fill-opacity="0.32" stroke="none">
+  <!-- 列国淡色底（示意，非考据疆界）；data-state 供首页地图导航绑定热区；transform 同上（仿射换算，几何不变） -->
+  <g id="layer-states" fill-opacity="0.32" stroke="none" transform="matrix(0.7058824,0,0,0.7222222,352.9412,0)">
     <ellipse data-state="周" cx="250" cy="410" rx="92" ry="62" fill="#C9B78A"/>
     <ellipse data-state="卫" cx="480" cy="300" rx="82" ry="58" fill="#A9A0B8"/>
     <ellipse data-state="宋" cx="570" cy="440" rx="88" ry="58" fill="#C4B292"/>
@@ -25,52 +26,60 @@
     <ellipse data-state="晋" cx="172" cy="295" rx="88" ry="58" fill="#C39A99"/>
   </g>
 
-  <!-- 水系 -->
-  <g id="layer-rivers" fill="none" stroke="#7FA3A8" stroke-width="2" stroke-linecap="round" opacity="0.9">
-    <path stroke-width="3.2" d="M0 420 C120 400 240 390 360 382 C420 378 432 352 450 323 C480 275 502 268 530 237 C570 195 586 172 600 129 C612 95 655 40 682 0"/>
-    <path d="M368 380 C420 390 500 378 560 366 C602 356 600 344 612 332 C640 298 672 238 702 194 C740 176 792 168 830 162 C856 158 880 146 898 130"/>
-    <path d="M762 246 C732 254 692 270 654 300 C640 310 628 316 616 320"/>
-    <path d="M732 306 C712 314 684 324 662 334 C656 360 670 386 690 409 C700 440 706 470 718 505 C726 532 734 562 730 600"/>
-    <path d="M302 436 C332 452 342 460 352 468 C392 500 432 516 466 528 C522 550 592 600 630 634"/>
-    <path stroke-width="1.5" d="M322 444 C356 456 392 468 424 476 C436 479 446 484 452 490"/>
-    <path stroke-width="2.6" d="M330 656 C450 640 560 624 630 634 C666 622 700 610 728 602 C800 584 862 558 902 538 C912 532 918 510 920 484"/>
-    <path d="M198 40 C188 110 170 180 160 240 C152 288 112 352 88 404"/>
+  <!-- 水系；transform 同上（仿射换算，几何不变），vector-effect 保线宽视觉不因缩放变细 -->
+  <g id="layer-rivers" fill="none" stroke="#7FA3A8" stroke-width="2" stroke-linecap="round" opacity="0.9" transform="matrix(0.7058824,0,0,0.7222222,352.9412,0)">
+    <path stroke-width="3.2" vector-effect="non-scaling-stroke" d="M0 420 C120 400 240 390 360 382 C420 378 432 352 450 323 C480 275 502 268 530 237 C570 195 586 172 600 129 C612 95 655 40 682 0"/>
+    <path vector-effect="non-scaling-stroke" d="M368 380 C420 390 500 378 560 366 C602 356 600 344 612 332 C640 298 672 238 702 194 C740 176 792 168 830 162 C856 158 880 146 898 130"/>
+    <path vector-effect="non-scaling-stroke" d="M762 246 C732 254 692 270 654 300 C640 310 628 316 616 320"/>
+    <path vector-effect="non-scaling-stroke" d="M732 306 C712 314 684 324 662 334 C656 360 670 386 690 409 C700 440 706 470 718 505 C726 532 734 562 730 600"/>
+    <path vector-effect="non-scaling-stroke" d="M302 436 C332 452 342 460 352 468 C392 500 432 516 466 528 C522 550 592 600 630 634"/>
+    <path stroke-width="1.5" vector-effect="non-scaling-stroke" d="M322 444 C356 456 392 468 424 476 C436 479 446 484 452 490"/>
+    <path stroke-width="2.6" vector-effect="non-scaling-stroke" d="M330 656 C450 640 560 624 630 634 C666 622 700 610 728 602 C800 584 862 558 902 538 C912 532 918 510 920 484"/>
+    <path vector-effect="non-scaling-stroke" d="M198 40 C188 110 170 180 160 240 C152 288 112 352 88 404"/>
   </g>
 
-  <!-- 山地示意 -->
-  <g id="layer-mountains" fill="none" stroke="#8C8272" stroke-width="1.8" stroke-linejoin="round">
-    <path d="M692 252l10-14 7 9 5-7 9 12"/>
-    <path d="M284 438l8-11 6 7 4-5 7 9"/>
+  <!-- 山地示意；transform 同上（仿射换算，几何不变） -->
+  <g id="layer-mountains" fill="none" stroke="#8C8272" stroke-width="1.8" stroke-linejoin="round" transform="matrix(0.7058824,0,0,0.7222222,352.9412,0)">
+    <path vector-effect="non-scaling-stroke" d="M692 252l10-14 7 9 5-7 9 12"/>
+    <path vector-effect="non-scaling-stroke" d="M284 438l8-11 6 7 4-5 7 9"/>
   </g>
 
-  <!-- 古名标注（今地名不入底图） -->
+  <!-- 古名标注（今地名不入底图）；不整体套 transform（非均匀缩放会压扁字形），各文字 x/y 按同一仿射公式逐点重算，font-size 不变 -->
   <g id="layer-labels" font-family="'Songti SC','Noto Serif CJK SC','STSong','SimSun',serif">
     <g font-size="17" fill="#6E6155">
-      <text data-state="周" x="242" y="416">周</text>
-      <text data-state="郑" x="366" y="460">郑</text>
-      <text data-state="齐" x="806" y="196">齐</text>
-      <text data-state="鲁" x="688" y="330">鲁</text>
-      <text data-state="卫" x="470" y="308">卫</text>
-      <text data-state="宋" x="560" y="448">宋</text>
-      <text data-state="陈" x="481" y="534">陈</text>
-      <text data-state="蔡" x="422" y="580">蔡</text>
-      <text data-state="纪" x="872" y="200">纪</text>
-      <text data-state="许" x="392" y="500">许</text>
-      <text data-state="晋" x="156" y="292">晋</text>
+      <text data-state="周" x="523.8" y="300.4">周</text>
+      <text data-state="郑" x="611.3" y="332.2">郑</text>
+      <text data-state="齐" x="921.9" y="141.6">齐</text>
+      <text data-state="鲁" x="838.6" y="238.3">鲁</text>
+      <text data-state="卫" x="684.7" y="222.4">卫</text>
+      <text data-state="宋" x="748.2" y="323.6">宋</text>
+      <text data-state="陈" x="692.5" y="385.7">陈</text>
+      <text data-state="蔡" x="650.8" y="418.9">蔡</text>
+      <text data-state="纪" x="968.5" y="144.4">纪</text>
+      <text data-state="许" x="629.6" y="361.1">许</text>
+      <text data-state="晋" x="463.1" y="210.9">晋</text>
     </g>
     <g font-size="12" fill="#8A8072">
-      <text x="498" y="252">河水</text>
-      <text x="648" y="262">济水</text>
-      <text x="688" y="282">汶水</text>
-      <text x="694" y="470">泗水</text>
-      <text x="446" y="516">颍水</text>
-      <text x="694" y="624">淮水</text>
-      <text x="164" y="178">汾水</text>
-      <text x="724" y="238">泰山</text>
-      <text x="306" y="428">嵩山</text>
+      <text x="704.5" y="182.0">河水</text>
+      <text x="810.4" y="189.2">济水</text>
+      <text x="838.6" y="203.7">汶水</text>
+      <text x="842.8" y="339.4">泗水</text>
+      <text x="667.8" y="372.7">颍水</text>
+      <text x="842.8" y="450.7">淮水</text>
+      <text x="468.7" y="128.6">汾水</text>
+      <text x="864.0" y="171.9">泰山</text>
+      <text x="568.9" y="309.1">嵩山</text>
     </g>
   </g>
 
-  <!-- 城邑锚点：由 app.js 按 places.json 经纬度投影后动态填充 -->
+  <!-- 西部秦楚新增地形与色块：本批（第13轮第①批·Skipper）仅占位空图层，命名供第②批 Vision 直接取用；
+       坐标请直接按新投影 x=(lng-105)/17*1200、y=700-(lat-29.5)/9*700 计算，不进上方仿射变换组 -->
+  <g id="layer-states-west"></g>      <!-- 秦、楚色块（data-state="秦"/"楚"，风格比照 layer-states 现有 11 国 ellipse） -->
+  <g id="layer-mountains-qinling"></g> <!-- 秦岭示意（风格比照 layer-mountains 现有折线记号） -->
+  <g id="layer-rivers-wei"></g>        <!-- 渭水（秦地水系，东西向注入河水故道方向） -->
+  <g id="layer-rivers-han"></g>        <!-- 汉水（楚地水系，经楚境南下） -->
+  <g id="layer-rivers-jianghuai"></g>  <!-- 江淮延伸示意（南界新增区域方向感，非考据河道） -->
+
+  <!-- 城邑锚点：由 app.js 按 places.json 经纬度投影后动态填充；投影常数变更后自动生效，本文件无需改动 -->
   <g id="layer-anchors"></g>
 </svg>

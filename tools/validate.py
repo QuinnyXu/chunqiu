@@ -28,8 +28,8 @@ HML = {"high", "medium", "low"}
 IMPORTANCE = {"1", "2", "3"}
 PRESENCE = {"亲至", "相关"}  # event_people.presence；空视同亲至
 YEAR_MIN, YEAR_MAX = -800, -600
-LNG_MIN, LNG_MAX = 110.0, 122.0
-LAT_MIN, LAT_MAX = 32.0, 38.5
+LNG_MIN, LNG_MAX = 105.0, 122.0
+LAT_MIN, LAT_MAX = 29.5, 38.5
 
 REL_TYPES = {"亲属-直系", "亲属-同辈", "婚姻", "君臣", "拥立", "敌对", "师友", "其他"}
 
