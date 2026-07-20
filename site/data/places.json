@@ -922,5 +922,33 @@
     "lng": null,
     "coord_certainty": null,
     "coord_basis": "连谷确址无考——杜预注仅云楚地，无谭其骧《中国历史地图集》／杨伯峻《春秋左传注》定点，故坐标留空（宁降不虚·不臆定）"
+  },
+  {
+    "id": "L_BI",
+    "ancient_name": "邲",
+    "state": "郑",
+    "modern_location": "河南省荥阳市东北黄河南岸一带",
+    "place_type": "战场",
+    "certainty": "medium",
+    "description": "晋楚邲之战地；楚败晋师、庄王论止戈为武。",
+    "source_ids": "Z064",
+    "lat": 34.88,
+    "lng": 113.48,
+    "coord_certainty": "low",
+    "coord_basis": "邲在今荥阳东北、黄河南岸敖鄗之间一带说，据杨伯峻《春秋左传注》"
+  },
+  {
+    "id": "L_YONGGUO",
+    "ancient_name": "庸（庸国）",
+    "state": "庸",
+    "modern_location": "湖北省竹山县东南一带",
+    "place_type": "诸侯国",
+    "certainty": "medium",
+    "description": "庸国；文十六年率群蛮叛楚，为楚庄王所灭。",
+    "source_ids": "Z060",
+    "lat": 32.22,
+    "lng": 110.23,
+    "coord_certainty": "low",
+    "coord_basis": "庸国故地在今竹山县一带通说，据谭其骧《中国历史地图集》"
   }
 ]

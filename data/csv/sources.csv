@@ -82,3 +82,15 @@ Z059,《春秋左传·文公六年》,春秋左传,文公六年,传世文献,pri
 S006,《史记·楚世家》,史记,楚世家,传世文献,primary_secondary,https://ctext.org/shiji/chu-shi-jia/zh,楚成王弑堵敖代立、初政布德结好受天子胙；商臣弑成王等；汉代综合叙事，戏剧化处属后出层。
 P006,《诗经·秦风·黄鸟》,诗经,秦风·黄鸟,诗歌/舆论,primary,https://ctext.org/book-of-poetry/huang-niao-1/zh,哀秦穆公以三良（子车奄息、仲行、鍼虎）殉葬；与左传文六「为之赋黄鸟」互证，属舆论／文学层。
 Y001,《公羊传·僖公三十三年》,春秋公羊传,僖公三十三年,传世文献,primary,https://ctext.org/gongyang-zhuan/xi-gong-san-shi-san-nian/zh,春秋三传之公羊传（Y 前缀首条·领队裁定启用）；崤之战「匹马只轮无反者」、百里子蹇叔子谏哭「宰上之木拱矣」。属经义／异闻层——传文夸饰与义理，史实可靠度低于左传经传，用时须与 Z/S 层互证并标层。
+Z060,《春秋左传·文公十六年》,春秋左传,文公十六年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/wen-gong-shi-liu-nian/zh,楚大饥、群蛮百濮叛，楚庄王会秦巴之师灭庸。
+Z061,《春秋左传·宣公三年》,春秋左传,宣公三年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-san-nian/zh,楚子观兵周疆问鼎，王孙满对「在德不在鼎、天命未改」。
+Z062,《春秋左传·宣公四年》,春秋左传,宣公四年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-si-nian/zh,子文预言子越椒必灭若敖氏、遗言「若敖氏之鬼不其馁而」；子越椒之乱、若敖氏灭。
+Z063,《春秋左传·宣公十一年》,春秋左传,宣公十一年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-yi-nian/zh,厉之役郑伯逃归；辰陵之盟，陈郑服楚；蒍艾猎（孙叔敖）城沂。
+Z064,《春秋左传·宣公十二年》,春秋左传,宣公十二年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-er-nian/zh,邲之战：楚克郑、荀林父救郑、先縠违命、孙叔敖主进、晋师败绩；庄王「止戈为武、武有七德」不为京观。
+Z065,《春秋左传·宣公十四年》,春秋左传,宣公十四年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-si-nian/zh,楚使申舟过宋不假道被杀，庄王投袂而起围宋。
+Z066,《春秋左传·宣公十五年》,春秋左传,宣公十五年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-wu-nian/zh,华元夜登子反之床「易子而食、析骸以爨」，宋楚平、华元为质。
+Z067,《春秋左传·宣公十八年》,春秋左传,宣公十八年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-ba-nian/zh,「楚子旅卒」——楚庄王卒（名从经作旅）。
+G008,《国语·楚语上》,国语,楚语上,传世文献,primary_secondary,https://ctext.org/guo-yu/chu-yu-shang/zh,庄王使士亹傅太子箴、申叔时论傅太子九法（教之春秋世诗礼乐令语故志训典）。
+T001,《韩非子·喻老》,韩非子,喻老,诸子说部,secondary,https://ctext.org/hanfeizi/yu-lao/zh,先秦诸子（法家）说理寓言层：「一鸣惊人」右司马隐语版。成书战国末，非当代记事；作 E123 楚庄王即位（S006 骨架）之说部旁证，与史记楚世家相发明、左传无此文。依裁定4 T 层纪律用。
+T002,《说苑·复恩》,说苑,复恩,诸子说部,secondary,https://ctext.org/shuo-yuan/fu-en/zh,秦汉说部轶闻层：西汉刘向编「绝缨之宴」庄王容过得士、后得死力。成书西汉，非当代记事；依裁定4 挂 E128 邲之战为旁证（说苑云绝缨后三年晋楚战报恩），不单独立事件。
+S007,《史记·循吏列传》,史记,循吏列传,传世文献,primary_secondary,https://ctext.org/shiji/xun-li-lie-zhuan/zh,孙叔敖列循吏之首：三月为楚相、施教导民、政缓禁止（汉综合叙事·循吏层）。

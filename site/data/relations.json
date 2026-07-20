@@ -1321,5 +1321,158 @@
     "rel_label": "过宋赠马二十乘之惠",
     "reliability": "high",
     "source_note": "左传僖公二十三年、国语晋语四"
+  },
+  {
+    "id": "R148",
+    "person_a": "P_SHANGCHEN",
+    "person_b": "P_CHUZHUANG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传/史记（楚穆王商臣生庄王侣）"
+  },
+  {
+    "id": "R149",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_SUNSHUAO",
+    "rel_type": "君臣",
+    "rel_label": "令尹",
+    "reliability": "high",
+    "source_note": "左传宣公十二年（孙叔敖为令尹）"
+  },
+  {
+    "id": "R150",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_ZIYUEJIAO",
+    "rel_type": "君臣",
+    "rel_label": "令尹",
+    "reliability": "high",
+    "source_note": "左传宣公四年（子越椒为令尹）"
+  },
+  {
+    "id": "R151",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_ZIYUEJIAO",
+    "rel_type": "敌对",
+    "rel_label": "平其乱而灭若敖氏",
+    "reliability": "high",
+    "source_note": "左传宣公四年（皋浒之战）"
+  },
+  {
+    "id": "R152",
+    "person_a": "P_ZIWEN",
+    "person_b": "P_ZIYUEJIAO",
+    "rel_type": "其他",
+    "rel_label": "族侄·遗言预其灭若敖氏",
+    "reliability": "high",
+    "source_note": "左传宣公四年（子文谏杀、遗言）"
+  },
+  {
+    "id": "R153",
+    "person_a": "P_WANGSUNMAN",
+    "person_b": "P_CHUZHUANG",
+    "rel_type": "其他",
+    "rel_label": "劳楚子而对问鼎（在德不在鼎）",
+    "reliability": "high",
+    "source_note": "左传宣公三年"
+  },
+  {
+    "id": "R154",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_WUCAN",
+    "rel_type": "君臣",
+    "rel_label": "主战之嬖臣",
+    "reliability": "high",
+    "source_note": "左传宣公十二年（伍参主战）"
+  },
+  {
+    "id": "R155",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_ZICHONG",
+    "rel_type": "亲属-同辈",
+    "rel_label": "弟",
+    "reliability": "high",
+    "source_note": "通说楚穆王子·庄王弟（公子婴齐）"
+  },
+  {
+    "id": "R156",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_ZICHONG",
+    "rel_type": "君臣",
+    "rel_label": "将左军",
+    "reliability": "high",
+    "source_note": "左传宣公十二年（邲之战子重将左）"
+  },
+  {
+    "id": "R157",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_ZIFAN",
+    "rel_type": "亲属-同辈",
+    "rel_label": "弟",
+    "reliability": "high",
+    "source_note": "通说楚穆王子·庄王弟（公子侧）"
+  },
+  {
+    "id": "R158",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_ZIFAN",
+    "rel_type": "君臣",
+    "rel_label": "司马·将右军",
+    "reliability": "high",
+    "source_note": "左传宣公十二年（邲之战子反将右）"
+  },
+  {
+    "id": "R159",
+    "person_a": "P_HUAYUAN",
+    "person_b": "P_ZIFAN",
+    "rel_type": "其他",
+    "rel_label": "夜登其床告困而约退",
+    "reliability": "high",
+    "source_note": "左传宣公十五年"
+  },
+  {
+    "id": "R160",
+    "person_a": "P_SHENZHOU",
+    "person_b": "P_CHUZHUANG",
+    "rel_type": "君臣",
+    "rel_label": "奉命使齐过宋而遇害之臣",
+    "reliability": "high",
+    "source_note": "左传宣公十四年（庄王使申舟勿假道）"
+  },
+  {
+    "id": "R161",
+    "person_a": "P_XUNLINFU",
+    "person_b": "P_CHUZHUANG",
+    "rel_type": "敌对",
+    "rel_label": "邲之战对垒而败",
+    "reliability": "high",
+    "source_note": "左传宣公十二年"
+  },
+  {
+    "id": "R162",
+    "person_a": "P_XIANGU",
+    "person_b": "P_XUNLINFU",
+    "rel_type": "其他",
+    "rel_label": "违主帅之命擅济致败",
+    "reliability": "high",
+    "source_note": "左传宣公十二年（先縠违荀林父命）"
+  },
+  {
+    "id": "R163",
+    "person_a": "P_HUAYUAN",
+    "person_b": "P_CHUZHUANG",
+    "rel_type": "敌对",
+    "rel_label": "守宋抗楚·拒城下之盟而终平",
+    "reliability": "high",
+    "source_note": "左传宣公十五年"
+  },
+  {
+    "id": "R164",
+    "person_a": "P_SHIHUI",
+    "person_b": "P_XUNLINFU",
+    "rel_type": "其他",
+    "rel_label": "上军将·谏而备独全军以退",
+    "reliability": "high",
+    "source_note": "左传宣公十二年（士会全上军）"
   }
 ]

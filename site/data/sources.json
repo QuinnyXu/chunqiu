@@ -828,5 +828,125 @@
     "source_type": "primary",
     "url": "https://ctext.org/gongyang-zhuan/xi-gong-san-shi-san-nian/zh",
     "notes": "春秋三传之公羊传（Y 前缀首条·领队裁定启用）；崤之战「匹马只轮无反者」、百里子蹇叔子谏哭「宰上之木拱矣」。属经义／异闻层——传文夸饰与义理，史实可靠度低于左传经传，用时须与 Z/S 层互证并标层。"
+  },
+  {
+    "id": "Z060",
+    "title": "《春秋左传·文公十六年》",
+    "work": "春秋左传",
+    "section": "文公十六年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/wen-gong-shi-liu-nian/zh",
+    "notes": "楚大饥、群蛮百濮叛，楚庄王会秦巴之师灭庸。"
+  },
+  {
+    "id": "Z061",
+    "title": "《春秋左传·宣公三年》",
+    "work": "春秋左传",
+    "section": "宣公三年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-san-nian/zh",
+    "notes": "楚子观兵周疆问鼎，王孙满对「在德不在鼎、天命未改」。"
+  },
+  {
+    "id": "Z062",
+    "title": "《春秋左传·宣公四年》",
+    "work": "春秋左传",
+    "section": "宣公四年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-si-nian/zh",
+    "notes": "子文预言子越椒必灭若敖氏、遗言「若敖氏之鬼不其馁而」；子越椒之乱、若敖氏灭。"
+  },
+  {
+    "id": "Z063",
+    "title": "《春秋左传·宣公十一年》",
+    "work": "春秋左传",
+    "section": "宣公十一年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-yi-nian/zh",
+    "notes": "厉之役郑伯逃归；辰陵之盟，陈郑服楚；蒍艾猎（孙叔敖）城沂。"
+  },
+  {
+    "id": "Z064",
+    "title": "《春秋左传·宣公十二年》",
+    "work": "春秋左传",
+    "section": "宣公十二年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-er-nian/zh",
+    "notes": "邲之战：楚克郑、荀林父救郑、先縠违命、孙叔敖主进、晋师败绩；庄王「止戈为武、武有七德」不为京观。"
+  },
+  {
+    "id": "Z065",
+    "title": "《春秋左传·宣公十四年》",
+    "work": "春秋左传",
+    "section": "宣公十四年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-si-nian/zh",
+    "notes": "楚使申舟过宋不假道被杀，庄王投袂而起围宋。"
+  },
+  {
+    "id": "Z066",
+    "title": "《春秋左传·宣公十五年》",
+    "work": "春秋左传",
+    "section": "宣公十五年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-wu-nian/zh",
+    "notes": "华元夜登子反之床「易子而食、析骸以爨」，宋楚平、华元为质。"
+  },
+  {
+    "id": "Z067",
+    "title": "《春秋左传·宣公十八年》",
+    "work": "春秋左传",
+    "section": "宣公十八年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-ba-nian/zh",
+    "notes": "「楚子旅卒」——楚庄王卒（名从经作旅）。"
+  },
+  {
+    "id": "G008",
+    "title": "《国语·楚语上》",
+    "work": "国语",
+    "section": "楚语上",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/guo-yu/chu-yu-shang/zh",
+    "notes": "庄王使士亹傅太子箴、申叔时论傅太子九法（教之春秋世诗礼乐令语故志训典）。"
+  },
+  {
+    "id": "T001",
+    "title": "《韩非子·喻老》",
+    "work": "韩非子",
+    "section": "喻老",
+    "category": "诸子说部",
+    "source_type": "secondary",
+    "url": "https://ctext.org/hanfeizi/yu-lao/zh",
+    "notes": "先秦诸子（法家）说理寓言层：「一鸣惊人」右司马隐语版。成书战国末，非当代记事；作 E123 楚庄王即位（S006 骨架）之说部旁证，与史记楚世家相发明、左传无此文。依裁定4 T 层纪律用。"
+  },
+  {
+    "id": "T002",
+    "title": "《说苑·复恩》",
+    "work": "说苑",
+    "section": "复恩",
+    "category": "诸子说部",
+    "source_type": "secondary",
+    "url": "https://ctext.org/shuo-yuan/fu-en/zh",
+    "notes": "秦汉说部轶闻层：西汉刘向编「绝缨之宴」庄王容过得士、后得死力。成书西汉，非当代记事；依裁定4 挂 E128 邲之战为旁证（说苑云绝缨后三年晋楚战报恩），不单独立事件。"
+  },
+  {
+    "id": "S007",
+    "title": "《史记·循吏列传》",
+    "work": "史记",
+    "section": "循吏列传",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/shiji/xun-li-lie-zhuan/zh",
+    "notes": "孙叔敖列循吏之首：三月为楚相、施教导民、政缓禁止（汉综合叙事·循吏层）。"
   }
 ]

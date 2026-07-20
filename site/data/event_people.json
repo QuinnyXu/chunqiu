@@ -2140,5 +2140,173 @@
     "role_in_event": "楚令尹将中军、败绩师宵遁",
     "directness": "direct",
     "presence": "亲至"
+  },
+  {
+    "event_id": "E123",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "即位三年不鸣而后奋发听政之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E124",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "会秦巴之师灭庸之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E125",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "观兵周疆而问鼎",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E125",
+    "person_id": "P_WANGSUNMAN",
+    "role_in_event": "劳楚子而对「在德不在鼎」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E126",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "平子越椒之乱、灭若敖氏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E126",
+    "person_id": "P_ZIYUEJIAO",
+    "role_in_event": "作乱战于皋浒而族灭",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E126",
+    "person_id": "P_ZIWEN",
+    "role_in_event": "遗言预其灭若敖氏（已卒·追叙不在场）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E127",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "伐郑、盟辰陵服郑陈之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "亲征邲、论止戈为武",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_SUNSHUAO",
+    "role_in_event": "令尹主进「宁我薄人无人薄我」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_WUCAN",
+    "role_in_event": "主战而说庄王与晋战",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_ZICHONG",
+    "role_in_event": "将左军",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_ZIFAN",
+    "role_in_event": "将右军",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_XUNLINFU",
+    "role_in_event": "晋中军将（主帅·败绩）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_SHIHUI",
+    "role_in_event": "晋上军将·谏而备独全军以退",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_XIANGU",
+    "role_in_event": "晋中军佐·违命擅济致败",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E129",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "围宋之楚君（投袂而起）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E129",
+    "person_id": "P_HUAYUAN",
+    "role_in_event": "夜登子反之床告困而不屈",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E129",
+    "person_id": "P_ZIFAN",
+    "role_in_event": "围宋主将·被华元夜登其床",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E129",
+    "person_id": "P_SHENZHOU",
+    "role_in_event": "奉命使齐过宋不假道而被杀（围宋之因）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E131",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "用孙叔敖为相、听其政之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E131",
+    "person_id": "P_SUNSHUAO",
+    "role_in_event": "为令尹施教导民、国大治",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E132",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "卒",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E133",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "使士亹傅太子箴（委命·非亲执教）",
+    "directness": "direct",
+    "presence": "相关"
   }
 ]
