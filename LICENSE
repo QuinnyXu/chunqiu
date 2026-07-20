@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 春秋人物志（chunqiu.timechorus.com）contributors
+Copyright (c) 2026 chunqiu.timechorus.com contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,17 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## 适用范围说明（Scope note）
-
-本 MIT 许可适用于本仓库的**程序代码**：`tools/`（数据管线脚本）、`site/`
-下除 `site/data/` 以外的所有文件（HTML、CSS、JavaScript、SVG 美术资源等）。
-
-本仓库的**史料数据集**（`data/csv/` 及其生成物 `site/data/*.json`）**不适用**本许可，
-另按 **CC BY 4.0（知识共享署名 4.0 国际协议）** 发布，完整条款见
-[`DATA_LICENSE.md`](DATA_LICENSE.md)。
-
-`private/`、`team/`、`.claude/` 等目录为协作者内部工作文件，不随本仓库公开发布，
-不适用任何公开许可（且已被 `.gitignore` 排除在版本控制之外）。
