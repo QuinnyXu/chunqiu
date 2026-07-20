@@ -18,6 +18,8 @@ const PROTAGONISTS = [
   { id: "P_WUJIANG",     color: "#5E4B6B", badge: "badge_wujiang",     fallback: "武姜", home: "郑" },
   { id: "P_JIZHONG",     color: "#3D4C63", badge: "badge_jizhong",     fallback: "祭仲" },
   { id: "P_JINWEN",      color: "#8C3041", badge: "badge_jinwen",      fallback: "晋文公" },
+  { id: "P_QINMU",       color: "#955536", badge: "badge_qinmu",       fallback: "秦穆公" },
+  { id: "P_CHUCHENG",    color: "#4C6A57", badge: "badge_chucheng",    fallback: "楚成王" },
 ];
 /* 各国一句话气质注（界面文案，非史料叙述；无注之国只显国名）。
  * r12 起首页地图上无主角之国也点得出此注（＋「整理中」提示），故补齐底图诸国 */
@@ -33,13 +35,20 @@ const STATE_EPITHET = {
   "蔡": "汝淮之间，姬姓之国",
   "纪": "海隅姜姓之国",
   "许": "姜姓四岳之后",
+  "秦": "据崤函之固，西霸戎狄",
+  "楚": "江汉之滨，南土大国",
 };
 /* 首页地图（r12，docs/design/home_map_notes.md）：徽记簇簇心（底图坐标系）。
  * 属美术布局锚点，非史料落点——史料地点一律走 conventions 投影公式。
  * r13 西扩：随东部一并按仿射 x'=0.7058824x+352.9412、y'=0.7222222y 换算至新投影，与色块同步。 */
-const HOME_BADGE_POS = { "齐": [930, 168], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 237] };
+/* 秦/楚为 r13 西扩新增分区：徽记坐标按新投影 x=(lng-105)/17*1200、y=700-(lat-29.5)/9*700，
+ * 落于各自色块（秦≈雍/关中、楚≈郢），与 layer-states-west 色块相称，不与既有徽记簇重叠。 */
+const HOME_BADGE_POS = {
+  "齐": [930, 168], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 237],
+  "秦": [152, 300], "楚": [510, 610],
+};
 const HOME_PENDING = "人物线整理中";
-const HOME_PENDING_HINT = "先看看有主角的国家——齐、鲁、郑、晋。";
+const HOME_PENDING_HINT = "先看看有主角的国家——齐、鲁、郑、晋、秦、楚。";
 const CAT_ICON = {
   "即位": "jiwei", "战争": "zhanzheng", "会盟": "huimeng", "相会": "xianghui",
   "婚嫁": "hunjia", "生育": "shengyu", "出奔": "chuben", "弑杀": "shisha",
@@ -683,6 +692,16 @@ function hideCardPop() {
   pop.setAttribute("aria-hidden", "true");
 }
 
+/* 引文分层徽标类映射（r13）：quote_type → CSS 档。原文无徽标（经传骨架基准）。
+ * 经义异闻＝公羊/穀梁传注异说层，专属紫徽标，与后出叙事（灰）、诗歌（青绿）并列、风格一致。 */
+const QLAYER_CLASS = {
+  "言论": "layer-yanlun",
+  "评论": "layer-pinglun",
+  "后出叙事": "layer-houchu",
+  "诗歌": "layer-shige",
+  "经义异闻": "layer-jingyi",
+};
+
 /* ---------- 屏2 时间线 ---------- */
 function renderTimeline() {
   // 头部姓名行：完整形式（姓/氏/名/字可考部分）＋「姓氏有别」科普
@@ -761,15 +780,24 @@ function renderTimeline() {
 
     for (const q of DATA.passages.filter(p => p.event_id === evt.id)) {
       const bq = document.createElement("blockquote");
-      bq.className = "quote";
+      // 引文分层徽标（r13）：原文＝经传骨架（无徽标）；其余各层给专属色徽标——
+      // 经义异闻（公羊/穀梁传注异说）、后出叙事（史记等晚出戏剧化）、诗歌（诗经舆论层）、言论、评论。
+      const layer = QLAYER_CLASS[q.quote_type] || "";
+      bq.className = "quote" + (layer ? " " + layer : "");
       bq.dataset.qid = q.id;
+      if (q.quote_type && q.quote_type !== "原文") {
+        const tag = document.createElement("span");
+        tag.className = "q-layer";
+        tag.textContent = q.quote_type;
+        bq.appendChild(tag);
+      }
       const qp = document.createElement("p");
       qp.textContent = q.quote_original;
       bq.appendChild(qp);
       const ft = document.createElement("footer");
       const src = SOURCES[q.source_id];
+      // 类型已进徽标，脚注不再重复
       ft.textContent = "—— " + (src ? src.title : q.source_id) +
-        (q.quote_type ? "（" + q.quote_type + "）" : "") +
         (q.modern_note ? " · " + q.modern_note : "");
       bq.appendChild(ft);
       body.appendChild(bq);

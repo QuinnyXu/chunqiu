@@ -657,6 +657,42 @@ section[hidden] { display: none; }
   color: var(--ink-soft);
   margin-top: 0.3rem;
 }
+/* ---------- 引文分层徽标（r13）：原文＝经传骨架（朱线，无徽标）；
+ * 其余各层给专属色徽标＋同色左线＋极淡同色底，一眼别层，风格统一。 ---------- */
+.q-layer {
+  float: right;
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  padding: 0.02rem 0.5rem;
+  margin: 0 0 0.25rem 0.55rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  white-space: nowrap;
+  opacity: 0.95;
+}
+/* 言论/评论：经传之内的话语与断语，中性淡墨徽标，左线仍朱（属经传层） */
+.quote.layer-yanlun .q-layer,
+.quote.layer-pinglun .q-layer { color: var(--ink-soft); }
+/* 后出叙事：晚出戏剧化，灰虚线示"非当代记事" */
+.quote.layer-houchu {
+  border-left: 3px dashed var(--ink-soft);
+  background: rgba(122, 113, 102, 0.06);
+}
+.quote.layer-houchu .q-layer { color: var(--ink-soft); }
+/* 诗歌：诗经舆论层，青绿 */
+.quote.layer-shige {
+  border-left-color: var(--bronze);
+  background: rgba(68, 118, 107, 0.06);
+}
+.quote.layer-shige .q-layer { color: var(--bronze); }
+/* 经义异闻：公羊/穀梁传注异说，专属乌梅紫 */
+.quote.layer-jingyi {
+  border-left-color: #6E5A86;
+  background: rgba(110, 90, 134, 0.07);
+}
+.quote.layer-jingyi .q-layer { color: #6E5A86; }
 /* ---------- 屏3 地图 ---------- */
 .map-layout { display: flex; gap: 1rem; align-items: flex-start; }
 .map-main { flex: 1 1 auto; min-width: 0; }
@@ -1315,6 +1351,15 @@ body.no-scroll { overflow: hidden; }
 .about-body section:first-child h3 { margin-top: 0.2rem; }
 .about-body p, .about-body li { font-size: 0.92rem; }
 .about-body a { color: var(--ochre); }
+/* 导览小 FAQ（如「为何还没有孔子」）：青绿左线，轻声作答，不喧宾夺主 */
+.faq-q {
+  border-left: 3px solid var(--bronze);
+  background: var(--silk-panel);
+  border-radius: 0 3px 3px 0;
+  padding: 0.4rem 0.75rem;
+  margin-top: 0.6rem;
+}
+.faq-q strong { color: var(--bronze); }
 .support-line { font-size: 0.82rem; color: var(--ink-soft); margin-top: 0.4rem; }
 .support-line a { color: var(--ink-soft); text-decoration-color: var(--line); }
 
