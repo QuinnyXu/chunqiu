@@ -738,5 +738,95 @@
     "source_type": "primary",
     "url": "https://ctext.org/chun-qiu-zuo-zhuan/huan-gong-shi-si-nian/zh",
     "notes": "冬十有二月齐侯禄父（僖公）卒；御廪灾、宋以郕故伐郑等。「禄父」从经之明证。"
+  },
+  {
+    "id": "Z054",
+    "title": "《春秋左传·僖公十三年》",
+    "work": "春秋左传",
+    "section": "僖公十三年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-shi-san-nian/zh",
+    "notes": "晋饥乞籴于秦；秦输粟自雍及绛相继命之曰泛舟之役；百里奚「救灾恤邻」之议。"
+  },
+  {
+    "id": "Z055",
+    "title": "《春秋左传·僖公三十年》",
+    "work": "春秋左传",
+    "section": "僖公三十年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-san-shi-nian/zh",
+    "notes": "秦晋围郑；烛之武夜缒见秦伯「邻之厚君之薄」退秦师，秦郑盟而还。"
+  },
+  {
+    "id": "Z056",
+    "title": "《春秋左传·僖公三十三年》",
+    "work": "春秋左传",
+    "section": "僖公三十三年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-san-shi-san-nian/zh",
+    "notes": "弦高犒师；晋及姜戎败秦师于殽、获孟明视等三帅；先轸论战与怒唾；秦伯素服郊次乡师而哭。"
+  },
+  {
+    "id": "Z057",
+    "title": "《春秋左传·文公元年》",
+    "work": "春秋左传",
+    "section": "文公元年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/wen-gong-yuan-nian/zh",
+    "notes": "楚太子商臣以宫甲围成王，王请食熊蹯不许而缢；谥「灵」不瞑「成」乃瞑；商臣立为穆王。"
+  },
+  {
+    "id": "Z058",
+    "title": "《春秋左传·文公三年》",
+    "work": "春秋左传",
+    "section": "文公三年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/wen-gong-san-nian/zh",
+    "notes": "秦伯伐晋济河焚舟、取王官及郊、封殽尸而还，遂霸西戎，用孟明也。"
+  },
+  {
+    "id": "Z059",
+    "title": "《春秋左传·文公六年》",
+    "work": "春秋左传",
+    "section": "文公六年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/wen-gong-liu-nian/zh",
+    "notes": "秦伯任好卒，以子车氏三子奄息、仲行、鍼虎为殉，国人赋黄鸟；君子讥其死而弃民。"
+  },
+  {
+    "id": "S006",
+    "title": "《史记·楚世家》",
+    "work": "史记",
+    "section": "楚世家",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/shiji/chu-shi-jia/zh",
+    "notes": "楚成王弑堵敖代立、初政布德结好受天子胙；商臣弑成王等；汉代综合叙事，戏剧化处属后出层。"
+  },
+  {
+    "id": "P006",
+    "title": "《诗经·秦风·黄鸟》",
+    "work": "诗经",
+    "section": "秦风·黄鸟",
+    "category": "诗歌/舆论",
+    "source_type": "primary",
+    "url": "https://ctext.org/book-of-poetry/huang-niao-1/zh",
+    "notes": "哀秦穆公以三良（子车奄息、仲行、鍼虎）殉葬；与左传文六「为之赋黄鸟」互证，属舆论／文学层。"
+  },
+  {
+    "id": "Y001",
+    "title": "《公羊传·僖公三十三年》",
+    "work": "春秋公羊传",
+    "section": "僖公三十三年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/gongyang-zhuan/xi-gong-san-shi-san-nian/zh",
+    "notes": "春秋三传之公羊传（Y 前缀首条·领队裁定启用）；崤之战「匹马只轮无反者」、百里子蹇叔子谏哭「宰上之木拱矣」。属经义／异闻层——传文夸饰与义理，史实可靠度低于左传经传，用时须与 Z/S 层互证并标层。"
   }
 ]

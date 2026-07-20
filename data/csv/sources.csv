@@ -73,3 +73,12 @@ G007,《国语·晋语四》,国语,晋语四,传世文献,primary_secondary,htt
 S004,《史记·晋世家》,史记,晋世家,传世文献,primary_secondary,https://ctext.org/shiji/jin-shi-jia/zh,骊姬之乱、重耳流亡、文公霸业之汉代综合叙事；焚绵山、割股等戏剧化情节属晚出传说层。
 S005,《史记·秦本纪》,史记,秦本纪,传世文献,primary_secondary,https://ctext.org/shiji/qin-ben-ji/zh,秦穆公纳夷吾、韩原之战、纳重耳入晋之秦方叙事；汉代综合。
 Z053,《春秋左传·桓公十四年》,春秋左传,桓公十四年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/huan-gong-shi-si-nian/zh,冬十有二月齐侯禄父（僖公）卒；御廪灾、宋以郕故伐郑等。「禄父」从经之明证。
+Z054,《春秋左传·僖公十三年》,春秋左传,僖公十三年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-shi-san-nian/zh,晋饥乞籴于秦；秦输粟自雍及绛相继命之曰泛舟之役；百里奚「救灾恤邻」之议。
+Z055,《春秋左传·僖公三十年》,春秋左传,僖公三十年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-san-shi-nian/zh,秦晋围郑；烛之武夜缒见秦伯「邻之厚君之薄」退秦师，秦郑盟而还。
+Z056,《春秋左传·僖公三十三年》,春秋左传,僖公三十三年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-san-shi-san-nian/zh,弦高犒师；晋及姜戎败秦师于殽、获孟明视等三帅；先轸论战与怒唾；秦伯素服郊次乡师而哭。
+Z057,《春秋左传·文公元年》,春秋左传,文公元年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/wen-gong-yuan-nian/zh,楚太子商臣以宫甲围成王，王请食熊蹯不许而缢；谥「灵」不瞑「成」乃瞑；商臣立为穆王。
+Z058,《春秋左传·文公三年》,春秋左传,文公三年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/wen-gong-san-nian/zh,秦伯伐晋济河焚舟、取王官及郊、封殽尸而还，遂霸西戎，用孟明也。
+Z059,《春秋左传·文公六年》,春秋左传,文公六年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/wen-gong-liu-nian/zh,秦伯任好卒，以子车氏三子奄息、仲行、鍼虎为殉，国人赋黄鸟；君子讥其死而弃民。
+S006,《史记·楚世家》,史记,楚世家,传世文献,primary_secondary,https://ctext.org/shiji/chu-shi-jia/zh,楚成王弑堵敖代立、初政布德结好受天子胙；商臣弑成王等；汉代综合叙事，戏剧化处属后出层。
+P006,《诗经·秦风·黄鸟》,诗经,秦风·黄鸟,诗歌/舆论,primary,https://ctext.org/book-of-poetry/huang-niao-1/zh,哀秦穆公以三良（子车奄息、仲行、鍼虎）殉葬；与左传文六「为之赋黄鸟」互证，属舆论／文学层。
+Y001,《公羊传·僖公三十三年》,春秋公羊传,僖公三十三年,传世文献,primary,https://ctext.org/gongyang-zhuan/xi-gong-san-shi-san-nian/zh,春秋三传之公羊传（Y 前缀首条·领队裁定启用）；崤之战「匹马只轮无反者」、百里子蹇叔子谏哭「宰上之木拱矣」。属经义／异闻层——传文夸饰与义理，史实可靠度低于左传经传，用时须与 Z/S 层互证并标层。

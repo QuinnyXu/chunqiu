@@ -1096,5 +1096,230 @@
     "rel_label": "石门之盟同好（齐郑相盟）",
     "reliability": "high",
     "source_note": "左传隐公三年（齐郑盟于石门）"
+  },
+  {
+    "id": "R123",
+    "person_a": "P_MUJI",
+    "person_b": "P_QINMU",
+    "rel_type": "婚姻",
+    "rel_label": "夫人",
+    "reliability": "high",
+    "source_note": "左传僖公十五年（秦穆姬）"
+  },
+  {
+    "id": "R124",
+    "person_a": "P_JINXIAN",
+    "person_b": "P_MUJI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传僖公十五年（晋献公女穆姬）"
+  },
+  {
+    "id": "R125",
+    "person_a": "P_MUJI",
+    "person_b": "P_JINHUI",
+    "rel_type": "亲属-同辈",
+    "rel_label": "姊",
+    "reliability": "high",
+    "source_note": "左传僖公十五年（韩原请以死赎晋侯·惠公姊）"
+  },
+  {
+    "id": "R126",
+    "person_a": "P_MUJI",
+    "person_b": "P_JINWEN",
+    "rel_type": "亲属-同辈",
+    "rel_label": "姊",
+    "reliability": "medium",
+    "source_note": "通说晋献公女·重耳异母姊，长幼从简"
+  },
+  {
+    "id": "R127",
+    "person_a": "P_BAILIXI",
+    "person_b": "P_QINMU",
+    "rel_type": "君臣",
+    "rel_label": "相（五羖大夫）",
+    "reliability": "high",
+    "source_note": "左传僖公十三年「谓百里」；五羖赎见史记秦本纪（后出）"
+  },
+  {
+    "id": "R128",
+    "person_a": "P_JIANSHU",
+    "person_b": "P_QINMU",
+    "rel_type": "君臣",
+    "rel_label": "上大夫（谋臣）",
+    "reliability": "high",
+    "source_note": "左传僖公三十二年（穆公访诸蹇叔）"
+  },
+  {
+    "id": "R129",
+    "person_a": "P_BAILIXI",
+    "person_b": "P_JIANSHU",
+    "rel_type": "师友",
+    "rel_label": "友（举之自代）",
+    "reliability": "medium",
+    "source_note": "百里奚举蹇叔·史记秦本纪（后出层）"
+  },
+  {
+    "id": "R130",
+    "person_a": "P_MENGMING",
+    "person_b": "P_QINMU",
+    "rel_type": "君臣",
+    "rel_label": "将（崤帅·后复用）",
+    "reliability": "high",
+    "source_note": "左传僖公三十二至三十三年、文公三年"
+  },
+  {
+    "id": "R131",
+    "person_a": "P_BAILIXI",
+    "person_b": "P_MENGMING",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "medium",
+    "source_note": "「百里孟明视」左传僖32；为百里奚子系通说"
+  },
+  {
+    "id": "R132",
+    "person_a": "P_ZHUZHIWU",
+    "person_b": "P_QINMU",
+    "rel_type": "其他",
+    "rel_label": "夜说而退其师",
+    "reliability": "high",
+    "source_note": "左传僖公三十年"
+  },
+  {
+    "id": "R133",
+    "person_a": "P_XIANGAO",
+    "person_b": "P_MENGMING",
+    "rel_type": "其他",
+    "rel_label": "矫命犒师纾郑难",
+    "reliability": "high",
+    "source_note": "左传僖公三十三年"
+  },
+  {
+    "id": "R134",
+    "person_a": "P_JINXIANGGONG",
+    "person_b": "P_QINMU",
+    "rel_type": "敌对",
+    "rel_label": "崤败秦师",
+    "reliability": "high",
+    "source_note": "左传僖公三十三年"
+  },
+  {
+    "id": "R135",
+    "person_a": "P_JINWEN",
+    "person_b": "P_JINXIANGGONG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传僖公三十二至三十三年、史记晋世家（襄公文公子）"
+  },
+  {
+    "id": "R136",
+    "person_a": "P_JINXIANGGONG",
+    "person_b": "P_MENGMING",
+    "rel_type": "敌对",
+    "rel_label": "崤俘三帅（后纵之）",
+    "reliability": "high",
+    "source_note": "左传僖公三十三年"
+  },
+  {
+    "id": "R137",
+    "person_a": "P_QINMU",
+    "person_b": "P_JINHUI",
+    "rel_type": "其他",
+    "rel_label": "输粟救晋饥（泛舟之役）",
+    "reliability": "high",
+    "source_note": "左传僖公十三年"
+  },
+  {
+    "id": "R138",
+    "person_a": "P_CHUCHENG",
+    "person_b": "P_ZIYUAN",
+    "rel_type": "君臣",
+    "rel_label": "令尹",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年"
+  },
+  {
+    "id": "R139",
+    "person_a": "P_CHUCHENG",
+    "person_b": "P_ZIWEN",
+    "rel_type": "君臣",
+    "rel_label": "令尹",
+    "reliability": "high",
+    "source_note": "左传庄公三十年、僖公二十三至二十八年"
+  },
+  {
+    "id": "R140",
+    "person_a": "P_CHUCHENG",
+    "person_b": "P_ZIYU",
+    "rel_type": "君臣",
+    "rel_label": "令尹",
+    "reliability": "high",
+    "source_note": "左传僖公二十七至二十八年"
+  },
+  {
+    "id": "R141",
+    "person_a": "P_ZIWEN",
+    "person_b": "P_ZIYU",
+    "rel_type": "其他",
+    "rel_label": "荐为令尹自代",
+    "reliability": "high",
+    "source_note": "左传僖公二十七年（子文荐子玉）"
+  },
+  {
+    "id": "R142",
+    "person_a": "P_CHUCHENG",
+    "person_b": "P_ZIYU",
+    "rel_type": "其他",
+    "rel_label": "使责而致其自杀",
+    "reliability": "high",
+    "source_note": "左传僖公二十八年"
+  },
+  {
+    "id": "R143",
+    "person_a": "P_CHUCHENG",
+    "person_b": "P_SHANGCHEN",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传文公元年"
+  },
+  {
+    "id": "R144",
+    "person_a": "P_SHANGCHEN",
+    "person_b": "P_CHUCHENG",
+    "rel_type": "敌对",
+    "rel_label": "弑父自立（楚穆王）",
+    "reliability": "high",
+    "source_note": "左传文公元年"
+  },
+  {
+    "id": "R145",
+    "person_a": "P_ZIYU",
+    "person_b": "P_JINWEN",
+    "rel_type": "敌对",
+    "rel_label": "城濮对垒败于晋",
+    "reliability": "high",
+    "source_note": "左传僖公二十八年"
+  },
+  {
+    "id": "R146",
+    "person_a": "P_SONGXIANG",
+    "person_b": "P_CHUCHENG",
+    "rel_type": "敌对",
+    "rel_label": "泓之战为楚所败",
+    "reliability": "high",
+    "source_note": "左传僖公二十二年"
+  },
+  {
+    "id": "R147",
+    "person_a": "P_SONGXIANG",
+    "person_b": "P_JINWEN",
+    "rel_type": "其他",
+    "rel_label": "过宋赠马二十乘之惠",
+    "reliability": "high",
+    "source_note": "左传僖公二十三年、国语晋语四"
   }
 ]

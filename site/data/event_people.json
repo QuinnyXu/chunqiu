@@ -1846,5 +1846,299 @@
     "role_in_event": "谏「都城过百雉、国之害也」",
     "directness": "direct",
     "presence": "亲至"
+  },
+  {
+    "event_id": "E108",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "弑兄堵敖代立、布德结好之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E109",
+    "person_id": "P_ZIYUAN",
+    "role_in_event": "令尹将车六百乘伐郑",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E109",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "楚君（师行君不亲、无亲至明文）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E110",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "连年伐郑以服之之楚君（师行无亲至明文）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E111",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "宋君亲战泓水、伤股",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E111",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "楚君（左传书「楚人」、无成王亲至明文）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E112",
+    "person_id": "P_ZIYU",
+    "role_in_event": "令尹城濮败绩、自杀于连谷",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E112",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "使责子玉而致其死",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E112",
+    "person_id": "P_JINWEN",
+    "role_in_event": "闻子玉死而喜「莫余毒也已」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E112",
+    "person_id": "P_ZIWEN",
+    "role_in_event": "荐子玉为令尹者（其举致败·不在死事之场）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E113",
+    "person_id": "P_SHANGCHEN",
+    "role_in_event": "以宫甲围成王、弑父自立为穆王",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E113",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "被围请食熊蹯不许而缢",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E114",
+    "person_id": "P_QINMU",
+    "role_in_event": "求贤纳士、以五羖赎百里奚之秦君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E114",
+    "person_id": "P_BAILIXI",
+    "role_in_event": "自楚赎归、相秦",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E114",
+    "person_id": "P_JIANSHU",
+    "role_in_event": "百里奚所举、厚币迎为上大夫",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E115",
+    "person_id": "P_QINMU",
+    "role_in_event": "纳「救灾恤邻」之议输粟济晋",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E115",
+    "person_id": "P_BAILIXI",
+    "role_in_event": "献「救灾恤邻」之议",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E115",
+    "person_id": "P_JINHUI",
+    "role_in_event": "晋饥乞籴（受粟·在晋不在秦廷）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E116",
+    "person_id": "P_ZHUZHIWU",
+    "role_in_event": "夜缒出见秦伯而退其师",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E116",
+    "person_id": "P_QINMU",
+    "role_in_event": "受说与郑盟乃还",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E116",
+    "person_id": "P_JINWEN",
+    "role_in_event": "围郑之君（秦退晋亦去）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E117",
+    "person_id": "P_JIANSHU",
+    "role_in_event": "谏「劳师袭远」、哭师预言",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E117",
+    "person_id": "P_QINMU",
+    "role_in_event": "违谏出师东门之外",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E117",
+    "person_id": "P_MENGMING",
+    "role_in_event": "受命将师出东门",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E118",
+    "person_id": "P_JINXIANGGONG",
+    "role_in_event": "晋君墨衰绖败秦师于殽",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E118",
+    "person_id": "P_XIANZHEN",
+    "role_in_event": "中军将主战、怒释帅而唾",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E118",
+    "person_id": "P_MENGMING",
+    "role_in_event": "被俘之秦帅（后释归）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E118",
+    "person_id": "P_XIANGAO",
+    "role_in_event": "矫郑君命犒师、纾郑难",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E118",
+    "person_id": "P_QINMU",
+    "role_in_event": "违蹇叔遣师致败之君（不在战场）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E119",
+    "person_id": "P_QINMU",
+    "role_in_event": "素服郊次、乡师而哭、不替孟明",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E119",
+    "person_id": "P_MENGMING",
+    "role_in_event": "归而蒙宥、复用之秦帅",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E120",
+    "person_id": "P_QINMU",
+    "role_in_event": "亲将济河焚舟、封殽尸",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E120",
+    "person_id": "P_MENGMING",
+    "role_in_event": "将秦师（用孟明）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E120",
+    "person_id": "P_JINXIANGGONG",
+    "role_in_event": "晋不出战之君",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E121",
+    "person_id": "P_QINMU",
+    "role_in_event": "用由余谋、遂霸西戎",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E122",
+    "person_id": "P_QINMU",
+    "role_in_event": "卒、以子车三良为殉",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E068",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "楚方之君（未亲至召陵·屈完代对）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E068",
+    "person_id": "P_ZIWEN",
+    "role_in_event": "时为楚令尹（未至召陵之场）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E084",
+    "person_id": "P_MUJI",
+    "role_in_event": "秦穆公夫人·晋侯之姊，登台履薪请以死赎晋侯",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E089",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "过宋以国礼赠马二十乘之宋君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E091",
+    "person_id": "P_ZIYU",
+    "role_in_event": "请杀晋公子重耳（成王不许）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E098",
+    "person_id": "P_ZIYU",
+    "role_in_event": "楚令尹将中军、败绩师宵遁",
+    "directness": "direct",
+    "presence": "亲至"
   }
 ]

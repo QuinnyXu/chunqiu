@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-07-19T00:06:42+00:00",
+  "generated_at": "2026-07-20T02:37:38+00:00",
   "tables": {
     "archaeology": 6,
     "background": 11,
-    "event_people": 264,
-    "events": 106,
-    "passages": 111,
-    "people": 59,
-    "places": 62,
-    "relations": 122,
-    "sources": 74
+    "event_people": 306,
+    "events": 121,
+    "passages": 135,
+    "people": 71,
+    "places": 66,
+    "relations": 147,
+    "sources": 83
   },
   "year_range_bce": {
     "min": -773,
-    "max": -628
+    "max": -621
   }
 }
