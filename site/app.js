@@ -5,22 +5,42 @@
 /* ---------- 设计配置（见 docs/design/design_notes.md） ---------- */
 /* 顺序即选人页分区内顺序；分组按 people.state 首国自动生成，新国加入只增分区。
  * home：分区归属覆盖项（武姜 state「申/郑」，人物线全在郑，归郑分区，卡上仍标流向） */
+/* 主题色 color 不在此写死：两级色彩系统（裁定1）以 styles.css :root 的 --p-<id> 变量为单一源，
+ * resolveProtoColors() 于启动时读入填充 meta.color（「国色定相、人色定阶、徽记定形」，见 design_notes v1.6）。
+ * home：分区归属覆盖项（武姜按 state 首国本为「申」，人物线全在郑，归郑分区，卡上仍标流向）。 */
 const PROTAGONISTS = [
-  { id: "P_WENJIANG",    color: "#B23A2F", badge: "badge_wenjiang",    fallback: "文姜" },
-  { id: "P_QIXIANG",     color: "#35302A", badge: "badge_qixiang",     fallback: "齐襄公" },
-  { id: "P_QIHUAN",      color: "#8A6D1F", badge: "badge_qihuan",      fallback: "齐桓公" },
-  { id: "P_QIXI",        color: "#2D6470", badge: "badge_qixi",        fallback: "齐僖公" },
-  { id: "P_LUYIN",       color: "#56707E", badge: "badge_luyin",       fallback: "鲁隐公" },
-  { id: "P_LUHUAN",      color: "#A9622B", badge: "badge_luhuan",      fallback: "鲁桓公" },
-  { id: "P_LUZHUANG",    color: "#55603A", badge: "badge_luzhuang",    fallback: "鲁庄公" },
-  { id: "P_ZHENGZHUANG", color: "#5C4632", badge: "badge_zhengzhuang", fallback: "郑庄公" },
-  { id: "P_ZHENGZHAO",   color: "#3F7A6C", badge: "badge_zhengzhao",   fallback: "郑昭公" },
-  { id: "P_WUJIANG",     color: "#5E4B6B", badge: "badge_wujiang",     fallback: "武姜", home: "郑" },
-  { id: "P_JIZHONG",     color: "#3D4C63", badge: "badge_jizhong",     fallback: "祭仲" },
-  { id: "P_JINWEN",      color: "#8C3041", badge: "badge_jinwen",      fallback: "晋文公" },
-  { id: "P_QINMU",       color: "#955536", badge: "badge_qinmu",       fallback: "秦穆公" },
-  { id: "P_CHUCHENG",    color: "#4C6A57", badge: "badge_chucheng",    fallback: "楚成王" },
+  { id: "P_WENJIANG",    color: "", badge: "badge_wenjiang",    fallback: "文姜" },
+  { id: "P_QIXIANG",     color: "", badge: "badge_qixiang",     fallback: "齐襄公" },
+  { id: "P_QIHUAN",      color: "", badge: "badge_qihuan",      fallback: "齐桓公" },
+  { id: "P_QIXI",        color: "", badge: "badge_qixi",        fallback: "齐僖公" },
+  { id: "P_LUYIN",       color: "", badge: "badge_luyin",       fallback: "鲁隐公" },
+  { id: "P_LUHUAN",      color: "", badge: "badge_luhuan",      fallback: "鲁桓公" },
+  { id: "P_LUZHUANG",    color: "", badge: "badge_luzhuang",    fallback: "鲁庄公" },
+  { id: "P_ZHENGZHUANG", color: "", badge: "badge_zhengzhuang", fallback: "郑庄公" },
+  { id: "P_ZHENGZHAO",   color: "", badge: "badge_zhengzhao",   fallback: "郑昭公" },
+  { id: "P_WUJIANG",     color: "", badge: "badge_wujiang",     fallback: "武姜", home: "郑" },
+  { id: "P_JIZHONG",     color: "", badge: "badge_jizhong",     fallback: "祭仲" },
+  { id: "P_JINWEN",      color: "", badge: "badge_jinwen",      fallback: "晋文公" },
+  { id: "P_QINMU",       color: "", badge: "badge_qinmu",       fallback: "秦穆公" },
+  { id: "P_CHUCHENG",    color: "", badge: "badge_chucheng",    fallback: "楚成王" },
 ];
+/* 从 CSS 变量 --p-<id> 读入 14 主角色（单点管理，见 :root）。缺失则退暖赭并告警。
+ * 国色家族色（阵营底晕用）同源自 --state-<key>。 */
+const STATE_FAMILY_VAR = { "齐": "--state-qi", "鲁": "--state-lu", "郑": "--state-zheng",
+                           "晋": "--state-jin", "秦": "--state-qin", "楚": "--state-chu" };
+function resolveProtoColors() {
+  const cs = getComputedStyle(document.documentElement);
+  for (const m of PROTAGONISTS) {
+    const v = cs.getPropertyValue("--p-" + m.id.slice(2).toLowerCase()).trim();
+    if (v) m.color = v;
+    else { m.color = "#B4652F"; console.warn("主题色变量缺失：--p-" + m.id.slice(2).toLowerCase()); }
+  }
+}
+function familyColor(stateKey) {
+  const v = STATE_FAMILY_VAR[stateKey];
+  if (!v) return null;
+  return getComputedStyle(document.documentElement).getPropertyValue(v).trim() || null;
+}
 /* 各国一句话气质注（界面文案，非史料叙述；无注之国只显国名）。
  * r12 起首页地图上无主角之国也点得出此注（＋「整理中」提示），故补齐底图诸国 */
 const STATE_EPITHET = {
@@ -68,7 +88,8 @@ const SITE_URL = "https://chunqiu.timechorus.com/";
 const SITE_DOMAIN = "chunqiu.timechorus.com";
 /* 搜索无结果提示：copy_r8 无对应项（交付说明报备），自拟一句合基调 */
 const SEARCH_EMPTY = "库中未见此语——换一个词，或减一二字试试。";
-const SRC_PREFIX = { Z: "左传", S: "史记", G: "国语", P: "诗经", A: "考古", B: "现代研究" };
+const SRC_PREFIX = { Z: "左传", S: "史记", G: "国语", P: "诗经", A: "考古", B: "现代研究",
+                     Y: "公羊传", L: "穀梁传", T: "诸子/说部" };
 const MAP_W = 1200, MAP_H = 700;
 
 /* ---------- 投影（docs/conventions.md 第4节；v1.8 起东经105–122/北纬29.5–38.5，第13轮第①批西扩） ---------- */
@@ -2284,7 +2305,42 @@ function egoNodeEl(id, pos, isEgo) {
   return g;
 }
 
-/* ----- 全景视图（分组环形布局，round6 原样保留；本轮仅加过滤器） ----- */
+/* 国别底晕（r14，裁定1·4）：为六主角国各铺一段极淡国色环弧，强化阵营分区。
+ * 节点按 STATE_ORDER 首国连续排布，故同国节点占一段连续角；取该段首末节点角±半槽为弧幅，
+ * 画环形扇（内 R-46、外 R+28），fill-opacity 0.10 只作底晕、不抢节点与连线。 */
+function drawStateHalos(layer, people, CX, CY, R, NS) {
+  const n = people.length;
+  if (!n) return;
+  const slot = (Math.PI * 2) / n;
+  const angAt = (i) => (i / n) * Math.PI * 2 - Math.PI / 2;
+  const spans = new Map(); // stateKey → [minIdx, maxIdx]
+  people.forEach((p, i) => {
+    const st = (p.state || "").split("/")[0];
+    if (!STATE_FAMILY_VAR[st]) return; // 仅六主角国铺底晕
+    const s = spans.get(st);
+    if (!s) spans.set(st, [i, i]);
+    else { s[0] = Math.min(s[0], i); s[1] = Math.max(s[1], i); }
+  });
+  const ri = R - 46, ro = R + 28;
+  for (const [st, [lo, hi]] of spans) {
+    const col = familyColor(st);
+    if (!col) continue;
+    const a0 = angAt(lo) - slot * 0.5, a1 = angAt(hi) + slot * 0.5;
+    const large = (a1 - a0) > Math.PI ? 1 : 0;
+    const P = (r, a) => (CX + r * Math.cos(a)) + " " + (CY + r * Math.sin(a));
+    const d = "M" + P(ro, a0) + " A" + ro + " " + ro + " 0 " + large + " 1 " + P(ro, a1) +
+              " L" + P(ri, a1) + " A" + ri + " " + ri + " 0 " + large + " 0 " + P(ri, a0) + " Z";
+    const wedge = document.createElementNS(NS, "path");
+    wedge.setAttribute("d", d);
+    wedge.setAttribute("fill", col);
+    wedge.setAttribute("fill-opacity", "0.1");
+    wedge.setAttribute("stroke", "none");
+    wedge.setAttribute("class", "rel-halo");
+    layer.appendChild(wedge);
+  }
+}
+
+/* ----- 全景视图（分组环形布局，round6 原样保留；本轮加过滤器与国别底晕） ----- */
 function drawPanoGraph() {
   const NS = "http://www.w3.org/2000/svg";
   const W = 1000, H = 680, CX = 500, CY = 330, R = 252;
@@ -2293,8 +2349,10 @@ function drawPanoGraph() {
   const svg = document.createElementNS(NS, "svg");
   svg.setAttribute("viewBox", "0 0 " + W + " " + H);
   canvas.appendChild(svg);
+  const haloLayer = document.createElementNS(NS, "g"); // 国别底晕（最底层）
   const edgeLayer = document.createElementNS(NS, "g");
   const nodeLayer = document.createElementNS(NS, "g");
+  svg.appendChild(haloLayer);
   svg.appendChild(edgeLayer);
   svg.appendChild(nodeLayer);
 
@@ -2313,6 +2371,10 @@ function drawPanoGraph() {
       proto: PROTAGONISTS.find(m => m.id === p.id) || null, el: null,
     });
   });
+
+  // 国别底晕（裁定1·4）：六主角国各占一段环弧，极淡国色扇形铺底，使齐鲁郑晋秦楚阵营一眼可辨。
+  // 节点已按 STATE_ORDER 连续排布，同国节点成弧；仅为有主角之国着色，配角国不铺（避免喧闹）。
+  drawStateHalos(haloLayer, people, CX, CY, R, NS);
 
   relView.edges = [];
   const badgeLayer = document.createElementNS(NS, "g");
@@ -3159,8 +3221,23 @@ function endTour() {
   tour.active = false;
   $("#tour").hidden = true;
   tourMarkSeen();
-  const pf = tour.prevFocus;
-  if (pf && typeof pf.focus === "function") { try { pf.focus(); } catch { /* 元素已移除 */ } }
+  // 完成或跳过后一律返回首页默认态（清人物语境，收起子导航），并轻提示「选一个人开始」。
+  // 重看引导（关于页入口）走同一路径，落点一致。
+  personCtx = null;
+  setHash(null, "home");
+  showEndTip();
+}
+/* 收尾轻提示：底部居中安静一行，约 3.4 秒后淡出（role=status 供读屏播报） */
+function showEndTip() {
+  const tip = $("#tour-endtip");
+  if (!tip) return;
+  tip.hidden = false;
+  requestAnimationFrame(() => tip.classList.add("show"));
+  clearTimeout(tip._timer);
+  tip._timer = setTimeout(() => {
+    tip.classList.remove("show");
+    setTimeout(() => { if (!tip.classList.contains("show")) tip.hidden = true; }, 320);
+  }, 3400);
 }
 function repositionTour() {
   if (!tour.active) return;
@@ -3178,6 +3255,7 @@ async function boot() {
   PLACES = byId(DATA.places);
   SOURCES = byId(DATA.sources);
   EVENTS = byId(DATA.events);
+  resolveProtoColors(); // 两级色彩系统：从 styles.css :root 读入 14 主角色（单点管理）
   const mapResp = await fetch("assets/map/base_map.svg");
   baseMapText = await mapResp.text();
 

@@ -208,7 +208,6 @@
         </ul>
         <p>怎么读：时间线上每条事件前的小图标是事件类别（交戈为战争、鼎为会盟、双环为婚嫁……悬停可见名称），事件展开后的色签标注可靠度——high 可当骨架，medium 宜复核，low 只是线索。地图上实心点是其人亲至之地，空心点是与其相关而本人未到之处，轨迹只连亲至。</p>
         <p>读到可疑之处，欢迎经页顶「反馈」告诉我们——指出一处错误，比转发十次更帮得上忙。</p>
-        <p class="faq-q"><strong>为何还没有孔子？</strong>——本站按时代推进，现已覆盖前773–前621；孔子生活的春秋晚期，尚在路线图上。</p>
       </section>
       <section>
         <h3>这是什么</h3>
@@ -231,11 +230,15 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.10（首访引导 · 人物卡简介两行 · 事件卡可点暗示）。
+        <p id="about-version">当前版本 v0.11（两级国色系 · 关系图阵营分区 · 引导落点归位）。
           <button type="button" class="tour-replay" id="tour-replay">重看引导</button></p>
+        <!-- 许可声明（conventions §12·裁定3）：代码 MIT、数据 CC BY 4.0；文件在仓库根，站点部署根为 site/，
+             故链接指向仓库内两文件的规范地址（同「开源仓库」外链域） -->
+        <p class="license-line">代码依 <a href="https://github.com/QuinnyXu/chunqiu/blob/main/LICENSE" target="_blank" rel="noopener">MIT 许可</a>、数据依 <a href="https://github.com/QuinnyXu/chunqiu/blob/main/DATA_LICENSE.md" target="_blank" rel="noopener">CC BY 4.0</a> 开放共享；引用数据请署名「春秋人物志 · chunqiu.timechorus.com」。</p>
         <!-- 支持本站入口：链接待 Xiangtao 提供（爱发电或 GitHub Sponsors），到位前先留占位文案，不外链 -->
         <p class="support-line">若愿支持本站长期考订，可移步<span id="support-link">支持链接（筹备中）</span>。</p>
         <ul>
+          <li>v0.11 —— 人物色彩改为两级国色系（齐红 · 鲁赭 · 郑青 · 晋栗 · 秦玄 · 楚紫，同国分深浅），关系全景按国着色、阵营分区；首访引导结束回到首页「选一个人」；许可声明就位（代码 MIT · 数据 CC BY 4.0）</li>
           <li>v0.10 —— 首访三步引导（可重看）；人物卡简介两行显示、桌面 hover 见全文、手机卡内完整；时间线事件卡加「原文 ▾」可点暗示；进人物、切视图滚动复位到顶</li>
           <li>v0.9 —— 首页改地图导航（点国入人、列表模式可切换）；齐僖公、武姜、祭仲三线上线，主角十二人；人物子导航升格；底图增晋与汾水</li>
           <li>v0.8 —— 全站一框搜索（人物/地点/事件/原文，键盘可达）；分享卡生成器（两版尺寸、扫码直达）；邮件反馈入口启用</li>
@@ -308,6 +311,8 @@
     </div>
   </div>
 </div>
+<!-- 引导收尾轻提示：完成/跳过后回首页时安静一行，约 3.4 秒淡出 -->
+<p class="tour-endtip" id="tour-endtip" role="status" hidden>现在，选一个人开始吧。</p>
 
 <footer class="site-footer" id="site-footer">
   <!-- 底部分享与反馈（Xiangtao 反馈 5：分享卡入口置于「反馈」邻近处） -->
