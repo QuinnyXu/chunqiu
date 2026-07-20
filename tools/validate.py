@@ -27,7 +27,7 @@ CATEGORIES = {
 HML = {"high", "medium", "low"}
 IMPORTANCE = {"1", "2", "3"}
 PRESENCE = {"亲至", "相关"}  # event_people.presence；空视同亲至
-YEAR_MIN, YEAR_MAX = -800, -600
+YEAR_MIN, YEAR_MAX = -800, -480  # v1.11 放宽至覆盖全春秋（原 -600 已不敷楚庄王/邲之战等中晚期史事）
 LNG_MIN, LNG_MAX = 105.0, 122.0
 LAT_MIN, LAT_MAX = 29.5, 38.5
 
