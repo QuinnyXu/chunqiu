@@ -1388,6 +1388,7 @@ function openOverlay() {
 function closeOverlay() {
   if (relZoom.active) { closeRelOverlay(); return; }
   if (!mapState.overlay) return;
+  if (drawer.open) closeDrawer(); // 全屏关闭时一并收起底部抽屉，避免其孤悬
   const overlay = $("#map-overlay");
   overlay.hidden = true;
   document.body.classList.remove("no-scroll");
@@ -1401,16 +1402,24 @@ function closeOverlay() {
   applyView(mapState.mode === "fit" ? mapState.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
 }
 
-/* ---------- 关系图「放大查看」：复用地图全屏浮层与手势机制（r13，Xiangtao 反馈 4）。
+/* ---------- 关系图「放大查看」：复用地图全屏浮层与手势机制（r13 起；r16 修复点边/点节点无反应＋手机取景过小）。
  * 关系图内嵌态为纯静态、不拦截页面滚动；细看时把当前图克隆入全屏浮层，拖移/滚轮/双指缩放皆与地图一致。
- * 克隆而非移动：内嵌图保持原位与其 recenter/看连线交互不受影响，全屏态只做取景细看。 ---------- */
+ * 克隆而非移动：内嵌图保持原位、其 recenter/看连线交互不受影响。
+ * r16 两处修复见 openRelOverlay：①克隆丢失事件绑定→按 data-detail/data-node 在克隆体上重绑，
+ * 且全屏内点边/点节点一律走底部抽屉（对齐地图全屏，而非内嵌右侧卡片）；②取景改 fit-to-container，
+ * 按容器实测宽高定 viewBox 比例，竖屏 cover、横屏 contain，令手机进入全屏即明显放大。 ---------- */
 const relZoom = {
-  active: false, svg: null, vbW: 0, vbH: 0, minFrac: 0.2, box: null,
+  active: false, svg: null, vbW: 0, vbH: 0, minFrac: 0.2, box: null, aspect: 0,
   pointers: new Map(), pinch: null, panStart: null, panDist: 0,
 };
-function zClamp(box, vbW, vbH, minFrac) {
-  const w = Math.max(vbW * minFrac, Math.min(box.w, vbW));
-  const h = w * vbH / vbW;
+/* aspect＝取景盒的宽高比，进入全屏时按「浮层容器实测宽高」定死（fit-to-container），
+ * 之后拖移/缩放全程沿用同一比例，使 viewBox 与容器等比、preserveAspectRatio meet 恰好填满、
+ * 无上下留白——这是「手机全屏内容偏小」的取景侧修复关键（详见 relZoomInitView）。 */
+function zClamp(box, vbW, vbH, minFrac, aspect) {
+  aspect = aspect || (vbW / vbH);
+  let w = Math.min(vbW, Math.max(vbW * minFrac, box.w));
+  let h = w / aspect;
+  if (h > vbH) { h = vbH; w = Math.min(vbW, h * aspect); } // 竖屏比例算出的高越界时以高为准回算
   const x = Math.max(0, Math.min(box.x, vbW - w));
   const y = Math.max(0, Math.min(box.y, vbH - h));
   return { x, y, w, h };
@@ -1459,18 +1468,18 @@ function bindZoomGesture(svg, Z) {
       if (dist < 10) return;
       const k = Z.pinch.dist / dist;
       const w = Math.max(Z.vbW * Z.minFrac, Math.min(Z.pinch.box.w * k, Z.vbW));
-      const h = w * Z.vbH / Z.vbW;
+      const h = w / (Z.aspect || Z.vbW / Z.vbH);
       const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
       const x = Z.pinch.mid[0] - (mid.x - rect.left) / rect.width * w;
       const y = Z.pinch.mid[1] - (mid.y - rect.top) / rect.height * h;
       Z.panDist = 99;
-      apply(zClamp({ x, y, w, h }, Z.vbW, Z.vbH, Z.minFrac));
+      apply(zClamp({ x, y, w, h }, Z.vbW, Z.vbH, Z.minFrac, Z.aspect));
     } else if (Z.panStart) {
       const dx = e.clientX - Z.panStart.x, dy = e.clientY - Z.panStart.y;
       Z.panDist = Math.max(Z.panDist, Math.hypot(dx, dy));
       const b = Z.panStart.box;
       apply(zClamp({ x: b.x - dx / rect.width * b.w, y: b.y - dy / rect.height * b.h, w: b.w, h: b.h },
-        Z.vbW, Z.vbH, Z.minFrac));
+        Z.vbW, Z.vbH, Z.minFrac, Z.aspect));
     }
   });
   const lift = (e) => {
@@ -1485,12 +1494,12 @@ function bindZoomGesture(svg, Z) {
     e.preventDefault();
     const k = e.deltaY < 0 ? 0.85 : 1 / 0.85;
     const w = Math.max(Z.vbW * Z.minFrac, Math.min(Z.box.w * k, Z.vbW));
-    const h = w * Z.vbH / Z.vbW;
+    const h = w / (Z.aspect || Z.vbW / Z.vbH);
     const [sx, sy] = zSvgPoint(svg, Z.box, e.clientX, e.clientY);
     const rect = svg.getBoundingClientRect();
     const x = sx - (e.clientX - rect.left) / rect.width * w;
     const y = sy - (e.clientY - rect.top) / rect.height * h;
-    apply(zClamp({ x, y, w, h }, Z.vbW, Z.vbH, Z.minFrac));
+    apply(zClamp({ x, y, w, h }, Z.vbW, Z.vbH, Z.minFrac, Z.aspect));
   }, { passive: false });
 }
 function openRelOverlay() {
@@ -1500,38 +1509,77 @@ function openRelOverlay() {
   const clone = src.cloneNode(true);
   const overlay = $("#map-overlay");
   overlay.setAttribute("aria-label", "关系图全屏查看");
-  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 连线悬停见关系名";
+  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点连线/节点看关系";
   const body = $("#map-overlay-body");
   body.textContent = "";
   body.appendChild(clone);
-  overlay.hidden = false; // 先显示再量 bbox（display:none 下 getBBox 归零）
+  overlay.hidden = false; // 先显示再量 bbox / 容器尺寸（display:none 下 getBBox 与 clientW/H 归零）
   document.body.classList.add("no-scroll");
   relZoom.active = true;
   relZoom.svg = clone;
   relZoom.vbW = vb[2] || 1000;
   relZoom.vbH = vb[3] || 680;
   relZoom.minFrac = 0.2;
+  relZoom.aspect = 0;
   relZoom.pointers = new Map();
   relZoom.pinch = null;
   relZoom.panStart = null;
   relZoom.panDist = 0;
-  // 初始取景：框到图形内容外接框（留白 10%），空白多的 ego 图开屏即见图而非全 viewBox 缩得极小
-  let box = { x: vb[0] || 0, y: vb[1] || 0, w: relZoom.vbW, h: relZoom.vbH };
-  try {
-    const bb = clone.getBBox();
-    if (bb.width > 1 && bb.height > 1) {
-      const w = Math.min(relZoom.vbW, Math.max(bb.width, bb.height * relZoom.vbW / relZoom.vbH) * 1.1);
-      const h = w * relZoom.vbH / relZoom.vbW;
-      box = zClamp({ x: bb.x + bb.width / 2 - w / 2, y: bb.y + bb.height / 2 - h / 2, w, h },
-        relZoom.vbW, relZoom.vbH, relZoom.minFrac);
-    }
-  } catch { /* getBBox 不可用则用全 viewBox */ }
-  relZoom.box = box;
-  clone.setAttribute("viewBox", box.x + " " + box.y + " " + box.w + " " + box.h);
   bindZoomGesture(clone, relZoom);
+  // 关键修复①（事件绑定）：cloneNode(true) 只复制 DOM 与属性、不复制 addEventListener 绑定的处理器，
+  // 故克隆出的点边/节点在全屏内「点了没反应」。这里按 data-detail / data-node 标记在克隆体上重新绑定，
+  // 且全屏内一律走底部抽屉（与地图全屏一致），而非内嵌态的右侧卡片。
+  rebindRelClone(clone);
+  // 关键修复②（取景）：按容器实测宽高做 fit-to-container 取景（见 relZoomInitView）。
+  relZoomInitView();
+  // 容器尺寸在本帧尚为 0（极端布局时序）时，下一帧再量一次补正，避免 fit 落到「全 viewBox 缩得极小」。
+  if (!(body.clientWidth > 0 && body.clientHeight > 0)) requestAnimationFrame(relZoomInitView);
   $("#btn-overlay-close").focus();
 }
+/* fit-to-container 取景：viewBox 纵横比取「浮层容器实测宽高」，preserveAspectRatio meet 便恰好填满容器。
+ * 竖屏容器（手机全屏，高>宽）用 cover 取景——填满容器、裁掉过宽两侧，拖移浏览，令进入全屏即明显放大；
+ * 横屏/桌面容器用 contain 取景——整图可见，维持既有桌面观感。 */
+function relZoomInitView() {
+  const svg = relZoom.svg;
+  if (!svg) return;
+  const vbW = relZoom.vbW, vbH = relZoom.vbH, minFrac = relZoom.minFrac;
+  const body = $("#map-overlay-body");
+  const cw = body.clientWidth, ch = body.clientHeight;
+  // 竖屏容器（手机全屏）取容器比例做 cover 放大；横屏/桌面/容器未就绪取图自身比例做 contain（整图可见、不裁切、维持既有桌面观感）
+  relZoom.aspect = (cw > 0 && ch > 0 && ch > cw) ? cw / ch : vbW / vbH;
+  const aspect = relZoom.aspect;
+  let box = zClamp({ x: 0, y: 0, w: vbW, h: vbW / aspect }, vbW, vbH, minFrac, aspect);
+  let bb = null;
+  try { bb = svg.getBBox(); } catch { bb = null; }
+  if (bb && bb.width > 1 && bb.height > 1) {
+    const pad = 1.08;
+    const bw = bb.width * pad, bh = bb.height * pad;
+    const cxc = bb.x + bb.width / 2, cyc = bb.y + bb.height / 2;
+    // 竖屏：cover（取内容宽与「内容高×比例」之较小者→填满、裁宽）；横屏：contain（较大者→整图可见）
+    const boxW = (ch > cw) ? Math.min(bw, bh * aspect) : Math.max(bw, bh * aspect);
+    const boxH = boxW / aspect;
+    box = zClamp({ x: cxc - boxW / 2, y: cyc - boxH / 2, w: boxW, h: boxH }, vbW, vbH, minFrac, aspect);
+  }
+  relZoom.box = box;
+  svg.setAttribute("viewBox", box.x + " " + box.y + " " + box.w + " " + box.h);
+}
+/* 在克隆体上重建交互：点边/点节点 → 底部抽屉；拖移后的误触由 panDist 守卫（与地图锚点同规则） */
+function rebindRelClone(clone) {
+  const guarded = (fn) => () => { if (relZoom.panDist > 6) return; fn(); };
+  clone.querySelectorAll("[data-detail]").forEach(el => {
+    const rels = relView.detailReg[+el.dataset.detail];
+    if (!rels) return;
+    el.style.cursor = "pointer";
+    el.addEventListener("click", guarded(() => showRelDetailDrawer(rels, null)));
+  });
+  clone.querySelectorAll("[data-node]").forEach(el => {
+    const pid = el.dataset.node;
+    el.style.cursor = "pointer";
+    el.addEventListener("click", guarded(() => showRelDetailDrawer(relsTouching(pid), pid)));
+  });
+}
 function closeRelOverlay() {
+  if (drawer.open) closeDrawer(); // 全屏关闭时一并收起底部抽屉，避免其孤悬
   const overlay = $("#map-overlay");
   overlay.hidden = true;
   overlay.setAttribute("aria-label", "地图全屏查看");
@@ -1540,6 +1588,8 @@ function closeRelOverlay() {
   $("#map-overlay-body").textContent = "";
   relZoom.active = false;
   relZoom.svg = null;
+  relZoom.aspect = 0;
+  relZoom.panDist = 0;
   relZoom.pointers.clear();
   relZoom.pinch = null;
   relZoom.panStart = null;
@@ -1846,6 +1896,9 @@ function groupRelPairs(filter) {
   for (const p of pairs.values()) p.rels = sortRelsByType(p.rels);
   return [...pairs.values()];
 }
+/* 某人的全部一度关系（两端皆在库中）——全屏点节点时供抽屉列出，口径同 ego 侧栏 */
+const relsTouching = (pid) => DATA.relations.filter(r =>
+  (r.person_a === pid || r.person_b === pid) && PEOPLE[r.person_a] && PEOPLE[r.person_b]);
 const pairDashed = (rels) => !rels.some(r => r.reliability === "high");
 const pairTip = (rels) => rels.map(r =>
   personName(r.person_a) + " ·" + r.rel_label + "· " + personName(r.person_b) +
@@ -1877,6 +1930,7 @@ const relView = {
   collapsedInit: false,
   protoOnly: false,      // 全景「仅主角边」
   nodes: new Map(), edges: [], focus: null, isolated: new Set(), // 全景态
+  detailReg: [],         // 每次绘图重建：边索引→该并线的 rels，供全屏克隆体按 data-detail 重绑抽屉
 };
 
 function renderRelations() {
@@ -2053,6 +2107,7 @@ function relEdgePath(x1, y1, x2, y2, famArc) {
 
 function drawEgoGraph(pid) {
   const NS = "http://www.w3.org/2000/svg";
+  relView.detailReg = []; // 本次绘图的边→rels 注册表（供全屏克隆体重绑）
   const { edges, fam, side } = egoModel(pid);
 
   // 侧组分列：按固定类型序贪心放入较矮一侧
@@ -2170,11 +2225,14 @@ function drawEgoGraph(pid) {
     const tip = document.createElementNS(NS, "title");
     tip.textContent = pairTip(pair.rels);
     path.appendChild(tip);
+    const di = relView.detailReg.push(pair.rels) - 1;
+    path.dataset.detail = di;
     const open = () => showRelDetail(pair.rels, null);
     path.addEventListener("click", open);
     edgeLayer.appendChild(path);
     if (pair.rels.length > 1) {
       const badge = edgeBadgeEl(seg.mx, seg.my, pair.rels.length, color, open);
+      badge.dataset.detail = di;
       const btip = document.createElementNS(NS, "title");
       btip.textContent = pairTip(pair.rels);
       badge.appendChild(btip);
@@ -2229,6 +2287,7 @@ function egoNodeEl(id, pos, isEgo) {
   const proto = PROTAGONISTS.find(m => m.id === id) || null;
   const g = document.createElementNS(NS, "g");
   g.setAttribute("class", "rel-node" + (proto ? " proto" : "") + (isEgo ? " ego" : ""));
+  g.dataset.node = id; // 供全屏克隆体重绑：点节点→抽屉列其一度关系（含中心/家系/侧组节点）
   const r = isEgo ? (proto ? 17 : 12) : (pos.side ? 5.5 : (proto ? 12 : 7));
   if (isEgo) { // 中心人物：朱砂细环标记
     const ring = document.createElementNS(NS, "circle");
@@ -2344,6 +2403,7 @@ function drawStateHalos(layer, people, CX, CY, R, NS) {
 /* ----- 全景视图（分组环形布局，round6 原样保留；本轮加过滤器与国别底晕） ----- */
 function drawPanoGraph() {
   const NS = "http://www.w3.org/2000/svg";
+  relView.detailReg = []; // 本次绘图的边→rels 注册表（供全屏克隆体重绑）
   const W = 1000, H = 680, CX = 500, CY = 330, R = 252;
   const canvas = $("#rel-canvas");
   canvas.textContent = "";
@@ -2398,12 +2458,15 @@ function drawPanoGraph() {
     const tip = document.createElementNS(NS, "title");
     tip.textContent = pairTip(pair.rels);
     path.appendChild(tip);
+    const di = relView.detailReg.push(pair.rels) - 1;
+    path.dataset.detail = di;
     const open = () => showRelDetail(pair.rels, null);
     path.addEventListener("click", open);
     edgeLayer.appendChild(path);
     let badge = null;
     if (pair.rels.length > 1) {
       badge = edgeBadgeEl(seg.mx, seg.my, pair.rels.length, color, open);
+      badge.dataset.detail = di;
       const btip = document.createElementNS(NS, "title");
       btip.textContent = pairTip(pair.rels);
       badge.appendChild(btip);
@@ -2416,6 +2479,7 @@ function drawPanoGraph() {
   for (const node of relView.nodes.values()) {
     const g = document.createElementNS(NS, "g");
     g.setAttribute("class", "rel-node" + (node.proto ? " proto" : ""));
+    g.dataset.node = node.p.id; // 供全屏克隆体重绑：点节点→抽屉列其一度关系
     g.setAttribute("tabindex", "0");
     g.setAttribute("role", "button");
     g.setAttribute("aria-label", node.p.name + "：查看其关系");
@@ -2510,26 +2574,27 @@ function resetRelFocus() {
   p.textContent = "点人物节点，高亮其一度关系；点连线看出处。";
   panel.appendChild(p);
 }
-function showRelDetail(rels, pid) {
-  rels = sortRelsByType(rels);
-  const panel = $("#rel-panel");
-  panel.textContent = "";
-  const h3 = document.createElement("h3");
-  if (pid) h3.textContent = personName(pid) + " 的一度关系（" + rels.length + "）";
-  else if (rels.length > 1) h3.textContent = personName(rels[0].person_a) + " — " + personName(rels[0].person_b) +
+function relDetailTitle(rels, pid) {
+  if (pid) return personName(pid) + " 的一度关系（" + rels.length + "）";
+  if (rels.length > 1) return personName(rels[0].person_a) + " — " + personName(rels[0].person_b) +
     "（" + rels.length + " 重关系）";
-  else h3.textContent = "这条关系";
-  panel.appendChild(h3);
+  return "这条关系";
+}
+/* 关系详情正文（姓名行＋小传＋关系列表＋并线说明），不含标题与操作按钮。
+ * 内嵌右侧卡片（#rel-panel）与全屏底部抽屉共用此函数，确保两处内容严格一致：
+ * 多重关系全部列出、rel_label、可靠度、依据（source_note）。 */
+function relDetailBody(rels, pid) {
+  const frag = document.createDocumentFragment();
   if (pid && PEOPLE[pid]) {
     // 人物详情姓名行：完整形式（如 管仲 → 姬姓管氏，名夷吾，字仲）
     const nl = nameLineNode(PEOPLE[pid], "small");
-    if (nl) panel.appendChild(nl);
+    if (nl) frag.appendChild(nl);
   }
   if (pid && PEOPLE[pid] && PEOPLE[pid].short_bio) {
     const bio = document.createElement("p");
     bio.className = "rel-bio";
     bio.textContent = PEOPLE[pid].short_bio;
-    panel.appendChild(bio);
+    frag.appendChild(bio);
   }
   const ul = document.createElement("ul");
   ul.className = "rel-list";
@@ -2556,14 +2621,24 @@ function showRelDetail(rels, pid) {
     li.appendChild(meta);
     ul.appendChild(li);
   }
-  panel.appendChild(ul);
+  frag.appendChild(ul);
   if (!pid && rels.length > 1) {
     // 并线规则随卡注明：同对人物合并为一线，虚线含义在此交代（图例只留提示）
     const note = document.createElement("p");
     note.className = "rel-pair-note";
     note.textContent = "两人的多重关系在图上并为一线、以数字徽记标记；连线虚线表示所列关系可靠度皆为中/低，实线表示至少一条为 high。";
-    panel.appendChild(note);
+    frag.appendChild(note);
   }
+  return frag;
+}
+function showRelDetail(rels, pid) {
+  rels = sortRelsByType(rels);
+  const panel = $("#rel-panel");
+  panel.textContent = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = relDetailTitle(rels, pid);
+  panel.appendChild(h3);
+  panel.appendChild(relDetailBody(rels, pid));
   const acts = document.createElement("p");
   acts.className = "rel-actions";
   if (pid && relView.mode === "pano") {
@@ -2588,6 +2663,24 @@ function showRelDetail(rels, pid) {
     acts.appendChild(clear);
   }
   panel.appendChild(acts);
+}
+/* 全屏放大态：点边/点节点 → 底部抽屉（复用地图抽屉的开合/下滑/遮罩/ESC 三件套）。
+ * 内容与内嵌右侧卡片一致；仅保留「查看时间线」这一不与全屏冲突的操作（先退出全屏再跳转）。 */
+function showRelDetailDrawer(rels, pid) {
+  rels = sortRelsByType(rels);
+  const wrap = document.createElement("div");
+  wrap.appendChild(relDetailBody(rels, pid));
+  if (pid && PROTAGONISTS.some(m => m.id === pid)) {
+    const acts = document.createElement("p");
+    acts.className = "rel-actions";
+    const go = document.createElement("button");
+    go.type = "button";
+    go.textContent = "查看 " + personName(pid) + " 的时间线 →";
+    go.addEventListener("click", () => { closeDrawer(); closeRelOverlay(); setHash(pid, "timeline"); });
+    acts.appendChild(go);
+    wrap.appendChild(acts);
+  }
+  openDrawer(relDetailTitle(rels, pid), wrap);
 }
 
 /* ---------- 全站搜索（r11）：一框检索人物/地点/事件/原文，纯前端包含匹配 ----------
