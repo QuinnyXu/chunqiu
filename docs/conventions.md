@@ -1,4 +1,4 @@
-# 春秋人物志 · 项目约定（conventions）
+# 经纬春秋 · 项目约定（conventions）
 
 版本：v1.12（2026-07-20：round15 正式合入——楚庄王线上线，主角计15；T 前缀首次实际启用，见下方「T 前缀分层纪律」更新）
 历史：v1.11（年代边界放宽至 [-800,-480] 覆盖全春秋，为楚庄王/邲之战等中晚期史事入库前置）
@@ -202,7 +202,7 @@ delivery_<agent>_r<团队轮次>[a|b].md
 **裁定 3（2026-07-20，领队/Xiangtao）**：本仓库采用双许可——
 
 - **代码**（`tools/`、`site/` 下除 `site/data/` 外的所有文件）：**MIT License**，见根目录 [`LICENSE`](../LICENSE)。
-- **数据**（`data/csv/`、`site/data/*.json`）：**CC BY 4.0**（知识共享署名 4.0 国际协议），见 [`DATA_LICENSE.md`](../DATA_LICENSE.md)，署名建议格式统一为「春秋人物志 · chunqiu.timechorus.com」。
+- **数据**（`data/csv/`、`site/data/*.json`）：**CC BY 4.0**（知识共享署名 4.0 国际协议），见 [`DATA_LICENSE.md`](../DATA_LICENSE.md)，署名建议格式统一为「经纬春秋 · chunqiu.timechorus.com」。
 - `private/`、`team/`、`.claude/` 等内部协作目录不公开发布，不适用任何公开许可（`.gitignore` 已锁定，不得移除相关规则）。
 - `README.md` 与两份许可文件互链；关于页（Vision r14 并行任务）在版本区加"代码 MIT / 数据 CC BY 4.0"声明并链接至根目录 `LICENSE`、`DATA_LICENSE.md`——**两文件命名与路径已按此约定固定，后续不得改名/改路径**，否则站内外链会失效。
 

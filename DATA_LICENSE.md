@@ -42,7 +42,7 @@
 
 引用、转载或基于本数据集做二次开发时，建议使用以下署名：
 
-> 春秋人物志 · chunqiu.timechorus.com
+> 经纬春秋 · chunqiu.timechorus.com
 
 英文场景可用：
 

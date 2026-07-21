@@ -1,4 +1,4 @@
-/* 春秋人物志 · 简帛与青铜（设计决策见 docs/design/design_notes.md） */
+/* 经纬春秋 · 简帛与青铜（设计决策见 docs/design/design_notes.md） */
 :root {
   --silk: #F4EDDF;
   --silk-panel: #FBF7EC;
@@ -22,7 +22,7 @@
   --state-jin:   #74402C; /* 晋 · 栗褐系 */
   --state-qin:   #423C39; /* 秦 · 玄灰系 */
   --state-chu:   #5E2B45; /* 楚 · 绛紫系 */
-  /* 14 主角色：所属家族的不同深浅（相邻可辨），跨国者按 state 首国（文姜→齐、武姜→郑） */
+  /* 15 主角色：所属家族的不同深浅（相邻可辨），跨国者按 state 首国（文姜→齐、武姜→郑） */
   --p-wenjiang:     #B23A2F; /* 齐 · 朱砂（族内最亮，情感最烈）*/
   --p-qixiang:      #571A15; /* 齐 · 深绛（雄猜暴烈，近墨之赤）*/
   --p-qihuan:       #7B2519; /* 齐 · 赤褐（霸主之重）*/
@@ -36,7 +36,8 @@
   --p-jizhong:      #2C5E6A; /* 郑 · 玄圭铁青（青绿偏青一相）*/
   --p-jinwen:       #74402C; /* 晋 · 栗褐 */
   --p-qinmu:        #423C39; /* 秦 · 玄灰 */
-  --p-chucheng:     #5E2B45; /* 楚 · 绛紫 */
+  --p-chucheng:     #5E2B45; /* 楚 · 绛紫（族基色，成王在位早）*/
+  --p-chuzhuang:    #8A4062; /* 楚 · 绛紫提亮一阶（霸主，灰阶≈90/对绢帛≈6.0；与成王 63/9.5 深浅可辨，Δ灰阶27）*/
   /* 全站唯一内容容器标准（r13，Xiangtao 反馈 1/2/3）：
    * --content-max 限定主列宽；--content-pad 为页眉/子导航/主列/页脚共用的左右留白。
    * 所有视图（首页两模式、时间线/地图/关系、全景、资料库、关于）都在 <main> 这一列内，
@@ -84,6 +85,19 @@ body {
   color: var(--ink-soft);
   letter-spacing: 0.2em;
   margin-left: 0.6rem;
+}
+/* 头部时间双标：纪年时段（静态）＋考订前沿（动态，青绿点出「持续推进」意） */
+.site-range { white-space: nowrap; }
+.site-range .sr-frontier { color: var(--bronze); }
+.site-range .sr-frontier::before {
+  content: "·";
+  margin: 0 0.45em;
+  color: var(--ink-soft);
+}
+/* 窄屏：双标让位不挤站名，落到次行并收紧字距 */
+@media (max-width: 680px) {
+  .site-title small { display: block; margin-left: 0; margin-top: 0.15rem; letter-spacing: 0.12em; }
+  .site-range { white-space: normal; }
 }
 /* 站名＋徽记＝回首页链接 */
 .site-brand {
@@ -1377,6 +1391,15 @@ body.no-scroll { overflow: hidden; }
 .about-body section:first-child h3 { margin-top: 0.2rem; }
 .about-body p, .about-body li { font-size: 0.92rem; }
 .about-body a { color: var(--ochre); }
+/* 站名注脚：小字、朱线起首，示简帛小注，不喧 */
+.name-gloss {
+  font-size: 0.82rem !important;
+  color: var(--ink-soft);
+  border-left: 2px solid var(--cinnabar);
+  padding-left: 0.7rem;
+  letter-spacing: 0.02em;
+  margin-top: 0.5rem;
+}
 /* 许可声明：轻声一行，链接用青绿低调呈现 */
 .license-line { font-size: 0.82rem; color: var(--ink-soft); margin-top: 0.6rem; }
 .license-line a { color: var(--bronze); text-decoration-color: var(--line); }

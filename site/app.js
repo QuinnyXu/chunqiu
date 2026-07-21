@@ -1,4 +1,4 @@
-/* 春秋人物志 · 四屏原型（原生 JS，无外部依赖）
+/* 经纬春秋 · 四屏原型（原生 JS，无外部依赖）
  * 史料文本一律来自 site/data/*.json；本文件只含界面文案与设计配置。 */
 "use strict";
 
@@ -23,8 +23,9 @@ const PROTAGONISTS = [
   { id: "P_JINWEN",      color: "", badge: "badge_jinwen",      fallback: "晋文公" },
   { id: "P_QINMU",       color: "", badge: "badge_qinmu",       fallback: "秦穆公" },
   { id: "P_CHUCHENG",    color: "", badge: "badge_chucheng",    fallback: "楚成王" },
+  { id: "P_CHUZHUANG",   color: "", badge: "badge_chuzhuang",   fallback: "楚庄王" },
 ];
-/* 从 CSS 变量 --p-<id> 读入 14 主角色（单点管理，见 :root）。缺失则退暖赭并告警。
+/* 从 CSS 变量 --p-<id> 读入 15 主角色（单点管理，见 :root）。缺失则退暖赭并告警。
  * 国色家族色（阵营底晕用）同源自 --state-<key>。 */
 const STATE_FAMILY_VAR = { "齐": "--state-qi", "鲁": "--state-lu", "郑": "--state-zheng",
                            "晋": "--state-jin", "秦": "--state-qin", "楚": "--state-chu" };
@@ -2927,6 +2928,27 @@ function wrapCJK(ctx, text, maxW) {
   if (cur) lines.push(cur);
   return lines;
 }
+/* 涡纹徽记（甲版 brand mark，与 favicon.svg / 站头同一形）——零依赖几何绘制。
+ * 双同心 3/4 弧＋中心点，box 为 64 视口映射后的边长（px），居中于 (cx,cy)。 */
+function drawSpiralMark(ctx, cx, cy, box, color) {
+  const s = box / 64;                 // 64 视口 → box px
+  const TOP = -Math.PI / 2, LEFT = Math.PI; // 顶点起、左点止，顺时针 270°
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineCap = "round";
+  ctx.lineWidth = 5 * s;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 20 * s, TOP, LEFT, false); // 外弧 r=20
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 10 * s, TOP, LEFT, false); // 内弧 r=10
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.fillStyle = color;
+  ctx.arc(cx, cy, 2.6 * s, 0, Math.PI * 2); // 中心点
+  ctx.fill();
+  ctx.restore();
+}
 /* 回纹带（雷纹钥匙纹）——「青铜的线」，单元几何绘制 */
 function drawMeanderBand(ctx, cx, y, width, u, color) {
   const step = u * 1.5;
@@ -2970,18 +2992,21 @@ function drawShareCard() {
   ctx.strokeRect(44, 44, W - 88, H - 88);
 
   const L = square
-    ? { band: 88, title: 240, titleSize: 104, ticks: 320, invite: 428, inviteSize: 40, qrTop: 500, qrBox: 380, domain: 944, bandBottom: H - 92 }
-    : { band: 118, title: 330, titleSize: 122, ticks: 424, invite: 556, inviteSize: 50, qrTop: 716, qrBox: 430, domain: 1240, bandBottom: H - 156 };
+    ? { band: 88, mark: 150, markBox: 60, title: 268, titleSize: 104, ticks: 320, invite: 428, inviteSize: 40, qrTop: 500, qrBox: 380, domain: 944, bandBottom: H - 92 }
+    : { band: 118, mark: 200, markBox: 76, title: 356, titleSize: 122, ticks: 424, invite: 556, inviteSize: 50, qrTop: 716, qrBox: 430, domain: 1240, bandBottom: H - 156 };
 
   drawMeanderBand(ctx, W / 2, L.band, W * 0.5, 26, "rgba(68, 118, 107, 0.6)");
   drawMeanderBand(ctx, W / 2, L.bandBottom, W * 0.5, 26, "rgba(68, 118, 107, 0.6)");
+
+  // 涡纹徽记（甲版 brand mark，居站名之上，暖赭；与 favicon / 站头 / og-card 同一形）
+  drawSpiralMark(ctx, W / 2, L.mark, L.markBox, "#B4652F");
 
   // 站名
   ctx.fillStyle = "#2E2A24";
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.font = "700 " + L.titleSize + "px " + SHARE_SERIF;
-  drawSpacedLine(ctx, "春秋人物志", W / 2, L.title, L.titleSize * 0.16);
+  drawSpacedLine(ctx, "经纬春秋", W / 2, L.title, L.titleSize * 0.16);
 
   // 主角主题色签一行（品牌色阶，取自 PROTAGONISTS 设计配置，数量随主角数自适应）
   const tw = 26, gap = 14;
@@ -3110,7 +3135,7 @@ function initShare() {
   $("#btn-copy-link").addEventListener("click", () => copySiteLink($("#footer-toast")));
 
   const nativeShare = (withImage) => async () => {
-    const data = { title: "春秋人物志", text: SHARE_COPY.invite, url: SITE_URL };
+    const data = { title: "经纬春秋", text: SHARE_COPY.invite, url: SITE_URL };
     try {
       if (withImage) {
         const blob = await new Promise(res => $("#share-canvas").toBlob(res, "image/png"));
@@ -3141,16 +3166,17 @@ function tourSeen() { try { return !!localStorage.getItem(TOUR_KEY); } catch { r
 function tourMarkSeen() { try { localStorage.setItem(TOUR_KEY, "1"); } catch { /* 隐私模式：本会话内不复弹 */ } }
 function tourStepDefs() {
   return [
-    { go: () => setHash(null, "home"),
+    // 第一步强制首页地图模式（用户可能停在列表模式，此处显式归位再取位）
+    { go: () => { homeMode = "map"; setHash(null, "home"); },
       find: () => document.querySelector('.home-state[data-state="齐"]'),
-      label: "第一步 / 三", text: "点一个国，选一个人" },
+      label: "第一步 / 三", text: "择一国，选一人" },
     { go: () => setHash("P_WENJIANG", "timeline"),
       prep: () => { const d = $("#timeline-list").querySelector("details"); if (d) d.open = true; },
       find: () => $("#timeline-list").querySelector("details"),
-      label: "第二步 / 三", text: "每张卡都能点开：原文、出处、可靠度" },
+      label: "第二步 / 三", text: "点每张卡，出处、可靠度均可呈现" },
     { go: () => setHash("P_WENJIANG", "timeline"),
       find: () => $("#person-nav"),
-      label: "第三步 / 三", text: "时间线、地图、关系，三面看一个人" },
+      label: "第三步 / 三", text: "时间线、地图、关系，三面看一人" },
   ];
 }
 function startTour() {
@@ -3169,9 +3195,18 @@ function showTourStep() {
     requestAnimationFrame(() => placeTour(step));
   });
 }
+/* 「已布局」＝元素存在且有真实盒（非 display:none）。目标视图仍隐藏时其子元素虽在 DOM
+ * 但 getBoundingClientRect() 为 0×0，据此把「已渲染出真实位置」与「仅存在于隐藏视图」区分开。 */
+function elLaidOut(el) {
+  if (!el) return false;
+  const r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0;
+}
 function waitForEl(find, cb, tries) {
-  tries = tries == null ? 40 : tries;
-  if (find() || tries <= 0) { cb(); return; }
+  tries = tries == null ? 60 : tries;
+  // 根因：切视图经 setHash→location.hash→hashchange→render 为异步，且旧视图子元素仍留在 DOM。
+  // 仅判「元素存在」会命中隐藏视图里的残留元素（rect 0×0）→定位落到左上角。故须等其真正布局出盒。
+  if (elLaidOut(find()) || tries <= 0) { cb(); return; }
   requestAnimationFrame(() => waitForEl(find, cb, tries - 1));
 }
 function placeTour(step) {
@@ -3184,7 +3219,7 @@ function placeTour(step) {
   const el = step.find();
   const hole = $("#tour-hole");
   const pop = $("#tour-pop");
-  if (!el) {
+  if (!elLaidOut(el)) {           // 元素缺席或仍无真实盒（超时兜底）：居中显示，不落左上角
     hole.style.display = "none";
     pop.style.left = "50%"; pop.style.top = "50%"; pop.style.transform = "translate(-50%,-50%)";
     $("#tour-next").focus();
@@ -3255,7 +3290,7 @@ async function boot() {
   PLACES = byId(DATA.places);
   SOURCES = byId(DATA.sources);
   EVENTS = byId(DATA.events);
-  resolveProtoColors(); // 两级色彩系统：从 styles.css :root 读入 14 主角色（单点管理）
+  resolveProtoColors(); // 两级色彩系统：从 styles.css :root 读入 15 主角色（单点管理）
   const mapResp = await fetch("assets/map/base_map.svg");
   baseMapText = await mapResp.text();
 
@@ -3390,8 +3425,9 @@ async function boot() {
     " · 地点 " + m.tables.places + " · 摘录 " + m.tables.passages +
     " · 背景 " + m.tables.background + " · 考古 " + m.tables.archaeology +
     " · 年代 " + yearLabel(m.year_range_bce.min) + "—" + yearLabel(m.year_range_bce.max);
-  // 规模数字一律动态注入（R15、站头年代范围），HTML 内不写死
-  $("#site-range").textContent = yearLabel(m.year_range_bce.min) + " — " + yearLabel(m.year_range_bce.max);
+  // 头部时间双标·进度标（考订前沿）：取 year_range_bce.max 经 yearLabel() 格式化，HTML 内不写死。
+  // 「春秋 · 前770—前476」为纪年时段定义（静态），此处只注入随数据推进的「已考订至前XXX」。
+  $("#site-frontier").textContent = "已考订至" + yearLabel(m.year_range_bce.max);
   const nLines = DATA.people.filter(p => p.is_protagonist).length;
   $("#brand-caption").textContent = "分享给同好——" + nLines + " 条人物线，择一而入。";
   render();

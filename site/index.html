@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>春秋人物志——左传与国语中的人物、时间线与地图</title>
+<title>经纬春秋——左传为经，诸书为纬，牵系有据</title>
 <meta name="description" content="以《左传》《国语》为经纬，缀连春秋人物的时间、行迹与关系：可考订的时间线、活动地图、关系图谱与史料摘录，条条有出处。">
 <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
 <meta property="og:type" content="website">
-<meta property="og:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
+<meta property="og:title" content="经纬春秋——左传为经，诸书为纬，牵系有据">
 <meta property="og:description" content="春秋人物线的可考订时间线、活动地图与关系图谱；可靠度分级、亲至/相关判定、后出叙事分层，每条事件皆有出处。">
 <meta property="og:url" content="https://chunqiu.timechorus.com/">
 <meta property="og:image" content="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="春秋人物志——左传与国语中的人物、时间线与地图">
+<meta name="twitter:title" content="经纬春秋——左传为经，诸书为纬，牵系有据">
 <meta name="twitter:description" content="春秋人物线的可考订时间线、活动地图与关系图谱，每条事件皆有出处。">
 <meta name="twitter:image" content="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <!-- image_src 与下方首屏 <img>：供不读 og 协议的爬虫（微信等）抓取分享缩略图；
@@ -29,7 +29,8 @@
   <!-- 站名＋徽记整体是回首页（选人）的链接 -->
   <a class="site-brand" href="#/" title="回到选人页">
     <img class="brand-badge" src="assets/icons/favicon.svg" alt="" aria-hidden="true" width="24" height="24">
-    <h1 class="site-title">春秋人物志<small id="site-range">前773 — 前628</small></h1>
+    <!-- 头部时间双标：品名标「经纬春秋」＋时间双标（纪年时段静态 + 考订前沿动态，app.js 由 meta.max 注入） -->
+    <h1 class="site-title">经纬春秋<small class="site-range"><span class="sr-era">春秋 · 前770—前476</span><span class="sr-frontier" id="site-frontier">已考订至前591</span></small></h1>
   </a>
   <!-- 全站搜索：一框检索人物/地点/事件/原文；680px 下收纳为图标展开 -->
   <div class="site-search" id="site-search">
@@ -48,7 +49,7 @@
     <button type="button" data-view="about">关于</button>
     <a class="nav-feedback" href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">反馈</a>
     <!-- 邮件反馈入口（r11 启用，Xiangtao 确认邮箱就绪）；文案按 copy_r8 R6「纠错请附出处」口径 -->
-    <a class="nav-feedback" href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E6%98%A5%E7%A7%8B%E4%BA%BA%E7%89%A9%E5%BF%97%E3%80%91%E5%8F%8D%E9%A6%88" title="史实纠错请附出处">✉ 邮件</a>
+    <a class="nav-feedback" href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E7%BB%8F%E7%BA%AC%E6%98%A5%E7%A7%8B%E3%80%91%E5%8F%8D%E9%A6%88" title="史实纠错请附出处">✉ 邮件</a>
   </nav>
 </header>
 
@@ -94,7 +95,7 @@
          图注人数由 JS 从数据注入（R15），此处为无 JS 兜底 -->
     <figure class="brand-card">
       <img src="assets/og/og-card.png" width="1200" height="630"
-           alt="春秋人物志——左传与国语中的人物、时间线与地图">
+           alt="经纬春秋——左传为经，诸书为纬，牵系有据">
       <figcaption id="brand-caption">分享给同好——人物线择一而入。</figcaption>
     </figure>
   </section>
@@ -212,6 +213,7 @@
       <section>
         <h3>这是什么</h3>
         <p>以《左传》《国语》为经纬，缀连春秋人物的时间、行迹与关系。郑庄公、鲁隐公、文姜、齐桓公、晋文公多条人物线织成可游走的时间线、地图与关系网。<strong>条条有出处</strong>，数据表里有具体来源编号与鲁君纪年。</p>
+        <p class="name-gloss">站名「经纬春秋」，取《左传·昭公二十八年》「经纬天地曰文」之语——以《左传》为经，国语、三传、史记、诗经、诸子为纬，纵横以织春秋之文。</p>
       </section>
       <section>
         <h3>数据凡例（我们的规矩）</h3>
@@ -230,14 +232,15 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.11（两级国色系 · 关系图阵营分区 · 引导落点归位）。
+        <p id="about-version">当前版本 v0.12（更名「经纬春秋」· 楚庄王线 · 重看引导归位）。
           <button type="button" class="tour-replay" id="tour-replay">重看引导</button></p>
         <!-- 许可声明（conventions §12·裁定3）：代码 MIT、数据 CC BY 4.0；文件在仓库根，站点部署根为 site/，
              故链接指向仓库内两文件的规范地址（同「开源仓库」外链域） -->
-        <p class="license-line">代码依 <a href="https://github.com/QuinnyXu/chunqiu/blob/main/LICENSE" target="_blank" rel="noopener">MIT 许可</a>、数据依 <a href="https://github.com/QuinnyXu/chunqiu/blob/main/DATA_LICENSE.md" target="_blank" rel="noopener">CC BY 4.0</a> 开放共享；引用数据请署名「春秋人物志 · chunqiu.timechorus.com」。</p>
+        <p class="license-line">代码依 <a href="https://github.com/QuinnyXu/chunqiu/blob/main/LICENSE" target="_blank" rel="noopener">MIT 许可</a>、数据依 <a href="https://github.com/QuinnyXu/chunqiu/blob/main/DATA_LICENSE.md" target="_blank" rel="noopener">CC BY 4.0</a> 开放共享；引用数据请署名「经纬春秋 · chunqiu.timechorus.com」。</p>
         <!-- 支持本站入口：链接待 Xiangtao 提供（爱发电或 GitHub Sponsors），到位前先留占位文案，不外链 -->
         <p class="support-line">若愿支持本站长期考订，可移步<span id="support-link">支持链接（筹备中）</span>。</p>
         <ul>
+          <li>v0.12 —— 全站更名为「经纬春秋」（副题「左传为经，诸书为纬，牵系有据」）；楚庄王线上线（主角十五人，一鸣惊人、问鼎中原、邲之战）；头部时间双标（春秋纪年时段＋考订前沿「已考订至前591」）；关于页站名注脚；「重看引导」落位修复</li>
           <li>v0.11 —— 人物色彩改为两级国色系（齐红 · 鲁赭 · 郑青 · 晋栗 · 秦玄 · 楚紫，同国分深浅），关系全景按国着色、阵营分区；首访引导结束回到首页「选一个人」；许可声明就位（代码 MIT · 数据 CC BY 4.0）</li>
           <li>v0.10 —— 首访三步引导（可重看）；人物卡简介两行显示、桌面 hover 见全文、手机卡内完整；时间线事件卡加「原文 ▾」可点暗示；进人物、切视图滚动复位到顶</li>
           <li>v0.9 —— 首页改地图导航（点国入人、列表模式可切换）；齐僖公、武姜、祭仲三线上线，主角十二人；人物子导航升格；底图增晋与汾水</li>
@@ -322,7 +325,7 @@
     <button type="button" id="btn-web-share" hidden>直接分享</button>
     <span class="share-toast" id="footer-toast" role="status"></span>
   </div>
-  <p class="footer-feedback">反馈：<a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> · <a href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E6%98%A5%E7%A7%8B%E4%BA%BA%E7%89%A9%E5%BF%97%E3%80%91%E5%8F%8D%E9%A6%88">chunqiu@timechorus.com</a>，史实纠错请附出处。</p>
+  <p class="footer-feedback">反馈：<a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> · <a href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E7%BB%8F%E7%BA%AC%E6%98%A5%E7%A7%8B%E3%80%91%E5%8F%8D%E9%A6%88">chunqiu@timechorus.com</a>，史实纠错请附出处。</p>
   <p class="footer-stats" id="footer-stats">数据加载中…</p>
 </footer>
 <script src="app.js"></script>
