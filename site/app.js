@@ -152,6 +152,21 @@ function legacyToNewHash(h) {
 
 function parseHash() {
   let raw = location.hash.replace(/^#/, "");
+  // 并观（compare）：hash 形如 #compare=P_A,P_B（r16）。须在旧格式重定向之前拦截，
+  // 否则会被 legacyToNewHash 当作 #person=… 旧链接误改写。
+  if (raw.startsWith("compare=")) {
+    let body = raw.slice("compare=".length);
+    try { body = decodeURIComponent(body); } catch { /* 原样 */ }
+    const ids = body.split(",").map(s => s.trim());
+    const a = ids[0], b = ids[1];
+    const st = { view: "home", person: null, tab: "background", q: "", home: "map", pair: null };
+    if (a && b && a !== b &&
+        PROTAGONISTS.some(p => p.id === a) && PROTAGONISTS.some(p => p.id === b)) {
+      st.view = "compare";
+      st.pair = [a, b];
+    }
+    return st;
+  }
   if (raw && !raw.startsWith("/") && raw.includes("=")) {
     const next = legacyToNewHash(raw);
     history.replaceState(null, "", next); // 就地改写，不增历史条目
@@ -320,16 +335,22 @@ function render() {
   document.querySelectorAll(".main-nav button").forEach(btn => {
     btn.setAttribute("aria-current", String(btn.dataset.view === navCur));
   });
-  for (const v of ["home", "timeline", "map", "library", "relations", "about"]) {
+  for (const v of ["home", "timeline", "map", "library", "relations", "about", "compare"]) {
     $("#view-" + v).hidden = (state.view !== v);
   }
   $("#timeline-relations-entry").hidden = !state.person;
+  if (state.view !== "compare") {
+    document.body.classList.remove("cmp-sheet-open");
+    const st = $("#cmp-sheet-toggle"); if (st) st.hidden = true;
+  }
   stopPlayback();
+  cmpStop();
   if (state.view === "home") renderHome();
   if (state.view === "timeline") renderTimeline();
   if (state.view === "map") renderMap();
   if (state.view === "library") renderLibrary();
   if (state.view === "relations") renderRelations();
+  if (state.view === "compare") renderCompare();
 
   // 滚动复位（r14，Xiangtao 反馈 2）：凡前向导航（点卡/切人/切视图/关于页内链/搜索直达）一律回顶，
   // 时间线从最早一张卡开始；唯浏览器前进/后退（popstate 先于 hashchange 置位 navByPop）不干预，
@@ -1386,6 +1407,7 @@ function openOverlay() {
   $("#btn-overlay-close").focus();
 }
 function closeOverlay() {
+  if (cmpZoom.active) { closeCmpOverlay(); return; }
   if (relZoom.active) { closeRelOverlay(); return; }
   if (!mapState.overlay) return;
   if (drawer.open) closeDrawer(); // 全屏关闭时一并收起底部抽屉，避免其孤悬
@@ -1738,6 +1760,822 @@ function stopPlayback() {
   if (btn) btn.textContent = "▶ 轨迹按时间播放";
   const marker = document.querySelector("#play-marker");
   if (marker) marker.setAttribute("hidden", "");
+}
+
+/* ==================================================================
+ * 双人并观（compare）· r16
+ * 入口：关系图两人关系卡「并观其迹」／人物地图「添加对照人物」；hash=#compare=P_A,P_B。
+ * 交会检测严格对齐 docs/binguan_fixtures.md 的三条护栏与分级；免责句一字不差引用 B3。
+ * 播放为「按绝对年推进」：复用 easeInOut 缓动与 RAF/字幕/暂停语义，两标记各沿己轨行进，
+ * 生卒之外灰置；命中 b 级年自动暂停一拍。现有单人播放引擎（play/*）不动。
+ * ================================================================== */
+
+/* B3 免责样板句（fixtures §附注·前端引用；一字不差）—常驻交会侧栏顶部、交会弹卡内亦重复 */
+const BINGUAN_DISCLAIMER = "同城未必同时，不能仅据同年同地断定相遇。";
+
+/* 两人是否皆为主角（并观仅在十五主角间可用） */
+function bothProto(a, b) {
+  return a && b && a !== b &&
+    PROTAGONISTS.some(m => m.id === a) && PROTAGONISTS.some(m => m.id === b);
+}
+function compareHash(a, b) { return "#compare=" + a + "," + b; }
+function goCompare(a, b) {
+  if (!bothProto(a, b)) return;
+  document.body.classList.remove("cmp-sheet-open");
+  const h = compareHash(a, b);
+  if (location.hash === h) render(); else location.hash = h;
+}
+
+/* 人物地图工具条「添加对照人物」小面板：列出其余主角，择一进并观 */
+function initComparePicker() {
+  const btn = $("#btn-compare");
+  const pick = $("#compare-pick");
+  if (!btn || !pick) return;
+  const close = () => { pick.hidden = true; btn.setAttribute("aria-expanded", "false"); };
+  const build = () => {
+    pick.textContent = "";
+    const cur = state.person;
+    PROTAGONISTS.forEach(m => {
+      if (m.id === cur) return;
+      if (!PEOPLE[m.id]) return;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "menuitem");
+      b.className = "cmp-pick-item";
+      const dot = document.createElement("i");
+      dot.style.background = m.color || "#B4652F";
+      b.appendChild(dot);
+      b.appendChild(document.createTextNode(personName(m.id)));
+      b.addEventListener("click", () => { close(); goCompare(cur, m.id); });
+      pick.appendChild(b);
+    });
+  };
+  btn.addEventListener("click", () => {
+    if (!state.person) return;
+    if (pick.hidden) { build(); pick.hidden = false; btn.setAttribute("aria-expanded", "true"); }
+    else close();
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (pick.hidden) return;
+    if (!pick.contains(e.target) && e.target !== btn) close();
+  });
+}
+
+/* 某人「亲至且在世」的事件（供检测与轨迹）：presence≠相关；并按 person 生卒年做生死过滤
+ * ——护栏①：生死过滤以 person 生卒年为准（子文卒后被追叙者，death_year 之后的记载不计）。 */
+function personParts(pid) {
+  const p = PEOPLE[pid] || {};
+  const d = p.death_year_bce, b = p.birth_year_bce;
+  return personEvents(pid).filter(e => {
+    if (e.presence === "相关") return false;
+    if (d != null && e.year_bce > d) return false; // 已卒之后：追叙，不在场
+    if (b != null && e.year_bce < b) return false; // 未生
+    return true;
+  });
+}
+
+/* 亲至轨迹（有坐标者，连续同地聚合为一站）：与地图 renderMap 建轨口径一致 */
+function buildTraj(pid) {
+  const traj = [];
+  for (const e of personParts(pid)) {
+    const pl = e.place_id ? PLACES[e.place_id] : null;
+    if (!pl || pl.lat == null || pl.lng == null) continue;
+    const [px, py] = project(pl.lng, pl.lat);
+    const last = traj[traj.length - 1];
+    if (last && (last.place.id === pl.id || Math.hypot(px - last.x, py - last.y) < 0.5)) {
+      last.events.push(e);
+      if (!last.placeNames.includes(pl.ancient_name)) last.placeNames.push(pl.ancient_name);
+      if (e.year_bce < last.year) last.year = e.year_bce; // 站代表年取最早
+      continue;
+    }
+    traj.push({ place: pl, placeNames: [pl.ancient_name], x: px, y: py, year: e.year_bce, events: [e] });
+  }
+  return traj;
+}
+
+/* 交会检测器（严格对齐 fixtures）：
+ *  a 级＝同一 event_id、双方皆亲至、事件有落点 →「同场（同一记载）」；
+ *  b 级＝不同 event_id、同 place_id、|Δyear|≤1（护栏②：跨年事件容忍±1）、双方皆亲至。
+ *    护栏③：b 级若两事同链（相邻 event_id 或共享 source_id）→「相邻记载」，否则「可能相遇」。 */
+function srcSet(e) { return new Set((e.source_ids || "").split(";").filter(Boolean)); }
+function evNum(id) { const m = (id || "").match(/\d+/); return m ? +m[0] : null; }
+function sameChain(ea, eb) {
+  const sa = srcSet(ea), sb = srcSet(eb);
+  for (const s of sa) if (sb.has(s)) return true;   // 共享出处＝同一叙事骨架
+  const na = evNum(ea.id), nb = evNum(eb.id);
+  return na != null && nb != null && Math.abs(na - nb) === 1; // 相邻 event_id
+}
+function detectMeetings(A, B) {
+  const pa = personParts(A), pb = personParts(B);
+  const ib = new Map(pb.map(e => [e.id, e]));
+  const out = [];
+  // a 级
+  for (const e of pa) {
+    const be = ib.get(e.id);
+    if (be && e.place_id) out.push({ level: "a", year: e.year_bce, place: e.place_id, ea: e, eb: be });
+  }
+  // b 级
+  const seen = new Set();
+  for (const ea of pa) for (const eb of pb) {
+    if (ea.id === eb.id) continue;
+    if (!ea.place_id || !eb.place_id || ea.place_id !== eb.place_id) continue;
+    const dy = Math.abs(ea.year_bce - eb.year_bce);
+    if (dy > 1) continue;
+    const key = [ea.id, eb.id].sort().join("|");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ level: "b", year: ea.year_bce, year2: eb.year_bce, place: ea.place_id,
+               ea, eb, chain: sameChain(ea, eb), tol: dy === 1 });
+  }
+  out.sort((x, y) => (x.year - y.year) || x.place.localeCompare(y.place) ||
+                     (x.level === y.level ? 0 : (x.level === "a" ? -1 : 1)));
+  return out;
+}
+
+/* 生卒/活跃跨度：优先结构化 birth/death，缺则以 active_years_bce 文本中的「前N」与其事件年兜底。
+ * 用于年轴生卒刻度与「未生/已卒」灰置。 */
+function parseFrontYears(s) {
+  return [...String(s || "").matchAll(/前(\d+)/g)].map(m => -(+m[1]));
+}
+function lifeSpan(pid, traj) {
+  const p = PEOPLE[pid] || {};
+  const act = parseFrontYears(p.active_years_bce);
+  const evY = (traj || []).map(t => t.year).filter(y => y != null);
+  const loCands = [], hiCands = [];
+  if (p.birth_year_bce != null) loCands.push(p.birth_year_bce);
+  if (act.length) loCands.push(Math.min(...act));
+  if (evY.length) loCands.push(Math.min(...evY));
+  if (p.death_year_bce != null) hiCands.push(p.death_year_bce);
+  if (act.length) hiCands.push(Math.max(...act));
+  if (evY.length) hiCands.push(Math.max(...evY));
+  const lo = loCands.length ? Math.min(...loCands) : null;
+  const hi = hiCands.length ? Math.max(...hiCands) : null;
+  return { lo, hi, birth: p.birth_year_bce, death: p.death_year_bce,
+           actLo: act.length ? Math.min(...act) : null,
+           actHi: act.length ? Math.max(...act) : null };
+}
+
+/* 相对亮度（sRGB）：判两主题色是否「深浅相近难辨」，近则给副轨叠点划线纹理保证可辨 */
+function relLum(hex) {
+  const h = (hex || "").replace("#", "");
+  if (h.length < 6) return 0.5;
+  const f = (i) => { const c = parseInt(h.substr(i, 2), 16) / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(0) + 0.7152 * f(2) + 0.0722 * f(4);
+}
+
+/* ---- 并观状态 ---- */
+const cmp = { A: null, B: null, metaA: null, metaB: null, colorA: "", colorB: "",
+              trajA: null, trajB: null, lifeA: null, lifeB: null,
+              meetings: [], axisMin: 0, axisMax: 0, svg: null, anchors: null,
+              markerA: null, markerB: null, similar: false, box: null };
+const NSVG = "http://www.w3.org/2000/svg";
+
+function cmpAxisPct(year) {
+  const span = cmp.axisMax - cmp.axisMin;
+  if (span <= 0) return 0;
+  return Math.max(0, Math.min(100, (year - cmp.axisMin) / span * 100));
+}
+/* 缩放补偿（点/字不随 viewBox 放大而变大），与地图 applyView 同法，但作用于并观自有 svg */
+function cmpApplyView(box) {
+  const svg = cmp.svg;
+  if (!svg) return;
+  cmp.box = box;
+  svg.setAttribute("viewBox", box.x + " " + box.y + " " + box.w + " " + box.h);
+  const s = Math.max(box.w / MAP_W, 0.25);
+  svg.querySelectorAll("[data-r]").forEach(el => el.setAttribute("r", parseFloat(el.dataset.r) * s));
+  svg.querySelectorAll("[data-fs]").forEach(el => el.style.fontSize = (parseFloat(el.dataset.fs) * s) + "px");
+}
+
+function renderCompare() {
+  const [A, B] = state.pair || [];
+  if (!bothProto(A, B)) { setHash(null, "home"); return; }
+  cmp.A = A; cmp.B = B;
+  cmp.metaA = PROTAGONISTS.find(m => m.id === A);
+  cmp.metaB = PROTAGONISTS.find(m => m.id === B);
+  cmp.colorA = cmp.metaA.color || "#B4652F";
+  cmp.colorB = cmp.metaB.color || "#44766B";
+  cmp.trajA = buildTraj(A);
+  cmp.trajB = buildTraj(B);
+  cmp.lifeA = lifeSpan(A, cmp.trajA);
+  cmp.lifeB = lifeSpan(B, cmp.trajB);
+  cmp.meetings = detectMeetings(A, B);
+  // 同国且深浅相近（亮度差小）→ 副轨（B）叠点划线纹理，保证可辨
+  cmp.similar = (PEOPLE[A].state || "").split("/")[0] === (PEOPLE[B].state || "").split("/")[0] &&
+                Math.abs(relLum(cmp.colorA) - relLum(cmp.colorB)) < 0.18;
+
+  // 年轴并集跨度（两人活跃/生卒并集），留边一年
+  const los = [cmp.lifeA.lo, cmp.lifeB.lo].filter(v => v != null);
+  const his = [cmp.lifeA.hi, cmp.lifeB.hi].filter(v => v != null);
+  cmp.axisMin = (los.length ? Math.min(...los) : -700) - 1;
+  cmp.axisMax = (his.length ? Math.max(...his) : -600) + 1;
+
+  $("#cmp-title").textContent = personName(A) + " × " + personName(B) + " · 并观其迹";
+  $("#cmp-legend-a").textContent = personName(A);
+  $("#cmp-legend-b").textContent = personName(B);
+  const st = $("#cmp-sheet-toggle");
+  if (st) { st.hidden = false; st.setAttribute("aria-expanded", "false"); st.textContent = "交会一览 ▲"; }
+  document.body.classList.remove("cmp-sheet-open");
+  $("#cmp-detail").hidden = true;
+  cmpBuildMap();
+  cmpBuildAxis();
+  cmpBuildLegend();
+  cmpBuildSidebar();
+
+  // 工具条
+  const playBtn = $("#cmp-play");
+  playBtn.textContent = "▶ 按年并观";
+  playBtn.disabled = (cmp.trajA.length + cmp.trajB.length) < 1;
+  playBtn.onclick = cmpTogglePlay;
+  $("#cmp-scope").onclick = () => {
+    cmp.mode = cmp.mode === "fit" ? "full" : "fit";
+    cmpApplyView(cmp.mode === "fit" ? cmp.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
+    $("#cmp-scope").textContent = cmp.mode === "fit" ? "视野：活动范围" : "视野：全图";
+  };
+  $("#cmp-zoom").onclick = openCmpOverlay;
+  $("#cmp-swap").onclick = () => goCompare(B, A);
+  $("#cmp-status").textContent =
+    "交会共 " + cmp.meetings.length + " 处（同场 " +
+    cmp.meetings.filter(m => m.level === "a").length + " · 同年同地 " +
+    cmp.meetings.filter(m => m.level === "b").length + "）。";
+}
+
+/* 绘制并观地图：底图＋两人亲至轨迹（各主题色，副轨可点划线）＋交会点＋两枚行进标记 */
+function cmpBuildMap() {
+  const canvas = $("#cmp-canvas");
+  canvas.innerHTML = baseMapText;
+  const svg = canvas.querySelector("svg");
+  cmp.svg = svg;
+  const anchors = svg.querySelector("#layer-anchors");
+  cmp.anchors = anchors;
+  svg.querySelectorAll("path, polyline, line, circle, ellipse")
+     .forEach(el => el.setAttribute("vector-effect", "non-scaling-stroke"));
+  svg.querySelectorAll("#layer-labels g").forEach(g => {
+    g.dataset.fs = g.getAttribute("font-size") || "14";
+    g.style.fontSize = g.dataset.fs + "px";
+  });
+
+  const fitPoints = [];
+  const drawTraj = (traj, color, dashed, key) => {
+    if (traj.length > 1) {
+      const pl = document.createElementNS(NSVG, "polyline");
+      pl.setAttribute("points", traj.map(t => t.x + "," + t.y).join(" "));
+      pl.setAttribute("fill", "none");
+      pl.setAttribute("stroke", color);
+      pl.setAttribute("stroke-width", "2");
+      pl.setAttribute("stroke-dasharray", dashed ? "8 3 2 3" : "6 5"); // 副轨点划线
+      pl.setAttribute("opacity", "0.72");
+      pl.setAttribute("vector-effect", "non-scaling-stroke");
+      anchors.appendChild(pl);
+    }
+    traj.forEach((t, i) => {
+      fitPoints.push([t.x, t.y]);
+      const dot = document.createElementNS(NSVG, key === "A" ? "circle" : "rect");
+      if (key === "A") {
+        dot.setAttribute("cx", t.x); dot.setAttribute("cy", t.y);
+        dot.dataset.r = 4; dot.setAttribute("r", 4);
+      } else {
+        const s = 7; // 方点（形状冗余：A 圆 · B 方，色盲/灰度可辨）
+        dot.setAttribute("x", t.x - s / 2); dot.setAttribute("y", t.y - s / 2);
+        dot.setAttribute("width", s); dot.setAttribute("height", s);
+        dot.dataset.sq = s;
+      }
+      dot.setAttribute("fill", color);
+      dot.setAttribute("stroke", "#F4EDDF");
+      dot.setAttribute("stroke-width", "1");
+      dot.setAttribute("vector-effect", "non-scaling-stroke");
+      anchors.appendChild(dot);
+    });
+  };
+  drawTraj(cmp.trajA, cmp.colorA, false, "A");
+  drawTraj(cmp.trajB, cmp.colorB, cmp.similar, "B");
+
+  // 交会点：a 级金环「同场」、b 级高亮环；点击→交会详情（并定位）
+  const placed = new Map(); // place_id → {x,y, list}
+  cmp.meetings.forEach((m, idx) => {
+    const pl = PLACES[m.place];
+    if (!pl || pl.lat == null || pl.lng == null) return;
+    const [px, py] = project(pl.lng, pl.lat);
+    if (!placed.has(m.place)) placed.set(m.place, { x: px, y: py, list: [] });
+    placed.get(m.place).list.push(m);
+    fitPoints.push([px, py]);
+  });
+  placed.forEach((slot, placeId) => {
+    const hasA = slot.list.some(m => m.level === "a");
+    const g = document.createElementNS(NSVG, "g");
+    g.setAttribute("class", "cmp-meet");
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", "button");
+    g.dataset.place = placeId;
+    g.setAttribute("aria-label", (PLACES[placeId].ancient_name || placeId) + " 交会点");
+    const ring = document.createElementNS(NSVG, "circle");
+    ring.setAttribute("cx", slot.x); ring.setAttribute("cy", slot.y);
+    ring.dataset.r = 9; ring.setAttribute("r", 9);
+    ring.setAttribute("fill", "none");
+    ring.setAttribute("stroke", hasA ? "#B4652F" : "#BC4433");
+    ring.setAttribute("stroke-width", "2.4");
+    if (!hasA) ring.setAttribute("stroke-dasharray", "3 3");
+    ring.setAttribute("vector-effect", "non-scaling-stroke");
+    g.appendChild(ring);
+    const core = document.createElementNS(NSVG, "circle");
+    core.setAttribute("cx", slot.x); core.setAttribute("cy", slot.y);
+    core.dataset.r = 2.4; core.setAttribute("r", 2.4);
+    core.setAttribute("fill", hasA ? "#B4652F" : "#BC4433");
+    core.setAttribute("vector-effect", "non-scaling-stroke");
+    g.appendChild(core);
+    const label = document.createElementNS(NSVG, "text");
+    label.setAttribute("x", slot.x + 11); label.setAttribute("y", slot.y + 4);
+    label.dataset.fs = 12; label.setAttribute("class", "cmp-meet-label");
+    label.textContent = PLACES[placeId].ancient_name || placeId;
+    g.appendChild(label);
+    const open = () => { if (!cplay.raf) cmpShowMeetings(placeId, slot.list); };
+    g.addEventListener("click", open);
+    g.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); open(); } });
+    anchors.appendChild(g);
+  });
+
+  // 两枚行进标记（初始隐藏，播放/拖轴时显现）
+  const mkMarker = (color, key) => {
+    let el;
+    if (key === "A") {
+      el = document.createElementNS(NSVG, "circle");
+      el.dataset.r = 8; el.setAttribute("r", 8);
+    } else {
+      el = document.createElementNS(NSVG, "rect");
+      el.dataset.sq = 14;
+      el.setAttribute("width", 14); el.setAttribute("height", 14);
+    }
+    el.setAttribute("fill", "none");
+    el.setAttribute("stroke", color);
+    el.setAttribute("stroke-width", "3");
+    el.setAttribute("vector-effect", "non-scaling-stroke");
+    el.setAttribute("class", "cmp-marker");
+    el.setAttribute("hidden", "");
+    anchors.appendChild(el);
+    return el;
+  };
+  cmp.markerA = mkMarker(cmp.colorA, "A");
+  cmp.markerB = mkMarker(cmp.colorB, "B");
+
+  cmp.fitBox = computeFitBox(fitPoints);
+  cmp.mode = "fit";
+  cmpApplyView(cmp.fitBox);
+  $("#cmp-scope").textContent = "视野：活动范围";
+  // 全屏手势绑定到本帧新建的 svg（每次 render 皆为新节点，故每帧重绑；非激活态下 handler 自守卫）
+  bindZoomGesture(svg, cmpZoom);
+}
+
+/* 定位标记到某绝对年（沿己轨按年插值，缓动复用 easeInOut）；返回是否在世 */
+function cmpMarkerPos(traj, year) {
+  if (!traj.length) return null;
+  if (year <= traj[0].year) return { x: traj[0].x, y: traj[0].y };
+  const last = traj[traj.length - 1];
+  if (year >= last.year) return { x: last.x, y: last.y };
+  for (let i = 0; i < traj.length - 1; i++) {
+    const y0 = traj[i].year, y1 = traj[i + 1].year;
+    if (year >= y0 && year <= y1) {
+      if (y1 === y0) return { x: traj[i + 1].x, y: traj[i + 1].y };
+      const u = (year - y0) / (y1 - y0);
+      const e = easeInOut(u);
+      return { x: traj[i].x + (traj[i + 1].x - traj[i].x) * e,
+               y: traj[i].y + (traj[i + 1].y - traj[i].y) * e };
+    }
+  }
+  return { x: last.x, y: last.y };
+}
+function placeMarker(el, traj, life, year, isRect) {
+  const pos = cmpMarkerPos(traj, year);
+  if (!pos) { el.setAttribute("hidden", ""); return; }
+  el.removeAttribute("hidden");
+  if (isRect) {
+    const s = parseFloat(el.getAttribute("width")) || 14;
+    el.setAttribute("x", pos.x - s / 2); el.setAttribute("y", pos.y - s / 2);
+  } else {
+    el.setAttribute("cx", pos.x); el.setAttribute("cy", pos.y);
+  }
+  // 未生/已卒：灰置（淡出＋改灰描边）
+  const alive = (life.lo == null || year >= life.lo) && (life.hi == null || year <= life.hi);
+  el.setAttribute("opacity", alive ? "1" : "0.28");
+  el.setAttribute("stroke", alive ? (isRect ? cmp.colorB : cmp.colorA) : "#9A9081");
+}
+
+/* 年轴：两人生卒条＋生卒刻度＋交会标记＋播放游标 */
+function cmpBuildAxis() {
+  const axis = $("#cmp-axis");
+  axis.textContent = "";
+  const track = document.createElement("div");
+  track.className = "cmp-axis-track";
+  axis.appendChild(track);
+
+  const lifeBar = (life, color, top, dashed) => {
+    if (life.lo == null || life.hi == null) return;
+    const l = cmpAxisPct(life.lo), r = cmpAxisPct(life.hi);
+    const bar = document.createElement("div");
+    bar.className = "cmp-life" + (dashed ? " dashed" : "");
+    bar.style.left = l + "%";
+    bar.style.width = Math.max(0.6, r - l) + "%";
+    bar.style.top = top;
+    if (dashed) bar.style.backgroundImage =
+      "repeating-linear-gradient(90deg, " + color + " 0 5px, transparent 5px 9px)"; // 副轨点划纹
+    else bar.style.background = color;
+    axis.appendChild(bar);
+    // 生卒刻度：结构化 birth/death 标「生/卒」，否则以活跃端标「活跃起/止」
+    const tick = (year, txt, side) => {
+      if (year == null) return;
+      const t = document.createElement("span");
+      t.className = "cmp-tick " + side;
+      t.style.left = cmpAxisPct(year) + "%";
+      t.style.color = color;
+      t.innerHTML = '<i style="background:' + color + '"></i><b>' + txt + "</b>";
+      axis.appendChild(t);
+    };
+    tick(life.birth != null ? life.birth : life.lo,
+         (life.birth != null ? "生 " : "活跃自 ") + yearLabel(life.birth != null ? life.birth : life.lo), "lo");
+    tick(life.death != null ? life.death : life.hi,
+         (life.death != null ? "卒 " : "活跃止 ") + yearLabel(life.death != null ? life.death : life.hi), "hi");
+  };
+  lifeBar(cmp.lifeA, cmp.colorA, "26%", false);
+  lifeBar(cmp.lifeB, cmp.colorB, "58%", cmp.similar);
+
+  // 交会标记（三角）
+  const byYear = new Map();
+  cmp.meetings.forEach(m => {
+    if (!byYear.has(m.year)) byYear.set(m.year, []);
+    byYear.get(m.year).push(m);
+  });
+  byYear.forEach((list, year) => {
+    const hasA = list.some(m => m.level === "a");
+    const mk = document.createElement("span");
+    mk.className = "cmp-axis-meet " + (hasA ? "lv-a" : "lv-b");
+    mk.style.left = cmpAxisPct(year) + "%";
+    mk.title = yearLabel(year) + "：" + (hasA ? "同场" : "同年同地");
+    axis.appendChild(mk);
+  });
+
+  // 端点年标
+  const endLabel = (year, side) => {
+    const s = document.createElement("span");
+    s.className = "cmp-axis-end " + side;
+    s.textContent = yearLabel(year);
+    axis.appendChild(s);
+  };
+  endLabel(cmp.axisMin, "left");
+  endLabel(cmp.axisMax, "right");
+
+  // 播放游标＋当前年读数
+  const head = document.createElement("div");
+  head.className = "cmp-playhead";
+  head.id = "cmp-playhead";
+  head.hidden = true;
+  const yr = document.createElement("span");
+  yr.className = "cmp-playyear";
+  yr.id = "cmp-playyear";
+  head.appendChild(yr);
+  axis.appendChild(head);
+}
+
+function cmpBuildLegend() {
+  const lg = $("#cmp-legend");
+  lg.textContent = "";
+  const item = (color, shape, name, dashed) => {
+    const s = document.createElement("span");
+    const sym = shape === "rect"
+      ? '<i class="cmp-lg-sq" style="border-color:' + color + (dashed ? ";border-style:dashed" : "") + '"></i>'
+      : '<i class="cmp-lg-ci" style="border-color:' + color + '"></i>';
+    s.innerHTML = sym + "<b style='color:" + color + "'>" + name + "</b>";
+    lg.appendChild(s);
+  };
+  item(cmp.colorA, "circle", personName(cmp.A), false);
+  item(cmp.colorB, "rect", personName(cmp.B), cmp.similar);
+  const a = document.createElement("span");
+  a.innerHTML = '<i class="cmp-lg-ring lv-a"></i>同场';
+  lg.appendChild(a);
+  const b = document.createElement("span");
+  b.innerHTML = '<i class="cmp-lg-ring lv-b"></i>同年同地';
+  lg.appendChild(b);
+}
+
+/* 交会侧栏：免责句常驻顶部＋逐条交会（年份·地点·两侧事件·级别徽标）；点击→定位并展开 */
+function cmpBuildSidebar() {
+  const panel = $("#cmp-meetings");
+  panel.textContent = "";
+  const dis = document.createElement("p");
+  dis.className = "cmp-disclaimer";
+  dis.textContent = BINGUAN_DISCLAIMER;
+  panel.appendChild(dis);
+
+  if (!cmp.meetings.length) {
+    const p = document.createElement("p");
+    p.className = "map-status";
+    p.textContent = "两人在现库中暂无同场或同年同地的亲至交会。";
+    panel.appendChild(p);
+    $("#cmp-meet-count").textContent = "0";
+    return;
+  }
+  $("#cmp-meet-count").textContent = String(cmp.meetings.length);
+  const ul = document.createElement("ul");
+  ul.className = "cmp-meet-list";
+  cmp.meetings.forEach(m => ul.appendChild(cmpMeetingRow(m)));
+  panel.appendChild(ul);
+}
+
+/* 单条交会行 */
+function cmpMeetingRow(m) {
+  const li = document.createElement("li");
+  li.className = "cmp-meet-row lv-" + m.level;
+  li.tabIndex = 0;
+  li.setAttribute("role", "button");
+  const pl = PLACES[m.place];
+  const head = document.createElement("div");
+  head.className = "cmp-meet-head";
+  const badge = document.createElement("span");
+  badge.className = "cmp-badge lv-" + m.level;
+  badge.textContent = m.level === "a" ? "同场" : (m.chain ? "相邻记载" : "可能相遇");
+  head.appendChild(badge);
+  const yl = document.createElement("span");
+  yl.className = "cmp-meet-year";
+  yl.textContent = yearLabel(m.year) + " · " + (pl ? pl.ancient_name : m.place);
+  head.appendChild(yl);
+  li.appendChild(head);
+
+  const lineA = document.createElement("div");
+  lineA.className = "cmp-meet-ev";
+  lineA.innerHTML = '<i style="background:' + cmp.colorA + '"></i>' +
+    personName(cmp.A) + "：" + m.ea.title;
+  li.appendChild(lineA);
+  const lineB = document.createElement("div");
+  lineB.className = "cmp-meet-ev";
+  lineB.innerHTML = '<i style="background:' + cmp.colorB + '"></i>' +
+    personName(cmp.B) + "：" + m.eb.title;
+  li.appendChild(lineB);
+
+  const note = document.createElement("div");
+  note.className = "cmp-meet-note";
+  if (m.level === "a") {
+    note.textContent = "同一记载：二人同事件、同地、皆亲至。";
+  } else {
+    let t = m.chain
+      ? "同年同地、异事件，且两事同属一条叙事链（相邻记载）——相遇与否仍须看时序。"
+      : "同年同地、异事件——" + BINGUAN_DISCLAIMER;
+    if (m.tol) t += "（跨年事件，在场判断已容忍 ±1 年：" +
+      yearLabel(m.year) + " / " + yearLabel(m.year2) + "）";
+    note.textContent = t;
+  }
+  li.appendChild(note);
+
+  const go = () => cmpShowMeetings(m.place, cmp.meetings.filter(x => x.place === m.place));
+  li.addEventListener("click", go);
+  li.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); } });
+  return li;
+}
+
+/* 交会弹卡（点地图交会点或侧栏行）：定位地图到该地，展开两侧事件摘要，重复 B3 免责句 */
+function cmpShowMeetings(placeId, list) {
+  const pl = PLACES[placeId];
+  if (pl && pl.lat != null && pl.lng != null) {
+    const [px, py] = project(pl.lng, pl.lat);
+    const b = cmp.box;
+    if (b && (px < b.x || px > b.x + b.w || py < b.y || py > b.y + b.h)) {
+      cmp.mode = "full";
+      cmpApplyView({ x: 0, y: 0, w: MAP_W, h: MAP_H });
+      $("#cmp-scope").textContent = "视野：全图";
+    }
+  }
+  document.querySelectorAll(".cmp-meet.selected").forEach(g => g.classList.remove("selected"));
+  const g = cmp.svg && cmp.svg.querySelector('.cmp-meet[data-place="' + placeId + '"]');
+  if (g) g.classList.add("selected");
+
+  const wrap = document.createElement("div");
+  wrap.className = "cmp-meet-detail";
+  list.forEach(m => {
+    const box = document.createElement("div");
+    box.className = "cmp-meet-detail-item lv-" + m.level;
+    const h = document.createElement("h4");
+    const badge = m.level === "a" ? "同场（同一记载）" : (m.chain ? "同年同地 · 相邻记载" : "同年同地 · 可能相遇");
+    h.textContent = yearLabel(m.year) + " · " + badge;
+    box.appendChild(h);
+    const evA = document.createElement("p");
+    evA.className = "cmp-meet-detail-ev";
+    evA.innerHTML = '<i style="background:' + cmp.colorA + '"></i><b>' + personName(cmp.A) + "</b> · " +
+      m.ea.title + "<br><span>" + (m.ea.summary || "") + "</span>";
+    box.appendChild(evA);
+    const evB = document.createElement("p");
+    evB.className = "cmp-meet-detail-ev";
+    evB.innerHTML = '<i style="background:' + cmp.colorB + '"></i><b>' + personName(cmp.B) + "</b> · " +
+      m.eb.title + "<br><span>" + (m.eb.summary || "") + "</span>";
+    box.appendChild(evB);
+    if (m.level === "b" && m.tol) {
+      const t = document.createElement("p");
+      t.className = "cmp-meet-detail-tol";
+      t.textContent = "跨年事件，在场判断已容忍 ±1 年（" + yearLabel(m.year) + " / " + yearLabel(m.year2) + "）。";
+      box.appendChild(t);
+    }
+    box.appendChild(cmpEventPassages(m.ea));
+    if (m.eb.id !== m.ea.id) box.appendChild(cmpEventPassages(m.eb));
+    wrap.appendChild(box);
+  });
+  const dis = document.createElement("p");
+  dis.className = "cmp-disclaimer in-card";
+  dis.textContent = BINGUAN_DISCLAIMER;
+  wrap.appendChild(dis);
+
+  const title = (pl ? pl.ancient_name : placeId) + " · 交会（" + list.length + "）";
+  // 手机端走底部抽屉；桌面走侧栏顶部内嵌卡
+  if (window.matchMedia("(max-width: 680px)").matches || cmpZoom.active) {
+    // 收起「交会一览」底部条，避免与详情抽屉在手机上叠底
+    document.body.classList.remove("cmp-sheet-open");
+    const st = $("#cmp-sheet-toggle");
+    if (st) { st.setAttribute("aria-expanded", "false"); st.textContent = "交会一览 ▲"; }
+    openDrawer(title, wrap);
+  } else {
+    cmpShowInlineDetail(title, wrap);
+  }
+}
+function cmpEventPassages(e) {
+  const frag = document.createDocumentFragment();
+  const src = (e.source_ids || "").split(";").filter(Boolean)
+    .map(id => (SRC_PREFIX[id[0]] || "") + (SOURCES[id] ? "·" + (SOURCES[id].title || id) : "")).filter(Boolean);
+  if (src.length) {
+    const p = document.createElement("p");
+    p.className = "cmp-meet-src";
+    p.textContent = "出处：" + src.join("；");
+    frag.appendChild(p);
+  }
+  return frag;
+}
+function cmpShowInlineDetail(title, node) {
+  const panel = $("#cmp-detail");
+  panel.hidden = false;
+  panel.textContent = "";
+  const bar = document.createElement("div");
+  bar.className = "cmp-detail-bar";
+  const h3 = document.createElement("h3");
+  h3.textContent = title;
+  bar.appendChild(h3);
+  const close = document.createElement("button");
+  close.type = "button";
+  close.textContent = "✕";
+  close.setAttribute("aria-label", "关闭交会详情");
+  close.addEventListener("click", () => {
+    panel.hidden = true;
+    document.querySelectorAll(".cmp-meet.selected").forEach(g => g.classList.remove("selected"));
+  });
+  bar.appendChild(close);
+  panel.appendChild(bar);
+  panel.appendChild(node);
+  if (window.matchMedia("(max-width: 900px)").matches) panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+/* ---- 并观播放（按绝对年推进）：复用 easeInOut 与 RAF/字幕/暂停语义；两标记各沿己轨 ---- */
+const cplay = { raf: null, paused: false, startTs: 0, lastTs: 0, elapsed: 0, dur: 0,
+                holdUntil: 0, lastYear: null, fired: new Set() };
+function cmpYearNow() {
+  const u = cplay.dur > 0 ? Math.min(cplay.elapsed / cplay.dur, 1) : 1;
+  return cmp.axisMin + u * (cmp.axisMax - cmp.axisMin);
+}
+function cmpUpdateAt(year) {
+  placeMarker(cmp.markerA, cmp.trajA, cmp.lifeA, year, false);
+  placeMarker(cmp.markerB, cmp.trajB, cmp.lifeB, year, true);
+  const head = $("#cmp-playhead");
+  if (head) {
+    head.hidden = false;
+    head.style.left = cmpAxisPct(year) + "%";
+    const yr = $("#cmp-playyear");
+    if (yr) yr.textContent = yearLabel(Math.round(year));
+  }
+  cmpCaption(year);
+}
+function cmpCaption(year) {
+  const c = $("#cmp-caption");
+  if (!c) return;
+  const st = (life) => (life.lo != null && year < life.lo) ? "未生"
+    : (life.hi != null && year > life.hi) ? "已卒" : "在世";
+  c.hidden = false;
+  c.textContent = yearLabel(Math.round(year)) + " · " +
+    personName(cmp.A) + "（" + st(cmp.lifeA) + "） / " +
+    personName(cmp.B) + "（" + st(cmp.lifeB) + "）";
+  requestAnimationFrame(() => c.classList.add("show"));
+}
+function cmpTogglePlay() {
+  const btn = $("#cmp-play");
+  if (cplay.raf) { // 暂停
+    cancelAnimationFrame(cplay.raf); cplay.raf = null; cplay.paused = true;
+    btn.textContent = "▶ 继续并观";
+    return;
+  }
+  if (cplay.paused) { // 续播
+    cplay.paused = false;
+    cplay.startTs = performance.now() - cplay.elapsed;
+    cplay.lastTs = performance.now();
+    btn.textContent = "⏸ 暂停";
+    cplay.raf = requestAnimationFrame(cmpStep);
+    return;
+  }
+  // 新播
+  const span = cmp.axisMax - cmp.axisMin;
+  cplay.dur = Math.max(4000, Math.min(12000, span * 130));
+  cplay.elapsed = 0; cplay.holdUntil = 0; cplay.lastYear = cmp.axisMin;
+  cplay.fired = new Set();
+  cplay.startTs = performance.now(); cplay.lastTs = cplay.startTs;
+  cmp.markerA.removeAttribute("hidden"); cmp.markerB.removeAttribute("hidden");
+  btn.textContent = "⏸ 暂停";
+  cmpUpdateAt(cmp.axisMin);
+  cplay.raf = requestAnimationFrame(cmpStep);
+}
+function cmpStep(ts) {
+  // 自动暂停一拍：命中 b 级年时冻结约 1.2 秒（推进 startTs，等效停表）
+  if (cplay.holdUntil) {
+    if (ts < cplay.holdUntil) {
+      cplay.startTs += ts - cplay.lastTs; cplay.lastTs = ts;
+      cplay.raf = requestAnimationFrame(cmpStep);
+      return;
+    }
+    cplay.holdUntil = 0;
+    const c = $("#cmp-caption"); if (c) c.classList.remove("hold");
+  }
+  cplay.lastTs = ts;
+  cplay.elapsed = Math.min(ts - cplay.startTs, cplay.dur);
+  const year = cmpYearNow();
+  // b 级交会年：行进至此自动暂停一拍并高亮
+  for (const m of cmp.meetings) {
+    if (m.level !== "b") continue;
+    if (cplay.fired.has(m.year)) continue;
+    if (cplay.lastYear < m.year && year >= m.year) {
+      cplay.fired.add(m.year);
+      cplay.holdUntil = ts + 1200;
+      const g = cmp.svg && cmp.svg.querySelector('.cmp-meet[data-place="' + m.place + '"]');
+      if (g) { g.classList.add("pulse"); setTimeout(() => g.classList.remove("pulse"), 1300); }
+      const c = $("#cmp-caption");
+      if (c) { c.classList.add("hold"); c.hidden = false; c.classList.add("show");
+        c.textContent = yearLabel(m.year) + " · " + (PLACES[m.place] ? PLACES[m.place].ancient_name : "") +
+          "：同年同地" + (m.chain ? "（相邻记载）" : "") + " — " + BINGUAN_DISCLAIMER; }
+      cmpUpdateMarkersOnly(year);
+      cplay.lastYear = year;
+      cplay.raf = requestAnimationFrame(cmpStep);
+      return;
+    }
+  }
+  cplay.lastYear = year;
+  cmpUpdateAt(year);
+  if (cplay.elapsed >= cplay.dur) { cmpFinish(); return; }
+  cplay.raf = requestAnimationFrame(cmpStep);
+}
+function cmpUpdateMarkersOnly(year) {
+  placeMarker(cmp.markerA, cmp.trajA, cmp.lifeA, year, false);
+  placeMarker(cmp.markerB, cmp.trajB, cmp.lifeB, year, true);
+  const head = $("#cmp-playhead");
+  if (head) { head.hidden = false; head.style.left = cmpAxisPct(year) + "%";
+    const yr = $("#cmp-playyear"); if (yr) yr.textContent = yearLabel(Math.round(year)); }
+}
+function cmpFinish() {
+  if (cplay.raf) cancelAnimationFrame(cplay.raf);
+  cplay.raf = null; cplay.paused = false;
+  const btn = $("#cmp-play"); if (btn) btn.textContent = "▶ 按年并观";
+  const c = $("#cmp-caption"); if (c) { c.classList.remove("show", "hold"); setTimeout(() => { if (c && !c.classList.contains("show")) c.hidden = true; }, 300); }
+}
+function cmpStop() {
+  if (cplay.raf) cancelAnimationFrame(cplay.raf);
+  cplay.raf = null; cplay.paused = false; cplay.holdUntil = 0;
+  const c = $("#cmp-caption"); if (c) { c.classList.remove("show", "hold"); c.hidden = true; c.textContent = ""; }
+  const btn = $("#cmp-play"); if (btn) btn.textContent = "▶ 按年并观";
+  const head = document.querySelector("#cmp-playhead"); if (head) head.hidden = true;
+}
+
+/* 并观全屏：复用 #map-overlay 容器与 bindZoomGesture（容器统一律，与地图/关系图全屏同机制）。
+ * 移动（非克隆）并观 svg，使播放标记保持在同一活节点上继续行进。 */
+const cmpZoom = { active: false, svg: null, vbW: MAP_W, vbH: MAP_H, minFrac: 0.2,
+                  aspect: 0, box: null, pointers: new Map(), pinch: null, panStart: null, panDist: 0 };
+function openCmpOverlay() {
+  if (!cmp.svg) return;
+  const overlay = $("#map-overlay");
+  overlay.setAttribute("aria-label", "并观地图全屏查看");
+  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点交会点看详情";
+  const body = $("#map-overlay-body");
+  body.textContent = "";
+  body.appendChild(cmp.svg);
+  body.appendChild($("#cmp-caption")); // 字幕随图入全屏
+  overlay.hidden = false;
+  document.body.classList.add("no-scroll");
+  cmpZoom.active = true;
+  cmpZoom.svg = cmp.svg;
+  cmpZoom.vbW = MAP_W; cmpZoom.vbH = MAP_H; cmpZoom.aspect = 0;
+  cmpZoom.pointers = new Map(); cmpZoom.pinch = null; cmpZoom.panStart = null; cmpZoom.panDist = 0;
+  const start = cmp.mode === "fit" ? cmp.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H };
+  cmpZoom.box = { ...start };
+  cmp.svg.setAttribute("viewBox", start.x + " " + start.y + " " + start.w + " " + start.h);
+  $("#btn-overlay-close").focus();
+}
+function closeCmpOverlay() {
+  if (drawer.open) closeDrawer();
+  const overlay = $("#map-overlay");
+  overlay.hidden = true;
+  overlay.setAttribute("aria-label", "地图全屏查看");
+  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点击地点看详情";
+  document.body.classList.remove("no-scroll");
+  cmpZoom.active = false;
+  if (cmp.svg) $("#cmp-canvas").appendChild(cmp.svg);
+  const frame = $("#cmp-frame");
+  if (frame) frame.appendChild($("#cmp-caption"));
+  cmpApplyView(cmp.mode === "fit" ? cmp.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
 }
 
 /* ---------- 屏4 资料库 ---------- */
@@ -2641,6 +3479,15 @@ function showRelDetail(rels, pid) {
   panel.appendChild(relDetailBody(rels, pid));
   const acts = document.createElement("p");
   acts.className = "rel-actions";
+  // 并观入口（r16）：两人关系卡（pid 为空的成对卡）、且二人皆主角 → 「并观其迹」
+  if (!pid && rels.length && bothProto(rels[0].person_a, rels[0].person_b)) {
+    const cbtn = document.createElement("button");
+    cbtn.type = "button";
+    cbtn.className = "cmp-enter";
+    cbtn.textContent = "并观其迹 →";
+    cbtn.addEventListener("click", () => goCompare(rels[0].person_a, rels[0].person_b));
+    acts.appendChild(cbtn);
+  }
   if (pid && relView.mode === "pano") {
     const center = document.createElement("button");
     center.type = "button";
@@ -2670,16 +3517,25 @@ function showRelDetailDrawer(rels, pid) {
   rels = sortRelsByType(rels);
   const wrap = document.createElement("div");
   wrap.appendChild(relDetailBody(rels, pid));
+  const acts = document.createElement("p");
+  acts.className = "rel-actions";
+  // 并观入口（r16）：全屏抽屉内的成对卡同样提供「并观其迹」（先退出全屏再进并观）
+  if (!pid && rels.length && bothProto(rels[0].person_a, rels[0].person_b)) {
+    const cbtn = document.createElement("button");
+    cbtn.type = "button";
+    cbtn.className = "cmp-enter";
+    cbtn.textContent = "并观其迹 →";
+    cbtn.addEventListener("click", () => { closeDrawer(); closeRelOverlay(); goCompare(rels[0].person_a, rels[0].person_b); });
+    acts.appendChild(cbtn);
+  }
   if (pid && PROTAGONISTS.some(m => m.id === pid)) {
-    const acts = document.createElement("p");
-    acts.className = "rel-actions";
     const go = document.createElement("button");
     go.type = "button";
     go.textContent = "查看 " + personName(pid) + " 的时间线 →";
     go.addEventListener("click", () => { closeDrawer(); closeRelOverlay(); setHash(pid, "timeline"); });
     acts.appendChild(go);
-    wrap.appendChild(acts);
   }
+  if (acts.childNodes.length) wrap.appendChild(acts);
   openDrawer(relDetailTitle(rels, pid), wrap);
 }
 
@@ -3455,6 +4311,14 @@ async function boot() {
   });
   $("#btn-rel-zoom").addEventListener("click", openRelOverlay);
   $("#btn-overlay-close").addEventListener("click", closeOverlay);
+  // 并观入口·人物地图工具条「添加对照人物」：从其余主角中择一，进并观
+  initComparePicker();
+  $("#home-compare-link").addEventListener("click", () => goCompare("P_WENJIANG", "P_QIXIANG"));
+  $("#cmp-sheet-toggle").addEventListener("click", () => {
+    const on = document.body.classList.toggle("cmp-sheet-open");
+    $("#cmp-sheet-toggle").setAttribute("aria-expanded", String(on));
+    $("#cmp-sheet-toggle").textContent = on ? "收起交会 ▼" : "交会一览 ▲";
+  });
   // 抽屉：X / 点外区域 / 下滑手势 / ESC
   $("#drawer-close").addEventListener("click", closeDrawer);
   $("#drawer-backdrop").addEventListener("click", closeDrawer);
@@ -3482,7 +4346,7 @@ async function boot() {
       if (tour.active) { endTour(); return; }        // 引导优先：Esc 跳过
       if (shareDialog.isOpen()) shareDialog.close();
       else if (drawer.open) closeDrawer();
-      else if (mapState.overlay || relZoom.active) closeOverlay();
+      else if (mapState.overlay || relZoom.active || cmpZoom.active) closeOverlay();
       return;
     }
     // 引导蒙层焦点圈定：Tab 在 跳过/下一步 间循环（Enter 由聚焦按钮原生触发→下一步）

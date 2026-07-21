@@ -1661,3 +1661,197 @@ body.no-scroll { overflow: hidden; }
 }
 .tour-endtip[hidden] { display: none; }
 .tour-endtip.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ============ 双人并观（compare）· r16 ============ */
+.cmp-sub {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  margin: 0.2rem 0 0.7rem;
+}
+.cmp-side { flex: 0 0 320px; }
+
+/* 图例 */
+.cmp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  font-size: 0.8rem;
+  margin: 0 0 0.5rem;
+}
+.cmp-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.cmp-legend b { font-weight: 600; }
+.cmp-lg-ci, .cmp-lg-sq {
+  width: 0.72rem; height: 0.72rem; display: inline-block;
+  border: 2px solid currentColor; background: transparent;
+}
+.cmp-lg-ci { border-radius: 50%; }
+.cmp-lg-ring {
+  width: 0.8rem; height: 0.8rem; border-radius: 50%;
+  display: inline-block; border: 2px solid;
+}
+.cmp-lg-ring.lv-a { border-color: var(--ochre); }
+.cmp-lg-ring.lv-b { border-color: var(--cinnabar); border-style: dashed; }
+
+/* 交会点（SVG）交互态 */
+.cmp-meet { cursor: pointer; }
+.cmp-meet-label { fill: var(--ink); font-family: var(--serif); paint-order: stroke; stroke: var(--silk); stroke-width: 2.4px; }
+.cmp-meet.selected circle:first-of-type { stroke-width: 3.4; }
+.cmp-meet.pulse circle:first-of-type { animation: cmpPulse 0.65s ease 2; }
+@keyframes cmpPulse { 0%,100% { stroke-width: 2.4; } 50% { stroke-width: 5; } }
+.cmp-marker { pointer-events: none; transition: opacity 0.2s ease; }
+
+/* 年轴 */
+.cmp-axis-wrap { margin: 0.7rem 0 0.2rem; }
+.cmp-axis {
+  position: relative;
+  height: 74px;
+  margin: 1.4rem 0.4rem 1.5rem;
+}
+.cmp-axis-track {
+  position: absolute; left: 0; right: 0; top: 50%;
+  height: 1px; background: var(--line);
+}
+.cmp-life {
+  position: absolute; height: 7px; border-radius: 4px;
+  opacity: 0.85;
+}
+.cmp-life.dashed { opacity: 1; }
+.cmp-tick {
+  position: absolute; transform: translateX(-50%);
+  font-size: 0.62rem; white-space: nowrap; line-height: 1.1;
+}
+.cmp-tick i { display: block; width: 1px; height: 12px; margin: 0 auto 1px; background: currentColor; }
+.cmp-tick.lo { top: 2px; }
+.cmp-tick.hi { bottom: 2px; }
+.cmp-tick.hi i { order: 2; }
+.cmp-tick.hi { display: flex; flex-direction: column; }
+.cmp-tick b { font-weight: 500; }
+.cmp-axis-meet {
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  width: 0; height: 0;
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--ochre);
+  cursor: default;
+}
+.cmp-axis-meet.lv-b { border-bottom-color: var(--cinnabar); }
+.cmp-axis-end {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 0.66rem; color: var(--ink-soft); background: var(--silk);
+  padding: 0 0.2rem;
+}
+.cmp-axis-end.left { left: 0; }
+.cmp-axis-end.right { right: 0; }
+.cmp-playhead {
+  position: absolute; top: -6px; bottom: -6px; width: 2px;
+  background: var(--ink); transform: translateX(-1px);
+}
+.cmp-playhead[hidden] { display: none; }
+.cmp-playyear {
+  position: absolute; top: -1.15rem; left: 50%; transform: translateX(-50%);
+  font-size: 0.66rem; font-family: var(--serif); color: var(--silk);
+  background: var(--ink); padding: 0 0.3rem; border-radius: 2px; white-space: nowrap;
+}
+
+/* 交会侧栏 */
+.cmp-count { font-size: 0.78rem; color: var(--ink-soft); }
+.cmp-disclaimer {
+  font-family: var(--serif); font-size: 0.82rem; line-height: 1.5;
+  color: var(--cinnabar);
+  border-left: 3px solid var(--cinnabar);
+  background: rgba(188, 68, 51, 0.06);
+  padding: 0.4rem 0.6rem; margin: 0 0 0.7rem; border-radius: 0 3px 3px 0;
+}
+.cmp-disclaimer.in-card { margin: 0.8rem 0 0; }
+.cmp-meet-list { list-style: none; padding: 0; margin: 0; }
+.cmp-meet-row {
+  border: 1px solid var(--line); border-radius: 3px;
+  padding: 0.5rem 0.6rem; margin-bottom: 0.5rem;
+  cursor: pointer; background: var(--silk);
+}
+.cmp-meet-row:hover, .cmp-meet-row:focus-visible { border-color: var(--ochre); }
+.cmp-meet-row.lv-a { border-left: 3px solid var(--ochre); }
+.cmp-meet-row.lv-b { border-left: 3px solid var(--cinnabar); }
+.cmp-meet-head { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem; }
+.cmp-badge {
+  font-size: 0.66rem; font-family: var(--serif); letter-spacing: 0.05em;
+  padding: 0.05rem 0.4rem; border-radius: 999px; color: var(--silk-panel); white-space: nowrap;
+}
+.cmp-badge.lv-a { background: var(--ochre); }
+.cmp-badge.lv-b { background: var(--cinnabar); }
+.cmp-meet-year { font-family: var(--serif); font-size: 0.82rem; }
+.cmp-meet-ev { font-size: 0.78rem; display: flex; align-items: baseline; gap: 0.35rem; margin: 0.1rem 0; }
+.cmp-meet-ev i { flex: 0 0 auto; width: 0.5rem; height: 0.5rem; border-radius: 50%; transform: translateY(1px); }
+.cmp-meet-note { font-size: 0.72rem; color: var(--ink-soft); margin-top: 0.3rem; line-height: 1.5; }
+
+/* 交会详情内嵌卡 */
+.cmp-detail-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+.cmp-detail-bar h3 { margin: 0; border: 0; padding: 0; }
+.cmp-detail-bar button { font: inherit; background: none; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; padding: 0.1rem 0.5rem; }
+.cmp-meet-detail-item { border-top: 1px solid var(--line); padding-top: 0.5rem; margin-top: 0.5rem; }
+.cmp-meet-detail-item:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+.cmp-meet-detail-item h4 { margin: 0 0 0.4rem; font-family: var(--serif); font-size: 0.9rem; }
+.cmp-meet-detail-ev { font-size: 0.8rem; margin: 0.3rem 0; }
+.cmp-meet-detail-ev i { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%; margin-right: 0.3rem; }
+.cmp-meet-detail-ev span { color: var(--ink-soft); }
+.cmp-meet-detail-tol { font-size: 0.72rem; color: var(--ink-soft); margin: 0.2rem 0; }
+.cmp-meet-src { font-size: 0.7rem; color: var(--ink-soft); margin: 0.2rem 0 0; }
+
+/* 「添加对照人物」选人小面板 */
+.cmp-pick-wrap { position: relative; display: inline-block; }
+.cmp-pick {
+  position: absolute; z-index: 40; top: calc(100% + 4px); left: 0;
+  background: var(--silk-panel); border: 1px solid var(--line); border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(46, 42, 36, 0.18);
+  padding: 0.3rem; max-height: 62vh; overflow-y: auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.15rem; min-width: 15rem;
+}
+.cmp-pick[hidden] { display: none; }
+.cmp-pick-item {
+  display: flex; align-items: center; gap: 0.4rem;
+  font: inherit; background: none; border: 0; cursor: pointer;
+  padding: 0.3rem 0.4rem; border-radius: 2px; text-align: left;
+}
+.cmp-pick-item:hover, .cmp-pick-item:focus-visible { background: var(--silk); }
+.cmp-pick-item i { width: 0.6rem; height: 0.6rem; border-radius: 50%; flex: 0 0 auto; }
+
+/* 关系卡「并观其迹」按钮 */
+.cmp-enter { border-color: var(--bronze) !important; color: var(--bronze); }
+
+/* 首页并观轻提示 */
+.home-hint { font-size: 0.9rem; color: var(--ink-soft); margin: 0.8rem 0 0.2rem; }
+.cmp-hint-link {
+  font: inherit; font-family: var(--serif); background: none; border: 0;
+  color: var(--bronze); cursor: pointer; padding: 0;
+  text-decoration: underline dotted var(--bronze); text-underline-offset: 3px;
+}
+.cmp-hint-link:hover { color: var(--ochre); }
+
+/* 手机端交会底部条 */
+.cmp-sheet-toggle {
+  position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+  z-index: 60; font: inherit; font-family: var(--serif);
+  background: var(--ink); color: var(--silk-panel); border: 0;
+  border-radius: 8px 8px 0 0; padding: 0.4rem 1.4rem; cursor: pointer;
+  box-shadow: 0 -4px 16px rgba(46, 42, 36, 0.22);
+  display: none;
+}
+
+@media (max-width: 680px) {
+  .cmp-layout { flex-direction: column; }
+  .cmp-sheet-toggle { display: block; }
+  .cmp-side.map-side {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 59;
+    width: 100%; max-height: 76vh; overflow-y: auto;
+    background: var(--silk-panel); border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 24px rgba(46, 42, 36, 0.2);
+    transform: translateY(100%); transition: transform 0.28s ease;
+    padding: 1.4rem 1rem 1rem; margin: 0; border-radius: 12px 12px 0 0;
+  }
+  body.cmp-sheet-open .cmp-side.map-side { transform: translateY(0); }
+  body.cmp-sheet-open .cmp-sheet-toggle { bottom: 76vh; }
+  .cmp-pick { grid-template-columns: 1fr 1fr; min-width: min(20rem, 82vw); }
+  .cmp-axis { margin: 1.6rem 0.3rem 1.6rem; }
+}

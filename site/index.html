@@ -85,6 +85,9 @@
       <nav class="state-tabs" id="state-tabs" aria-label="按国别定位"></nav>
       <div id="person-groups"></div>
     </div>
+    <p class="home-hint" id="home-compare-hint">
+      试试并观：<button type="button" class="cmp-hint-link" id="home-compare-link">文姜 × 齐襄公，同看两条行迹 →</button>
+    </p>
     <p class="home-extra">
       <button type="button" class="library-entry" id="home-guide-entry">初识春秋 →</button>
       <button type="button" class="library-entry" id="home-relations-entry">全景关系图谱 →</button>
@@ -117,6 +120,10 @@
           <button type="button" id="btn-play">▶ 轨迹按时间播放</button>
           <button type="button" id="btn-scope" aria-pressed="true">视野：活动范围</button>
           <button type="button" id="btn-zoom">⛶ 放大查看</button>
+          <div class="cmp-pick-wrap">
+            <button type="button" id="btn-compare" aria-expanded="false" aria-haspopup="true">＋ 添加对照人物</button>
+            <div class="cmp-pick" id="compare-pick" role="menu" aria-label="选择对照人物" hidden></div>
+          </div>
           <span class="map-status" id="map-status"></span>
         </div>
         <div class="map-frame">
@@ -151,6 +158,41 @@
         </aside>
       </div>
     </div>
+  </section>
+
+  <section id="view-compare" hidden aria-labelledby="compare-title">
+    <h2 class="screen-title" id="compare-title">双人并观</h2>
+    <p class="cmp-sub" id="cmp-title">并观其迹</p>
+    <div class="map-layout cmp-layout">
+      <div class="map-main">
+        <div class="map-toolbar">
+          <button type="button" id="cmp-play">▶ 按年并观</button>
+          <button type="button" id="cmp-scope">视野：活动范围</button>
+          <button type="button" id="cmp-zoom">⛶ 放大查看</button>
+          <button type="button" id="cmp-swap" title="对调主/副轨">⇄ 对调</button>
+          <span class="map-status" id="cmp-status"></span>
+        </div>
+        <div class="cmp-legend" id="cmp-legend" aria-label="并观图例"></div>
+        <div class="map-frame" id="cmp-frame">
+          <div class="map-canvas" id="cmp-canvas" role="application" aria-label="双人并观活动地图"></div>
+          <p class="play-caption" id="cmp-caption" aria-live="polite" hidden></p>
+        </div>
+        <!-- 绝对年轴：两人生卒条、生卒刻度、交会标记、播放游标 -->
+        <div class="cmp-axis-wrap">
+          <div class="cmp-axis" id="cmp-axis" role="img" aria-label="两人生卒与交会年轴"></div>
+        </div>
+        <p class="map-note">圆点＝<span id="cmp-legend-a">甲</span>亲至站；方点＝<span id="cmp-legend-b">乙</span>亲至站；环＝交会点。轨迹只连亲至。</p>
+      </div>
+      <div class="map-side cmp-side">
+        <aside class="panel cmp-detail" id="cmp-detail" hidden aria-live="polite"></aside>
+        <aside class="panel cmp-meetings-panel" id="cmp-meetings-panel">
+          <h3>交会 <span class="cmp-count">（<span id="cmp-meet-count">0</span>）</span></h3>
+          <div id="cmp-meetings"></div>
+        </aside>
+      </div>
+    </div>
+    <!-- 手机端：交会侧栏折叠为底部可展开条 -->
+    <button type="button" class="cmp-sheet-toggle" id="cmp-sheet-toggle" aria-expanded="false" hidden>交会一览 ▲</button>
   </section>
 
   <section id="view-relations" hidden aria-labelledby="relations-title">
@@ -232,7 +274,7 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.12（更名「经纬春秋」· 楚庄王线 · 重看引导归位）。
+        <p id="about-version">当前版本 v0.13（双人并观：两条行迹同图、按年并观、交会检测）。
           <button type="button" class="tour-replay" id="tour-replay">重看引导</button></p>
         <!-- 许可声明（conventions §12·裁定3）：代码 MIT、数据 CC BY 4.0；文件在仓库根，站点部署根为 site/，
              故链接指向仓库内两文件的规范地址（同「开源仓库」外链域） -->
@@ -240,6 +282,7 @@
         <!-- 支持本站入口：链接待 Xiangtao 提供（爱发电或 GitHub Sponsors），到位前先留占位文案，不外链 -->
         <p class="support-line">若愿支持本站长期考订，可移步<span id="support-link">支持链接（筹备中）</span>。</p>
         <ul>
+          <li>v0.13 —— 双人并观：从关系图两人关系卡或人物地图「添加对照人物」进入，两条行迹同图（各主题色、同国相近者副轨点划线）；绝对年轴按年并观、生卒灰置；交会检测分「同场」与「同年同地」两级，附「同城未必同时，不能仅据同年同地断定相遇」的口径；手机端交会一览折叠为底部条</li>
           <li>v0.12 —— 全站更名为「经纬春秋」（副题「左传为经，诸书为纬，牵系有据」）；楚庄王线上线（主角十五人，一鸣惊人、问鼎中原、邲之战）；头部时间双标（春秋纪年时段＋考订前沿「已考订至前591」）；关于页站名注脚；「重看引导」落位修复</li>
           <li>v0.11 —— 人物色彩改为两级国色系（齐红 · 鲁赭 · 郑青 · 晋栗 · 秦玄 · 楚紫，同国分深浅），关系全景按国着色、阵营分区；首访引导结束回到首页「选一个人」；许可声明就位（代码 MIT · 数据 CC BY 4.0）</li>
           <li>v0.10 —— 首访三步引导（可重看）；人物卡简介两行显示、桌面 hover 见全文、手机卡内完整；时间线事件卡加「原文 ▾」可点暗示；进人物、切视图滚动复位到顶</li>
