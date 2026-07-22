@@ -1404,7 +1404,28 @@ function openOverlay() {
   $("#map-overlay-body").appendChild($("#play-caption")); // 字幕条随地图入全屏
   mapState.overlay = true;
   document.body.classList.add("no-scroll");
+  setupOverlayControls("single");
   $("#btn-overlay-close").focus();
+}
+/* 全屏浮层播放悬浮控件（任务三）：单人/并观同用；播放/暂停委托主工具条按钮（复用其闭包与状态），
+ * 速度并入共享速度状态组（refreshSpeedBtns）。退出全屏隐藏、无缝衔接内嵌态。 */
+function setupOverlayControls(mode) {
+  const box = $("#overlay-controls");
+  if (!box) return;
+  const mainPlay = mode === "single" ? "#btn-play" : "#cmp-play";
+  const mp = $(mainPlay);
+  const ovPlay = $("#ov-play");
+  box.hidden = !!(mp && mp.disabled);          // 无轨迹不可播则不显控件
+  if (box.hidden) return;
+  if (ovPlay) {
+    ovPlay.textContent = mp ? mp.textContent : "▶ 播放";
+    ovPlay.onclick = () => { const b = $(mainPlay); if (b) b.click(); }; // 委托：复用主按钮 onclick 闭包
+  }
+  bindSpeedBtn("#ov-speed");                    // 并入共享速度状态组，切档即时且记忆
+}
+function hideOverlayControls() {
+  const box = $("#overlay-controls");
+  if (box) box.hidden = true;
 }
 function closeOverlay() {
   if (cmpZoom.active) { closeCmpOverlay(); return; }
@@ -1414,6 +1435,7 @@ function closeOverlay() {
   const overlay = $("#map-overlay");
   overlay.hidden = true;
   document.body.classList.remove("no-scroll");
+  hideOverlayControls();
   if (mapState.svg) $("#map-canvas").appendChild(mapState.svg);
   const frame = document.querySelector(".map-frame");
   if (frame) frame.appendChild($("#play-caption")); // 字幕条归位内嵌地图
@@ -1711,13 +1733,18 @@ function playerStop() {
   player.cfg = null;
   if (cfg && cfg.onStop) cfg.onStop();
 }
-/* 速度档按钮（单人 #btn-speed / 并观 #cmp-speed 共用同一 localStorage 值，互相同步显示） */
+/* 速度档按钮（单人 #btn-speed / 并观 #cmp-speed / 全屏浮层 #ov-speed 共用同一 localStorage 值，互相同步显示） */
 function refreshSpeedBtns() {
-  ["#btn-speed", "#cmp-speed"].forEach(id => {
+  ["#btn-speed", "#cmp-speed", "#ov-speed"].forEach(id => {
     const el = $(id);
     if (el) { el.textContent = "速度 " + speedLabel();
       el.setAttribute("aria-label", "播放速度，当前 " + speedLabel() + "，点按切换"); }
   });
+}
+/* 播放/暂停按钮文案同步：主工具条 + 全屏浮层悬浮控件（#ov-play）同写，两处状态一致 */
+function setPlayBtnText(mode, txt) {
+  const main = mode === "single" ? "#btn-play" : "#cmp-play";
+  [main, "#ov-play"].forEach(id => { const b = $(id); if (b) b.textContent = txt; });
 }
 function bindSpeedBtn(id) {
   const b = $(id);
@@ -1796,25 +1823,24 @@ function singlePlayCfg(traj, anchors, theme) {
     },
     onPause() { hideCaption(); },
     onResume() { if (lastStation >= 0) showCaption(captionText(lastStation)); },
-    onFinish() { hideCaption(); const b = $("#btn-play"); if (b) b.textContent = "▶ 轨迹按时间播放"; },
+    onFinish() { hideCaption(); setPlayBtnText("single", "▶ 轨迹按时间播放"); },
     onStop() {
       hideCaption(true);
-      const b = $("#btn-play"); if (b) b.textContent = "▶ 轨迹按时间播放";
+      setPlayBtnText("single", "▶ 轨迹按时间播放");
       const m = document.querySelector("#play-marker"); if (m) m.setAttribute("hidden", "");
     },
   };
 }
 function toggleSinglePlay(traj, anchors, theme) {
-  const btn = $("#btn-play");
   if (player.cfg && player.cfg.mode === "single" && player.raf && !player.paused) {
-    playerPause(); btn.textContent = "▶ 继续播放"; return;
+    playerPause(); setPlayBtnText("single", "▶ 继续播放"); return;
   }
   if (player.cfg && player.cfg.mode === "single" && player.paused) {
-    playerResume(); btn.textContent = "⏸ 暂停"; return;
+    playerResume(); setPlayBtnText("single", "⏸ 暂停"); return;
   }
   if (traj.length < 2) return;
   playerStart(singlePlayCfg(traj, anchors, theme));
-  btn.textContent = "⏸ 暂停";
+  setPlayBtnText("single", "⏸ 暂停");
 }
 
 /* ==================================================================
@@ -1982,7 +2008,9 @@ function relLum(hex) {
 const cmp = { A: null, B: null, metaA: null, metaB: null, colorA: "", colorB: "",
               trajA: null, trajB: null, lifeA: null, lifeB: null,
               meetings: [], axisMin: 0, axisMax: 0, svg: null, anchors: null,
-              markerA: null, markerB: null, similar: false, box: null };
+              markerA: null, markerB: null, similar: false, box: null,
+              // r17b 年位同步：故事进度 sc 主钟
+              syncs: [], waypointsA: [], waypointsB: [], scMin: 0, scMax: 0, clockCtrl: [] };
 const NSVG = "http://www.w3.org/2000/svg";
 
 function cmpAxisPct(year) {
@@ -2001,28 +2029,143 @@ function cmpApplyView(box) {
   svg.querySelectorAll("[data-fs]").forEach(el => el.style.fontSize = (parseFloat(el.dataset.fs) * s) + "px");
 }
 
-function renderCompare() {
-  const [A, B] = state.pair || [];
-  if (!bothProto(A, B)) { setHash(null, "home"); return; }
+/* ============================================================ *
+ * 年位同步（r17b 根修）——双轨模式的「主钟唯一量」是故事进度 sc，不是纯年。
+ *   起因：buildTraj 对同地相邻事件聚合，且一人同年可有多个不同地点的交会
+ *   （文姜×齐襄公前694 既在泺又在临淄）——纯 clockYear 函数在「同年多交会地」处
+ *   多对一塌缩，无法同时保证「钟到泺⇔人到泺」与「钟到临淄⇔人到临淄」。
+ *   解法：以「交会为锚的故事进度 sc」为主钟唯一量。每个交会地＝一个整数 sc 锚点，
+ *   两人在该 sc 均被钉到交会地（从构造上保证 钟到交会刻 ⇔ 两人到交会地）；
+ *   clockYear 是 sc 的单调函数（年严格段内 sc↔year 一一对应，故等价于「年的纯函数」）；
+ *   同年多交会地由 sc 细分区分。缓动只作用于 sc 段内视觉插值，不改「某 sc 在某段」的映射。
+ * ============================================================ */
+
+/* 交会锚点（syncs）：交会涉及的不同地点，各对应两人共有的一站；按 trajA 站序定序、编号即 sc。
+ * 一人同年多交会地（泺694、临淄694）自然成相继两锚点，解决纯年塌缩。 */
+function cmpBuildSyncs(trajA, meetings) {
+  const meetPlaces = new Set(meetings.map(m => m.place));
+  const syncs = [];
+  const seen = new Set();
+  for (const st of trajA) {
+    const pid = st.place.id;
+    if (!meetPlaces.has(pid) || seen.has(pid)) continue;
+    seen.add(pid);
+    const [x, y] = project(st.place.lng, st.place.lat);
+    syncs.push({ idx: syncs.length, place: pid, year: st.year, x, y,
+                 meetings: meetings.filter(m => m.place === pid) });
+  }
+  return syncs;
+}
+
+/* 某人轨迹 → 按 sc 排布的路点 [{sc,x,y}]。交会站钉到整数 sc（|站年−锚年|≤1 即匹配，
+ * 容纳 b 级±1 与聚合站取最早年）；非交会站在相邻锚间按序均分小数 sc（不与整数锚碰撞）。 */
+function cmpBuildWaypoints(traj, syncs) {
+  if (!traj.length) return [{ sc: 0, x: 0, y: 0 }];
+  const ann = traj.map(st => {
+    let sc = null;
+    for (const s of syncs) if (s.place === st.place.id && Math.abs(st.year - s.year) <= 1) { sc = s.idx; break; }
+    return { x: st.x, y: st.y, sc };
+  });
+  const wps = [];
+  for (let i = 0; i < ann.length; i++) {
+    let sc = ann[i].sc;
+    if (sc == null) {
+      let p = i - 1; while (p >= 0 && ann[p].sc == null) p--;
+      let n = i + 1; while (n < ann.length && ann[n].sc == null) n++;
+      const prevSc = p >= 0 ? ann[p].sc : null;
+      const nextSc = n < ann.length ? ann[n].sc : null;
+      if (prevSc != null && nextSc != null) {
+        const gap = n - p;               // 该无锚段的站数（含端点间隔）
+        sc = prevSc + (nextSc - prevSc) * ((i - p) / gap);
+      } else if (prevSc != null) {       // 尾部：逐站 +1
+        sc = prevSc + (i - p);
+      } else if (nextSc != null) {       // 首部：逐站 −1
+        sc = nextSc - (n - i);
+      } else {
+        sc = i;                          // 无任何交会：退化为站序
+      }
+    }
+    wps.push({ sc, x: ann[i].x, y: ann[i].y });
+  }
+  wps.sort((a, b) => a.sc - b.sc);
+  return wps;
+}
+
+/* 标记位置 = sc 的纯函数：在 sc 落入的路点段内按段内比例插值，缓动只作视觉平滑。
+ * sc 恰为某交会锚整数时，返回该锚路点＝交会地（从构造上「钟到交会刻⇔人到交会地」）。 */
+function cmpPositionAt(wps, sc) {
+  if (!wps.length) return { x: 0, y: 0 };
+  if (sc <= wps[0].sc) return { x: wps[0].x, y: wps[0].y };
+  const last = wps[wps.length - 1];
+  if (sc >= last.sc) return { x: last.x, y: last.y };
+  for (let i = 0; i < wps.length - 1; i++) {
+    if (sc >= wps[i].sc && sc <= wps[i + 1].sc) {
+      const d = wps[i + 1].sc - wps[i].sc;
+      if (d <= 0) return { x: wps[i + 1].x, y: wps[i + 1].y };
+      const e = easeInOut((sc - wps[i].sc) / d);
+      return { x: wps[i].x + (wps[i + 1].x - wps[i].x) * e,
+               y: wps[i].y + (wps[i + 1].y - wps[i].y) * e };
+    }
+  }
+  return { x: last.x, y: last.y };
+}
+
+/* clockYear = sc 的单调函数：控制点＝(scMin,axisMin)+各交会锚(sc=idx,锚年)+(scMax,axisMax)，
+ * 分段线性。交会锚整数 sc 处恰得锚年（钟到交会年）；两端伸到年轴边界，年读数随进度平滑。 */
+function cmpClockYearAt(sc) {
+  const c = cmp.clockCtrl;
+  if (!c || !c.length) return cmp.axisMin;
+  if (sc <= c[0].sc) return c[0].year;
+  if (sc >= c[c.length - 1].sc) return c[c.length - 1].year;
+  for (let i = 0; i < c.length - 1; i++) {
+    if (sc >= c[i].sc && sc <= c[i + 1].sc) {
+      const d = c[i + 1].sc - c[i].sc;
+      if (d <= 0) return c[i + 1].year;
+      return c[i].year + (c[i + 1].year - c[i].year) * ((sc - c[i].sc) / d);
+    }
+  }
+  return c[c.length - 1].year;
+}
+
+/* 并观数据模型（纯计算，无 DOM）：填充 cmp 的轨迹/生卒/交会/同色判定/年轴，
+ * 及 r17b 新增的 syncs/waypointsA-B/scMin-scMax/clockCtrl。renderCompare 与状态机测试共用。 */
+function cmpComputeModel(A, B) {
   cmp.A = A; cmp.B = B;
   cmp.metaA = PROTAGONISTS.find(m => m.id === A);
   cmp.metaB = PROTAGONISTS.find(m => m.id === B);
-  cmp.colorA = cmp.metaA.color || "#B4652F";
-  cmp.colorB = cmp.metaB.color || "#44766B";
+  cmp.colorA = (cmp.metaA && cmp.metaA.color) || "#B4652F";
+  cmp.colorB = (cmp.metaB && cmp.metaB.color) || "#44766B";
   cmp.trajA = buildTraj(A);
   cmp.trajB = buildTraj(B);
   cmp.lifeA = lifeSpan(A, cmp.trajA);
   cmp.lifeB = lifeSpan(B, cmp.trajB);
   cmp.meetings = detectMeetings(A, B);
-  // 同国且深浅相近（亮度差小）→ 副轨（B）叠点划线纹理，保证可辨
   cmp.similar = (PEOPLE[A].state || "").split("/")[0] === (PEOPLE[B].state || "").split("/")[0] &&
                 Math.abs(relLum(cmp.colorA) - relLum(cmp.colorB)) < 0.18;
 
-  // 年轴并集跨度（两人活跃/生卒并集），留边一年
   const los = [cmp.lifeA.lo, cmp.lifeB.lo].filter(v => v != null);
   const his = [cmp.lifeA.hi, cmp.lifeB.hi].filter(v => v != null);
   cmp.axisMin = (los.length ? Math.min(...los) : -700) - 1;
   cmp.axisMax = (his.length ? Math.max(...his) : -600) + 1;
+
+  // r17b 根修：故事进度 sc 主钟
+  cmp.syncs = cmpBuildSyncs(cmp.trajA, cmp.meetings);
+  cmp.waypointsA = cmpBuildWaypoints(cmp.trajA, cmp.syncs);
+  cmp.waypointsB = cmpBuildWaypoints(cmp.trajB, cmp.syncs);
+  const scAll = cmp.waypointsA.concat(cmp.waypointsB).map(w => w.sc);
+  cmp.scMin = scAll.length ? Math.min(...scAll) : 0;
+  cmp.scMax = scAll.length ? Math.max(...scAll) : 0;
+  const ctrl = [{ sc: cmp.scMin, year: cmp.axisMin }];
+  cmp.syncs.forEach(s => ctrl.push({ sc: s.idx, year: s.year }));
+  ctrl.push({ sc: cmp.scMax, year: cmp.axisMax });
+  ctrl.sort((a, b) => a.sc - b.sc);
+  cmp.clockCtrl = ctrl;
+}
+
+function renderCompare() {
+  const [A, B] = state.pair || [];
+  if (!bothProto(A, B)) { setHash(null, "home"); return; }
+  cmpComputeModel(A, B);
 
   $("#cmp-title").textContent = personName(A) + " × " + personName(B) + " · 并观其迹";
   $("#cmp-legend-a").textContent = personName(A);
@@ -2180,39 +2323,8 @@ function cmpBuildMap() {
   bindZoomGesture(svg, cmpZoom);
 }
 
-/* 定位标记到某绝对年（沿己轨按年插值，缓动复用 easeInOut）；返回是否在世 */
-function cmpMarkerPos(traj, year) {
-  if (!traj.length) return null;
-  if (year <= traj[0].year) return { x: traj[0].x, y: traj[0].y };
-  const last = traj[traj.length - 1];
-  if (year >= last.year) return { x: last.x, y: last.y };
-  for (let i = 0; i < traj.length - 1; i++) {
-    const y0 = traj[i].year, y1 = traj[i + 1].year;
-    if (year >= y0 && year <= y1) {
-      if (y1 === y0) return { x: traj[i + 1].x, y: traj[i + 1].y };
-      const u = (year - y0) / (y1 - y0);
-      const e = easeInOut(u);
-      return { x: traj[i].x + (traj[i + 1].x - traj[i].x) * e,
-               y: traj[i].y + (traj[i + 1].y - traj[i].y) * e };
-    }
-  }
-  return { x: last.x, y: last.y };
-}
-function placeMarker(el, traj, life, year, isRect) {
-  const pos = cmpMarkerPos(traj, year);
-  if (!pos) { el.setAttribute("hidden", ""); return; }
-  el.removeAttribute("hidden");
-  if (isRect) {
-    const s = parseFloat(el.getAttribute("width")) || 14;
-    el.setAttribute("x", pos.x - s / 2); el.setAttribute("y", pos.y - s / 2);
-  } else {
-    el.setAttribute("cx", pos.x); el.setAttribute("cy", pos.y);
-  }
-  // 未生/已卒：灰置（淡出＋改灰描边）
-  const alive = (life.lo == null || year >= life.lo) && (life.hi == null || year <= life.hi);
-  el.setAttribute("opacity", alive ? "1" : "0.28");
-  el.setAttribute("stroke", alive ? (isRect ? cmp.colorB : cmp.colorA) : "#9A9081");
-}
+/* （r17b 移除旧 cmpMarkerPos/placeMarker：纯年插值在同年多交会地处塌缩，已由
+ *   sc 主钟的 cmpPositionAt/setMarkerXY 取代，见「年位同步根修」注。） */
 
 /* 年轴：两人生卒条＋生卒刻度＋交会标记＋播放游标 */
 function cmpBuildAxis() {
@@ -2481,12 +2593,30 @@ function cmpShowInlineDetail(title, node) {
   if (window.matchMedia("(max-width: 900px)").matches) panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
-/* ---- 并观播放：双轨模式，接入统一引擎 player（r17）。
- * 主钟归一化进度 → 绝对年；两标记各沿己轨按年插值（段内 easeInOut，见 cmpMarkerPos）；
- * 交会年（a 同场／b 同年同地同权）作为 beats 自动暂停一拍并脉冲高亮该地全部交会点。 */
-function cmpRenderAt(year) {
-  placeMarker(cmp.markerA, cmp.trajA, cmp.lifeA, year, false);
-  placeMarker(cmp.markerB, cmp.trajB, cmp.lifeB, year, true);
+/* ---- 并观播放：双轨模式，接入统一引擎 player（r17；r17b 主钟改故事进度 sc）。
+ * 主钟 elapsed 线性映射到故事进度 sc（[scMin,scMax]）；两标记位置＝sc 的纯函数
+ * cmpPositionAt(waypoints, sc)；交会锚整数 sc 作 beats——主钟精确落位交会刻即两人到交会地
+ * （从构造上保证「钟到交会年 ⇔ 人到交会地」），自动暂停一拍并脉冲高亮该交会地。 */
+function setMarkerXY(el, pos, alive, isRect, color) {
+  if (!el) return;
+  el.removeAttribute("hidden");
+  if (isRect) {
+    const s = parseFloat(el.getAttribute("width")) || 14;
+    el.setAttribute("x", pos.x - s / 2); el.setAttribute("y", pos.y - s / 2);
+  } else {
+    el.setAttribute("cx", pos.x); el.setAttribute("cy", pos.y);
+  }
+  el.setAttribute("opacity", alive ? "1" : "0.28");        // 未生/已卒灰置
+  el.setAttribute("stroke", alive ? color : "#9A9081");
+}
+function cmpRenderAtSc(sc) {
+  const year = cmpClockYearAt(sc);
+  const posA = cmpPositionAt(cmp.waypointsA, sc);
+  const posB = cmpPositionAt(cmp.waypointsB, sc);
+  const aliveA = (cmp.lifeA.lo == null || year >= cmp.lifeA.lo) && (cmp.lifeA.hi == null || year <= cmp.lifeA.hi);
+  const aliveB = (cmp.lifeB.lo == null || year >= cmp.lifeB.lo) && (cmp.lifeB.hi == null || year <= cmp.lifeB.hi);
+  setMarkerXY(cmp.markerA, posA, aliveA, false, cmp.colorA);
+  setMarkerXY(cmp.markerB, posB, aliveB, true, cmp.colorB);
   const head = $("#cmp-playhead");
   if (head) {
     head.hidden = false;
@@ -2508,40 +2638,35 @@ function cmpCaption(year) {
     personName(cmp.B) + "（" + st(cmp.lifeB) + "）";
   requestAnimationFrame(() => c.classList.add("show"));
 }
-/* 交会年到达：脉冲高亮该年【全部】交会地（侧栏—地图一一对应），换 B3 免责字幕。
- * a 级同场与 b 级同年同地同权处理——同一年内多处交会一并高亮、只暂停一拍。 */
-function cmpFireMeetingBeat(year, list) {
-  const places = [...new Set(list.map(m => m.place))];
-  places.forEach(pid => {
-    const g = cmp.svg && cmp.svg.querySelector('.cmp-meet[data-place="' + pid + '"]');
-    if (g) { g.classList.add("pulse"); setTimeout(() => g.classList.remove("pulse"), PLAY_HOLD_MS + 200); }
-  });
+/* 交会锚到达：脉冲高亮该交会地（侧栏—地图一一对应），换 B3 免责字幕。
+ * a 级同场与 b 级同年同地同权；同一交会地兼含 a、b 时字幕并述。 */
+function cmpFireMeetingBeat(sync) {
+  const g = cmp.svg && cmp.svg.querySelector('.cmp-meet[data-place="' + sync.place + '"]');
+  if (g) { g.classList.add("pulse"); setTimeout(() => g.classList.remove("pulse"), PLAY_HOLD_MS + 200); }
   const c = $("#cmp-caption");
   if (!c) return;
-  const hasA = list.some(m => m.level === "a");
-  const names = places.map(pid => (PLACES[pid] ? PLACES[pid].ancient_name : pid)).join("、");
-  const kind = hasA ? "同场"
-    : (list.every(m => m.chain) ? "同年同地（相邻记载）" : "同年同地");
+  const hasA = sync.meetings.some(m => m.level === "a");
+  const hasB = sync.meetings.some(m => m.level === "b");
+  const name = PLACES[sync.place] ? PLACES[sync.place].ancient_name : sync.place;
+  let kind = hasA ? "同场" : (sync.meetings.every(m => m.chain) ? "同年同地（相邻记载）" : "同年同地");
+  if (hasA && hasB) kind = "同场（并含同年相邻记载）";
   c.classList.add("hold"); c.hidden = false;
-  c.textContent = yearLabel(Math.round(year)) + " · " + names + "：" + kind + " — " + BINGUAN_DISCLAIMER;
+  c.textContent = yearLabel(Math.round(cmpClockYearAt(sync.idx))) + " · " + name + "：" + kind + " — " + BINGUAN_DISCLAIMER;
   requestAnimationFrame(() => c.classList.add("show"));
 }
 function comparePlayCfg() {
   const span = cmp.axisMax - cmp.axisMin;
   const dur = Math.max(4000, Math.min(12000, span * 130)); // 1× 基准；0.5× 默认由 player.speed 缩放
-  const y2e = (y) => span > 0 ? (y - cmp.axisMin) / span * dur : 0;
-  const e2y = (el) => cmp.axisMin + (dur > 0 ? el / dur : 1) * span;
-  const byYear = new Map();
-  cmp.meetings.forEach(m => { if (!byYear.has(m.year)) byYear.set(m.year, []); byYear.get(m.year).push(m); });
-  const beats = [...byYear.keys()].sort((a, b) => a - b).map(y => ({
-    key: y, at: y2e(y), fire: () => cmpFireMeetingBeat(y, byYear.get(y)),
-  }));
+  const scMin = cmp.scMin, scSpan = (cmp.scMax - cmp.scMin) || 1;
+  const e2sc = (el) => scMin + (dur > 0 ? el / dur : 1) * scSpan;
+  const sc2e = (sc) => (sc - scMin) / scSpan * dur;
+  const beats = cmp.syncs.map(s => ({ key: s.idx, at: sc2e(s.idx), fire: () => cmpFireMeetingBeat(s) }));
   return {
     mode: "dual", dur, beats,
     onStart() { cmp.markerA.removeAttribute("hidden"); cmp.markerB.removeAttribute("hidden"); },
-    render(el) { cmpRenderAt(e2y(el)); },
+    render(el) { cmpRenderAtSc(e2sc(el)); },
     onHoldEnd() { const c = $("#cmp-caption"); if (c) c.classList.remove("hold"); },
-    onFinish() { const btn = $("#cmp-play"); if (btn) btn.textContent = "▶ 按年并观"; cmpCaptionFade(); },
+    onFinish() { setPlayBtnText("dual", "▶ 按年并观"); cmpCaptionFade(); },
     onStop() { cmpCleanup(); },
   };
 }
@@ -2551,19 +2676,18 @@ function cmpCaptionFade() {
 }
 function cmpCleanup() {
   const c = $("#cmp-caption"); if (c) { c.classList.remove("show", "hold"); c.hidden = true; c.textContent = ""; }
-  const btn = $("#cmp-play"); if (btn) btn.textContent = "▶ 按年并观";
+  setPlayBtnText("dual", "▶ 按年并观");
   const head = document.querySelector("#cmp-playhead"); if (head) head.hidden = true;
 }
 function toggleComparePlay() {
-  const btn = $("#cmp-play");
   if (player.cfg && player.cfg.mode === "dual" && player.raf && !player.paused) {
-    playerPause(); btn.textContent = "▶ 继续并观"; return;
+    playerPause(); setPlayBtnText("dual", "▶ 继续并观"); return;
   }
   if (player.cfg && player.cfg.mode === "dual" && player.paused) {
-    playerResume(); btn.textContent = "⏸ 暂停"; return;
+    playerResume(); setPlayBtnText("dual", "⏸ 暂停"); return;
   }
   playerStart(comparePlayCfg());
-  btn.textContent = "⏸ 暂停";
+  setPlayBtnText("dual", "⏸ 暂停");
 }
 
 /* 并观全屏：复用 #map-overlay 容器与 bindZoomGesture（容器统一律，与地图/关系图全屏同机制）。
@@ -2588,6 +2712,7 @@ function openCmpOverlay() {
   const start = cmp.mode === "fit" ? cmp.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H };
   cmpZoom.box = { ...start };
   cmp.svg.setAttribute("viewBox", start.x + " " + start.y + " " + start.w + " " + start.h);
+  setupOverlayControls("dual");
   $("#btn-overlay-close").focus();
 }
 function closeCmpOverlay() {
@@ -2597,6 +2722,7 @@ function closeCmpOverlay() {
   overlay.setAttribute("aria-label", "地图全屏查看");
   $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点击地点看详情";
   document.body.classList.remove("no-scroll");
+  hideOverlayControls();
   cmpZoom.active = false;
   if (cmp.svg) $("#cmp-canvas").appendChild(cmp.svg);
   const frame = $("#cmp-frame");
@@ -4417,6 +4543,21 @@ async function boot() {
   // 首访三步引导：仅首次、且落在首页视图（深链入站者不打扰）
   if (!tourSeen() && state.view === "home") startTour();
 }
-boot().catch(err => {
-  $("#footer-stats").textContent = "加载失败：" + err.message + "（请经 http 访问并确认已运行 tools/csv_to_json.py）";
-});
+// 浏览器内自启动；Node（无 document，供 tools/test_binguan_play.js 脱离浏览器驱动引擎）不自启
+if (typeof document !== "undefined" && typeof document.querySelector === "function") {
+  boot().catch(err => {
+    $("#footer-stats").textContent = "加载失败：" + err.message + "（请经 http 访问并确认已运行 tools/csv_to_json.py）";
+  });
+}
+
+/* 测试钩子（r17b）：仅 Node 下暴露引擎与映射，供 tools/test_binguan_play.js 用合成 Δt 驱动状态机、
+ * 断言交会锚触发帧两标记确在交会地。不影响浏览器运行（浏览器无 module）。 */
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    loadData(d) { Object.assign(DATA, d); PEOPLE = byId(d.people); PLACES = byId(d.places);
+      SOURCES = byId(d.sources); EVENTS = byId(d.events); },
+    project, buildTraj, detectMeetings, cmpComputeModel, cmpBuildSyncs, cmpBuildWaypoints,
+    cmpPositionAt, cmpClockYearAt, comparePlayCfg, playerFrame, playerStart, playerStop,
+    cmp, player, PLACESref: () => PLACES,
+  };
+}

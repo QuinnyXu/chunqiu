@@ -1117,6 +1117,34 @@ footer.site-footer {
 }
 body.no-scroll { overflow: hidden; }
 
+/* 全屏播放悬浮控件（任务三·r17b）：左下角浮起，不遮轨迹与图例；触屏热区足够 */
+.overlay-controls {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 8;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.overlay-controls[hidden] { display: none; }
+.overlay-controls button {
+  font: inherit;
+  font-family: var(--serif);
+  background: rgba(251, 247, 236, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.5rem 0.95rem;      /* 触屏热区 ≥44px 高 */
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(46, 42, 36, 0.18);
+}
+.overlay-controls button:focus-visible { outline: 2px solid var(--ochre); outline-offset: 2px; }
+@media (max-width: 680px) {
+  .overlay-controls { left: 10px; bottom: 10px; }
+}
+
 /* ---------- 屏4 资料库 ---------- */
 .lib-toolbar {
   display: flex;
