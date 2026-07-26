@@ -9,7 +9,7 @@
 ## 角色纪律
 
 - 任务书抬头【任务 For Sophia/Skipper/Vision】决定执行者：分派给对应子代理（.claude/agents/），收件人不符要指出并停止，不代做。
-- 排程与裁定权在领队与 Xiangtao：执行中产生的改排建议、史学疑点，一律记录上报，不自行裁量（详见 docs/conventions.md §10）。
+- 排程与裁定权在领队与 Xu：执行中产生的改排建议、史学疑点，一律记录上报，不自行裁量（详见 docs/conventions.md §10）。
 - 提交信息与交付文档使用团队轮次编号（delivery_<agent>_r<轮次>.md）。
 
 ## 红线
