@@ -1117,6 +1117,34 @@ footer.site-footer {
 }
 body.no-scroll { overflow: hidden; }
 
+/* 全屏播放悬浮控件（任务三·r17b）：左下角浮起，不遮轨迹与图例；触屏热区足够 */
+.overlay-controls {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 8;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.overlay-controls[hidden] { display: none; }
+.overlay-controls button {
+  font: inherit;
+  font-family: var(--serif);
+  background: rgba(251, 247, 236, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.5rem 0.95rem;      /* 触屏热区 ≥44px 高 */
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(46, 42, 36, 0.18);
+}
+.overlay-controls button:focus-visible { outline: 2px solid var(--ochre); outline-offset: 2px; }
+@media (max-width: 680px) {
+  .overlay-controls { left: 10px; bottom: 10px; }
+}
+
 /* ---------- 屏4 资料库 ---------- */
 .lib-toolbar {
   display: flex;
@@ -1699,8 +1727,12 @@ body.no-scroll { overflow: hidden; }
 .cmp-meet { cursor: pointer; }
 .cmp-meet-label { fill: var(--ink); font-family: var(--serif); paint-order: stroke; stroke: var(--silk); stroke-width: 2.4px; }
 .cmp-meet.selected circle:first-of-type { stroke-width: 3.4; }
-.cmp-meet.pulse circle:first-of-type { animation: cmpPulse 0.65s ease 2; }
-@keyframes cmpPulse { 0%,100% { stroke-width: 2.4; } 50% { stroke-width: 5; } }
+/* r18 交会常亮：播放态下未经过=待亮（淡、细）、经过=常亮（实、加重）；非播放态维持常态 */
+.cmp-play-active .cmp-meet { opacity: 0.34; transition: opacity 0.35s ease; }
+.cmp-play-active .cmp-meet .cmp-meet-label { opacity: 0; transition: opacity 0.35s ease; }
+.cmp-play-active .cmp-meet.lit { opacity: 1; }
+.cmp-play-active .cmp-meet.lit circle:first-of-type { stroke-width: 3.4; }
+.cmp-play-active .cmp-meet.lit .cmp-meet-label { opacity: 1; }
 .cmp-marker { pointer-events: none; transition: opacity 0.2s ease; }
 
 /* 年轴 */
