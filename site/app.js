@@ -1145,7 +1145,6 @@ function renderMap() {
   const btn = $("#btn-play");
   btn.disabled = traj.length < 2;
   btn.onclick = () => toggleSinglePlay(traj, anchors, theme);
-  bindSpeedBtn("#btn-speed");
 
   $("#btn-scope").onclick = () => {
     mapState.mode = mapState.mode === "fit" ? "full" : "fit";
@@ -1407,8 +1406,9 @@ function openOverlay() {
   setupOverlayControls("single");
   $("#btn-overlay-close").focus();
 }
-/* 全屏浮层播放悬浮控件（任务三）：单人/并观同用；播放/暂停委托主工具条按钮（复用其闭包与状态），
- * 速度并入共享速度状态组（refreshSpeedBtns）。退出全屏隐藏、无缝衔接内嵌态。 */
+/* 全屏浮层播放悬浮控件（r17b 引入·r18 定稿为仅「播放/暂停」）：单人/并观、桌面/手机四组合同用。
+ * 播放/暂停委托主工具条按钮（复用其 onclick 闭包与播放状态）；文案由 setPlayBtnText 主/浮层同写，
+ * 故全屏内外播放状态无缝双向同步（全屏中暂停→退出仍暂停；反之亦然）。退出全屏隐藏。 */
 function setupOverlayControls(mode) {
   const box = $("#overlay-controls");
   if (!box) return;
@@ -1418,10 +1418,9 @@ function setupOverlayControls(mode) {
   box.hidden = !!(mp && mp.disabled);          // 无轨迹不可播则不显控件
   if (box.hidden) return;
   if (ovPlay) {
-    ovPlay.textContent = mp ? mp.textContent : "▶ 播放";
+    ovPlay.textContent = mp ? mp.textContent : "▶ 播放"; // 开全屏即同步当前播放/暂停态
     ovPlay.onclick = () => { const b = $(mainPlay); if (b) b.click(); }; // 委托：复用主按钮 onclick 闭包
   }
-  bindSpeedBtn("#ov-speed");                    // 并入共享速度状态组，切档即时且记忆
 }
 function hideOverlayControls() {
   const box = $("#overlay-controls");
@@ -1640,53 +1639,42 @@ function closeRelOverlay() {
 }
 
 /* ================================================================== *
- * 统一轨迹播放引擎 player（r17 引擎合一，清偿 TD-r16-01）
+ * 统一轨迹播放引擎 player（r17 引擎合一，清偿 TD-r16-01；r18 简化）
  * ------------------------------------------------------------------
  * 单人（单轨）与并观（双轨）共用同一状态机与主钟；差异只在注入的 cfg：
  *   · 单人 = 单轨模式：主钟归一化进度 → 单标记沿单轨按「段长（几何距离）」推进，逐段 easeInOut；
- *   · 并观 = 双轨模式：主钟归一化进度 → 绝对年，两标记各沿己轨按年插值，逐段 easeInOut；
- *          交会年（a 同场／b 同年同地同权）作为 beats 自动暂停一拍并脉冲高亮。
- * 主钟采用「增量累加」而非「startTs 停表」：每帧 elapsed += min(Δt,100ms) × speed。
+ *   · 并观 = 双轨模式：主钟归一化进度 → 故事进度 sc，两标记各沿己轨按 sc 插值，逐段 easeInOut；
+ *          交会锚（a 同场／b 同年同地同权）作为 beats——经过即点亮该交会地并常亮，行进不打断。
+ * 主钟采用「增量累加」：每帧 elapsed += min(Δt,100ms) × 0.5（r18 速度定稿：唯一速度 0.5×）。
  *   - 暂停冻结主钟（不推进 elapsed），续播不追赶（lastTs 归零，首帧 Δt=0）；
- *   - Δt 上限 100ms → 切后台/长帧回来不突进；
- *   - 交会自动暂停（holdUntil）期间同样不推进 elapsed，解除后从原位无缝续行（消除「汇合点后突然加速」）。
- * 速度档 0.5×/1×（默认 0.5×，localStorage 记忆）只缩放每帧 Δt，不改 dur，故切档即时生效。
+ *   - Δt 上限 100ms → 切后台/长帧回来不突进。
+ * r18 裁定：移除自动停拍（holdUntil 退役）与速度档；beat 命中只「点亮交会点」，不暂停、不闪烁。
  * ================================================================== */
 const easeInOut = (u) => (u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2);
 const PLAY_NS = "http://www.w3.org/2000/svg";
-const PLAY_HOLD_MS = 1200;          // 交会自动暂停一拍时长
-const PLAY_SPEED_KEY = "cq_play_speed";
-function playSpeed() { try { return localStorage.getItem(PLAY_SPEED_KEY) === "1" ? 1 : 0.5; } catch { return 0.5; } }
-function setPlaySpeed(v) { try { localStorage.setItem(PLAY_SPEED_KEY, v === 1 ? "1" : "0.5"); } catch { /* 隐私模式：本会话不记忆 */ } }
-function speedLabel() { return playSpeed() === 1 ? "1×" : "0.5×"; }
+const PLAY_SPEED = 0.5;             // r18 唯一速度（0.5×），单人与并观同速
 
 const player = { raf: null, paused: false, lastTs: 0, elapsed: 0, dur: 0,
-                 holdUntil: 0, speed: 0.5, cfg: null, firedBeats: null };
+                 cfg: null, firedBeats: null };
 
 function playerFrame(ts) {
   const p = player;
   const dt = p.lastTs ? Math.min(ts - p.lastTs, 100) : 0; // 首帧/续播 Δt=0；上限 100ms 防突进
   p.lastTs = ts;
-  if (p.holdUntil) {                    // 交会自动暂停一拍：冻结主钟，不推进 elapsed
-    if (ts < p.holdUntil) { p.raf = requestAnimationFrame(playerFrame); return; }
-    p.holdUntil = 0;
-    if (p.cfg.onHoldEnd) p.cfg.onHoldEnd();
-  }
   const prev = p.elapsed;
-  p.elapsed = Math.min(p.elapsed + dt * p.speed, p.dur);
-  // beats（交会）跨越检测：命中即精确落位到该刻、脉冲高亮、自动暂停一拍
+  p.elapsed = Math.min(p.elapsed + dt * PLAY_SPEED, p.dur);
+  // beats（交会锚）跨越检测：命中即精确落位到该刻、点亮该交会点并常亮；不暂停、不闪烁、不打断行进
   const beats = p.cfg.beats;
   if (beats) {
     for (const b of beats) {
       if (p.firedBeats.has(b.key)) continue;
       if (b.at > prev && b.at <= p.elapsed) {
         p.firedBeats.add(b.key);
-        p.elapsed = b.at;               // 精确停在交会时刻（两标记不越过交会点）
+        p.elapsed = b.at;               // 精确落位交会刻（两标记确在交会地——供状态机断言）
         p.cfg.render(p.elapsed);
-        b.fire();
-        p.holdUntil = ts + PLAY_HOLD_MS;
+        b.fire();                       // 点亮该交会地（常亮），无停拍
         p.raf = requestAnimationFrame(playerFrame);
-        return;
+        return;                         // 同帧多锚顺次于相邻帧点亮，自然连续、不打断
       }
     }
   }
@@ -1697,10 +1685,8 @@ function playerFrame(ts) {
 function playerStart(cfg) {
   playerStop();
   player.cfg = cfg;
-  player.speed = playSpeed();
   player.dur = cfg.dur;
   player.elapsed = 0;
-  player.holdUntil = 0;
   player.lastTs = 0;
   player.paused = false;
   player.firedBeats = new Set();
@@ -1716,46 +1702,28 @@ function playerPause() {
 }
 function playerResume() {
   if (!player.cfg || !player.paused) return;
-  player.paused = false; player.lastTs = 0; player.holdUntil = 0; // 续播不追赶
+  player.paused = false; player.lastTs = 0; // 续播不追赶
   if (player.cfg.onResume) player.cfg.onResume();
   player.raf = requestAnimationFrame(playerFrame);
 }
 function playerFinish() {
   if (player.raf) cancelAnimationFrame(player.raf);
-  player.raf = null; player.paused = false; player.holdUntil = 0;
+  player.raf = null; player.paused = false;
   const cfg = player.cfg;
   if (cfg) { cfg.render(cfg.dur); if (cfg.onFinish) cfg.onFinish(); } // 终点归位：显式落位到末刻
 }
 function playerStop() {
   if (player.raf) cancelAnimationFrame(player.raf);
-  player.raf = null; player.paused = false; player.holdUntil = 0; player.lastTs = 0;
+  player.raf = null; player.paused = false; player.lastTs = 0;
   const cfg = player.cfg;
   player.cfg = null;
   if (cfg && cfg.onStop) cfg.onStop();
 }
-/* 速度档按钮（单人 #btn-speed / 并观 #cmp-speed / 全屏浮层 #ov-speed 共用同一 localStorage 值，互相同步显示） */
-function refreshSpeedBtns() {
-  ["#btn-speed", "#cmp-speed", "#ov-speed"].forEach(id => {
-    const el = $(id);
-    if (el) { el.textContent = "速度 " + speedLabel();
-      el.setAttribute("aria-label", "播放速度，当前 " + speedLabel() + "，点按切换"); }
-  });
-}
-/* 播放/暂停按钮文案同步：主工具条 + 全屏浮层悬浮控件（#ov-play）同写，两处状态一致 */
+/* 播放/暂停按钮文案同步：主工具条 + 全屏浮层悬浮控件（#ov-play）同写，两处状态一致
+ * （全屏内外播放状态无缝同步的关键——任何切换 play/pause 都写到两处按钮）。 */
 function setPlayBtnText(mode, txt) {
   const main = mode === "single" ? "#btn-play" : "#cmp-play";
   [main, "#ov-play"].forEach(id => { const b = $(id); if (b) b.textContent = txt; });
-}
-function bindSpeedBtn(id) {
-  const b = $(id);
-  if (!b) return;
-  b.onclick = () => {
-    const nv = playSpeed() === 1 ? 0.5 : 1;
-    setPlaySpeed(nv);
-    player.speed = nv;            // 立即作用于当前播放
-    refreshSpeedBtns();
-  };
-  refreshSpeedBtns();
 }
 
 /* ---------- 单人地图字幕（到站播报，aria-live=polite） ---------- */
@@ -2184,7 +2152,6 @@ function renderCompare() {
   playBtn.textContent = "▶ 按年并观";
   playBtn.disabled = (cmp.trajA.length + cmp.trajB.length) < 1;
   playBtn.onclick = toggleComparePlay;
-  bindSpeedBtn("#cmp-speed");
   $("#cmp-scope").onclick = () => {
     cmp.mode = cmp.mode === "fit" ? "full" : "fit";
     cmpApplyView(cmp.mode === "fit" ? cmp.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
@@ -2593,10 +2560,11 @@ function cmpShowInlineDetail(title, node) {
   if (window.matchMedia("(max-width: 900px)").matches) panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
-/* ---- 并观播放：双轨模式，接入统一引擎 player（r17；r17b 主钟改故事进度 sc）。
+/* ---- 并观播放：双轨模式，接入统一引擎 player（r17；r17b 主钟改故事进度 sc；r18 交会常亮）。
  * 主钟 elapsed 线性映射到故事进度 sc（[scMin,scMax]）；两标记位置＝sc 的纯函数
  * cmpPositionAt(waypoints, sc)；交会锚整数 sc 作 beats——主钟精确落位交会刻即两人到交会地
- * （从构造上保证「钟到交会年 ⇔ 人到交会地」），自动暂停一拍并脉冲高亮该交会地。 */
+ * （从构造上保证「钟到交会年 ⇔ 人到交会地」）。r18：经过即点亮该交会地并常亮至结束/重置，
+ * 未经过者保持待亮态；不暂停、不闪烁、不打断行进。 */
 function setMarkerXY(el, pos, alive, isRect, color) {
   if (!el) return;
   el.removeAttribute("hidden");
@@ -2629,7 +2597,6 @@ function cmpRenderAtSc(sc) {
 function cmpCaption(year) {
   const c = $("#cmp-caption");
   if (!c) return;
-  if (c.classList.contains("hold")) return; // 交会免责字幕在场时不被逐帧年份字幕覆盖
   const st = (life) => (life.lo != null && year < life.lo) ? "未生"
     : (life.hi != null && year > life.hi) ? "已卒" : "在世";
   c.hidden = false;
@@ -2638,46 +2605,42 @@ function cmpCaption(year) {
     personName(cmp.B) + "（" + st(cmp.lifeB) + "）";
   requestAnimationFrame(() => c.classList.add("show"));
 }
-/* 交会锚到达：脉冲高亮该交会地（侧栏—地图一一对应），换 B3 免责字幕。
- * a 级同场与 b 级同年同地同权；同一交会地兼含 a、b 时字幕并述。 */
+/* 交会锚被标记经过：点亮该交会地（加 .lit → 常亮至结束/重置），不闪烁、不暂停、不打断行进。
+ * 侧栏—地图一一对应、免责句、相邻记载分辨全部保留（在侧栏与弹卡内，见 cmpBuildSidebar/cmpShowMeetings）。 */
 function cmpFireMeetingBeat(sync) {
   const g = cmp.svg && cmp.svg.querySelector('.cmp-meet[data-place="' + sync.place + '"]');
-  if (g) { g.classList.add("pulse"); setTimeout(() => g.classList.remove("pulse"), PLAY_HOLD_MS + 200); }
-  const c = $("#cmp-caption");
-  if (!c) return;
-  const hasA = sync.meetings.some(m => m.level === "a");
-  const hasB = sync.meetings.some(m => m.level === "b");
-  const name = PLACES[sync.place] ? PLACES[sync.place].ancient_name : sync.place;
-  let kind = hasA ? "同场" : (sync.meetings.every(m => m.chain) ? "同年同地（相邻记载）" : "同年同地");
-  if (hasA && hasB) kind = "同场（并含同年相邻记载）";
-  c.classList.add("hold"); c.hidden = false;
-  c.textContent = yearLabel(Math.round(cmpClockYearAt(sync.idx))) + " · " + name + "：" + kind + " — " + BINGUAN_DISCLAIMER;
-  requestAnimationFrame(() => c.classList.add("show"));
+  if (g) g.classList.add("lit");        // 常亮留痕，无 setTimeout 清除、无脉冲
+}
+/* 播放开始/重置：进入「播放态」，全部交会点回到待亮态（清除上一轮 .lit） */
+function cmpResetLit() {
+  if (!cmp.svg) return;
+  cmp.svg.classList.add("cmp-play-active");
+  cmp.svg.querySelectorAll(".cmp-meet.lit").forEach(g => g.classList.remove("lit"));
 }
 function comparePlayCfg() {
-  const span = cmp.axisMax - cmp.axisMin;
-  const dur = Math.max(4000, Math.min(12000, span * 130)); // 1× 基准；0.5× 默认由 player.speed 缩放
   const scMin = cmp.scMin, scSpan = (cmp.scMax - cmp.scMin) || 1;
+  const dur = Math.max(4000, Math.min(14000, scSpan * 900)); // 内容时长（1× 基准），唯一速度 0.5× 由引擎缩放；按 sc 跨度定时长
   const e2sc = (el) => scMin + (dur > 0 ? el / dur : 1) * scSpan;
   const sc2e = (sc) => (sc - scMin) / scSpan * dur;
   const beats = cmp.syncs.map(s => ({ key: s.idx, at: sc2e(s.idx), fire: () => cmpFireMeetingBeat(s) }));
   return {
     mode: "dual", dur, beats,
-    onStart() { cmp.markerA.removeAttribute("hidden"); cmp.markerB.removeAttribute("hidden"); },
+    onStart() { cmp.markerA.removeAttribute("hidden"); cmp.markerB.removeAttribute("hidden"); cmpResetLit(); },
     render(el) { cmpRenderAtSc(e2sc(el)); },
-    onHoldEnd() { const c = $("#cmp-caption"); if (c) c.classList.remove("hold"); },
-    onFinish() { setPlayBtnText("dual", "▶ 按年并观"); cmpCaptionFade(); },
+    onFinish() { setPlayBtnText("dual", "▶ 按年并观"); cmpCaptionFade(); }, // 结束保留 .lit（常亮留痕）
     onStop() { cmpCleanup(); },
   };
 }
 function cmpCaptionFade() {
   const c = $("#cmp-caption");
-  if (c) { c.classList.remove("show", "hold"); setTimeout(() => { if (c && !c.classList.contains("show")) c.hidden = true; }, 300); }
+  if (c) { c.classList.remove("show"); setTimeout(() => { if (c && !c.classList.contains("show")) c.hidden = true; }, 300); }
 }
 function cmpCleanup() {
-  const c = $("#cmp-caption"); if (c) { c.classList.remove("show", "hold"); c.hidden = true; c.textContent = ""; }
+  const c = $("#cmp-caption"); if (c) { c.classList.remove("show"); c.hidden = true; c.textContent = ""; }
   setPlayBtnText("dual", "▶ 按年并观");
   const head = document.querySelector("#cmp-playhead"); if (head) head.hidden = true;
+  if (cmp.svg) { cmp.svg.classList.remove("cmp-play-active"); // 退出播放态：交会点回常态（非待亮）
+    cmp.svg.querySelectorAll(".cmp-meet.lit").forEach(g => g.classList.remove("lit")); }
 }
 function toggleComparePlay() {
   if (player.cfg && player.cfg.mode === "dual" && player.raf && !player.paused) {
@@ -4383,6 +4346,7 @@ function repositionTour() {
 }
 
 async function boot() {
+  try { localStorage.removeItem("cq_play_speed"); } catch { /* r18 速度定稿：清理旧速度档记忆键 */ }
   const names = ["people", "events", "event_people", "places", "passages", "sources",
                  "background", "archaeology", "relations", "meta"];
   const results = await Promise.all(names.map(fetchJSON));

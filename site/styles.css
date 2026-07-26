@@ -1727,8 +1727,12 @@ body.no-scroll { overflow: hidden; }
 .cmp-meet { cursor: pointer; }
 .cmp-meet-label { fill: var(--ink); font-family: var(--serif); paint-order: stroke; stroke: var(--silk); stroke-width: 2.4px; }
 .cmp-meet.selected circle:first-of-type { stroke-width: 3.4; }
-.cmp-meet.pulse circle:first-of-type { animation: cmpPulse 0.65s ease 2; }
-@keyframes cmpPulse { 0%,100% { stroke-width: 2.4; } 50% { stroke-width: 5; } }
+/* r18 交会常亮：播放态下未经过=待亮（淡、细）、经过=常亮（实、加重）；非播放态维持常态 */
+.cmp-play-active .cmp-meet { opacity: 0.34; transition: opacity 0.35s ease; }
+.cmp-play-active .cmp-meet .cmp-meet-label { opacity: 0; transition: opacity 0.35s ease; }
+.cmp-play-active .cmp-meet.lit { opacity: 1; }
+.cmp-play-active .cmp-meet.lit circle:first-of-type { stroke-width: 3.4; }
+.cmp-play-active .cmp-meet.lit .cmp-meet-label { opacity: 1; }
 .cmp-marker { pointer-events: none; transition: opacity 0.2s ease; }
 
 /* 年轴 */
