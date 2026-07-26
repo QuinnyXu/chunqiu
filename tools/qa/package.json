@@ -1,0 +1,14 @@
+{
+  "name": "chunqiu-qa",
+  "private": true,
+  "version": "1.0.0",
+  "description": "经纬春秋 · QA 专用无头浏览器截图工具——不属于站点运行时依赖，仅供视觉/触达类验收自查用。见 docs/conventions.md §9.3。",
+  "type": "commonjs",
+  "scripts": {
+    "install-browser": "playwright install chromium",
+    "shots": "node screenshot_playback_ui.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

@@ -26,3 +26,8 @@ team/
 
 # Claude Code 子代理配置（内部材料）
 .claude/
+
+# QA 专用无头浏览器工具链（tools/qa/，非站点运行时依赖，见 docs/conventions.md §9.3）
+tools/qa/node_modules/
+tools/qa/screenshots/*.png
+!tools/qa/screenshots/.gitkeep
