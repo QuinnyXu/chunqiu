@@ -31,9 +31,10 @@ function startStaticServer(rootDir) {
 async function main() {
   const playwright = require("playwright");
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  const server = await startStaticServer(SITE_DIR);
-  const origin = `http://127.0.0.1:${server.address().port}`;
-  console.log("服务器：" + origin);
+  const baseURL = process.env.QA_BASE_URL || null;
+  let server = null, origin = baseURL;
+  if (!origin) { server = await startStaticServer(SITE_DIR); origin = `http://127.0.0.1:${server.address().port}`; console.log("本地服务器：" + origin); }
+  else console.log("真机 QA_BASE_URL：" + origin);
   const browser = await playwright.chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 950 } });
   const page = await ctx.newPage();
@@ -96,6 +97,6 @@ async function main() {
   console.log("楚成王地图:", JSON.stringify(st2));
 
   await browser.close();
-  server.close();
+  if (server) server.close();
 }
 main().catch(e => { console.error(e); process.exit(1); });

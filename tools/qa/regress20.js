@@ -6,7 +6,10 @@ function srv(root){return new Promise((res,rej)=>{const s=http.createServer((rq,
 const IDS=["P_WENJIANG","P_LUHUAN","P_QIXIANG","P_ZHENGZHAO","P_JIZHONG","P_ZHENGZHUANG","P_LUYIN","P_WUJIANG","P_LUZHUANG","P_QIHUAN","P_QIXI","P_JINWEN","P_LIJI","P_QINMU","P_CHUCHENG","P_MUJI","P_CHUZHUANG","P_ZHUANGJIANG","P_XUANJIANG","P_XIGUI"];
 (async()=>{
   const pw=require("playwright");
-  const s=await srv(SITE_DIR);const origin=`http://127.0.0.1:${s.address().port}`;
+  const baseURL=process.env.QA_BASE_URL||null;
+  let s=null,origin=baseURL;
+  if(!origin){s=await srv(SITE_DIR);origin=`http://127.0.0.1:${s.address().port}`;console.log("本地服务器："+origin);}
+  else console.log("真机 QA_BASE_URL："+origin);
   const b=await pw.chromium.launch();const c=await b.newContext({viewport:{width:1200,height:800}});
   await c.addInitScript(()=>{try{localStorage.setItem("chunqiu_tour_v1","1");}catch(e){}});
   const p=await c.newPage();let errs=[];
@@ -28,5 +31,5 @@ const IDS=["P_WENJIANG","P_LUHUAN","P_QIXIANG","P_ZHENGZHAO","P_JIZHONG","P_ZHEN
   }
   console.log("\n降级清单:",degraded.join("、"));
   console.log("页面错误:",errs.length?errs.join(" | "):"无");
-  await b.close();s.close();
+  await b.close();if(s)s.close();
 })().catch(e=>{console.error(e);process.exit(1);});
