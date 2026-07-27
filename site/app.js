@@ -4168,7 +4168,7 @@ function initSupport() {
   supportDialog.close = closeDesktop;
   supportDialog.isOpen = () => !overlay.hidden;
   const open = () => {
-    if (window.matchMedia("(max-width: 680px)").matches) openDrawer("支持本站", supportContentNode());
+    if (window.matchMedia("(max-width: 680px)").matches) openDrawer("支持本站·支付宝扫一扫", supportContentNode());
     else openDesktop();
   };
   $("#btn-support").addEventListener("click", open);
