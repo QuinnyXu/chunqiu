@@ -94,3 +94,12 @@ G008,《国语·楚语上》,国语,楚语上,传世文献,primary_secondary,htt
 T001,《韩非子·喻老》,韩非子,喻老,诸子说部,secondary,https://ctext.org/hanfeizi/yu-lao/zh,先秦诸子（法家）说理寓言层：「一鸣惊人」右司马隐语版。成书战国末，非当代记事；作 E123 楚庄王即位（S006 骨架）之说部旁证，与史记楚世家相发明、左传无此文。依裁定4 T 层纪律用。
 T002,《说苑·复恩》,说苑,复恩,诸子说部,secondary,https://ctext.org/shuo-yuan/fu-en/zh,秦汉说部轶闻层：西汉刘向编「绝缨之宴」庄王容过得士、后得死力。成书西汉，非当代记事；依裁定4 挂 E128 邲之战为旁证（说苑云绝缨后三年晋楚战报恩），不单独立事件。
 S007,《史记·循吏列传》,史记,循吏列传,传世文献,primary_secondary,https://ctext.org/shiji/xun-li-lie-zhuan/zh,孙叔敖列循吏之首：三月为楚相、施教导民、政缓禁止（汉综合叙事·循吏层）。
+Z068,《春秋左传·僖公二十一年》,春秋左传,僖公二十一年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-yi-nian/zh,盂之会——宋公、楚子等会于盂、楚执宋公以伐宋、子鱼「祸其在此乎」；冬会于薄释宋公。楚成王亲会执宋、北向压宋之明证。
+Z069,《春秋左传·僖公二十七年》,春秋左传,僖公二十七年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-qi-nian/zh,楚子将围宋、子文治兵于睽子玉治兵于蒍；冬楚子及诸侯围宋、宋公孙固如晋告急、先轸「报施救患取威定霸」——城濮之战张本。传作「楚子」（经作「楚人」）为成王亲围之明文。
+Z070,《春秋左传·僖公十八年》,春秋左传,僖公十八年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-shi-ba-nian/zh,郑伯始朝于楚、楚子赐之金既而悔之、与之盟「无以铸兵」故以铸三钟——郑首朝楚、附楚之明文。
+Z071,《春秋左传·隐公四年》,春秋左传,隐公四年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/yin-gong-si-nian/zh,卫州吁弑桓公自立、伐郑求宠、石碏大义灭亲杀州吁于濮。
+Z072,《春秋左传·桓公十六年》,春秋左传,桓公十六年,传世文献,primary,https://ctext.org/chun-qiu-zuo-zhuan/huan-gong-shi-liu-nian/zh,卫宣公烝夷姜生急子、为之娶齐而自纳之（新台）、宣姜与朔构急子、寿子争死、二公子立黔牟惠公奔齐。
+P007,《诗经·卫风·硕人》,诗经,卫风·硕人,诗歌/舆论,primary,https://ctext.org/book-of-poetry/shi-ren/zh,美卫庄公夫人庄姜之诗；「巧笑倩兮、美目盼兮」传诵，属舆论／文学层，非史实。
+P008,《诗经·邶风·燕燕》,诗经,邶风·燕燕,诗歌/舆论,primary,https://ctext.org/book-of-poetry/yan-yan/zh,毛序谓卫庄姜送归妾（戴妫大归于陈），属传统阐释异说；亦有他说，非史实。
+P009,《诗经·邶风·新台》,诗经,邶风·新台,诗歌/舆论,primary,https://ctext.org/book-of-poetry/xin-tai/zh,刺卫宣公筑新台纳伋（急子）之妻宣姜，属舆论／文学层。
+P010,《诗经·邶风·二子乘舟》,诗经,邶风·二子乘舟,诗歌/舆论,primary,https://ctext.org/book-of-poetry/er-zi-cheng-zhou/zh,传统谓哀卫急子、寿子争死，属舆论／文学层。

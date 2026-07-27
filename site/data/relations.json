@@ -1474,5 +1474,338 @@
     "rel_label": "上军将·谏而备独全军以退",
     "reliability": "high",
     "source_note": "左传宣公十二年（士会全上军）"
+  },
+  {
+    "id": "R165",
+    "person_a": "P_WEIZHUANG",
+    "person_b": "P_ZHUANGJIANG",
+    "rel_type": "婚姻",
+    "rel_label": "妻",
+    "reliability": "high",
+    "source_note": "左传隐公三年"
+  },
+  {
+    "id": "R166",
+    "person_a": "P_ZHUANGJIANG",
+    "person_b": "P_WEIHUAN",
+    "rel_type": "亲属-直系",
+    "rel_label": "养母（庄姜以桓公为己子）",
+    "reliability": "high",
+    "source_note": "左传隐公三年"
+  },
+  {
+    "id": "R167",
+    "person_a": "P_WEIZHUANG",
+    "person_b": "P_WEIHUAN",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传隐公三年（陈戴妫所生）"
+  },
+  {
+    "id": "R168",
+    "person_a": "P_WEIZHUANG",
+    "person_b": "P_ZHOUYU",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传隐公三年（嬖人之子）"
+  },
+  {
+    "id": "R169",
+    "person_a": "P_ZHOUYU",
+    "person_b": "P_WEIHUAN",
+    "rel_type": "敌对",
+    "rel_label": "弑之自立",
+    "reliability": "high",
+    "source_note": "左传隐公四年"
+  },
+  {
+    "id": "R170",
+    "person_a": "P_ZHUANGJIANG",
+    "person_b": "P_ZHOUYU",
+    "rel_type": "敌对",
+    "rel_label": "恶之",
+    "reliability": "high",
+    "source_note": "左传隐公三年"
+  },
+  {
+    "id": "R171",
+    "person_a": "P_WEIXUAN",
+    "person_b": "P_XUANJIANG",
+    "rel_type": "婚姻",
+    "rel_label": "妻（新台自纳）",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R172",
+    "person_a": "P_XUANJIANG",
+    "person_b": "P_JIZI",
+    "rel_type": "其他",
+    "rel_label": "本为急子所聘（宣公纳之）",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R173",
+    "person_a": "P_WEIXUAN",
+    "person_b": "P_JIZI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传桓公十六年（烝夷姜所生）"
+  },
+  {
+    "id": "R174",
+    "person_a": "P_XUANJIANG",
+    "person_b": "P_SHOUZI",
+    "rel_type": "亲属-直系",
+    "rel_label": "母",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R175",
+    "person_a": "P_XUANJIANG",
+    "person_b": "P_WEIHUI",
+    "rel_type": "亲属-直系",
+    "rel_label": "母",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R176",
+    "person_a": "P_WEIXUAN",
+    "person_b": "P_SHOUZI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R177",
+    "person_a": "P_WEIXUAN",
+    "person_b": "P_WEIHUI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R178",
+    "person_a": "P_JIZI",
+    "person_b": "P_SHOUZI",
+    "rel_type": "亲属-同辈",
+    "rel_label": "异母兄",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R179",
+    "person_a": "P_SHOUZI",
+    "person_b": "P_WEIHUI",
+    "rel_type": "亲属-同辈",
+    "rel_label": "同母兄",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R180",
+    "person_a": "P_WEIHUI",
+    "person_b": "P_JIZI",
+    "rel_type": "敌对",
+    "rel_label": "与宣姜构杀之",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R181",
+    "person_a": "P_SHOUZI",
+    "person_b": "P_JIZI",
+    "rel_type": "其他",
+    "rel_label": "窃旌代兄先死",
+    "reliability": "high",
+    "source_note": "左传桓公十六年"
+  },
+  {
+    "id": "R182",
+    "person_a": "P_ZHAOBO",
+    "person_b": "P_XUANJIANG",
+    "rel_type": "婚姻",
+    "rel_label": "烝（齐人强之）",
+    "reliability": "high",
+    "source_note": "左传闵公二年"
+  },
+  {
+    "id": "R183",
+    "person_a": "P_WEIXUAN",
+    "person_b": "P_ZHAOBO",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传闵公二年（昭伯即公子顽）"
+  },
+  {
+    "id": "R184",
+    "person_a": "P_XUANJIANG",
+    "person_b": "P_XUMU",
+    "rel_type": "亲属-直系",
+    "rel_label": "母",
+    "reliability": "high",
+    "source_note": "左传闵公二年"
+  },
+  {
+    "id": "R185",
+    "person_a": "P_XUANJIANG",
+    "person_b": "P_WEIWEN",
+    "rel_type": "亲属-直系",
+    "rel_label": "母",
+    "reliability": "high",
+    "source_note": "左传闵公二年"
+  },
+  {
+    "id": "R186",
+    "person_a": "P_ZHAOBO",
+    "person_b": "P_XUMU",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传闵公二年"
+  },
+  {
+    "id": "R187",
+    "person_a": "P_ZHAOBO",
+    "person_b": "P_WEIWEN",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传闵公二年"
+  },
+  {
+    "id": "R188",
+    "person_a": "P_QIXI",
+    "person_b": "P_XUANJIANG",
+    "rel_type": "亲属-直系",
+    "rel_label": "女（通说）",
+    "reliability": "medium",
+    "source_note": "通说宣姜齐僖公女·与文姜姊妹"
+  },
+  {
+    "id": "R189",
+    "person_a": "P_XUANJIANG",
+    "person_b": "P_WENJIANG",
+    "rel_type": "亲属-同辈",
+    "rel_label": "姊妹（通说）",
+    "reliability": "medium",
+    "source_note": "通说同为齐僖公女"
+  },
+  {
+    "id": "R190",
+    "person_a": "P_XIHOU",
+    "person_b": "P_XIGUI",
+    "rel_type": "婚姻",
+    "rel_label": "妻",
+    "reliability": "high",
+    "source_note": "左传庄公十年"
+  },
+  {
+    "id": "R191",
+    "person_a": "P_CHUWEN",
+    "person_b": "P_XIGUI",
+    "rel_type": "婚姻",
+    "rel_label": "妻（灭息而纳）",
+    "reliability": "high",
+    "source_note": "左传庄公十四年"
+  },
+  {
+    "id": "R192",
+    "person_a": "P_XIGUI",
+    "person_b": "P_CHUCHENG",
+    "rel_type": "亲属-直系",
+    "rel_label": "母",
+    "reliability": "high",
+    "source_note": "左传庄公十四年"
+  },
+  {
+    "id": "R193",
+    "person_a": "P_CHUWEN",
+    "person_b": "P_CHUCHENG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "史记楚世家（成王文王之子）"
+  },
+  {
+    "id": "R194",
+    "person_a": "P_CAIAI",
+    "person_b": "P_XIGUI",
+    "rel_type": "其他",
+    "rel_label": "姨（蔡侯妻息妫之姊·止而弗宾）",
+    "reliability": "high",
+    "source_note": "左传庄公十年"
+  },
+  {
+    "id": "R195",
+    "person_a": "P_CHUWEN",
+    "person_b": "P_CAIAI",
+    "rel_type": "敌对",
+    "rel_label": "败之于莘获之·以妫故入蔡",
+    "reliability": "high",
+    "source_note": "左传庄公十、十四年"
+  },
+  {
+    "id": "R196",
+    "person_a": "P_CHUWEN",
+    "person_b": "P_XIHOU",
+    "rel_type": "敌对",
+    "rel_label": "如息灭之",
+    "reliability": "high",
+    "source_note": "左传庄公十四年"
+  },
+  {
+    "id": "R197",
+    "person_a": "P_ZIYUAN",
+    "person_b": "P_XIGUI",
+    "rel_type": "其他",
+    "rel_label": "欲蛊之（振万于宫）",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年"
+  },
+  {
+    "id": "R198",
+    "person_a": "P_CHUWEN",
+    "person_b": "P_ZIYUAN",
+    "rel_type": "亲属-同辈",
+    "rel_label": "兄",
+    "reliability": "high",
+    "source_note": "左传庄公二十八年（子元文王弟）"
+  },
+  {
+    "id": "R199",
+    "person_a": "P_XIHOU",
+    "person_b": "P_CAIAI",
+    "rel_type": "其他",
+    "rel_label": "连襟（俱娶于陈）",
+    "reliability": "high",
+    "source_note": "左传庄公十年"
+  },
+  {
+    "id": "R200",
+    "person_a": "P_LIJI",
+    "person_b": "P_JINHUI",
+    "rel_type": "敌对",
+    "rel_label": "谮逐之",
+    "reliability": "high",
+    "source_note": "左传僖公五年（谮二公子·夷吾奔屈）"
+  },
+  {
+    "id": "R201",
+    "person_a": "P_MUJI",
+    "person_b": "P_SHENSHENG",
+    "rel_type": "亲属-同辈",
+    "rel_label": "姊（同母·通说齐姜所生）",
+    "reliability": "medium",
+    "source_note": "通说穆姬申生同母"
   }
 ]

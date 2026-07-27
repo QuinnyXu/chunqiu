@@ -1957,7 +1957,7 @@
     "person_id": "P_QINMU",
     "role_in_event": "纳「救灾恤邻」之议输粟济晋",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E115",
@@ -2307,6 +2307,377 @@
     "person_id": "P_CHUZHUANG",
     "role_in_event": "使士亹傅太子箴（委命·非亲执教）",
     "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E134",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "会于盂、执宋公以伐宋之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E134",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "会于盂被楚执之宋君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E135",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "楚子及诸侯围宋之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E136",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "城濮战前入居于申、命子玉勿从晋师之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E136",
+    "person_id": "P_ZIYU",
+    "role_in_event": "受命去宋而违命请战（在宋前线·不在申）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E137",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "受郑伯始朝、亲赐之金之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E138",
+    "person_id": "P_WEIZHUANG",
+    "role_in_event": "娶齐东宫得臣之妹为夫人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E138",
+    "person_id": "P_ZHUANGJIANG",
+    "role_in_event": "齐女嫁卫为夫人（美而无子）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E139",
+    "person_id": "P_ZHUANGJIANG",
+    "role_in_event": "养戴妫之子完为己子",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E139",
+    "person_id": "P_WEIHUAN",
+    "role_in_event": "戴妫所生·庄姜子之（时尚幼）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E139",
+    "person_id": "P_WEIZHUANG",
+    "role_in_event": "娶陈戴妫生完",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E140",
+    "person_id": "P_ZHOUYU",
+    "role_in_event": "嬖人子有宠好兵",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E140",
+    "person_id": "P_ZHUANGJIANG",
+    "role_in_event": "恶州吁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E140",
+    "person_id": "P_WEIZHUANG",
+    "role_in_event": "有宠而弗禁（石碏谏不听）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E141",
+    "person_id": "P_ZHOUYU",
+    "role_in_event": "弑桓公自立",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E141",
+    "person_id": "P_WEIHUAN",
+    "role_in_event": "立十六年为州吁所弑",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E141",
+    "person_id": "P_ZHUANGJIANG",
+    "role_in_event": "养子被弑（庄姜之痛）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E142",
+    "person_id": "P_WEIXUAN",
+    "role_in_event": "为急子娶齐女而筑新台自纳之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E142",
+    "person_id": "P_XUANJIANG",
+    "role_in_event": "齐女嫁卫·为宣公所纳",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E142",
+    "person_id": "P_JIZI",
+    "role_in_event": "所聘之齐女为父所夺",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E143",
+    "person_id": "P_JIZI",
+    "role_in_event": "使如齐·盗待诸莘见杀",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E143",
+    "person_id": "P_SHOUZI",
+    "role_in_event": "窃旌先行代兄死",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E143",
+    "person_id": "P_WEIHUI",
+    "role_in_event": "与宣姜构急子·遣盗",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E143",
+    "person_id": "P_XUANJIANG",
+    "role_in_event": "与朔构急子",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E144",
+    "person_id": "P_WEIHUI",
+    "role_in_event": "二公子立黔牟·奔齐",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E144",
+    "person_id": "P_XUANJIANG",
+    "role_in_event": "惠公母",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E145",
+    "person_id": "P_ZHAOBO",
+    "role_in_event": "齐人强其烝宣姜·生五子",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E145",
+    "person_id": "P_XUANJIANG",
+    "role_in_event": "为昭伯所烝·生戴文与许穆夫人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E145",
+    "person_id": "P_XUMU",
+    "role_in_event": "昭伯宣姜所生之女（追叙）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E145",
+    "person_id": "P_WEIWEN",
+    "role_in_event": "昭伯宣姜所生",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E146",
+    "person_id": "P_CHUWEN",
+    "role_in_event": "将楚师败蔡于莘·获蔡侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E146",
+    "person_id": "P_CAIAI",
+    "role_in_event": "蔡师败·被获于莘",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E146",
+    "person_id": "P_XIGUI",
+    "role_in_event": "将归过蔡见止（远因）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E146",
+    "person_id": "P_XIHOU",
+    "role_in_event": "怒蔡侯弗宾·请楚",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E147",
+    "person_id": "P_CHUWEN",
+    "role_in_event": "如息灭之·以息妫归",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E147",
+    "person_id": "P_XIGUI",
+    "role_in_event": "被纳归楚·「一妇事二夫」之答",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E147",
+    "person_id": "P_XIHOU",
+    "role_in_event": "设享招楚而息见灭",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E148",
+    "person_id": "P_CHUWEN",
+    "role_in_event": "以妫故入蔡",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E148",
+    "person_id": "P_CAIAI",
+    "role_in_event": "以莘怨绳息妫致楚入蔡（时在楚）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E148",
+    "person_id": "P_XIGUI",
+    "role_in_event": "楚以妫故（其言蔡）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E149",
+    "person_id": "P_XIGUI",
+    "role_in_event": "生堵敖及成王",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E149",
+    "person_id": "P_CHUCHENG",
+    "role_in_event": "息妫所生（时初生）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E149",
+    "person_id": "P_CHUWEN",
+    "role_in_event": "楚君·成王父",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E150",
+    "person_id": "P_ZIYUAN",
+    "role_in_event": "为馆于宫振万以蛊文夫人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E150",
+    "person_id": "P_XIGUI",
+    "role_in_event": "闻振万而泣（文夫人）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E151",
+    "person_id": "P_JINXIAN",
+    "role_in_event": "欲立骊姬为夫人·卜不吉筮吉从筮",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E151",
+    "person_id": "P_LIJI",
+    "role_in_event": "被立为夫人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E152",
+    "person_id": "P_QINMU",
+    "role_in_event": "娶晋献公女为夫人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E152",
+    "person_id": "P_MUJI",
+    "role_in_event": "晋女嫁秦为夫人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E153",
+    "person_id": "P_MUJI",
+    "role_in_event": "登台履薪·请以死赎晋侯",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E153",
+    "person_id": "P_JINHUI",
+    "role_in_event": "秦所获之晋侯·将至（穆姬弟）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E153",
+    "person_id": "P_QINMU",
+    "role_in_event": "闻请乃改馆而礼晋侯",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E092",
+    "person_id": "P_MUJI",
+    "role_in_event": "秦穆公夫人（后世或谓其劝纳重耳·经传无征·姑存异说）",
+    "directness": "indirect",
     "presence": "相关"
   }
 ]

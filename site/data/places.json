@@ -950,5 +950,61 @@
     "lng": 110.23,
     "coord_certainty": "low",
     "coord_basis": "庸国故地在今竹山县一带通说，据谭其骧《中国历史地图集》"
+  },
+  {
+    "id": "L_YU",
+    "ancient_name": "盂",
+    "state": "宋",
+    "modern_location": "河南省睢县境（确址无考）",
+    "place_type": "会盟地",
+    "certainty": "medium",
+    "description": "僖公二十一年宋公、楚子等诸侯会于盂、楚执宋公以伐宋之地；宋地。",
+    "source_ids": "Z068",
+    "lat": 34.45,
+    "lng": 115.05,
+    "coord_certainty": "low",
+    "coord_basis": "盂为宋地会盟处、睢县境说（江永《春秋地理考实》、顾栋高《春秋大事表》），确址异说故降级，据杨伯峻《春秋左传注》（宁降不虚）"
+  },
+  {
+    "id": "L_SHEN",
+    "ancient_name": "申",
+    "state": "申/楚",
+    "modern_location": "河南省南阳市（宛城一带）",
+    "place_type": "城邑/故国",
+    "certainty": "high",
+    "description": "姜姓申国、楚灭申置申县；僖公二十八年城濮战前楚成王「入居于申」退保之地。",
+    "source_ids": "Z050",
+    "lat": 33.0,
+    "lng": 112.53,
+    "coord_certainty": "medium",
+    "coord_basis": "申国（后为楚申县）故地在今南阳，据谭其骧《中国历史地图集》（南阳市宛城区申国故城一带）"
+  },
+  {
+    "id": "L_XI",
+    "ancient_name": "息",
+    "state": "息",
+    "modern_location": "河南省信阳市息县",
+    "place_type": "都城",
+    "certainty": "high",
+    "description": "息国国都；息妫本息侯夫人，楚文王灭息以息妫归。息为姬姓国（通说）。",
+    "source_ids": "Z025;Z027",
+    "lat": 32.34,
+    "lng": 114.74,
+    "coord_certainty": "high",
+    "coord_basis": "谭其骧《中国历史地图集》春秋图息国故城在今河南息县；杨伯峻《春秋左传注》庄十四注同"
+  },
+  {
+    "id": "L_CAI",
+    "ancient_name": "蔡（上蔡）",
+    "state": "蔡",
+    "modern_location": "河南省驻马店市上蔡县",
+    "place_type": "都城",
+    "certainty": "high",
+    "description": "蔡国国都（上蔡）；莘之役蔡师败于楚、楚以妫故入蔡。蔡为姬姓国。",
+    "source_ids": "Z025;Z027",
+    "lat": 33.27,
+    "lng": 114.27,
+    "coord_certainty": "high",
+    "coord_basis": "谭其骧《中国历史地图集》春秋图蔡国故城在今上蔡县芦岗；杨伯峻《春秋左传注》庄十注同"
   }
 ]

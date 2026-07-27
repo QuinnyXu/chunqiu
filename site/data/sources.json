@@ -948,5 +948,95 @@
     "source_type": "primary_secondary",
     "url": "https://ctext.org/shiji/xun-li-lie-zhuan/zh",
     "notes": "孙叔敖列循吏之首：三月为楚相、施教导民、政缓禁止（汉综合叙事·循吏层）。"
+  },
+  {
+    "id": "Z068",
+    "title": "《春秋左传·僖公二十一年》",
+    "work": "春秋左传",
+    "section": "僖公二十一年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-yi-nian/zh",
+    "notes": "盂之会——宋公、楚子等会于盂、楚执宋公以伐宋、子鱼「祸其在此乎」；冬会于薄释宋公。楚成王亲会执宋、北向压宋之明证。"
+  },
+  {
+    "id": "Z069",
+    "title": "《春秋左传·僖公二十七年》",
+    "work": "春秋左传",
+    "section": "僖公二十七年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-qi-nian/zh",
+    "notes": "楚子将围宋、子文治兵于睽子玉治兵于蒍；冬楚子及诸侯围宋、宋公孙固如晋告急、先轸「报施救患取威定霸」——城濮之战张本。传作「楚子」（经作「楚人」）为成王亲围之明文。"
+  },
+  {
+    "id": "Z070",
+    "title": "《春秋左传·僖公十八年》",
+    "work": "春秋左传",
+    "section": "僖公十八年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-shi-ba-nian/zh",
+    "notes": "郑伯始朝于楚、楚子赐之金既而悔之、与之盟「无以铸兵」故以铸三钟——郑首朝楚、附楚之明文。"
+  },
+  {
+    "id": "Z071",
+    "title": "《春秋左传·隐公四年》",
+    "work": "春秋左传",
+    "section": "隐公四年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/yin-gong-si-nian/zh",
+    "notes": "卫州吁弑桓公自立、伐郑求宠、石碏大义灭亲杀州吁于濮。"
+  },
+  {
+    "id": "Z072",
+    "title": "《春秋左传·桓公十六年》",
+    "work": "春秋左传",
+    "section": "桓公十六年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/huan-gong-shi-liu-nian/zh",
+    "notes": "卫宣公烝夷姜生急子、为之娶齐而自纳之（新台）、宣姜与朔构急子、寿子争死、二公子立黔牟惠公奔齐。"
+  },
+  {
+    "id": "P007",
+    "title": "《诗经·卫风·硕人》",
+    "work": "诗经",
+    "section": "卫风·硕人",
+    "category": "诗歌/舆论",
+    "source_type": "primary",
+    "url": "https://ctext.org/book-of-poetry/shi-ren/zh",
+    "notes": "美卫庄公夫人庄姜之诗；「巧笑倩兮、美目盼兮」传诵，属舆论／文学层，非史实。"
+  },
+  {
+    "id": "P008",
+    "title": "《诗经·邶风·燕燕》",
+    "work": "诗经",
+    "section": "邶风·燕燕",
+    "category": "诗歌/舆论",
+    "source_type": "primary",
+    "url": "https://ctext.org/book-of-poetry/yan-yan/zh",
+    "notes": "毛序谓卫庄姜送归妾（戴妫大归于陈），属传统阐释异说；亦有他说，非史实。"
+  },
+  {
+    "id": "P009",
+    "title": "《诗经·邶风·新台》",
+    "work": "诗经",
+    "section": "邶风·新台",
+    "category": "诗歌/舆论",
+    "source_type": "primary",
+    "url": "https://ctext.org/book-of-poetry/xin-tai/zh",
+    "notes": "刺卫宣公筑新台纳伋（急子）之妻宣姜，属舆论／文学层。"
+  },
+  {
+    "id": "P010",
+    "title": "《诗经·邶风·二子乘舟》",
+    "work": "诗经",
+    "section": "邶风·二子乘舟",
+    "category": "诗歌/舆论",
+    "source_type": "primary",
+    "url": "https://ctext.org/book-of-poetry/er-zi-cheng-zhou/zh",
+    "notes": "传统谓哀卫急子、寿子争死，属舆论／文学层。"
   }
 ]
