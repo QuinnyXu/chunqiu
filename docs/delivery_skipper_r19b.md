@@ -116,7 +116,20 @@
 - **ID 唯一性复核**：events/sources/passages/relations/people 五张表按 id 排序去重后均无重复行。
 - **主角计复核**：`site/data/people.json` 中 `is_protagonist=1` 计 **20** 人，含骊姬、穆姬、庄姜、宣姜、息妫。
 
-git 提交与部署、线上带参复验将在下一步执行（本文件先完成数据侧核验记录，提交后补记 commit hash 与 Actions/线上结果）。
+**git 提交与部署**：commit `54ac9b6`（`data(r19b): 合入 fix19（楚成王亲至补录）+ round20（卫国后妃五线）并行备料撞号重编`），已 `git push origin main`。
+
+**GitHub Actions**：`Deploy site to GitHub Pages` 工作流触发后 `completed / success`（run 30265289805）。
+
+**线上带参复验**（`?v=<timestamp>` 强制绕过缓存，逐张表核对，首次请求命中 CDN 边缘尚未回源的旧缓存，重试后一致）：
+
+| 线上文件 | 结果 |
+|---|---|
+| `meta.json` | events=151、people=97、event_people=383、passages=170、sources=104、places=72、relations=201（与本地生成完全一致） |
+| `events.json` | 151 行；`E134` 仅 1 处命中；events 全表 id 去重后无重复 |
+| `people.json` | 97 行；`is_protagonist=1` 计 **20**，含骊姬、穆姬、庄姜、宣姜、息妫 |
+| `sources.json` / `passages.json` / `relations.json` / `places.json` | 104 / 170 / 201 / 72，均与预期吻合 |
+
+线上生产环境核验通过，本轮合入闭环。
 
 ## 六、已知问题 / 交接备注
 
