@@ -24,11 +24,25 @@ const PROTAGONISTS = [
   { id: "P_QINMU",       color: "", badge: "badge_qinmu",       fallback: "秦穆公" },
   { id: "P_CHUCHENG",    color: "", badge: "badge_chucheng",    fallback: "楚成王" },
   { id: "P_CHUZHUANG",   color: "", badge: "badge_chuzhuang",   fallback: "楚庄王" },
+  { id: "P_XIGUI",       color: "", badge: "badge_xigui",       fallback: "息妫", home: "楚" },
+  { id: "P_LIJI",        color: "", badge: "badge_liji",        fallback: "骊姬" },
+  { id: "P_MUJI",        color: "", badge: "badge_muji",        fallback: "穆姬", home: "秦" },
+  { id: "P_ZHUANGJIANG", color: "", badge: "badge_zhuangjiang", fallback: "庄姜", home: "卫" },
+  { id: "P_XUANJIANG",   color: "", badge: "badge_xuanjiang",   fallback: "宣姜", home: "卫" },
 ];
 /* 从 CSS 变量 --p-<id> 读入 15 主角色（单点管理，见 :root）。缺失则退暖赭并告警。
  * 国色家族色（阵营底晕用）同源自 --state-<key>。 */
 const STATE_FAMILY_VAR = { "齐": "--state-qi", "鲁": "--state-lu", "郑": "--state-zheng",
-                           "晋": "--state-jin", "秦": "--state-qin", "楚": "--state-chu" };
+                           "晋": "--state-jin", "秦": "--state-qin", "楚": "--state-chu",
+                           "卫": "--state-wei" };
+/* 关系全景阵营键：主角按「主要发生国」（meta.home 覆盖，否则 state 首国），非主角按 state 首国。
+ * 使节点色（--p-<id>，取自主要发生国家族）与其在环上的阵营弧位一致（庄姜/宣姜归卫弧、
+ * 息妫归楚弧、穆姬归秦弧、武姜归郑弧），修正旧「按纯首国排位致色位错置」（如武姜郑色却落申槽）。 */
+function panoStateKey(p) {
+  const m = PROTAGONISTS.find(x => x.id === p.id);
+  if (m && m.home) return m.home;
+  return (p.state || "").split("/")[0];
+}
 function resolveProtoColors() {
   const cs = getComputedStyle(document.documentElement);
   for (const m of PROTAGONISTS) {
@@ -66,9 +80,21 @@ const STATE_EPITHET = {
  * 落于各自色块（秦≈雍/关中、楚≈郢），与 layer-states-west 色块相称，不与既有徽记簇重叠。 */
 const HOME_BADGE_POS = {
   "齐": [930, 168], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 237],
-  "秦": [152, 300], "楚": [510, 610],
+  "秦": [152, 300], "楚": [510, 610], "卫": [692, 214],
 };
 const HOME_PENDING = "人物线整理中";
+/* 轨迹降级（r19b 通用机制）：亲至可落图地点不足两处者，无从连成轨迹，
+ * 播放按钮以此静态说明替代（单点定位与事件仍正常显示）。并观配对同句降级。 */
+const PLAY_DEGRADE_NOTE = "亲至可考不足两地，暂无轨迹可播——已知地点如图。";
+/* 设置单人/并观播放控件的降级态：degraded=true 时隐藏播放按钮、改显静态说明，
+ * 并令按钮 disabled（全屏浮层控件据此隐藏，见 setupOverlayControls）。 */
+function setPlayDegrade(mode, degraded) {
+  const btnSel = mode === "single" ? "#btn-play" : "#cmp-play";
+  const noteSel = mode === "single" ? "#play-degrade" : "#cmp-play-degrade";
+  const btn = $(btnSel), note = $(noteSel);
+  if (btn) { btn.hidden = degraded; btn.disabled = degraded; }
+  if (note) { note.hidden = !degraded; if (degraded) note.textContent = PLAY_DEGRADE_NOTE; }
+}
 const HOME_PENDING_HINT = "先看看有主角的国家——齐、鲁、郑、晋、秦、楚。";
 const CAT_ICON = {
   "即位": "jiwei", "战争": "zhanzheng", "会盟": "huimeng", "相会": "xianghui",
@@ -656,11 +682,12 @@ function personCardLi(meta) {
   info.className = "card-info"; // 统一卡式（r12）：信息列 min-width:0，各行单行截断
   const h3 = document.createElement("h3");
   h3.textContent = ready ? person.name : meta.fallback;
-  // 跨国人物标注流向（state 如「齐/鲁」→「齐→鲁」）
+  // 跨国人物标注流向（出身→归宿，取 state 首末国，conventions §6.6；息妫「陈/息/楚」→「陈→楚」）
   if (ready && (person.state || "").includes("/")) {
+    const segs = person.state.split("/").filter(Boolean);
     const flow = document.createElement("span");
     flow.className = "flow-chip";
-    flow.textContent = person.state.split("/").join("→");
+    flow.textContent = segs.length > 1 ? segs[0] + "→" + segs[segs.length - 1] : person.state;
     h3.appendChild(flow);
   }
   info.appendChild(h3);
@@ -1139,11 +1166,13 @@ function renderMap() {
   applyView(mapState.mode === "fit" ? mapState.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
   updateScopeBtn();
 
-  $("#map-status").textContent = traj.length
+  $("#map-status").textContent = traj.length >= 2
     ? "亲至轨迹共 " + traj.length + " 站，" + yearLabel(traj[0].events[0].year_bce) + " 起。"
-    : "该人物暂无可落图的亲至地点。";
+    : traj.length === 1
+      ? "亲至可考一地：" + traj[0].placeNames.join("、") + "。"
+      : "该人物暂无可落图的亲至地点。";
   const btn = $("#btn-play");
-  btn.disabled = traj.length < 2;
+  setPlayDegrade("single", traj.length < 2); // 落点<2：播放按钮替换为静态降级说明
   btn.onclick = () => toggleSinglePlay(traj, anchors, theme);
 
   $("#btn-scope").onclick = () => {
@@ -2147,10 +2176,10 @@ function renderCompare() {
   cmpBuildLegend();
   cmpBuildSidebar();
 
-  // 工具条
+  // 工具条：两人皆亲至落点<2（无从连成任一轨迹）时同句降级，否则至少一轨可动即可播
   const playBtn = $("#cmp-play");
   playBtn.textContent = "▶ 按年并观";
-  playBtn.disabled = (cmp.trajA.length + cmp.trajB.length) < 1;
+  setPlayDegrade("compare", cmp.trajA.length < 2 && cmp.trajB.length < 2);
   playBtn.onclick = toggleComparePlay;
   $("#cmp-scope").onclick = () => {
     cmp.mode = cmp.mode === "fit" ? "full" : "fit";
@@ -3328,8 +3357,8 @@ function drawStateHalos(layer, people, CX, CY, R, NS) {
   const angAt = (i) => (i / n) * Math.PI * 2 - Math.PI / 2;
   const spans = new Map(); // stateKey → [minIdx, maxIdx]
   people.forEach((p, i) => {
-    const st = (p.state || "").split("/")[0];
-    if (!STATE_FAMILY_VAR[st]) return; // 仅六主角国铺底晕
+    const st = panoStateKey(p);
+    if (!STATE_FAMILY_VAR[st]) return; // 仅有主角国（七家族）铺底晕
     const s = spans.get(st);
     if (!s) spans.set(st, [i, i]);
     else { s[0] = Math.min(s[0], i); s[1] = Math.max(s[1], i); }
@@ -3371,8 +3400,8 @@ function drawPanoGraph() {
   svg.appendChild(nodeLayer);
 
   const people = [...DATA.people].sort((a, b) => {
-    const sa = STATE_ORDER.indexOf((a.state || "").split("/")[0]);
-    const sb = STATE_ORDER.indexOf((b.state || "").split("/")[0]);
+    const sa = STATE_ORDER.indexOf(panoStateKey(a));
+    const sb = STATE_ORDER.indexOf(panoStateKey(b));
     return ((sa < 0 ? 99 : sa) - (sb < 0 ? 99 : sb)) ||
            ((b.is_protagonist || 0) - (a.is_protagonist || 0)) ||
            a.id.localeCompare(b.id);

@@ -22,7 +22,9 @@
   --state-jin:   #74402C; /* 晋 · 栗褐系 */
   --state-qin:   #423C39; /* 秦 · 玄灰系 */
   --state-chu:   #5E2B45; /* 楚 · 绛紫系 */
-  /* 15 主角色：所属家族的不同深浅（相邻可辨），跨国者按 state 首国（文姜→齐、武姜→郑） */
+  --state-wei:   #2F5480; /* 卫 · 缟素靛青系（r19b 新设；灰阶82/对绢帛6.7，靛青偏蓝一相，别于郑之青绿） */
+  /* 20 主角色：所属家族的不同深浅（相邻可辨），跨国者按「主要发生国」分组（conventions §6.6）：
+   * 文姜→齐、武姜→郑；庄姜/宣姜→卫、息妫→楚、骊姬→晋、穆姬→秦 */
   --p-wenjiang:     #B23A2F; /* 齐 · 朱砂（族内最亮，情感最烈）*/
   --p-qixiang:      #571A15; /* 齐 · 深绛（雄猜暴烈，近墨之赤）*/
   --p-qihuan:       #7B2519; /* 齐 · 赤褐（霸主之重）*/
@@ -38,6 +40,11 @@
   --p-qinmu:        #423C39; /* 秦 · 玄灰 */
   --p-chucheng:     #5E2B45; /* 楚 · 绛紫（族基色，成王在位早）*/
   --p-chuzhuang:    #8A4062; /* 楚 · 绛紫提亮一阶（霸主，灰阶≈90/对绢帛≈6.0；与成王 63/9.5 深浅可辨，Δ灰阶27）*/
+  --p-xigui:        #9E5B7C; /* 楚 · 绛紫再提一阶（息妫入楚系新阶，灰阶≈112/对绢帛≈4.3；与成王60/庄王89 Δ灰阶≥23，楚系最亮取放宽容差）*/
+  --p-liji:         #9B4E38; /* 晋 · 栗褐提亮偏赤一阶（骊姬入晋系新阶，灰阶≈100/对绢帛≈5.1；与文公78 Δ灰阶22）*/
+  --p-muji:         #6E6560; /* 秦 · 玄灰提亮一阶（穆姬入秦系新阶，灰阶≈103/对绢帛≈4.9；与穆公61 Δ灰阶42）*/
+  --p-zhuangjiang:  #3A6693; /* 卫 · 靛青（庄姜，灰阶≈99/对绢帛≈5.1；硕人之明丽，卫系较亮）*/
+  --p-xuanjiang:    #2A4A70; /* 卫 · 深靛青（宣姜，灰阶≈72/对绢帛≈7.8；新台之沉，与庄姜 Δ灰阶27）*/
   /* 全站唯一内容容器标准（r13，Xiangtao 反馈 1/2/3）：
    * --content-max 限定主列宽；--content-pad 为页眉/子导航/主列/页脚共用的左右留白。
    * 所有视图（首页两模式、时间线/地图/关系、全景、资料库、关于）都在 <main> 这一列内，
@@ -760,6 +767,16 @@ section[hidden] { display: none; }
   cursor: pointer;
 }
 .map-status { font-size: 0.82rem; color: var(--ink-soft); }
+/* 轨迹降级说明（r19b）：亲至落点<2 时替代播放按钮的静态一行；左朱线示与常规按钮有别。 */
+.play-degrade {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  padding: 0.25rem 0.6rem;
+  border-left: 2px solid var(--cinnabar);
+  background: var(--silk-panel);
+  border-radius: 2px;
+}
 .map-note { font-size: 0.75rem; color: var(--ink-soft); margin-top: 0.4rem; }
 
 .map-side {
