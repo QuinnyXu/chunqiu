@@ -4128,6 +4128,55 @@ function drawShareCard() {
   drawSpacedLine(ctx, SITE_DOMAIN, W / 2, L.domain, 2);
 }
 
+/* 支持本站·收款码弹层（r18，Xu 裁定：仅支付宝单通道）。
+ * 主入口＝首页底部分享行首位「支持本站」；次级入口＝关于页安静一行。同一弹层：
+ * 桌面居中 #support-overlay、手机复用底部抽屉 openDrawer；卡内为收款码＋配句（一字不改）。
+ * 收款码为本地资产（assets/support/alipay-qr.png），非外链，遵站点零运行时依赖红线。 */
+const SUPPORT_BLESSING = "感恩支持，庭燎之光，以待君子"; // 配句一字不改，不另加任何说明文字
+const supportDialog = { close: () => {}, isOpen: () => false };
+function supportContentNode() {
+  const wrap = document.createElement("div");
+  wrap.className = "support-body";
+  const img = document.createElement("img");
+  img.className = "support-qr";
+  img.src = "assets/support/alipay-qr.png";
+  img.alt = "支付宝收款码·经纬春秋";
+  img.width = 240; img.height = 240;
+  const p = document.createElement("p");
+  p.className = "support-blessing";
+  p.textContent = SUPPORT_BLESSING;
+  wrap.appendChild(img); wrap.appendChild(p);
+  return wrap;
+}
+function initSupport() {
+  const overlay = $("#support-overlay");
+  const closeBtn = $("#support-close");
+  if (!overlay || !closeBtn) return;
+  let lastFocus = null;
+  const openDesktop = () => {
+    lastFocus = document.activeElement;
+    overlay.hidden = false;
+    document.body.classList.add("no-scroll");
+    closeBtn.focus();
+  };
+  const closeDesktop = () => {
+    if (overlay.hidden) return;
+    overlay.hidden = true;
+    document.body.classList.remove("no-scroll");
+    if (lastFocus && lastFocus.isConnected) lastFocus.focus();
+  };
+  supportDialog.close = closeDesktop;
+  supportDialog.isOpen = () => !overlay.hidden;
+  const open = () => {
+    if (window.matchMedia("(max-width: 680px)").matches) openDrawer("支持本站", supportContentNode());
+    else openDesktop();
+  };
+  $("#btn-support").addEventListener("click", open);
+  const sl = $("#support-link"); if (sl) sl.addEventListener("click", open);
+  closeBtn.addEventListener("click", closeDesktop);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeDesktop(); });
+  overlay.addEventListener("keydown", (e) => { if (e.key === "Tab") { e.preventDefault(); closeBtn.focus(); } });
+}
 function initShare() {
   const overlay = $("#share-overlay");
   const closeBtn = $("#share-close");
@@ -4460,7 +4509,8 @@ async function boot() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       if (tour.active) { endTour(); return; }        // 引导优先：Esc 跳过
-      if (shareDialog.isOpen()) shareDialog.close();
+      if (supportDialog.isOpen()) supportDialog.close();
+      else if (shareDialog.isOpen()) shareDialog.close();
       else if (drawer.open) closeDrawer();
       else if (mapState.overlay || relZoom.active || cmpZoom.active) closeOverlay();
       return;
@@ -4491,6 +4541,7 @@ async function boot() {
 
   initSearch();
   initShare();
+  initSupport();
 
   const m = DATA.meta;
   $("#footer-stats").textContent =

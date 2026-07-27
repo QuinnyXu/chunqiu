@@ -92,3 +92,43 @@ TEST PASS
 ## 七、需上报领队的事项（只记录不裁量）
 
 - **验证能力边界**：本环境无法真机渲染（Claude in Chrome 扩展未接入），凡「悬浮控件可见性/热区/遮挡」这类渲染层要求，我只能证到「逻辑与状态」层，真机确认必须由 Xiangtao 兜底。这是本次连续遗漏的根因，也是我后续对「视觉/触达类」要求的固定处置：**逻辑自验 + 真机项显式化**，不再以 jsdom 绿灯代替真机可用。若团队能提供一个可截图的真机/无头浏览器渠道，我可将此类项也纳入自验闭环。
+
+---
+
+# 交付说明续 · Vision r18（打赏入口：支持本站 · 支付宝单通道）
+
+前置确认：`site/assets/support/alipay-qr.png` 已到位（Xu 放入，约 134KB）。Xu 裁定**仅支付宝单通道、不做 PayPal**，遵此实现。数据零改动；收款码为**本地资产、非外链**，站点零运行时依赖红线不破；`validate` 通过、`node --check` 通过。改动文件：`site/index.html`、`site/app.js`、`site/styles.css`、`site/assets/support/alipay-qr.png`（入库）、`tools/qa/screenshot_support_ui.js`（QA 截图脚本，新增）。
+
+## 一、按钮落位与样式（主入口）
+- 位置：首页底部分享行（`.footer-share`，站点全局底栏）的**首位**新增 `#btn-support`「支持本站」，其后为原「生成分享卡 / 复制链接 /（直接分享）」。
+- 样式：较三个分享按钮**突出一档**——朱砂实底（`--cinnabar`）＋白字，前缀一枚生绢小圆点（`.btn-support-dot`，徽记小点意象）。**守气质**：不闪烁、不加角标、不做浮窗常驻；hover 仅加深底色。截图实测按钮尺寸约 99×33px。
+- 全站其余页面**无打赏元素散落**：打赏元素仅三处——全局底栏主入口、关于页次级一行、模态弹层（默认 hidden）；任何内容视图（时间线/地图/关系/资料库）内均无打赏元素。
+
+## 二、弹层 / 抽屉复用
+- **桌面**：居中弹层 `#support-overlay`（镜像 `.share-overlay` 模式：`position:fixed` 居中、半透明遮罩、`width:min(20rem,100%)`）。
+- **手机（≤680px）**：**复用既有底部抽屉** `openDrawer("支持本站", node)`（同地点详情/交会详情所用组件），内容节点由 `supportContentNode()` 现建。
+- 分流：`openSupport`（`initSupport` 内）按 `matchMedia("(max-width:680px)")` 决定走抽屉或居中弹层。
+- 关闭三路：点遮罩外部 / `✕` / `ESC`（桌面经新增 `supportDialog` 接入既有 ESC 链、置于 shareDialog 之前；手机经 `drawer.open` 既有 ESC 分支）。焦点：开时聚焦关闭钮、关时归还触发元素；桌面 Tab 圈定在关闭钮。
+- 卡内内容：收款码图 `assets/support/alipay-qr.png`（`alt="支付宝收款码·经纬春秋"`）＋配句一行，**不另加任何说明文字**。
+
+## 三、配句核对（一字不差）
+卡内配句：**「感恩支持，庭燎之光，以待君子」**——`site/index.html`（`.support-blessing`）与 `site/app.js`（`SUPPORT_BLESSING` 常量，手机抽屉用）两处一致；QA 脚本运行时回读 `.support-blessing` 文本亦为该句，逐字核对无误、无多余文字。
+
+## 四、关于页次级入口（保留）
+原占位「支持链接（筹备中）」改为**安静一行次级入口**：`.support-line` 内 `#support-link`（`.support-link-btn`，内联文字按钮、朱砂字带下划线，气质低调不与主入口争显眼度），点击走**同一** `openSupport`。保留不删。
+
+## 五、截图出图结果（复用 tools/qa Playwright 渠道）
+新增 `tools/qa/screenshot_support_ui.js`（范式同 `screenshot_playback_ui.js`：本地零依赖静态服务器＋Playwright chromium；预置 `localStorage.chunqiu_tour_v1` 免首访引导蒙层拦截点击）。输出 4 张至 `tools/qa/screenshots/`（该目录 `.gitignore`，属易变 QA 产物、不入库）：
+
+| 文件 | 内容 | 结果 |
+|---|---|---|
+| `support-footer-desktop.png` | 首页底部「支持本站」主入口（朱砂实底＋小点，首位） | ✓ |
+| `support-dialog-desktop.png` | 桌面居中收款码弹层（收款码＋配句） | ✓ 配句回读「感恩支持，庭燎之光，以待君子」 |
+| `support-drawer-mobile.png` | 手机底部抽屉（复用 openDrawer） | ✓ |
+| `support-about-secondary.png` | 关于页安静一行次级入口 | ✓ |
+
+四张均出图成功、视觉核验通过（收款码清晰、配句无误、按钮突出且守气质、抽屉复用无异）。重跑：`cd tools/qa && node screenshot_support_ui.js`（部署后可设 `QA_BASE_URL` 对生产地址复测）。
+
+## 六、待 Xu 处置事项
+- **实扫一笔最小额**（验收项，需真机/支付宝 App）：QA 截图能证收款码图片正确渲染，但「能否扫、扫出的是否 Xu 本人收款账户、金额是否到账」只有 Xu 实扫可验——请 Xu 用支付宝扫 `support-dialog-desktop.png`（或线上）确认一笔最小额。若二维码内容/账户有误，只需替换 `site/assets/support/alipay-qr.png` 同名文件即可，无需改代码。
+- **底栏作用域**：站点底栏（含分享行与本支持按钮）为全局底栏，随所有 hash 视图常驻（既有设计，非本轮引入）；「主入口在首页底部」按此落在全局底栏首位。若 Xu/领队希望支持按钮仅首页可见，属底栏作用域调整，请明示，另起微调（本轮按既有底栏行为落位，不自行改动底栏显隐规则）。

@@ -842,6 +842,20 @@ footer.site-footer {
   cursor: pointer;
 }
 .footer-share button:hover { color: var(--ochre); border-color: var(--ochre); }
+/* 支持本站主入口：较三个分享按钮突出一档（朱砂描边实底、缀徽记小点）；不闪烁、不加角标 */
+.btn-support {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--silk-panel) !important;
+  background: var(--cinnabar) !important;
+  border-color: var(--cinnabar) !important;
+}
+.btn-support:hover { background: #a63a2b !important; border-color: #a63a2b !important; color: var(--silk-panel) !important; }
+.btn-support-dot {
+  width: 0.42rem; height: 0.42rem; border-radius: 50%;
+  background: var(--silk-panel); flex: 0 0 auto;
+}
 .footer-feedback { margin: 0 0 0.35rem; }
 .footer-feedback a { color: var(--ochre); }
 .footer-stats { margin: 0; }
@@ -1433,6 +1447,60 @@ body.no-scroll { overflow: hidden; }
 .license-line a { color: var(--bronze); text-decoration-color: var(--line); }
 .support-line { font-size: 0.82rem; color: var(--ink-soft); margin-top: 0.4rem; }
 .support-line a { color: var(--ink-soft); text-decoration-color: var(--line); }
+/* 关于页次级入口：安静内联文字按钮（不与主入口争显眼度） */
+.support-link-btn {
+  font: inherit; font-size: inherit; font-family: inherit;
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--cinnabar); text-decoration: underline; text-decoration-color: var(--line);
+  text-underline-offset: 2px;
+}
+.support-link-btn:hover { text-decoration-color: var(--cinnabar); }
+
+/* ---------- 支持本站·收款码弹层（r18；桌面居中，手机走底部抽屉复用 openDrawer） ---------- */
+.support-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(46, 42, 36, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.support-overlay[hidden] { display: none; }
+.support-box {
+  background: var(--silk-panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(46, 42, 36, 0.3);
+  width: min(20rem, 100%);
+  max-height: 94vh;
+  overflow-y: auto;
+  padding: 0.85rem 1.1rem 1.2rem;
+}
+.support-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.4rem;
+}
+.support-head h3 { margin: 0; font-family: var(--serif); font-size: 1.05rem; letter-spacing: 0.1em; }
+.support-head button {
+  font: inherit; background: none; border: 1px solid var(--line);
+  border-radius: 999px; width: 30px; height: 30px; cursor: pointer; color: var(--ink-soft);
+}
+.support-head button:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
+.support-body { text-align: center; padding-top: 0.9rem; }
+.support-qr {
+  width: 220px; height: 220px; max-width: 72vw; max-height: 72vw;
+  display: block; margin: 0 auto;
+  border: 1px solid var(--line); border-radius: 6px; background: #fff; padding: 8px;
+}
+.support-blessing {
+  margin: 0.9rem 0 0; font-family: var(--serif);
+  font-size: 0.95rem; letter-spacing: 0.08em; color: var(--ink);
+}
 
 /* ---------- 底部抽屉（仅全屏放大态的地点卡） ---------- */
 .drawer-backdrop {
