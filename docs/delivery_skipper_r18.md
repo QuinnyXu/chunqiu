@@ -66,9 +66,39 @@
 
 四张截图目视核对：全屏浮层地图正常渲染，左下角播放控件（单人"▶ 轨迹按时间播放"/并观"▶ 按年并观"）在桌面与手机视口下均完整可见、未被裁切或遮挡，坐标落在视口内、贴近底部但不越界。截图产物在 `tools/qa/screenshots/`（本地保留，未入库，可随时重跑复现）。
 
-## 6. 已知问题 / 交接备注
+## 6. 补记：打赏入口「支持本站」合入（2026-07-26 晚，续 r18）
+
+领队追加裁定：Xu 已放行打赏入口，立即合入。Vision 提交 `6f83f2b`（首页底部主入口 `#btn-support` + 关于页次级入口 `#support-link` + 支付宝单通道收款码弹层，本地资产 `site/assets/support/alipay-qr.png`）落地时直接提交在本地 `main` 分支之上（父提交为本轮 `3bbce6f`），非任务书所述的 `r17-play-engine-merge` 分支——核实为 Vision 侧描述与实际提交位置的偏差，**内容本身与任务书描述一致、无遗漏**，故未要求 Vision 改提交位置重来，直接在 main 上继续核验合入流程。
+
+**质量门**（三项，未强行合入）：
+- `python tools/validate.py` → `OK：全部校验通过`（数据零改动确认）
+- `node --check site/app.js` → exit 0
+- `tools/qa/screenshot_support_ui.js`（Vision 留的打赏 UI 截图脚本，复用既有 Playwright 渠道）→ 四组合全过，配句回读「感恩支持，庭燎之光，以待君子」无误：
+  ```
+  ✓ 首页底部主入口·桌面（support-footer-desktop）— OK   #btn-support 位置=(485,1093) 尺寸=99x33
+  ✓ 收款码弹层·桌面居中（support-dialog-desktop）— OK
+  ✓ 收款码底部抽屉·手机（support-drawer-mobile）— OK
+  ✓ 关于页次级入口（support-about-secondary）— OK
+  ```
+  目视核对四张截图：桌面弹层居中、手机走底部抽屉，收款码图与配句显示正常，关闭三件套（点外/✕/ESC）UI 到位，全站其余页面未见散落的打赏元素。
+
+**合入方式**：提交已直接落在本地 `main`（`3bbce6f..6f83f2b`，线性历史，无需 `--no-ff` 合并）。
+
+**部署**：`git push origin main` → GitHub Actions「Deploy site to GitHub Pages」run `30229112509`，headSha `6f83f2b`，**status=completed / conclusion=success**。
+
+**部署后自检**（workflow 自带 + 手工复核）：
+- `meta.json.generated_at` 一致性：本地 `2026-07-21T12:31:04+00:00`，线上（cache-bust）同值，`OK：线上 meta.json 与仓库一致，部署已生效`（数据零改动，此值本轮不应变，核实无误）。
+- `curl -I https://chunqiu.timechorus.com/` → `200 OK`。
+- 收款码资源生产可达性：`curl -I https://chunqiu.timechorus.com/assets/support/alipay-qr.png` → `200 OK`，`Content-Length: 136844`；实际下载比对字节数与仓库内 `site/assets/support/alipay-qr.png` 完全一致（136844 字节），非降级/损坏资源。
+- 生产 URL：`https://chunqiu.timechorus.com/`（自定义域名） / `https://quinnyxu.github.io/chunqiu/`（GitHub Pages 默认地址，workflow `page_url` 输出）。
+
+**交接**：Xu 后续将在生产站实扫一笔最小额完成最终验收（收款码本身的可扫性/收款到账不在本轮工程侧验证范围内，工程侧仅确认资源可达、字节完整、UI 三形态渲染正确）。
+
+## 7. 已知问题 / 交接备注
 
 - 本轮数据零改动，`data/csv/`、`site/data/*.json` 均未触碰，`tools/csv_to_json.py` 未重跑（无需要）。
 - `tools/qa/package-lock.json` 已入库以固定 Playwright 版本（`^1.47.0` 声明对应本次实测锁定版本），后续如需升级请连带更新 lock 文件重跑首验。
 - Playwright 首次使用需下载 chromium 二进制（约 192MB，需联网），CI/无网环境如需跑 QA 截图，需提前在有网环境执行 `npm run install-browser` 或改造为可离线复用的二进制缓存路径，本轮未做该项，如后续 CI 要接入截图门禁，需另行评估。
 - CLAUDE.md 称谓改动（Xiangtao→Xu）范围仅第 12 行「排程与裁定权在领队与 Xu」一处，未见文中其他位置残留旧称谓（已 grep 复核）。
+- 打赏入口 `6f83f2b` 实际提交位置（直接在本地 `main` 之上）与任务书所述（`r17-play-engine-merge` 分支）不符，已在 §6 记录核实结论（内容无遗漏，仅描述偏差），供留痕，不影响本轮验收。
+- 收款码图片 `site/assets/support/alipay-qr.png` 属 Vision 提交内的本地资产，非外链，符合红线6「零运行时依赖」；生产可达性与字节完整性已核验（见 §6），图中收款人昵称/收款码本身的真实性与到账由 Xu 实扫验收，非工程侧核验范围。
