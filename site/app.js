@@ -12,6 +12,7 @@ const PROTAGONISTS = [
   { id: "P_WENJIANG",    color: "", badge: "badge_wenjiang",    fallback: "文姜" },
   { id: "P_QIXIANG",     color: "", badge: "badge_qixiang",     fallback: "齐襄公" },
   { id: "P_QIHUAN",      color: "", badge: "badge_qihuan",      fallback: "齐桓公" },
+  { id: "P_GUANZHONG",   color: "", badge: "badge_guanzhong",   fallback: "管仲" },
   { id: "P_QIXI",        color: "", badge: "badge_qixi",        fallback: "齐僖公" },
   { id: "P_LUYIN",       color: "", badge: "badge_luyin",       fallback: "鲁隐公" },
   { id: "P_LUHUAN",      color: "", badge: "badge_luhuan",      fallback: "鲁桓公" },
@@ -30,7 +31,7 @@ const PROTAGONISTS = [
   { id: "P_ZHUANGJIANG", color: "", badge: "badge_zhuangjiang", fallback: "庄姜", home: "卫" },
   { id: "P_XUANJIANG",   color: "", badge: "badge_xuanjiang",   fallback: "宣姜", home: "卫" },
 ];
-/* 从 CSS 变量 --p-<id> 读入 15 主角色（单点管理，见 :root）。缺失则退暖赭并告警。
+/* 从 CSS 变量 --p-<id> 读入各主角色（单点管理，见 :root）。缺失则退暖赭并告警。
  * 国色家族色（阵营底晕用）同源自 --state-<key>。 */
 const STATE_FAMILY_VAR = { "齐": "--state-qi", "鲁": "--state-lu", "郑": "--state-zheng",
                            "晋": "--state-jin", "秦": "--state-qin", "楚": "--state-chu",
@@ -4433,7 +4434,7 @@ async function boot() {
   PLACES = byId(DATA.places);
   SOURCES = byId(DATA.sources);
   EVENTS = byId(DATA.events);
-  resolveProtoColors(); // 两级色彩系统：从 styles.css :root 读入 15 主角色（单点管理）
+  resolveProtoColors(); // 两级色彩系统：从 styles.css :root 读入各主角色（单点管理）
   const mapResp = await fetch("assets/map/base_map.svg");
   baseMapText = await mapResp.text();
 
