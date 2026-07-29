@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-29T01:44:45+00:00",
+  "generated_at": "2026-07-29T01:58:25+00:00",
   "tables": {
     "archaeology": 6,
     "background": 11,
     "event_people": 387,
     "events": 153,
-    "passages": 177,
+    "passages": 178,
     "people": 97,
     "places": 72,
     "relations": 202,
