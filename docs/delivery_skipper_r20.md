@@ -60,11 +60,21 @@ CHANGES.md §7 提请的「E041 place_id=L_JU 地理语义有偏」问题，本�
 - **grep 全仓残留检查**：`grep -rn "E041,P_GUANZHONG\|E041,P_SHAOHU\|E041,P_ZIJIU" data/csv/ site/data/` 零命中。
 - `data/incoming/round20b/` 已清空删除。
 
-**git 提交与部署**：commit `<见下方回填>`，已 `git push origin main`。
+**git 提交与部署**：commit `3af73db`（`data(r20): 合入 round20b（管仲升格为主角＋挂链梳理）＋ E041/E155 复合事件拆分`），已 `git push origin main`。
 
-**GitHub Actions**：`<见下方回填>`。
+**GitHub Actions**：`Deploy site to GitHub Pages` 工作流触发后 `completed / success`（run `30415073408`）。
 
-**线上带参复验**（`?v=<timestamp>` 强制绕过缓存）：`<见下方回填>`。
+**线上带参复验**（`?v=<timestamp>` 强制绕过缓存，逐项核对）：
+
+| 校验项 | 结果 |
+|---|---|
+| `meta.json` | events=153、people=97、event_people=387、passages=177、sources=106、places=72、relations=202，与本地生成完全一致 |
+| `people.json` | `is_protagonist=1` 计 **21**；`P_GUANZHONG.is_protagonist=1` |
+| `event_people.json` → 管仲挂链 | `[E043,E044,E045,E046,E062,E068,E071,E072,E073,E154,E155]`，**不含 E041** |
+| `event_people.json` → E041 人物 | `P_QIHUAN`（亲至）、`P_BAOSHUYA`（亲至）、`P_QIXIANG`（相关）——齐桓公莒起点不受影响 |
+| `event_people.json` → E155 人物 | `P_GUANZHONG`/`P_SHAOHU`/`P_ZIJIU` 均亲至，落点 L_QUFU（鲁） |
+
+线上生产环境核验通过，本轮合入闭环。
 
 ## 五、已知问题 / 交接备注
 
