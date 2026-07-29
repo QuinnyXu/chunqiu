@@ -1038,5 +1038,25 @@
     "source_type": "primary",
     "url": "https://ctext.org/book-of-poetry/er-zi-cheng-zhou/zh",
     "notes": "传统谓哀卫急子、寿子争死，属舆论／文学层。"
+  },
+  {
+    "id": "S008",
+    "title": "《史记·管晏列传》",
+    "work": "史记",
+    "section": "管晏列传",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/shiji/guan-yan-lie-zhuan/zh",
+    "notes": "管仲晏婴合传：管鲍之交分财轶事、三仕三见逐、九合一匡、仓廪实而知礼节等；汉代后出叙事层，先秦经传无管仲自述交谊文，轶闻/戏剧处从严标 后出叙事/low。"
+  },
+  {
+    "id": "T003",
+    "title": "《论语》",
+    "work": "论语",
+    "section": "宪问·八佾",
+    "category": "诸子说部",
+    "source_type": "secondary",
+    "url": "https://ctext.org/analects/xian-wen/zh",
+    "notes": "先秦诸子·孔门语录评价层：孔子评管仲——宪问「微管仲吾其被发左衽」「九合诸侯不以兵车」「夺伯氏骈邑无怨言」，八佾「管仲之器小」「不知礼」，褒贬俱见。成书战国初，为评价/舆论层非当代编年记事；依 §2 T 层纪律只作既有骨架旁证挂 passage、reliability 从严、不单立事件。"
   }
 ]

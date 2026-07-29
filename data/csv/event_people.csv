@@ -85,9 +85,6 @@ E003,P_YUFU,如齐逆女,direct,亲至
 E040,P_QIXIANG,主导迫纪,direct,相关
 E041,P_QIHUAN,出奔莒,direct,亲至
 E041,P_BAOSHUYA,预判乱作、奉小白出奔,direct,亲至
-E041,P_GUANZHONG,奉公子纠奔鲁,direct,亲至
-E041,P_SHAOHU,奉公子纠奔鲁,direct,亲至
-E041,P_ZIJIU,出奔鲁,direct,亲至
 E041,P_QIXIANG,政令无常之乱源,indirect,相关
 E042,P_WUZHI,被杀,direct,亲至
 E042,P_QIHUAN,得归国之机,indirect,相关
@@ -382,3 +379,10 @@ E153,P_MUJI,登台履薪·请以死赎晋侯,direct,亲至
 E153,P_JINHUI,秦所获之晋侯·将至（穆姬弟）,direct,相关
 E153,P_QINMU,闻请乃改馆而礼晋侯,direct,相关
 E092,P_MUJI,秦穆公夫人（后世或谓其劝纳重耳·经传无征·姑存异说）,indirect,相关
+E155,P_GUANZHONG,奉公子纠奔鲁,direct,亲至
+E155,P_SHAOHU,奉公子纠奔鲁,direct,亲至
+E155,P_ZIJIU,出奔鲁,direct,亲至
+E154,P_GUANZHONG,自鲁就囚、槛车东归,direct,亲至
+E154,P_BAOSHUYA,如鲁逆受管仲、堂阜脱械,direct,亲至
+E044,P_GUANZHONG,随子纠居鲁（乾时鲁败，本人在阵无明文）,indirect,相关
+E071,P_GUANZHONG,佐桓公主霸（葵丘会盟经无亲在明文）,direct,相关

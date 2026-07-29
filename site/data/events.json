@@ -550,8 +550,8 @@
     "year_bce": -686,
     "lu_reign": "鲁庄公八年",
     "season_month": null,
-    "title": "襄公无常，两公子出奔",
-    "summary": "鲍叔牙见襄公政令无常、虑乱将作，奉公子小白出奔莒；冬乱作（无知弑襄公），管夷吾、召忽奉公子纠来奔鲁。",
+    "title": "齐襄公无常，小白奔莒",
+    "summary": "鲍叔牙见襄公政令无常、虑乱将作，奉公子小白出奔莒。",
     "place_id": "L_JU",
     "source_ids": "Z012;S001",
     "reliability": "high",
@@ -2112,5 +2112,33 @@
     "category": "其他",
     "importance": 1,
     "sort_key": 20
+  },
+  {
+    "id": "E154",
+    "year_bce": -685,
+    "lu_reign": "鲁庄公九年",
+    "season_month": "秋冬间",
+    "title": "鲁囚管仲，槛车归齐",
+    "summary": "鲁人既杀子纠、召忽死之，遂囚管仲以予齐（《国语·齐语》「鲁使囚管仲以予齐」；《左传》庄九「管仲请囚」）。管仲自鲁就囚东归，鲍叔逆而受之，及堂阜脱其械。《史记·管晏列传》并载施伯谏鲁君勿予、鲍叔知桓公将大用管仲，属后出叙事层。此为管仲「鲁→堂阜→临淄」轨迹之起点。",
+    "place_id": "L_QUFU",
+    "source_ids": "Z024;G002;S008",
+    "reliability": "high",
+    "category": "其他",
+    "importance": 2,
+    "sort_key": 45
+  },
+  {
+    "id": "E155",
+    "year_bce": -686,
+    "lu_reign": "鲁庄公八年",
+    "season_month": null,
+    "title": "公子纠与管仲、召忽奔鲁",
+    "summary": "冬乱作（无知弑襄公），管夷吾、召忽奉公子纠来奔鲁。",
+    "place_id": "L_QUFU",
+    "source_ids": "Z012;S001",
+    "reliability": "high",
+    "category": "出奔",
+    "importance": 1,
+    "sort_key": 40
   }
 ]

@@ -103,3 +103,5 @@ P007,《诗经·卫风·硕人》,诗经,卫风·硕人,诗歌/舆论,primary,ht
 P008,《诗经·邶风·燕燕》,诗经,邶风·燕燕,诗歌/舆论,primary,https://ctext.org/book-of-poetry/yan-yan/zh,毛序谓卫庄姜送归妾（戴妫大归于陈），属传统阐释异说；亦有他说，非史实。
 P009,《诗经·邶风·新台》,诗经,邶风·新台,诗歌/舆论,primary,https://ctext.org/book-of-poetry/xin-tai/zh,刺卫宣公筑新台纳伋（急子）之妻宣姜，属舆论／文学层。
 P010,《诗经·邶风·二子乘舟》,诗经,邶风·二子乘舟,诗歌/舆论,primary,https://ctext.org/book-of-poetry/er-zi-cheng-zhou/zh,传统谓哀卫急子、寿子争死，属舆论／文学层。
+S008,《史记·管晏列传》,史记,管晏列传,传世文献,primary_secondary,https://ctext.org/shiji/guan-yan-lie-zhuan/zh,管仲晏婴合传：管鲍之交分财轶事、三仕三见逐、九合一匡、仓廪实而知礼节等；汉代后出叙事层，先秦经传无管仲自述交谊文，轶闻/戏剧处从严标 后出叙事/low。
+T003,《论语》,论语,宪问·八佾,诸子说部,secondary,https://ctext.org/analects/xian-wen/zh,先秦诸子·孔门语录评价层：孔子评管仲——宪问「微管仲吾其被发左衽」「九合诸侯不以兵车」「夺伯氏骈邑无怨言」，八佾「管仲之器小」「不知礼」，褒贬俱见。成书战国初，为评价/舆论层非当代编年记事；依 §2 T 层纪律只作既有骨架旁证挂 passage、reliability 从严、不单立事件。

@@ -1807,5 +1807,14 @@
     "rel_label": "姊（同母·通说齐姜所生）",
     "reliability": "medium",
     "source_note": "通说穆姬申生同母"
+  },
+  {
+    "id": "R202",
+    "person_a": "P_BAOSHUYA",
+    "person_b": "P_GUANZHONG",
+    "rel_type": "其他",
+    "rel_label": "让相荐贤（“使相可也”）",
+    "reliability": "high",
+    "source_note": "左传庄公九年鲍叔「管夷吾治于高傒，使相可也」；国语齐语鲍叔辞相让贤"
   }
 ]

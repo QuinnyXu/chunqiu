@@ -408,10 +408,10 @@
     "active_years_bce": "前686-前645",
     "relations": "少与鲍叔牙善；先傅公子纠",
     "notes": "奉纠奔鲁；《史记》叙其遮莒道射小白中钩；堂阜脱囚后相齐，霸政问对见《国语·齐语》。姬姓管氏，名夷吾，字仲（尊称仲父）。",
-    "is_protagonist": 0,
+    "is_protagonist": 1,
     "birth_year_bce": null,
     "death_year_bce": -645,
-    "short_bio": null
+    "short_bio": "鲁囚归齐，堂阜脱械而相桓公；作内政寄军令、通货积财，九合诸侯一匡天下，尊王攘夷；辞周室上卿之礼受下卿而还。孔子许其功「微管仲，吾其被发左衽矣」。"
   },
   {
     "id": "P_BAOSHUYA",

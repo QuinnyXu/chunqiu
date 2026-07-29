@@ -603,27 +603,6 @@
   },
   {
     "event_id": "E041",
-    "person_id": "P_GUANZHONG",
-    "role_in_event": "奉公子纠奔鲁",
-    "directness": "direct",
-    "presence": "亲至"
-  },
-  {
-    "event_id": "E041",
-    "person_id": "P_SHAOHU",
-    "role_in_event": "奉公子纠奔鲁",
-    "directness": "direct",
-    "presence": "亲至"
-  },
-  {
-    "event_id": "E041",
-    "person_id": "P_ZIJIU",
-    "role_in_event": "出奔鲁",
-    "directness": "direct",
-    "presence": "亲至"
-  },
-  {
-    "event_id": "E041",
     "person_id": "P_QIXIANG",
     "role_in_event": "政令无常之乱源",
     "directness": "indirect",
@@ -2678,6 +2657,55 @@
     "person_id": "P_MUJI",
     "role_in_event": "秦穆公夫人（后世或谓其劝纳重耳·经传无征·姑存异说）",
     "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E155",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "奉公子纠奔鲁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E155",
+    "person_id": "P_SHAOHU",
+    "role_in_event": "奉公子纠奔鲁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E155",
+    "person_id": "P_ZIJIU",
+    "role_in_event": "出奔鲁",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E154",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "自鲁就囚、槛车东归",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E154",
+    "person_id": "P_BAOSHUYA",
+    "role_in_event": "如鲁逆受管仲、堂阜脱械",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E044",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "随子纠居鲁（乾时鲁败，本人在阵无明文）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E071",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "佐桓公主霸（葵丘会盟经无亲在明文）",
+    "directness": "direct",
     "presence": "相关"
   }
 ]
