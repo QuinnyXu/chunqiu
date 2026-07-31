@@ -2753,7 +2753,7 @@
   {
     "event_id": "E172",
     "person_id": "P_SONGXIANG",
-    "role_in_event": "以诸侯伐齐、纳孝公之宋君（经书「宋公……伐齐」君将之辞；甗战经书「宋师」，判据见 CHANGES 三）",
+    "role_in_event": "以诸侯伐齐、纳孝公之宋君（经书「宋公……伐齐」君将之辞；甗战经书「宋师」，判据见 docs/changes/r21_songxiang.md 三）",
     "directness": "direct",
     "presence": "亲至"
   },

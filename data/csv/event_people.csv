@@ -392,7 +392,7 @@ E170,P_SONGHUAN,宋公疾、命子鱼为嗣,direct,亲至
 E171,P_SONGXIANG,嗣立为宋君,direct,亲至
 E171,P_MUYI,受命为左师以听政,direct,亲至
 E171,P_SONGHUAN,春三月丁丑卒于宋,direct,亲至
-E172,P_SONGXIANG,以诸侯伐齐、纳孝公之宋君（经书「宋公……伐齐」君将之辞；甗战经书「宋师」，判据见 CHANGES 三）,direct,亲至
+E172,P_SONGXIANG,以诸侯伐齐、纳孝公之宋君（经书「宋公……伐齐」君将之辞；甗战经书「宋师」，判据见 docs/changes/r21_songxiang.md 三）,direct,亲至
 E172,P_QIXIAOGONG,宋所纳而立之齐君（「立孝公而还」，其亲在甗之战阵无明文）,direct,相关
 E173,P_SONGXIANG,亲盟于曹南、使邾文公用鄫子于次睢之社,direct,亲至
 E173,P_MUYI,司马谏用人于社（谏对时地无明文）,direct,相关

@@ -14,3 +14,5 @@ r21（宋襄公升格线 + 夏姬线，两件并行备料）合入后，`data/in
 **结论**：r21 两件 CHANGES.md 的论证内容现均已入库（夏姬件在 `docs/delivery_sophia_r21.md`，宋襄件在 `docs/changes/r21_songxiang.md`），此前记录的"缺口待回补"状态已解除，相应结论已同步回写 `docs/conventions.md` §10.1。
 
 本规则生效后的所有轮次（r22 起）一律先归档、后清空，不再出现同类缺口。
+
+**本目录文件已被 `data/csv/` 直接引用，路径与文件名不得再改**：`data/csv/events.csv`（E172.summary）、`data/csv/event_people.csv`（E172/P_SONGXIANG.role_in_event）、`data/csv/passages.csv`（Q204.modern_note）三处均以 `docs/changes/r21_songxiang.md 三` 作为 presence 判据出处指向（r21 落库回补，见提交记录）。这四处指向此前失效过一次（原文写「见 CHANGES.md 三」，`data/incoming/` 清空后引用落空），本目录文件的路径/文件名若再变动或被移动，须同步改这三处引用，否则会重蹈覆辙、需要再走一次溯源（Sophia 提请记录）。
