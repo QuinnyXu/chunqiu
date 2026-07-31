@@ -30,12 +30,14 @@ const PROTAGONISTS = [
   { id: "P_MUJI",        color: "", badge: "badge_muji",        fallback: "穆姬", home: "秦" },
   { id: "P_ZHUANGJIANG", color: "", badge: "badge_zhuangjiang", fallback: "庄姜", home: "卫" },
   { id: "P_XUANJIANG",   color: "", badge: "badge_xuanjiang",   fallback: "宣姜", home: "卫" },
+  { id: "P_SONGXIANG",   color: "", badge: "badge_songxiang",   fallback: "宋襄公" },
+  { id: "P_XIAJI",       color: "", badge: "badge_xiaji",       fallback: "夏姬", home: "陈" },
 ];
 /* 从 CSS 变量 --p-<id> 读入各主角色（单点管理，见 :root）。缺失则退暖赭并告警。
  * 国色家族色（阵营底晕用）同源自 --state-<key>。 */
 const STATE_FAMILY_VAR = { "齐": "--state-qi", "鲁": "--state-lu", "郑": "--state-zheng",
                            "晋": "--state-jin", "秦": "--state-qin", "楚": "--state-chu",
-                           "卫": "--state-wei" };
+                           "卫": "--state-wei", "宋": "--state-song", "陈": "--state-chen" };
 /* 关系全景阵营键：主角按「主要发生国」（meta.home 覆盖，否则 state 首国），非主角按 state 首国。
  * 使节点色（--p-<id>，取自主要发生国家族）与其在环上的阵营弧位一致（庄姜/宣姜归卫弧、
  * 息妫归楚弧、穆姬归秦弧、武姜归郑弧），修正旧「按纯首国排位致色位错置」（如武姜郑色却落申槽）。 */
@@ -79,14 +81,26 @@ const STATE_EPITHET = {
  * r13 西扩：随东部一并按仿射 x'=0.7058824x+352.9412、y'=0.7222222y 换算至新投影，与色块同步。 */
 /* 秦/楚为 r13 西扩新增分区：徽记坐标按新投影 x=(lng-105)/17*1200、y=700-(lat-29.5)/9*700，
  * 落于各自色块（秦≈雍/关中、楚≈郢），与 layer-states-west 色块相称，不与既有徽记簇重叠。 */
+/* r21 宋/陈两分区：底图既有色块（layer-states 内，同仿射）换算后——
+ * 宋 中心(755.3,317.8) 半径(62.1,41.9)、陈 中心(698.8,380.6) 半径(40.9,30.3)；
+ * 两块在 x 693–740 / y 350–360 一带相邻，故徽记分置对角（宋落国名右下、陈落国名右侧），
+ * 各自在本块椭圆内（宋 0.34、陈 0.78 归一化半径），两簇心间距 53px＞两徽记直径 27px。 */
 const HOME_BADGE_POS = {
   "齐": [930, 168], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 237],
   "秦": [152, 300], "楚": [510, 610], "卫": [692, 214],
+  "宋": [770, 340], "陈": [732, 384],
 };
 const HOME_PENDING = "人物线整理中";
 /* 轨迹降级（r19b 通用机制）：亲至可落图地点不足两处者，无从连成轨迹，
  * 播放按钮以此静态说明替代（单点定位与事件仍正常显示）。并观配对同句降级。 */
 const PLAY_DEGRADE_NOTE = "亲至可考不足两地，暂无轨迹可播——已知地点如图。";
+/* 人物卡流向 chip 的语义说明（r21）：chip 列的是人物线所历之国，与「亲至轨迹」是两件事。
+ * 措辞守 presence 分寸：「相关」＝史文无其在场明文，不得写成或暗示「其实不在场」。 */
+const FLOW_CHIP_NOTE = "人物线所历之国（据 people.state 出身→归宿诸段），非亲至轨迹；" +
+                       "何处为亲至、何处史文无在场明文，见其地图与时间线。";
+/* 地图状态行补注（r21）：某人若另有「相关」落点，在轨迹句后交代一句，
+ * 使「史文所系之地」与「亲至可考之地」在同一行里可分。 */
+const RELATED_PLACE_NOTE = (n) => "另有 " + n + " 处相关地点（史文无其在场明文），空心示之、不入轨迹。";
 /* 设置单人/并观播放控件的降级态：degraded=true 时隐藏播放按钮、改显静态说明，
  * 并令按钮 disabled（全屏浮层控件据此隐藏，见 setupOverlayControls）。 */
 function setPlayDegrade(mode, degraded) {
@@ -683,12 +697,17 @@ function personCardLi(meta) {
   info.className = "card-info"; // 统一卡式（r12）：信息列 min-width:0，各行单行截断
   const h3 = document.createElement("h3");
   h3.textContent = ready ? person.name : meta.fallback;
-  // 跨国人物标注流向（出身→归宿，取 state 首末国，conventions §6.6；息妫「陈/息/楚」→「陈→楚」）
+  /* 跨国人物标注流向：列 people.state 全链（conventions §6.6「出身→归宿」诸段）。
+   * r21 由 r19b 的「只取首末国」升级为全链——夏姬 state「郑/陈/楚/晋」按旧规则显作「郑→晋」，
+   * 恰好吞掉陈、楚两段，而这两段正是其人物线之主体；息妫随之由「陈→楚」改「陈→息→楚」。
+   * 语义须与地图轨迹分清：本 chip 是「人物线所历之国」（据 state），不是亲至轨迹——
+   * 亲至与否一律以地图实心/空心与时间线 presence 标签为准，故加 title 明说。 */
   if (ready && (person.state || "").includes("/")) {
     const segs = person.state.split("/").filter(Boolean);
     const flow = document.createElement("span");
     flow.className = "flow-chip";
-    flow.textContent = segs.length > 1 ? segs[0] + "→" + segs[segs.length - 1] : person.state;
+    flow.textContent = segs.join("→");
+    flow.title = FLOW_CHIP_NOTE;
     h3.appendChild(flow);
   }
   info.appendChild(h3);
@@ -771,6 +790,17 @@ const QLAYER_CLASS = {
   "诗歌": "layer-shige",
   "经义异闻": "layer-jingyi",
 };
+/* 编者层标（r21）：史料研究员在 modern_note 开头以【…】标出的本库分层处置说明，
+ * 如【归罪话术层·非事实判断】（巫臣两谏、叔向之母之评）、【P 层舆论材料·不作史实用】（《陈风·株林》）。
+ * 旧渲染把整条 modern_note 拼进 footer 小字，层标遂夹在长今译中间、位于原文之下——
+ * 归罪话术以正文体量呈现、免责标注以脚注体量呈现，主次恰好倒置。此处改为提到引文之前独立成条。
+ * 视觉上用暖赭（界面/编者语态），与史料层色（朱=经传、青绿=诗歌、紫=经义异闻、灰=后出叙事）区分：
+ * 层徽标答「这段引文属哪一层」，编者层标答「本库对该层如何处置」。文字一字不改，只挪位置、去外层【】。 */
+const CAVEAT_RE = /^【([^】]+)】\s*/;
+function splitCaveat(note) {
+  const m = CAVEAT_RE.exec(note || "");
+  return m ? { caveat: m[1], rest: note.slice(m[0].length) } : { caveat: "", rest: note || "" };
+}
 
 /* ---------- 屏2 时间线 ---------- */
 function renderTimeline() {
@@ -853,7 +883,8 @@ function renderTimeline() {
       // 引文分层徽标（r13）：原文＝经传骨架（无徽标）；其余各层给专属色徽标——
       // 经义异闻（公羊/穀梁传注异说）、后出叙事（史记等晚出戏剧化）、诗歌（诗经舆论层）、言论、评论。
       const layer = QLAYER_CLASS[q.quote_type] || "";
-      bq.className = "quote" + (layer ? " " + layer : "");
+      const { caveat, rest } = splitCaveat(q.modern_note);
+      bq.className = "quote" + (layer ? " " + layer : "") + (caveat ? " has-caveat" : "");
       bq.dataset.qid = q.id;
       if (q.quote_type && q.quote_type !== "原文") {
         const tag = document.createElement("span");
@@ -861,14 +892,21 @@ function renderTimeline() {
         tag.textContent = q.quote_type;
         bq.appendChild(tag);
       }
+      // 编者层标：置于原文之前（读到话术之前先见其分层处置），文字取自 modern_note 首段【…】
+      if (caveat) {
+        const cv = document.createElement("p");
+        cv.className = "q-caveat";
+        cv.setAttribute("role", "note");
+        cv.textContent = caveat;
+        bq.appendChild(cv);
+      }
       const qp = document.createElement("p");
       qp.textContent = q.quote_original;
       bq.appendChild(qp);
       const ft = document.createElement("footer");
       const src = SOURCES[q.source_id];
-      // 类型已进徽标，脚注不再重复
-      ft.textContent = "—— " + (src ? src.title : q.source_id) +
-        (q.modern_note ? " · " + q.modern_note : "");
+      // 类型已进徽标、层标已前置，脚注不再重复
+      ft.textContent = "—— " + (src ? src.title : q.source_id) + (rest ? " · " + rest : "");
       bq.appendChild(ft);
       body.appendChild(bq);
     }
@@ -1085,7 +1123,8 @@ function renderMap() {
       dot.setAttribute("fill", "#F4EDDF");
       dot.setAttribute("stroke", theme);
       dot.setAttribute("stroke-width", "2.2");
-      g.setAttribute("aria-label", pl.ancient_name + "（相关地点，本人不在场）");
+      // presence 措辞分寸（r21）：「相关」＝史文无其在场明文，非「史文书其不在场」，不得写成断言
+      g.setAttribute("aria-label", pl.ancient_name + "（相关地点，史文无其在场明文）");
     } else {
       baseR = 3.5;
       dot.setAttribute("fill", "#F4EDDF");
@@ -1167,11 +1206,18 @@ function renderMap() {
   applyView(mapState.mode === "fit" ? mapState.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
   updateScopeBtn();
 
-  $("#map-status").textContent = traj.length >= 2
+  /* 状态行：轨迹句 ＋（若另有「相关」落点）一句补注，令「史文所系之地」与「亲至可考之地」同行可分。
+   * 相关落点数＝有事件、无任一亲至、且有坐标的地点数（与锚点空心口径一致）。 */
+  let relOnly = 0;
+  for (const [pid, slot] of related) {
+    const pl = PLACES[pid];
+    if (!slot.hasVisit && pl && pl.lat != null && pl.lng != null) relOnly++;
+  }
+  $("#map-status").textContent = (traj.length >= 2
     ? "亲至轨迹共 " + traj.length + " 站，" + yearLabel(traj[0].events[0].year_bce) + " 起。"
     : traj.length === 1
       ? "亲至可考一地：" + traj[0].placeNames.join("、") + "。"
-      : "该人物暂无可落图的亲至地点。";
+      : "该人物暂无可落图的亲至地点。") + (relOnly ? RELATED_PLACE_NOTE(relOnly) : "");
   const btn = $("#btn-play");
   setPlayDegrade("single", traj.length < 2); // 落点<2：播放按钮替换为静态降级说明
   btn.onclick = () => toggleSinglePlay(traj, anchors, theme);
@@ -2853,7 +2899,9 @@ const REL_COLORS = {
   "亲属-直系": "#A9622B", "亲属-同辈": "#C79E7E", "婚姻": "#BC4433", "君臣": "#56707E",
   "拥立": "#44766B", "敌对": "#35302A", "师友": "#8A6D1F", "其他": "#8A8072",
 };
-const STATE_ORDER = ["齐", "鲁", "郑", "晋", "周", "卫", "楚", "秦", "曹", "许", "申", "宋"];
+/* 全景环形排位序：同国节点连续成弧，有主角之国另铺国色底晕。
+ * r21 增「陈」（宋已在列）——宋、陈相邻置末，与首页分区末两位一致 */
+const STATE_ORDER = ["齐", "鲁", "郑", "晋", "周", "卫", "楚", "秦", "曹", "许", "申", "宋", "陈"];
 const SIDE_TYPES = ["君臣", "拥立", "敌对", "师友", "其他"];
 const isProto = (pid) => PROTAGONISTS.some(m => m.id === pid);
 
