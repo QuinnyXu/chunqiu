@@ -2707,5 +2707,397 @@
     "role_in_event": "佐桓公主霸（葵丘会盟经无亲在明文）",
     "directness": "direct",
     "presence": "相关"
+  },
+  {
+    "event_id": "E170",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "太子兹甫固请让国于其兄目夷",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E170",
+    "person_id": "P_MUYI",
+    "role_in_event": "受命为嗣而固辞、遂走而退",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E170",
+    "person_id": "P_SONGHUAN",
+    "role_in_event": "宋公疾、命子鱼为嗣",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E171",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "嗣立为宋君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E171",
+    "person_id": "P_MUYI",
+    "role_in_event": "受命为左师以听政",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E171",
+    "person_id": "P_SONGHUAN",
+    "role_in_event": "春三月丁丑卒于宋",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E172",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "以诸侯伐齐、纳孝公之宋君（经书「宋公……伐齐」君将之辞；甗战经书「宋师」，判据见 CHANGES 三）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E172",
+    "person_id": "P_QIXIAOGONG",
+    "role_in_event": "宋所纳而立之齐君（「立孝公而还」，其亲在甗之战阵无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E173",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "亲盟于曹南、使邾文公用鄫子于次睢之社",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E173",
+    "person_id": "P_MUYI",
+    "role_in_event": "司马谏用人于社（谏对时地无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E174",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "鹿上求诸侯于楚之宋君（经传书「宋人」、无宋公亲至明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E174",
+    "person_id": "P_MUYI",
+    "role_in_event": "谏「小国争盟，祸也」（谏对时地无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E175",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "卒于宋，伤于泓故",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E071",
+    "person_id": "P_SONGXIANG",
+    "role_in_event": "居丧未葬而与葵丘之会，经书「宋子」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E074",
+    "person_id": "P_QIXIAOGONG",
+    "role_in_event": "太子昭遭乱奔宋",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E111",
+    "person_id": "P_MUYI",
+    "role_in_event": "司马请击半渡、既败而论战",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E134",
+    "person_id": "P_MUYI",
+    "role_in_event": "谏「祸其在此乎、君欲已甚」（谏对时地无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E176",
+    "person_id": "P_CHENLING",
+    "role_in_event": "与二卿戏于朝、告二子而弗禁其杀泄冶之陈君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E176",
+    "person_id": "P_KONGNING",
+    "role_in_event": "请杀泄冶之陈卿",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E176",
+    "person_id": "P_YIXINGFU",
+    "role_in_event": "请杀泄冶之陈卿",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E176",
+    "person_id": "P_XIEYE",
+    "role_in_event": "谏「公卿宣淫，民无效焉」而见杀",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E176",
+    "person_id": "P_XIAJI",
+    "role_in_event": "《左传》记灵公与二卿与之有私（其本人在场无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E177",
+    "person_id": "P_XIAZHENGSHU",
+    "role_in_event": "自其厩射杀陈灵公",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E177",
+    "person_id": "P_CHENLING",
+    "role_in_event": "饮酒于夏氏、出而见弑",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E177",
+    "person_id": "P_KONGNING",
+    "role_in_event": "与饮于夏氏、既弑而奔楚",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E177",
+    "person_id": "P_YIXINGFU",
+    "role_in_event": "与饮于夏氏、答「亦似君」、既弑而奔楚",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E177",
+    "person_id": "P_XIAJI",
+    "role_in_event": "事在夏氏之邑（其本人在场无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E178",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "伐陈入陈、杀夏徵舒、县陈而后复封之楚君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E178",
+    "person_id": "P_XIAZHENGSHU",
+    "role_in_event": "为楚所杀、轘诸栗门",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E178",
+    "person_id": "P_SHENSHUSHI",
+    "role_in_event": "使齐反而谏「今县陈，贪其富也」（复命谏对之地无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E178",
+    "person_id": "P_KONGNING",
+    "role_in_event": "为楚所纳还于陈",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E178",
+    "person_id": "P_YIXINGFU",
+    "role_in_event": "为楚所纳还于陈",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E178",
+    "person_id": "P_XIAJI",
+    "role_in_event": "楚以其子夏徵舒弑君故讨陈（其本人在场无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E179",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "议纳夏姬，经巫臣当面谏止而以予连尹襄老之楚君",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E179",
+    "person_id": "P_WUCHEN",
+    "role_in_event": "两谏（当面谏止庄王、当面谏止子反）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E179",
+    "person_id": "P_ZIFAN",
+    "role_in_event": "欲取之，经巫臣当面谏止而止",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E179",
+    "person_id": "P_XIANGLAO",
+    "role_in_event": "受王所予（其在场无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E179",
+    "person_id": "P_XIAJI",
+    "role_in_event": "所议归属之人（其与议在场无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E180",
+    "person_id": "P_WUCHEN",
+    "role_in_event": "遣人传辞「归，吾聘女」（使者代行）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E180",
+    "person_id": "P_XIAJI",
+    "role_in_event": "受传辞与召之人（其时所在无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E180",
+    "person_id": "P_XIANGLAO",
+    "role_in_event": "已死于邲、其子黑要烝焉（追叙不在场）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E181",
+    "person_id": "P_XIAJI",
+    "role_in_event": "自楚归郑（「王遣夏姬归」「将行，谓送者曰」）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E181",
+    "person_id": "P_CHUZHUANG",
+    "role_in_event": "遣夏姬归郑之楚君（其不在郑）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E181",
+    "person_id": "P_WUCHEN",
+    "role_in_event": "聘诸郑（使者代行、其不在郑）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E182",
+    "person_id": "P_WUCHEN",
+    "role_in_event": "奉使聘齐、尽室以行、及郑以夏姬行而奔晋",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E182",
+    "person_id": "P_XIAJI",
+    "role_in_event": "自郑随巫臣奔晋",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E183",
+    "person_id": "P_ZICHONG",
+    "role_in_event": "杀巫臣之族、取子阎之室",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E183",
+    "person_id": "P_ZIFAN",
+    "role_in_event": "杀巫臣之族、取黑要与清尹之室",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E183",
+    "person_id": "P_WUCHEN",
+    "role_in_event": "族被杀于楚、自晋遗二子书（时在晋）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E183",
+    "person_id": "P_XIAJI",
+    "role_in_event": "巫臣之妻、其时在晋",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E184",
+    "person_id": "P_WUCHEN",
+    "role_in_event": "使吴、教吴射御乘车战陈叛楚、寘其子狐庸为吴行人",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E184",
+    "person_id": "P_SHOUMENG",
+    "role_in_event": "说巫臣而受其教之吴君",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E184",
+    "person_id": "P_ZICHONG",
+    "role_in_event": "吴始伐楚、伐巢、伐徐而奔命（不在吴）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E184",
+    "person_id": "P_ZIFAN",
+    "role_in_event": "与子重一岁七奔命（不在吴）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E128",
+    "person_id": "P_XIANGLAO",
+    "role_in_event": "楚连尹、战死于邲不获其尸",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E133",
+    "person_id": "P_SHENSHUSHI",
+    "role_in_event": "答士亹问、论傅太子九法（问对时地无明文）",
+    "directness": "direct",
+    "presence": "相关"
   }
 ]

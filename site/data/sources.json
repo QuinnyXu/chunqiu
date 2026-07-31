@@ -1058,5 +1058,95 @@
     "source_type": "secondary",
     "url": "https://ctext.org/analects/xian-wen/zh",
     "notes": "先秦诸子·孔门语录评价层：孔子评管仲——宪问「微管仲吾其被发左衽」「九合诸侯不以兵车」「夺伯氏骈邑无怨言」，八佾「管仲之器小」「不知礼」，褒贬俱见。成书战国初，为评价/舆论层非当代编年记事；依 §2 T 层纪律只作既有骨架旁证挂 passage、reliability 从严、不单立事件。"
+  },
+  {
+    "id": "Z073",
+    "title": "《春秋左传·僖公十九年》",
+    "work": "春秋左传",
+    "section": "僖公十九年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": null,
+    "notes": "曹南之盟、宋公使邾文公用鄫子于次睢之社与司马子鱼谏所在；同年另有宋人执滕宣公、宋人围曹与子鱼引文王伐崇之谏、冬盟于齐。经传并存。"
+  },
+  {
+    "id": "S009",
+    "title": "《史记·宋微子世家》",
+    "work": "史记",
+    "section": "宋微子世家",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": null,
+    "notes": "宋世家汉代综合叙事层：襄公让国一节作「太子兹甫让其庶兄目夷为嗣。桓公义太子意，竟不听」，与《左传》僖公八年「公命子鱼」（桓公一度许之、由子鱼固辞）异；又以目夷为「相」而《左传》作「左师」。本层引文一律标 quote_type=后出叙事，不与经传混编。"
+  },
+  {
+    "id": "Z074",
+    "title": "《春秋左传·宣公九年》",
+    "work": "春秋左传",
+    "section": "宣公九年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-jiu-nian/zh",
+    "notes": "陈灵公与孔宁、仪行父事；泄冶谏而见杀（经书「陳殺其大夫洩冶」）；传末孔子引《诗·大雅·板》「民之多辟，無自立辟」评泄冶。经作「洩冶」。"
+  },
+  {
+    "id": "Z075",
+    "title": "《春秋左传·宣公十年》",
+    "work": "春秋左传",
+    "section": "宣公十年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-shi-nian/zh",
+    "notes": "夏徵舒弑陈灵公——经「癸巳，陳夏徵舒弒其君平國」（经文序次在「五月，公至自齊」后、「六月，宋師伐滕」前，故系夏五月）；传记饮酒于夏氏、公出而徵舒自其厩射杀之、孔宁仪行父奔楚。"
+  },
+  {
+    "id": "Z076",
+    "title": "《春秋左传·成公二年》",
+    "work": "春秋左传",
+    "section": "成公二年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/cheng-gong-er-nian/zh",
+    "notes": "夏姬线主干（追叙）：楚讨陈夏氏后庄王欲纳夏姬、申公巫臣两谏（谏庄王、谏子反）、王以予连尹襄老、襄老死于邲不获其尸、其子黑要烝焉、巫臣使道、王遣夏姬归郑、巫臣聘诸郑；共王即位后巫臣使齐尽室以行、及郑以夏姬行而奔晋、晋人使为邢大夫。全段为成公二年之追叙，所叙诸事系年跨前598—前589，各事系年之推定与 reliability 分层见相应事件 summary。"
+  },
+  {
+    "id": "Z077",
+    "title": "《春秋左传·成公七年》",
+    "work": "春秋左传",
+    "section": "成公七年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/cheng-gong-qi-nian/zh",
+    "notes": "子重、子反杀巫臣之族（子阎、子荡、清尹弗忌及襄老之子黑要）而分其室；巫臣自晋遗二子书「余必使爾罷於奔命以死」；巫臣请使于吴、通吴于晋、教吴射御乘车战陈叛楚、置其子狐庸为吴行人；吴始伐楚伐巢伐徐、子重子反一岁七奔命、「是以始大，通吳於上國」——本库吴国登场所本。"
+  },
+  {
+    "id": "Z078",
+    "title": "《春秋左传·昭公二十八年》",
+    "work": "春秋左传",
+    "section": "昭公二十八年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/zhao-gong-er-shi-ba-nian/zh",
+    "notes": "叔向欲娶于申公巫臣氏（巫臣与夏姬之女），其母止之曰「子靈之妻，殺三夫、一君、一子，而亡一國、兩卿矣」「甚美必有甚惡」，并著夏姬出身「是鄭穆少妃姚子之子，子貉之妹也」。事在前514，去夏姬之世逾七十年：出身一节为经传明文（high）；归罪之评为时人话术、文本立场，非事实判断，引用时须保留分层标注（见 Q193）。"
+  },
+  {
+    "id": "S010",
+    "title": "《史记·陈杞世家》",
+    "work": "史记",
+    "section": "陈杞世家",
+    "category": "传世文献",
+    "source_type": "primary_secondary",
+    "url": "https://ctext.org/shiji/chen-qi-shi-jia/zh",
+    "notes": "陈世家汉代综合叙事层：所记灵公与二卿通夏姬、泄冶谏而见杀、徵舒伏弩厩门射杀灵公，与《左传》宣公九年、十年两条大体相合而合叙于一处；异同两点——泄冶谏辞作「君臣淫亂，民何效焉」（传作「公卿宣淫，民無效焉」）、末增「靈公太子午奔晉」一节（可与《左传》宣公十一年「陳侯在晉」互证）。本层引文一律标 quote_type=后出叙事，不与经传混编。"
+  },
+  {
+    "id": "P011",
+    "title": "《诗经·陈风·株林》",
+    "work": "诗经",
+    "section": "陈风·株林",
+    "category": "诗歌/舆论",
+    "source_type": "primary",
+    "url": "https://ctext.org/book-of-poetry/zhu-lin/zh",
+    "notes": "毛诗序「《株林》，刺靈公也。淫乎夏姬，驅馳而往，朝夕不休息焉」。P 层舆论材料：诗为当时或稍后陈地的舆论回声，序为汉儒传统阐释，二者均不作史实骨架用；本库只挂 passage（Q180）于 E176，不入 events.source_ids。"
   }
 ]

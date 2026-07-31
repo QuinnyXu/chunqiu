@@ -1816,5 +1816,203 @@
     "rel_label": "让相荐贤（“使相可也”）",
     "reliability": "high",
     "source_note": "左传庄公九年鲍叔「管夷吾治于高傒，使相可也」；国语齐语鲍叔辞相让贤"
+  },
+  {
+    "id": "R220",
+    "person_a": "P_MUYI",
+    "person_b": "P_SONGXIANG",
+    "rel_type": "亲属-同辈",
+    "rel_label": "庶兄",
+    "reliability": "high",
+    "source_note": "左传僖公八年「目夷长且仁」（书其长）、僖公九年「以公子目夷为仁」（书其为宋公之子）；「庶」字据《史记·宋微子世家》「太子兹甫让其庶兄目夷为嗣」，《左传》无「庶」字"
+  },
+  {
+    "id": "R221",
+    "person_a": "P_SONGXIANG",
+    "person_b": "P_MUYI",
+    "rel_type": "君臣",
+    "rel_label": "以为左师使听政",
+    "reliability": "high",
+    "source_note": "左传僖公九年「宋襄公即位，以公子目夷为仁，使为左师以听政，于是宋治」；《史记·宋微子世家》作「为相」，官称异，从传"
+  },
+  {
+    "id": "R222",
+    "person_a": "P_SONGHUAN",
+    "person_b": "P_SONGXIANG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传僖公八年「宋公疾，大子兹甫固请曰」；春秋僖公九年经「三月丁丑，宋公御说卒」、僖公二十三年经「宋公兹父卒」"
+  },
+  {
+    "id": "R223",
+    "person_a": "P_SONGHUAN",
+    "person_b": "P_MUYI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传僖公九年「以公子目夷为仁」（「公子」即宋公之子）；《史记·宋微子世家》书目夷为襄公庶兄"
+  },
+  {
+    "id": "R224",
+    "person_a": "P_SONGXIANG",
+    "person_b": "P_QIXIAOGONG",
+    "rel_type": "拥立",
+    "rel_label": "伐齐纳而立之",
+    "reliability": "high",
+    "source_note": "左传僖公十八年「宋襄公以诸侯伐齐……夏五月，宋败齐师于甗，立孝公而还」"
+  },
+  {
+    "id": "R225",
+    "person_a": "P_QIHUAN",
+    "person_b": "P_QIXIAOGONG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传僖公十七年「郑姬，生孝公」"
+  },
+  {
+    "id": "R226",
+    "person_a": "P_QIHUAN",
+    "person_b": "P_SONGXIANG",
+    "rel_type": "其他",
+    "rel_label": "属太子昭于宋襄公",
+    "reliability": "high",
+    "source_note": "左传僖公十七年「公与管仲属孝公于宋襄公，以为大子」"
+  },
+  {
+    "id": "R227",
+    "person_a": "P_GUANZHONG",
+    "person_b": "P_QIXIAOGONG",
+    "rel_type": "其他",
+    "rel_label": "与桓公同属之于宋以为大子",
+    "reliability": "high",
+    "source_note": "左传僖公十七年「公与管仲属孝公于宋襄公，以为大子」；管仲卒于前645，属托在其生前"
+  },
+  {
+    "id": "R228",
+    "person_a": "P_XIAJI",
+    "person_b": "P_XIAZHENGSHU",
+    "rel_type": "亲属-直系",
+    "rel_label": "母",
+    "reliability": "high",
+    "source_note": "左传成公二年巫臣辞「戮夏南」（夏南即徵舒之字）与宣公十年「飲酒於夏氏」「徵舒似女」并见；夏姬为陈夏氏之妻、徵舒为夏氏之子，母子关系传文可据"
+  },
+  {
+    "id": "R229",
+    "person_a": "P_XIANGLAO",
+    "person_b": "P_XIAJI",
+    "rel_type": "婚姻",
+    "rel_label": "妻（王以夏姬予之）",
+    "reliability": "high",
+    "source_note": "左传成公二年「王以予連尹襄老」"
+  },
+  {
+    "id": "R230",
+    "person_a": "P_WUCHEN",
+    "person_b": "P_XIAJI",
+    "rel_type": "婚姻",
+    "rel_label": "妻（聘诸郑，及郑以夏姬行而奔晋）",
+    "reliability": "high",
+    "source_note": "左传成公二年「巫臣聘諸鄭，鄭伯許之」「及鄭，使介反幣，而以夏姬行……遂奔晉」"
+  },
+  {
+    "id": "R231",
+    "person_a": "P_CHENLING",
+    "person_b": "P_XIAJI",
+    "rel_type": "其他",
+    "rel_label": "《左传》宣公九年记与夏姬有私",
+    "reliability": "high",
+    "source_note": "左传宣公九年「陳靈公與孔寧、儀行父通於夏姬」；同条所记孔宁、仪行父二人同事，本轮未另立结构关系行（同一事实不三行并陈），原文具于 Q178"
+  },
+  {
+    "id": "R232",
+    "person_a": "P_XIAZHENGSHU",
+    "person_b": "P_CHENLING",
+    "rel_type": "敌对",
+    "rel_label": "弑其君",
+    "reliability": "high",
+    "source_note": "春秋宣公十年经「陳夏徵舒弒其君平國」；左传同年「公出，自其廄射而殺之」"
+  },
+  {
+    "id": "R233",
+    "person_a": "P_XIEYE",
+    "person_b": "P_CHENLING",
+    "rel_type": "君臣",
+    "rel_label": "陈大夫（谏宣淫而见杀）",
+    "reliability": "high",
+    "source_note": "左传宣公九年「洩冶諫曰：公卿宣淫，民無效焉」「遂殺洩冶」；春秋经「陳殺其大夫洩冶」"
+  },
+  {
+    "id": "R234",
+    "person_a": "P_KONGNING",
+    "person_b": "P_CHENLING",
+    "rel_type": "君臣",
+    "rel_label": "陈卿",
+    "reliability": "high",
+    "source_note": "左传宣公九年、十年二子与灵公并见；春秋宣公十一年经作「公孫寧」"
+  },
+  {
+    "id": "R235",
+    "person_a": "P_YIXINGFU",
+    "person_b": "P_CHENLING",
+    "rel_type": "君臣",
+    "rel_label": "陈卿",
+    "reliability": "high",
+    "source_note": "左传宣公十年「公謂行父曰：徵舒似女。對曰：亦似君」"
+  },
+  {
+    "id": "R236",
+    "person_a": "P_CHUZHUANG",
+    "person_b": "P_XIAZHENGSHU",
+    "rel_type": "敌对",
+    "rel_label": "入陈杀之、轘诸栗门",
+    "reliability": "high",
+    "source_note": "左传宣公十一年「遂入陳，殺夏徵舒，轘諸栗門」；春秋经「楚人殺陳夏徵舒」"
+  },
+  {
+    "id": "R237",
+    "person_a": "P_SHENSHUSHI",
+    "person_b": "P_CHUZHUANG",
+    "rel_type": "君臣",
+    "rel_label": "楚大夫（谏县陈，王善之而复封）",
+    "reliability": "high",
+    "source_note": "左传宣公十一年「今縣陳，貪其富也……王曰：善哉，吾未之聞也……乃復封陳」"
+  },
+  {
+    "id": "R238",
+    "person_a": "P_WUCHEN",
+    "person_b": "P_CHUZHUANG",
+    "rel_type": "君臣",
+    "rel_label": "申公（谏勿纳夏姬，其后奔晋）",
+    "reliability": "high",
+    "source_note": "左传成公二年「申公巫臣曰：不可……王乃止」；同年「遂奔晉，而因郤至，以臣於晉」"
+  },
+  {
+    "id": "R239",
+    "person_a": "P_ZIFAN",
+    "person_b": "P_WUCHEN",
+    "rel_type": "敌对",
+    "rel_label": "杀其族而取黑要、清尹之室",
+    "reliability": "high",
+    "source_note": "左传成公七年「子重、子反殺巫臣之族……子反取黑要與清尹之室」；巫臣遗书「余必使爾罷於奔命以死」"
+  },
+  {
+    "id": "R240",
+    "person_a": "P_ZICHONG",
+    "person_b": "P_WUCHEN",
+    "rel_type": "敌对",
+    "rel_label": "杀其族而取子阎之室",
+    "reliability": "high",
+    "source_note": "左传成公七年「子重、子反殺巫臣之族子閻、子蕩……子重取子閻之室」"
+  },
+  {
+    "id": "R241",
+    "person_a": "P_SHOUMENG",
+    "person_b": "P_WUCHEN",
+    "rel_type": "其他",
+    "rel_label": "悦其人而受其射御车战之教",
+    "reliability": "high",
+    "source_note": "左传成公七年「吳子壽夢說之。乃通吳于晉……與其射御，教吳乘車，教之戰陳，教之叛楚」"
   }
 ]
