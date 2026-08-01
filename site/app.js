@@ -13,15 +13,18 @@ const PROTAGONISTS = [
   { id: "P_QIXIANG",     color: "", badge: "badge_qixiang",     fallback: "齐襄公" },
   { id: "P_QIHUAN",      color: "", badge: "badge_qihuan",      fallback: "齐桓公" },
   { id: "P_GUANZHONG",   color: "", badge: "badge_guanzhong",   fallback: "管仲" },
+  { id: "P_BAOSHUYA",    color: "", badge: "badge_baoshuya",    fallback: "鲍叔牙" },
   { id: "P_QIXI",        color: "", badge: "badge_qixi",        fallback: "齐僖公" },
   { id: "P_LUYIN",       color: "", badge: "badge_luyin",       fallback: "鲁隐公" },
   { id: "P_LUHUAN",      color: "", badge: "badge_luhuan",      fallback: "鲁桓公" },
   { id: "P_LUZHUANG",    color: "", badge: "badge_luzhuang",    fallback: "鲁庄公" },
+  { id: "P_CAOGUI",      color: "", badge: "badge_caogui",      fallback: "曹刿" },
   { id: "P_ZHENGZHUANG", color: "", badge: "badge_zhengzhuang", fallback: "郑庄公" },
   { id: "P_ZHENGZHAO",   color: "", badge: "badge_zhengzhao",   fallback: "郑昭公" },
   { id: "P_WUJIANG",     color: "", badge: "badge_wujiang",     fallback: "武姜", home: "郑" },
   { id: "P_JIZHONG",     color: "", badge: "badge_jizhong",     fallback: "祭仲" },
   { id: "P_JINWEN",      color: "", badge: "badge_jinwen",      fallback: "晋文公" },
+  { id: "P_JIEZHITUI",   color: "", badge: "badge_jiezhitui",   fallback: "介之推" },
   { id: "P_QINMU",       color: "", badge: "badge_qinmu",       fallback: "秦穆公" },
   { id: "P_CHUCHENG",    color: "", badge: "badge_chucheng",    fallback: "楚成王" },
   { id: "P_CHUZHUANG",   color: "", badge: "badge_chuzhuang",   fallback: "楚庄王" },
@@ -4150,13 +4153,21 @@ function drawShareCard() {
   ctx.font = "700 " + L.titleSize + "px " + SHARE_SERIF;
   drawSpacedLine(ctx, "经纬春秋", W / 2, L.title, L.titleSize * 0.16);
 
-  // 主角主题色签一行（品牌色阶，取自 PROTAGONISTS 设计配置，数量随主角数自适应）
-  const tw = 26, gap = 14;
-  let tx = W / 2 - (PROTAGONISTS.length * tw + (PROTAGONISTS.length - 1) * gap) / 2;
-  for (const m of PROTAGONISTS) {
-    ctx.fillStyle = m.color;
-    ctx.fillRect(tx, L.ticks, tw, 8);
-    tx += tw + gap;
+  /* 国色家族色点一行（r22 由「每主角一枚色签」改为「每国色家族一枚色点」）。
+   * 改动理由是构图承重、非排版微调，勿改回按人计：旧法一行宽 = 40×主角数 − 14，随主角数线性增长——
+   * 23 主角时 906px（距内框净宽 992px 仅余 43px），26 主角时 1026px，起点 x=27 已越出外框 x=30。
+   * 按国色家族计数后，增长源由「主角数」变为「国色家族数」：新增主角不再加宽，唯新立国色家族才 +1 枚，
+   * 而家族数增长远慢于主角数（现九族 26 人）。九族一行仅 372px，余量充裕。
+   * 色序与色值同源 STATE_FAMILY_VAR / familyColor()——与首页九分区、关系全景阵营底晕共用同一份，不另写。 */
+  const fams = Object.keys(STATE_FAMILY_VAR);
+  const dotR = 10, dotGap = 44;
+  let tx = W / 2 - ((fams.length - 1) * dotGap) / 2;
+  for (const st of fams) {
+    ctx.fillStyle = familyColor(st) || "#B4652F";
+    ctx.beginPath();
+    ctx.arc(tx, L.ticks + 4, dotR, 0, Math.PI * 2);
+    ctx.fill();
+    tx += dotGap;
   }
 
   // 邀请语（N2）：一行放不下时优先在「——」处分行，再退一般换行
