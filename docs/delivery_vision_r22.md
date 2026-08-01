@@ -230,6 +230,12 @@ chip 仅在 `state` 含 `/` 时生成，故**单国不出 chip 即是正确结�
 
 ## 七、提交
 
-- 提交信息：`feat(site): r22 三贤前端配套——齐/鲁/晋三新阶＋三徽记＋分享卡改按国色家族计（Vision）`
+- 提交信息：`feat(site): r22 三贤前端配套——齐/鲁/晋三新阶＋三徽记＋分享卡改按国色家族计（Vision）`（`a56a5bb`）
 - 仅纳入自己动的路径，未用 `git add -A`。
-- Actions／线上复验状态见文末补记。
+- **Actions**：`Deploy site to GitHub Pages` → **success，19s**（run 30678018939）。
+
+### 线上复验（`QA_BASE_URL=https://chunqiu.timechorus.com`）
+
+**全部关键项与本地一致**：主角数 26、三新色与三徽记读入正常；鲍叔牙轨迹 4 站（莒→临淄→生窦→堂阜）；并观交会 2 处皆 a 级同场（含堂阜 E046）；E186 `rel-medium` 徽标如实显示；Q227 层标「经义异闻」（编者层标同样未触发，与本地同因）；分享卡九枚国色点 372px、左右各余 310px；26 人播放全查可播 23／降级 3；搜索全中；390px 无横向溢出；`pageerror` 无。
+
+> **顺带记一处 QA 工具修正**：首轮线上复验曾报「主角数 23、三人色 undefined」，`curl` 核实线上 `app.js` **实际已含 `P_BAOSHUYA`**、徽记 SVG 亦 200——是部署直后 CDN 边缘仍供旧副本（`Cache-Control: max-age=14400`），属**测量失真而非线上故障**。已在 `tools/qa/vision_r22.js` 的 context 加 `Cache-Control: no-cache` 请求头与 route 改写绕开边缘缓存，重跑即得上述一致结果。此改动只在 QA 脚本内、不触及 `site/`，可单独回退（撤掉 context 的两行即可）。**此后线上复验一律带该绕行，否则部署直后的复验结果不可信。**

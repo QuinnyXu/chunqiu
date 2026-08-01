@@ -16,7 +16,10 @@ const H = (t) => say("\n===== " + t + " =====");
   if (!origin) { s = await srv(SITE_DIR); origin = `http://127.0.0.1:${s.address().port}`; say("本地服务器：" + origin); }
   else say("真机 QA_BASE_URL：" + origin);
   const b = await pw.chromium.launch();
-  const c = await b.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 2 });
+  const c = await b.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 2,
+    extraHTTPHeaders: { "Cache-Control": "no-cache", "Pragma": "no-cache" } });
+  // 线上复验时绕开 CDN 边缘缓存（部署直后边缘可能仍供旧副本；本地跑无副作用）
+  await c.route("**/*.{js,css,json,svg}", r => r.continue({ headers: { ...r.request().headers(), "Cache-Control": "no-cache" } }));
   await c.addInitScript(() => { try { localStorage.setItem("chunqiu_tour_v1", "1"); } catch (e) { } });
   const p = await c.newPage(); const errs = [];
   p.on("pageerror", e => errs.push("PAGEERROR: " + e.message));
