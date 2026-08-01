@@ -112,7 +112,7 @@ E050,P_QIHUAN,主盟北杏,direct,亲至
 E051,P_QIHUAN,主令灭遂、亲往无文,direct,相关
 E052,P_QIHUAN,盟主、受劫而许（劫盟为《史记》层）,direct,亲至
 E052,P_LUZHUANG,与齐盟、始及齐平,direct,亲至
-E052,P_CAOGUI,劫盟者（《史记》作曹沫）,direct,亲至
+E052,P_CAOGUI,劫盟者（《公羊》作曹子、《史记》作曹沫、《穀梁》称曹刿之盟；《左传》不及其人）,direct,亲至
 E053,P_QIHUAN,始霸之会,direct,亲至
 E054,P_LUZHUANG,即位,direct,亲至
 E054,P_WENJIANG,出居于齐故不称即位,indirect,相关
@@ -383,7 +383,7 @@ E155,P_GUANZHONG,奉公子纠奔鲁,direct,亲至
 E155,P_SHAOHU,奉公子纠奔鲁,direct,亲至
 E155,P_ZIJIU,出奔鲁,direct,亲至
 E154,P_GUANZHONG,自鲁就囚、槛车东归,direct,亲至
-E154,P_BAOSHUYA,如鲁逆受管仲、堂阜脱械,direct,亲至
+E154,P_BAOSHUYA,受管仲（受之不系地，脱械在堂阜即 E046；如鲁无明文）,direct,相关
 E044,P_GUANZHONG,随子纠居鲁（乾时鲁败，本人在阵无明文）,indirect,相关
 E071,P_GUANZHONG,佐桓公主霸（葵丘会盟经无亲在明文）,direct,相关
 E170,P_SONGXIANG,太子兹甫固请让国于其兄目夷,direct,亲至
@@ -442,3 +442,11 @@ E184,P_ZICHONG,吴始伐楚、伐巢、伐徐而奔命（不在吴）,direct,相
 E184,P_ZIFAN,与子重一岁七奔命（不在吴）,direct,相关
 E128,P_XIANGLAO,楚连尹、战死于邲不获其尸,direct,亲至
 E133,P_SHENSHUSHI,答士亹问、论傅太子九法（问对时地无明文）,direct,相关
+E043,P_BAOSHUYA,傅小白者（自莒同行先入无明文）,indirect,相关
+E186,P_BAOSHUYA,辞宰让贤、荐管夷吾并献请诸鲁之计,direct,亲至
+E186,P_QIHUAN,自莒反齐、使鲍叔为宰而卒从其言,direct,亲至
+E186,P_GUANZHONG,所让所荐之人（时在鲁囚中）,indirect,相关
+E093,P_JIEZHITUI,从亡在行、济河入晋（《史记》层：从在船中、笑子犯要市而自隐渡河）,direct,亲至
+E095,P_JIETUIMU,两问其子而终与之偕隐,direct,亲至
+E185,P_JIEZHITUI,所求不获者、绵上封田之所为（时已偕母隐去）,indirect,相关
+E185,P_JINWEN,求之不获、以绵上为之田（亲至绵上无明文）,direct,相关

@@ -2014,5 +2014,32 @@
     "rel_label": "悦其人而受其射御车战之教",
     "reliability": "high",
     "source_note": "左传成公七年「吳子壽夢說之。乃通吳于晉……與其射御，教吳乘車，教之戰陳，教之叛楚」"
+  },
+  {
+    "id": "R242",
+    "person_a": "P_JIETUIMU",
+    "person_b": "P_JIEZHITUI",
+    "rel_type": "亲属-直系",
+    "rel_label": "母（两劝求禄不从而终与之偕隐）",
+    "reliability": "high",
+    "source_note": "左传僖公二十四年「其母曰：盍亦求之，以死誰懟」「其母曰：能如是乎？與女偕隱。遂隱而死」；《史记·晋世家》同载"
+  },
+  {
+    "id": "R243",
+    "person_a": "P_BAOSHUYA",
+    "person_b": "P_LUZHUANG",
+    "rel_type": "敌对",
+    "rel_label": "帅师来言迫鲁讨子纠、受管仲",
+    "reliability": "high",
+    "source_note": "左传庄公九年「鮑叔帥師來言曰：子糾，親也，請君討之。管、召，讎也，請受而甘心焉。乃殺子糾于生竇」；《国语·齐语》载其请诸鲁之计"
+  },
+  {
+    "id": "R244",
+    "person_a": "P_JIEZHITUI",
+    "person_b": "P_HUYAN",
+    "rel_type": "其他",
+    "rel_label": "耻其贪天之功要市于君、不忍与同位（《史记》层）",
+    "reliability": "medium",
+    "source_note": "史记晋世家「而子犯以為己功而要市於君，固足羞也。吾不忍與同位」；左传僖二十四推言「二三子以為己力，不亦誣乎」不指名，故此边只成立于《史记》层，reliability 降 medium"
   }
 ]

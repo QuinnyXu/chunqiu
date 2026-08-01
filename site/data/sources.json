@@ -1148,5 +1148,45 @@
     "source_type": "primary",
     "url": "https://ctext.org/book-of-poetry/zhu-lin/zh",
     "notes": "毛诗序「《株林》，刺靈公也。淫乎夏姬，驅馳而往，朝夕不休息焉」。P 层舆论材料：诗为当时或稍后陈地的舆论回声，序为汉儒传统阐释，二者均不作史实骨架用；本库只挂 passage（Q180）于 E176，不入 events.source_ids。"
+  },
+  {
+    "id": "Y002",
+    "title": "《公羊传·庄公十三年》",
+    "work": "春秋公羊传",
+    "section": "庄公十三年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/gongyang-zhuan/zhuang-gong-shi-san-nian/zh",
+    "notes": "春秋三传之公羊传：柯之盟「莊公升壇，曹子手劍而從之」劫盟一节。公羊称其人为「曹子」，不作刿亦不作沫；此为劫盟叙事今见最早出处（成书战国至汉初，早于《史记》），仍属传解层而非当代记事，与《左传》庄十三只书「盟于柯，始及齐平也」须分层并置。"
+  },
+  {
+    "id": "L001",
+    "title": "《穀梁传·庄公十三年》",
+    "work": "春秋穀梁传",
+    "section": "庄公十三年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/guliang-zhuan/zhuang-gong-shi-san-nian/zh",
+    "notes": "春秋三传之穀梁传（L 前缀首条启用，规则见 conventions §2/§11 已关闭项）：柯盟传文径称「曹劌之盟也，信齊侯也」，以曹刿之名系于柯盟而不载劫盟情节。是三传内部支持「长勺之曹刿即柯盟之人（《史记》作曹沫）」的直接异文证据。"
+  },
+  {
+    "id": "T004",
+    "title": "《庄子·杂篇·盗跖》",
+    "work": "庄子",
+    "section": "杂篇·盗跖",
+    "category": "诸子说部",
+    "source_type": "secondary",
+    "url": "https://ctext.org/zhuangzi/robber-zhi/zh",
+    "notes": "先秦诸子（道家后学）说理寓言层：盗跖斥「世之所谓贤士」举介子推「自割其股以食文公……抱木而燔死」为例。介之推焚死之说今见最早出处即在此篇，成书战国末，属寓言举例而非当代记事；《左传》僖公二十四年、《史记·晋世家》正文皆无焚山文，寒食禁火与介之推挂钩更在汉魏以后。依 conventions §2「T 层不得单独立事件骨架」，本源只作 passage 挂靠。"
+  },
+  {
+    "id": "T005",
+    "title": "《吕氏春秋·孟春纪·贵公》",
+    "work": "吕氏春秋",
+    "section": "孟春纪·贵公",
+    "category": "诸子说部",
+    "source_type": "secondary",
+    "url": "https://ctext.org/lv-shi-chun-qiu/gui-gong/zh",
+    "notes": "先秦诸子（杂家）说理层：管仲病中桓公问相，管仲以鲍叔牙「清廉潔直，視不己若者，不比於人；一聞人之過，終身不忘」而不可为政，转荐隰朋。成书战国末（吕不韦门客集撰），非当代记事；《管子·戒》《庄子·徐无鬼》有同类异文而措辞各异，本库只取吕览一家以免混淆；《左传》全无病榻论相之文。"
   }
 ]

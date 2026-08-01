@@ -793,7 +793,7 @@
   {
     "event_id": "E052",
     "person_id": "P_CAOGUI",
-    "role_in_event": "劫盟者（《史记》作曹沫）",
+    "role_in_event": "劫盟者（《公羊》作曹子、《史记》作曹沫、《穀梁》称曹刿之盟；《左传》不及其人）",
     "directness": "direct",
     "presence": "亲至"
   },
@@ -2690,9 +2690,9 @@
   {
     "event_id": "E154",
     "person_id": "P_BAOSHUYA",
-    "role_in_event": "如鲁逆受管仲、堂阜脱械",
+    "role_in_event": "受管仲（受之不系地，脱械在堂阜即 E046；如鲁无明文）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E044",
@@ -3097,6 +3097,62 @@
     "event_id": "E133",
     "person_id": "P_SHENSHUSHI",
     "role_in_event": "答士亹问、论傅太子九法（问对时地无明文）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E043",
+    "person_id": "P_BAOSHUYA",
+    "role_in_event": "傅小白者（自莒同行先入无明文）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E186",
+    "person_id": "P_BAOSHUYA",
+    "role_in_event": "辞宰让贤、荐管夷吾并献请诸鲁之计",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E186",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "自莒反齐、使鲍叔为宰而卒从其言",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E186",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "所让所荐之人（时在鲁囚中）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E093",
+    "person_id": "P_JIEZHITUI",
+    "role_in_event": "从亡在行、济河入晋（《史记》层：从在船中、笑子犯要市而自隐渡河）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E095",
+    "person_id": "P_JIETUIMU",
+    "role_in_event": "两问其子而终与之偕隐",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E185",
+    "person_id": "P_JIEZHITUI",
+    "role_in_event": "所求不获者、绵上封田之所为（时已偕母隐去）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E185",
+    "person_id": "P_JINWEN",
+    "role_in_event": "求之不获、以绵上为之田（亲至绵上无明文）",
     "directness": "direct",
     "presence": "相关"
   }
