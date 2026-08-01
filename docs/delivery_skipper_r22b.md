@@ -80,4 +80,13 @@ SOFT_CHECK_TIERS = {
 
 ## 九、提交与 Actions 状态
 
-（见提交后补充：commit hash、`git push` 结果、GitHub Actions run 状态。）
+两次提交（数据/工具一次，conventions/交付文档一次，分主题）：
+
+- `c9d59b1` `data(r22收尾): 落库九条层标文本＋validate 层标结构式软检`
+- `6ef6a0f` `docs(convention): r22 收尾——conventions 升 v1.20，补层标/徽标分工与软检分档判例`
+
+`git push origin main`：两次提交合并推送一次（期间 Vision 已并行推送 `a56a5bb`/`175a05a` 两条 r22 前端配套提交，无冲突，fast-forward），`175a05a..6ef6a0f main -> main`，成功。
+
+**GitHub Actions**：`Deploy site to GitHub Pages` 触发后 `completed / success`（run `30704356063`）。
+
+**线上带参复验**：带 `nocache` 参数请求生产 `passages.json`，九条 `modern_note` 均以给定层标开头（`Q227/Q153/Q155/Q179/Q173/Q174/Q175/Q176/Q215` 全部 `startswith('【')` 为真，文本与本地一致）；`Q192` 未受影响（`modern_note` 仍以"今译："开头，无层标误插）。四项核验（九条落库、软检结构式、版本号、线上一致）全部通过，闭环。
