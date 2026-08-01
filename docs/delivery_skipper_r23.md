@@ -79,4 +79,28 @@ python tools/csv_to_json.py  → 9 张表全部重生成，行数与预期完全
 
 ## 五、提交与部署
 
-提交按主题拆分（数据合入 / 校验器与 conventions / 归档清理），随后 push 至 `main`，确认 GitHub Actions（`pages.yml`）跑绿，并带缓存穿透参数复验线上 `chunqiu.timechorus.com`——验收点：管仲时间线新增「为政」事件卡（四条政制引文 Q067/Q068/Q170/Q171 同处一卡）、E046 收窄为「堂阜脱囚」单卡。详见下方提交记录与线上复验结果（本节在 push 与复验完成后补记）。
+提交按主题拆分为三条：
+
+| commit | 内容 |
+|---|---|
+| `1ff7461` | `data(r23 fix23合入)`：E187 新立、E046 收窄、四条政制引文归位、三诗归位、Q146 迁挂、层标补齐、validate.py 政制类＋评论档开关 |
+| `ae5a2ef` | `docs(convention)`：conventions 升 v1.21，政制类＋两条判例＋关闭 E130 |
+| `ae57786` | `docs(delivery)`：归档 `r23_fix23.md`＋Sophia/Skipper 交付说明，清空 `data/incoming/fix23/` |
+
+`git push origin main`（`a06d94c..ae57786`）后 GitHub Actions（`pages.yml`，run `30709763820`）**跑绿**（`completed success`）。
+
+**线上带参复验**（`nocache` 时间戳参数绕开 CDN 边缘缓存，首次请求仍命中旧值、约 10 余秒后刷新为新值，同 r22 系列做法）：
+
+```
+meta.json: generated_at=2026-08-01T17:05:22+00:00, events=171, passages=233, event_people=453
+（与本地 csv_to_json.py 重生成结果逐字段一致）
+
+E187: 管仲为政：叁国伍鄙，作内政而寄军令 | category=政制 | reliability=medium
+E046: 堂阜脱囚 | source_ids=Z024;S001;S008;T003（G002 已移出）
+E131 category: 政制
+
+E187 挂载 passages: Q067, Q068, Q170, Q171, Q234（四条政制引文＋在场明文原文，同处一卡）
+E187 event_people: P_GUANZHONG=亲至, P_QIHUAN=亲至
+```
+
+四项验收点（管仲时间线新增「为政」条、四条政制引文同处一卡、E046 收窄为单一「堂阜脱囚」卡、E131/E187 归类「政制」）线上数据全部核验通过，与本地 `data/csv/` 结果一致，闭环。
