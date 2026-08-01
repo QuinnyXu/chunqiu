@@ -33,6 +33,30 @@ LAT_MIN, LAT_MAX = 29.5, 38.5
 
 REL_TYPES = {"亲属-直系", "亲属-同辈", "婚姻", "君臣", "拥立", "敌对", "师友", "其他"}
 
+# ---- 层标软检（v1.20 新增，结构式，非关键词式）----
+# 判据：quote_type != "原文" 且 modern_note 不以【…】开头 → 警告，不阻断（exit 仍为 0）。
+# 「原文」是经传骨架本体，天然豁免——不应被要求加层标（避免误伤如 Q192 这类原文条目
+# 只是行文中带有"话术"一类词、被关键词式误抓）。
+# 结构式判据本身不区分 quote_type 档位；是否真的体检某一档，由下表 SOFT_CHECK_TIERS
+# 逐档开关控制，见 conventions.md §7「软检分档启用与修缮同步」方针——
+# 只有该档位的历史缺口已核定并有序推进修缮时才开启，避免开一档、警出一片无人认领的旧账。
+CAVEAT_RE = re.compile(r"^【[^】]+】")
+SOFT_CHECK_TIERS = {
+    # quote_type 档位: 是否纳入本轮软检
+    "诗歌": True,       # v1.20 首批启用（r22 收尾，P 层舆论材料最易被误当史实）
+    "经义异闻": True,   # v1.20 首批启用（r22 收尾，T 层寓言/说理材料同上）
+    "言论": False,      # 暂缓——留待后续批次核订、逐档开启
+    "后出叙事": False,  # 暂缓
+    "评论": False,      # 暂缓
+    # "原文" 不列入本表：结构式判据已在上方直接豁免，不受此开关影响
+}
+
+warnings = []
+
+
+def warn(msg):
+    warnings.append(msg)
+
 ID_PATTERNS = {
     "events": re.compile(r"^E\d{3}[A-Z]?$"),
     "people": re.compile(r"^P_[A-Z]+$"),
@@ -202,6 +226,12 @@ def main():
         check_ref("passages.csv", i, "source_id", sid, ids["sources"], "sources")
         check_ref("passages.csv", i, "event_id", (row.get("event_id") or "").strip(),
                   ids["events"], "events")
+        qtype = (row.get("quote_type") or "").strip()
+        if qtype != "原文" and SOFT_CHECK_TIERS.get(qtype, False):
+            note = row.get("modern_note") or ""
+            if not CAVEAT_RE.match(note):
+                warn(f"passages.csv 第{i}行：id={row.get('id')} quote_type='{qtype}' 但 "
+                     f"modern_note 未以【层标】开头（结构式软检，不阻断，见 conventions.md §7）")
 
     # ---- people ----
     for i, row in enumerate(tables["people"], start=2):
@@ -264,6 +294,10 @@ def report():
             print(f"  - {e}", file=sys.stderr)
     else:
         print("OK：全部校验通过")
+    if warnings:
+        print(f"\n软检警告（不阻断，共 {len(warnings)} 条）：", file=sys.stderr)
+        for w in warnings:
+            print(f"  ! {w}", file=sys.stderr)
 
 
 if __name__ == "__main__":
