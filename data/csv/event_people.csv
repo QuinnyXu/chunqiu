@@ -102,7 +102,7 @@ E045,P_LUZHUANG,迫于齐命行诛,direct,相关
 E045,P_QIHUAN,主令讨纠,direct,相关
 E046,P_GUANZHONG,堂阜脱械、入齐为相,direct,亲至
 E046,P_BAOSHUYA,脱之并荐相,direct,亲至
-E046,P_QIHUAN,释怨拜相（拜相在齐都，未至堂阜）,direct,相关
+E046,P_QIHUAN,从谏拜相（拜相在齐都，未至堂阜；「释怨」语义见 E187）,direct,相关
 E047,P_LUZHUANG,亲战长勺,direct,亲至
 E047,P_CAOGUI,请见论战、指挥鼓进,direct,亲至
 E047,P_QIHUAN,伐鲁之君、亲在无文,indirect,相关
@@ -450,3 +450,5 @@ E093,P_JIEZHITUI,从亡在行、济河入晋（《史记》层：从在船中、
 E095,P_JIETUIMU,两问其子而终与之偕隐,direct,亲至
 E185,P_JIEZHITUI,所求不获者、绵上封田之所为（时已偕母隐去）,indirect,相关
 E185,P_JINWEN,求之不获、以绵上为之田（亲至绵上无明文）,direct,相关
+E187,P_GUANZHONG,对桓公问政，制国制鄙、作内政而寄军令,direct,亲至
+E187,P_QIHUAN,亲逆管仲于郊、坐而问政而行其制,direct,亲至

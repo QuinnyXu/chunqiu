@@ -723,7 +723,7 @@
   {
     "event_id": "E046",
     "person_id": "P_QIHUAN",
-    "role_in_event": "释怨拜相（拜相在齐都，未至堂阜）",
+    "role_in_event": "从谏拜相（拜相在齐都，未至堂阜；「释怨」语义见 E187）",
     "directness": "direct",
     "presence": "相关"
   },
@@ -3155,5 +3155,19 @@
     "role_in_event": "求之不获、以绵上为之田（亲至绵上无明文）",
     "directness": "direct",
     "presence": "相关"
+  },
+  {
+    "event_id": "E187",
+    "person_id": "P_GUANZHONG",
+    "role_in_event": "对桓公问政，制国制鄙、作内政而寄军令",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E187",
+    "person_id": "P_QIHUAN",
+    "role_in_event": "亲逆管仲于郊、坐而问政而行其制",
+    "directness": "direct",
+    "presence": "亲至"
   }
 ]
