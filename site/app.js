@@ -5,8 +5,10 @@
 /* ---------- 设计配置（见 docs/design/design_notes.md） ---------- */
 /* 顺序即选人页分区内顺序；分组按 people.state 首国自动生成，新国加入只增分区。
  * home：分区归属覆盖项（武姜 state「申/郑」，人物线全在郑，归郑分区，卡上仍标流向） */
-/* 主题色 color 不在此写死：两级色彩系统（裁定1）以 styles.css :root 的 --p-<id> 变量为单一源，
- * resolveProtoColors() 于启动时读入填充 meta.color（「国色定相、人色定阶、徽记定形」，见 design_notes v1.6）。
+/* 主题色 color 不在此写死：国色制（r24a 裁定）以 styles.css :root 的 --state-<国> 九个变量为单一源，
+ * resolveProtoColors() 于启动时按人物所属国读入填充 meta.color
+ * （「国色定色、徽记定人、纹理定轨」，见 design_notes v2.0 §2.0）。
+ * 个人色 --p-<id> 已于 r24a 全数退役——新增主角不需要取色，只需一枚徽记（badge）。
  * home：分区归属覆盖项（武姜按 state 首国本为「申」，人物线全在郑，归郑分区，卡上仍标流向）。 */
 const PROTAGONISTS = [
   { id: "P_WENJIANG",    color: "", badge: "badge_wenjiang",    fallback: "文姜" },
@@ -23,6 +25,7 @@ const PROTAGONISTS = [
   { id: "P_ZHENGZHAO",   color: "", badge: "badge_zhengzhao",   fallback: "郑昭公" },
   { id: "P_WUJIANG",     color: "", badge: "badge_wujiang",     fallback: "武姜", home: "郑" },
   { id: "P_JIZHONG",     color: "", badge: "badge_jizhong",     fallback: "祭仲" },
+  { id: "P_ZICHAN",      color: "", badge: "badge_zichan",      fallback: "子产" },
   { id: "P_JINWEN",      color: "", badge: "badge_jinwen",      fallback: "晋文公" },
   { id: "P_JIEZHITUI",   color: "", badge: "badge_jiezhitui",   fallback: "介之推" },
   { id: "P_QINMU",       color: "", badge: "badge_qinmu",       fallback: "秦穆公" },
@@ -36,25 +39,32 @@ const PROTAGONISTS = [
   { id: "P_SONGXIANG",   color: "", badge: "badge_songxiang",   fallback: "宋襄公" },
   { id: "P_XIAJI",       color: "", badge: "badge_xiaji",       fallback: "夏姬", home: "陈" },
 ];
-/* 从 CSS 变量 --p-<id> 读入各主角色（单点管理，见 :root）。缺失则退暖赭并告警。
- * 国色家族色（阵营底晕用）同源自 --state-<key>。 */
+/* 九国色（styles.css :root 的单一源）。新增国色家族只改这一处，
+ * 首页九分区、关系全景阵营底晕、分享卡色带、人物着色四处同步扩展。 */
 const STATE_FAMILY_VAR = { "齐": "--state-qi", "鲁": "--state-lu", "郑": "--state-zheng",
                            "晋": "--state-jin", "秦": "--state-qin", "楚": "--state-chu",
                            "卫": "--state-wei", "宋": "--state-song", "陈": "--state-chen" };
-/* 关系全景阵营键：主角按「主要发生国」（meta.home 覆盖，否则 state 首国），非主角按 state 首国。
- * 使节点色（--p-<id>，取自主要发生国家族）与其在环上的阵营弧位一致（庄姜/宣姜归卫弧、
- * 息妫归楚弧、穆姬归秦弧、武姜归郑弧），修正旧「按纯首国排位致色位错置」（如武姜郑色却落申槽）。 */
+/* 人物所属国（＝其国色的取值键，亦为关系全景的阵营键）：
+ * 主角按「主要发生国」（meta.home 覆盖，否则 state 首国），非主角按 state 首国。
+ * 使节点色与其在环上的阵营弧位一致（庄姜/宣姜归卫弧、息妫归楚弧、穆姬归秦弧、
+ * 武姜归郑弧、夏姬归陈弧），修正旧「按纯首国排位致色位错置」（如武姜郑色却落申槽）。 */
 function panoStateKey(p) {
   const m = PROTAGONISTS.find(x => x.id === p.id);
   if (m && m.home) return m.home;
   return (p.state || "").split("/")[0];
 }
+/* 国色制（r24a）：各主角色 = 其所属国的国色，不再有个人色。
+ * 取键与 panoStateKey 同一函数，故「卡顶条/轨迹/节点的色」与「全景阵营弧位」永远同源，
+ * 不会再出现旧制那种「色取 A 国、位落 B 国」的错置。缺失则退暖赭并告警。 */
 function resolveProtoColors() {
   const cs = getComputedStyle(document.documentElement);
   for (const m of PROTAGONISTS) {
-    const v = cs.getPropertyValue("--p-" + m.id.slice(2).toLowerCase()).trim();
+    const p = (typeof PEOPLE !== "undefined" && PEOPLE[m.id]) || { id: m.id, state: "" };
+    const key = panoStateKey(p);
+    const varName = STATE_FAMILY_VAR[key];
+    const v = varName ? cs.getPropertyValue(varName).trim() : "";
     if (v) m.color = v;
-    else { m.color = "#B4652F"; console.warn("主题色变量缺失：--p-" + m.id.slice(2).toLowerCase()); }
+    else { m.color = "#B4652F"; console.warn("国色变量缺失：" + m.id + " → 国「" + key + "」"); }
   }
 }
 function familyColor(stateKey) {
@@ -118,7 +128,7 @@ const CAT_ICON = {
   "即位": "jiwei", "战争": "zhanzheng", "会盟": "huimeng", "相会": "xianghui",
   "婚嫁": "hunjia", "生育": "shengyu", "出奔": "chuben", "弑杀": "shisha",
   "薨卒": "hongzu", "丧葬": "sangzang", "外交": "waijiao", "内乱": "neiluan",
-  "灾异": "zaiyi", "礼俗": "lisu", "其他": "qita",
+  "灾异": "zaiyi", "礼俗": "lisu", "政制": "zhengzhi", "其他": "qita",
 };
 const REL_LABEL = { high: "可靠性 高", medium: "可靠性 中", low: "可靠性 低" };
 /* 分享卡文案（copy_r8 终审 N2–N5，r11 起用于分享卡生成器与复制链接） */
@@ -4493,7 +4503,7 @@ async function boot() {
   PLACES = byId(DATA.places);
   SOURCES = byId(DATA.sources);
   EVENTS = byId(DATA.events);
-  resolveProtoColors(); // 两级色彩系统：从 styles.css :root 读入各主角色（单点管理）
+  resolveProtoColors(); // 国色制：按人物所属国从 styles.css :root 读入国色（须在 PEOPLE 赋值之后）
   const mapResp = await fetch("assets/map/base_map.svg");
   baseMapText = await mapResp.text();
 
