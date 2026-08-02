@@ -645,3 +645,31 @@ Xu 的生产实测路径：单人地图 →「放大查看」（控件在）→ 
 - `node tools/qa/vision_r24a.js`：**185 项通过，0 项未过**，页面错误 0。
 - 视觉留证（`tools/qa/screenshots/`，四档 × 单人/并观）：`r24a_fix_single_fs_{1440,1024,768,390}.png`、`r24a_fix_dual_fs_{1440,1024,768,390}.png`——控件恒在左上、关闭钮之下；390 并观全屏的字幕条已完整可读（顺带修正之效）。
 - 数据零改动：`git status` 仅 `site/app.js`、`site/index.html`、`site/styles.css`、`tools/qa/vision_r24a.js` 四个文件。
+
+### 19.8 上线与生产复验（本轮授权推送）
+
+| 项 | 结果 |
+|---|---|
+| 提交 | `d7e87bc`（fix/site＋harness）、`806d319`（本节交付说明） |
+| push | `7662140..806d319 main -> main` |
+| Actions | run `30771907361` **success**（24s），含 `Validate data (guard)`、`Post-deploy self-check` 全绿 |
+| 产物核对（`curl -L --resolve`） | `app.js` 命中 `mountOverlayControls` **9 处**；`index.html` 中 `id="overlay-controls"` **0 处**（静态节点确已删）；`styles.css:2024` 已有 `body.no-scroll .cmp-sheet-toggle { display: none; }` |
+| 生产站跑总门 | `QA_BASE_URL=https://chunqiu.timechorus.com QA_HOST_RESOLVER="MAP chunqiu.timechorus.com 172.67.174.133"` → **185 项全过、0 未过、页面错误 0** |
+
+**按 Xu 的原始复现路径在生产站逐步走一遍**（真点按钮、非 hash 直达，全程不刷新；桌面 1440 与手机 390 各一遍）：
+
+| 步骤 | 桌面 1440 | 手机 390 |
+|---|---|---|
+| ① 单人地图 → 放大查看 | 控件**在** `x14,y63,166×44`，可点 ✓ | 控件**在** `x10,y80,166×44`，可点 ✓ |
+| ② 添加对照人物（齐襄公）→ 放大查看 | 控件**在**，可点 ✓（原为消失） | 控件**在**，可点 ✓（原为消失） |
+| ③ 移除对照回单人 → 放大查看 | 控件**在**，可点 ✓（原为消失） | 控件**在**，可点 ✓（原为消失） |
+| ③ 再点控件播放 | `raf=true`，浮层与主按钮同步作「⏸ 暂停」✓ | 同左 ✓ |
+| 页面错误 | 无 | 无 |
+
+**无需刷新即恒在恒可用，报障场景已消**。截图留证：`tools/qa/screenshots/r24a_fix_prod_{1440,390}.png`。
+
+### 19.9 疑点与排程建议（**仅记录上报，未自行裁量**）
+
+1. **同族隐患的巡查建议（排程）**：本条与 r17b 点边失灵同源——"跨浮层存活的节点/绑定"。本次已把控件一族清干净，但 `#play-caption`／`#cmp-caption` 仍是**被 move 进浮层、退出时再 move 回去**的单例（`openOverlay`/`closeOverlay`、`openCmpOverlay`/`closeCmpOverlay` 各一处）。目前未发现失效路径（清空容器的三处入口都不会在字幕条寄居期间触发），但它与本次出事的结构完全同型。建议排一次专项巡查（非紧急），把字幕条一并改为派生式重挂；本轮**未动**，避免热修扩大改动面。
+2. **顺带修正的去留（候裁）**：19.6 的 `.cmp-sheet-toggle` 一条虽同族且已随本次上线，仍请领队追认；若认为热修不宜夹带，单独 revert 该 CSS 规则与 §4b 对应 8 项断言即可，主体不受影响。
+3. 本轮**无**数据改动、**无** conventions／design_notes 改动需求（视觉规范未变，仅实现方式由静态节点改为运行时重建）。
