@@ -24,7 +24,11 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   let s = null, origin = baseURL;
   if (!origin) { s = await srv(SITE_DIR); origin = `http://127.0.0.1:${s.address().port}`; say("本地服务器：" + origin); }
   else say("真机 QA_BASE_URL：" + origin);
-  const b = await pw.chromium.launch();
+  // 沙箱内对生产域名 DNS 解析失败时，用 QA_HOST_RESOLVER 直接把域名映射到已知 IP，
+  // 例：QA_HOST_RESOLVER="MAP chunqiu.timechorus.com 172.67.174.133"（不设则行为不变）
+  const hostRule = process.env.QA_HOST_RESOLVER || null;
+  if (hostRule) say("host-resolver-rules：" + hostRule);
+  const b = await pw.chromium.launch(hostRule ? { args: ["--host-resolver-rules=" + hostRule] } : {});
   const c = await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2,
     extraHTTPHeaders: { "Cache-Control": "no-cache", "Pragma": "no-cache" } });
   await c.route("**/*.{js,css,json,svg}", r => r.continue({ headers: { ...r.request().headers(), "Cache-Control": "no-cache" } }));
