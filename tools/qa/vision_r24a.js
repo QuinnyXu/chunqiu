@@ -1,6 +1,11 @@
 "use strict";
 // r24a Vision 自验：国色制换血（九国色定调／个人色退役）＋并观线型与交互重构
 // ＋全屏控件移位＋§9.3 全景徽记可辨性＋政制图标＋子产首秀＋27 主角回归
+//
+// r24a-2 补批扩充（本文件即 Vision 的回归总门，不另起脚本）：
+//   §5  改为 A/B 两态实测——A＝默认 27 主角环、B＝勾「显示全部」回全库；
+//       原「槽距 < 节点直径」的 ⚠ 记实随之改写为「B 态仍如此、A 态已解」。
+//   §5b 新增：诗歌层菉色 --poem 的落地与**渲染后**色距实测（不只查源文件）。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -253,14 +258,61 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
              slotChord: chord ? +chord.toFixed(2) : null,
              onTop: !!(svgs[0] && svgs[0].parentNode === document.querySelector("#rel-canvas > svg").lastElementChild) };
   });
-  say("  环上共 " + pano.total + " 人，主角节点 " + pano.protoNodes + " 个，徽记注入 " + pano.badges + " 枚");
+  say("  【A 态·默认】环上共 " + pano.total + " 人，主角节点 " + pano.protoNodes + " 个，徽记注入 " + pano.badges + " 枚");
   say("  节点 r=" + pano.r + "，绢帛分隔环宽=" + pano.ringW + "，相邻槽距(弦长)=" + pano.slotChord + "，徽记 " + JSON.stringify(pano.size));
   OK(pano.protoNodes === 27 && pano.badges === 27, "27 枚主角节点徽记全部注入");
   OK(pano.onTop, "徽记在顶层（叠于全部节点盘面之上）——旧法同弧只有最后一枚徽记露得出");
   OK(+pano.ringW === 3.4 && pano.size.w === "22" && pano.size.sw === "2.6", "呈现端已上调一档：环宽 2→3.4、徽记 20→22、线宽 2→2.6");
-  say("  ⚠ 槽距 " + pano.slotChord + " < 节点直径 " + (2 * +pano.r) + "——主角盘面本就相互叠压，"
-      + "此为 123 人同环的既有密度问题（r23b 即如此），非国色制引入；国色制使其显影（见交付说明 §四）");
+  // r24a-2 裁定②b：默认只画 27 主角，槽距因此由 12.87 升到 58.5+，大于节点直径 30 与徽记边长 22
+  OK(pano.total === 27, "A 态默认只画 27 主角（r24a-2 裁定②b，即 r24a §4.3 选项 C）");
+  OK(pano.slotChord > 2 * +pano.r, "A 态槽距 " + pano.slotChord + " > 节点直径 " + (2 * +pano.r) + "——盘面不再叠压");
+  OK(pano.slotChord > +pano.size.w, "A 态槽距 " + pano.slotChord + " > 徽记边长 " + pano.size.w + "——同弧徽记不再压边（r24a 遗留的根本矛盾在 A 态解除）");
+  const showAllUI = await p.evaluate(() => ({
+    hasBox: !!document.querySelector("#rel-show-all"),
+    showAllVisible: !document.querySelector("#rel-showall-label").hidden,
+    protoOnlyVisible: !document.querySelector("#rel-filter-label").hidden,
+    label: (document.querySelector("#rel-showall-text") || {}).textContent,
+    crumbs: document.querySelector("#rel-crumbs").textContent.trim(),
+  }));
+  say("  A 态工具条：" + JSON.stringify(showAllUI));
+  OK(showAllUI.hasBox && showAllUI.showAllVisible, "「显示全部」开关在全景态可见");
+  OK(!showAllUI.protoOnlyVisible, "A 态隐去「仅主角边」——27 主角环上每条边两端皆主角，该过滤器恒为空操作");
+  OK(/27 主角/.test(showAllUI.crumbs), "工具条计数与环上实绘同源（报 27 主角）");
   await p.screenshot({ path: path.join(OUT, "r24a_09_pano_full.png"), fullPage: false });
+  await p.locator("#rel-canvas").screenshot({ path: path.join(OUT, "r24a2_06_pano_A_27proto.png") });
+
+  // B 态：勾「显示全部」→ 回全库全环（r24a 记录的旧默认态，留作对照存档）
+  await p.check("#rel-show-all"); await p.waitForTimeout(1400);
+  const panoB = await p.evaluate(() => {
+    const c1 = document.querySelector('#rel-canvas [data-node="P_WENJIANG"] circle');
+    const c2 = document.querySelector('#rel-canvas [data-node="P_QIXIANG"] circle');
+    return { total: document.querySelectorAll("#rel-canvas .rel-node").length,
+             protoNodes: document.querySelectorAll("#rel-canvas .rel-node.proto").length,
+             slotChord: c1 && c2 ? +Math.hypot(+c1.getAttribute("cx") - +c2.getAttribute("cx"), +c1.getAttribute("cy") - +c2.getAttribute("cy")).toFixed(2) : null,
+             protoOnlyVisible: !document.querySelector("#rel-filter-label").hidden,
+             crumbs: document.querySelector("#rel-crumbs").textContent.trim() };
+  });
+  say("  【B 态·显示全部】" + JSON.stringify(panoB));
+  OK(panoB.total > 100 && panoB.protoNodes === 27, "B 态回到全库全环（" + panoB.total + " 人），27 主角仍带徽记");
+  OK(panoB.protoOnlyVisible, "B 态「仅主角边」随之出现（此时它才有意义）");
+  say("  ⚠ B 态槽距 " + panoB.slotChord + " < 节点直径 " + (2 * +pano.r) + "——主角盘面相互叠压、同弧徽记压边，"
+      + "此为 " + panoB.total + " 人同环的既有密度问题（r23b 即如此），非国色制引入；国色制使其显影。"
+      + "r24a-2 的处置不是消灭它，而是把它移出默认态：默认给 27 人环，全库全环改为读者主动索取（见交付说明 §十一）");
+  await p.locator("#rel-canvas").screenshot({ path: path.join(OUT, "r24a2_07_pano_B_showall.png") });
+  // 往返：取消勾选须回到 A 态（开关式，不留中间态）
+  await p.uncheck("#rel-show-all"); await p.waitForTimeout(1200);
+  const panoA2 = await p.evaluate(() => document.querySelectorAll("#rel-canvas .rel-node").length);
+  OK(panoA2 === 27, "A⇄B 往返实测：取消勾选回到 27 主角环（实测 " + panoA2 + "）");
+  // 全屏「⛶ 放大查看」克隆的是当前 SVG，故须在 A 态下确认克隆体也是 27 人环且节点仍可点
+  await p.click("#btn-rel-zoom"); await p.waitForTimeout(900);
+  const zoomA = await p.evaluate(() => ({
+    open: !document.querySelector("#map-overlay").hidden,
+    nodes: document.querySelectorAll("#map-overlay-body .rel-node").length,
+    badges: document.querySelectorAll("#map-overlay-body > svg > g:last-of-type > svg").length,
+  }));
+  say("  全屏克隆体（A 态）：" + JSON.stringify(zoomA));
+  OK(zoomA.open && zoomA.nodes === 27 && zoomA.badges === 27, "全屏放大查看随 A 态克隆 27 人环、27 枚徽记同步");
+  await p.click("#btn-overlay-close"); await p.waitForTimeout(500);
   // 齐（6 人同色）一段弧的局部放大——同色相邻节点只能靠徽记分辨
   const qiClip = await p.evaluate(() => {
     const qi = ["P_WENJIANG", "P_QIXIANG", "P_QIHUAN", "P_GUANZHONG", "P_BAOSHUYA", "P_QIXI"];
@@ -271,6 +323,59 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     return { x: Math.max(0, x), y: Math.max(0, y), width: r - x, height: bo - y };
   });
   if (qiClip) { await p.screenshot({ path: path.join(OUT, "r24a_10_pano_qi_arc.png"), clip: qiClip }); say("  齐弧局部截图 clip=" + JSON.stringify(qiClip)); }
+
+  // ---------- 5b) r24a-2：诗歌层菉色 --poem（渲染后实测，非只查源文件） ----------
+  H("5b) r24a-2 补批：诗歌层功能色换色相（菉 --poem）");
+  await p.goto(origin + "/#/p/P_XIAJI/timeline", { waitUntil: "load" }); await p.waitForTimeout(1300);
+  const poem = await p.evaluate(() => {
+    document.querySelectorAll("details").forEach(d => (d.open = true));
+    const toHex = (s) => { const m = (s || "").match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/); return m ? "#" + [1, 2, 3].map(i => (+m[i]).toString(16).padStart(2, "0")).join("").toUpperCase() : (s || "").toUpperCase(); };
+    const cs = getComputedStyle(document.documentElement);
+    const q = document.querySelector(".quote.layer-shige");
+    const tag = q && q.querySelector(".q-layer");
+    return {
+      poemVar: cs.getPropertyValue("--poem").trim().toUpperCase(),
+      bronzeVar: cs.getPropertyValue("--bronze").trim().toUpperCase(),
+      theme: toHex(cs.getPropertyValue("--theme")),
+      leftLine: q ? toHex(getComputedStyle(q).borderLeftColor) : null,
+      tagColor: tag ? toHex(getComputedStyle(tag).color) : null,
+      bg: q ? getComputedStyle(q).backgroundColor : null,
+      hasCaveat: !!(q && q.classList.contains("has-caveat")),
+      caveatColor: (() => { const c = q && q.querySelector(".q-caveat"); return c ? toHex(getComputedStyle(c).color) : null; })(),
+    };
+  });
+  // ΔE76（CIE Lab D65/2°）与 WCAG 对比度，口径同 tools/qa/color_matrix_r24a2.js 与 design_notes §2.1
+  const _lin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const _rgb = (h) => { const v = parseInt(h.replace("#", ""), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; };
+  const _lab = (h) => { const [r, g, bl] = _rgb(h).map(_lin);
+    const X = r * .4124564 + g * .3575761 + bl * .1804375, Y = r * .2126729 + g * .7151522 + bl * .0721750, Z = r * .0193339 + g * .1191920 + bl * .9503041;
+    const f = (t) => (t > 216 / 24389 ? Math.cbrt(t) : (24389 / 27 * t + 16) / 116);
+    const fx = f(X / .95047), fy = f(Y), fz = f(Z / 1.08883);
+    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)]; };
+  const dE = (a, b) => { const A = _lab(a), B = _lab(b); return +Math.hypot(A[0] - B[0], A[1] - B[1], A[2] - B[2]).toFixed(2); };
+  const _lum = (h) => { const [r, g, bl] = _rgb(h).map(_lin); return .2126 * r + .7152 * g + .0722 * bl; };
+  const ctr = (a, b) => +(((Math.max(_lum(a), _lum(b)) + .05) / (Math.min(_lum(a), _lum(b)) + .05))).toFixed(2);
+  say("  渲染实测：" + JSON.stringify(poem));
+  OK(poem.poemVar === "#63722F", "--poem 已立（菉 #63722F）");
+  OK(poem.poemVar !== poem.bronzeVar, "--poem 与 --bronze 已分家（--bronze 仍服务次强调与「拥立」关系线）");
+  OK(poem.leftLine === poem.poemVar && poem.tagColor === poem.poemVar,
+     "诗歌层左线与徽标皆取 --poem（实测 " + poem.leftLine + " / " + poem.tagColor + "）");
+  OK(/^rgba\(99, 114, 47/.test(poem.bg || ""), "诗歌层淡底同步换为菉色 0.06（实测 " + poem.bg + "）");
+  const worst = Object.entries(STATE_HEX).map(([k, v]) => [k, dE(poem.poemVar, v)]).sort((a, b) => a[1] - b[1]);
+  say("  菉色 × 九国色 ΔE76 最紧三：" + worst.slice(0, 3).map(x => x[0] + " " + x[1]).join("、"));
+  OK(worst[0][1] >= 13.2, "菉色对九国色全部 ≥13.2（最紧 " + worst[0][0] + " " + worst[0][1] + "）");
+  OK(dE(poem.poemVar, "#35706A") >= 13.2, "对郑（旧值仅 4.39）已拉开至 " + dE(poem.poemVar, "#35706A"));
+  OK(ctr(poem.poemVar, "#F4EDDF") >= 3.5 && ctr(poem.poemVar, "#FFFFFF") >= 4.1,
+     "双底线达标：对绢帛 " + ctr(poem.poemVar, "#F4EDDF") + " / 对白 " + ctr(poem.poemVar, "#FFFFFF"));
+  OK(poem.hasCaveat && poem.caveatColor === "#B4652F",
+     "《株林》条层标仍为暖赭、未被层色夺去（层标答「本库如何处置」、层色答「属哪一层」，分工不变）");
+  say("  注：全站全色目 31 色的 ΔE76 全矩阵另由 `node tools/qa/color_matrix_r24a2.js` 实算（含关系线与图面中性色）");
+  const shot = await p.$(".quote.layer-shige");
+  if (shot) {
+    const card = await p.evaluateHandle(e => e.closest("li,article,.tl-item") || e.parentElement, shot);
+    await card.asElement().screenshot({ path: path.join(OUT, "r24a2_01_poem_xiaji_chen.png") });
+    say("  《陈风·株林》条截图：r24a2_01_poem_xiaji_chen.png（陈国色 #3B6A48 与菉色同屏，旧青绿对陈仅 15.13）");
+  }
 
   // ---------- 6) 子产首秀 + 政制图标 ----------
   H("6) 子产时间线首秀与「政制」图标实装");
@@ -377,7 +482,8 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   H("7) 四档宽度回归（1440 / 1024 / 768 / 390）");
   for (const [w, h] of [[1440, 900], [1024, 800], [768, 900], [390, 780]]) {
     await p.setViewportSize({ width: w, height: h });
-    for (const [tag, hash] of [["home", "/#/"], ["timeline", "/#/p/P_ZICHAN/timeline"], ["map", "/#/p/P_WENJIANG/map"], ["cmp", "/#compare=P_WENJIANG,P_QIXIANG"]]) {
+    // r24a-2：关系全景纳入宽度回归——本批在其工具条新增了「显示全部」勾选框，须验窄屏不撑破
+    for (const [tag, hash] of [["home", "/#/"], ["timeline", "/#/p/P_ZICHAN/timeline"], ["map", "/#/p/P_WENJIANG/map"], ["cmp", "/#compare=P_WENJIANG,P_QIXIANG"], ["relations", "/#/relations"]]) {
       await p.goto(origin + hash, { waitUntil: "load" }); await p.waitForTimeout(700);
       const ov = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
       OK(ov.sw <= ov.cw + 1, w + "px · " + tag + " 无横向溢出（scrollWidth " + ov.sw + " ≤ clientWidth " + ov.cw + "）");

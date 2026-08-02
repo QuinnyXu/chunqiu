@@ -3034,6 +3034,7 @@ const relView = {
   collapsed: new Set(),  // ego 两侧折叠的分组（窄屏默认全折叠）
   collapsedInit: false,
   protoOnly: false,      // 全景「仅主角边」
+  showAll: false,        // 全景「显示全部」：false=只画 27 主角（默认），true=全库 123 人（r24a-2 裁定②b）
   nodes: new Map(), edges: [], focus: null, isolated: new Set(), // 全景态
   detailReg: [],         // 每次绘图重建：边索引→该并线的 rels，供全屏克隆体按 data-detail 重绑抽屉
 };
@@ -3080,21 +3081,33 @@ function relRecenter(pid) {
 function updateRelToolbar() {
   const ego = relView.mode === "ego";
   $("#btn-rel-back").hidden = !(ego && relView.stack.length);
-  $("#rel-filter-label").hidden = ego;
+  /* 「仅主角边」只在「显示全部」时有意义——默认 27 主角环上每条边两端皆主角，
+   * 该过滤器恒为空操作，故一并隐去，不给读者一个点了没反应的勾选框（r24a-2）。 */
+  $("#rel-filter-label").hidden = ego || !relView.showAll;
+  const showAllLabel = $("#rel-showall-label");
+  showAllLabel.hidden = ego;
+  $("#rel-showall-text").textContent = "显示全部 " + DATA.people.length + " 人";
+  $("#rel-show-all").checked = relView.showAll;
   const modeBtn = $("#btn-rel-mode");
-  modeBtn.textContent = ego ? "全景 " + DATA.people.length + " 人" : "◎ 以人为中心";
+  const panoN = panoPeople().length;
+  modeBtn.textContent = ego ? "全景 " + panoN + (relView.showAll ? " 人" : " 主角") : "◎ 以人为中心";
   modeBtn.setAttribute("aria-pressed", String(!ego));
   const crumbs = $("#rel-crumbs");
   crumbs.textContent = "";
   if (!ego) {
     const s = document.createElement("span");
     s.className = "crumb-cur";
-    // 关系计数随「仅主角边」过滤动态变化（口径与绘图一致：两端皆在库中）
+    /* 关系计数随「显示全部」与「仅主角边」双重过滤动态变化。
+     * 口径与绘图一致：两端皆须在**环上**（r24a-2 起环上未必是全库，见 panoPeople），
+     * 旧版只判「两端皆在库中」，27 人默认态下会报出画不出来的边。 */
+    const shown = new Set(panoPeople().map(p => p.id));
     const nEdges = DATA.relations.filter(r =>
-      PEOPLE[r.person_a] && PEOPLE[r.person_b] &&
+      shown.has(r.person_a) && shown.has(r.person_b) &&
       (!relView.protoOnly || isProto(r.person_a) || isProto(r.person_b))).length;
-    s.textContent = "全景 · " + DATA.people.length + " 人 · " + nEdges + " 条关系" +
-      (relView.protoOnly ? "（仅主角边）" : "");
+    s.textContent = "全景 · " + shown.size + (relView.showAll ? " 人 · " : " 主角 · ") +
+      nEdges + " 条关系" +
+      (relView.protoOnly ? "（仅主角边）" : "") +
+      (relView.showAll ? "" : "（默认只列主角，勾「显示全部」见全库）");
     crumbs.appendChild(s);
     return;
   }
@@ -3511,6 +3524,30 @@ function drawStateHalos(layer, people, CX, CY, R, NS) {
  * PANO_BADGE_SW 徽记线宽（源文件 2 → 呈现 2.6），以 CSS 覆盖 SVG 呈现属性，源文件不改。
  * 三者与「徽记源文件一律 stroke-width=2」的规约不冲突：改的只是呈现端。 */
 const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";
+/* 全景环上的人物集合（r24a-2 裁定 ②b，即 r24a §4.3 三选项之 C）：
+ * **默认只画 27 主角**，勾「显示全部」才回到全库 123 人。
+ *
+ * 根据（实测，非观感）：环半径 R=252 固定，相邻槽距＝2R·sin(π/n)。
+ *   n=123 → 12.87px，**小于主角节点直径 30**，故主角盘面本就相互叠压，
+ *           国色制下同国同色更并作一块色团，同弧徽记必然互相压边（r24a §四）；
+ *   n=27  → 58.55px，**大于节点直径 30 且大于徽记边长 22**，同弧徽记两两不相接。
+ * 这是 r24a 三条 costed 选项中唯一不改环几何、不改视觉性格即可根治的一条：
+ * A（不等角槽）要把 viewBox 由 680 扩到约 800、图整体变大；B（双环错排）把「清爽单环」
+ * 改成双环，属观感取向变更；C 只改「默认画谁」，且被改掉的信息量由一个开关原样取回。
+ *
+ * 单一来源：绘图与工具条计数取同一函数，故「环上几人」与「工具条报几人」不会脱节。
+ * 排序键与旧版一字不差（STATE_ORDER 首国 → 主角优先 → id），故同国仍连续成弧。 */
+function panoPeople() {
+  return [...DATA.people]
+    .filter(p => relView.showAll || isProto(p.id))
+    .sort((a, b) => {
+      const sa = STATE_ORDER.indexOf(panoStateKey(a));
+      const sb = STATE_ORDER.indexOf(panoStateKey(b));
+      return ((sa < 0 ? 99 : sa) - (sb < 0 ? 99 : sb)) ||
+             ((b.is_protagonist || 0) - (a.is_protagonist || 0)) ||
+             a.id.localeCompare(b.id);
+    });
+}
 /* ----- 全景视图（分组环形布局，round6 原样保留；本轮加过滤器与国别底晕） ----- */
 function drawPanoGraph() {
   const NS = "http://www.w3.org/2000/svg";
@@ -3529,13 +3566,7 @@ function drawPanoGraph() {
   svg.appendChild(edgeLayer);
   svg.appendChild(nodeLayer);
 
-  const people = [...DATA.people].sort((a, b) => {
-    const sa = STATE_ORDER.indexOf(panoStateKey(a));
-    const sb = STATE_ORDER.indexOf(panoStateKey(b));
-    return ((sa < 0 ? 99 : sa) - (sb < 0 ? 99 : sb)) ||
-           ((b.is_protagonist || 0) - (a.is_protagonist || 0)) ||
-           a.id.localeCompare(b.id);
-  });
+  const people = panoPeople();
   relView.nodes.clear();
   people.forEach((p, i) => {
     const ang = (i / people.length) * Math.PI * 2 - Math.PI / 2;
@@ -4662,6 +4693,12 @@ async function boot() {
   });
   $("#rel-proto-only").addEventListener("change", (e) => {
     relView.protoOnly = e.target.checked;
+    if (relView.mode === "pano") drawRel();
+  });
+  /* 「显示全部」：27 主角环 ⇄ 全库 123 人（r24a-2 裁定 ②b）。
+   * 切换后焦点若已不在环上，drawPanoGraph 末尾的 nodes.has(focus) 判断会自动回落到无焦点态。 */
+  $("#rel-show-all").addEventListener("change", (e) => {
+    relView.showAll = e.target.checked;
     if (relView.mode === "pano") drawRel();
   });
   $("#btn-rel-zoom").addEventListener("click", openRelOverlay);

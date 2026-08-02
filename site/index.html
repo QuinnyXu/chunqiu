@@ -208,6 +208,8 @@
       <nav class="rel-crumbs" id="rel-crumbs" aria-label="关系图游走路径"></nav>
       <div class="rel-tools">
         <button type="button" id="btn-rel-back" hidden>← 返回上一个中心</button>
+        <!-- 全景默认只画 27 主角（r24a-2 裁定②b）；勾选后回到全库全环，「仅主角边」随之出现 -->
+        <label class="rel-filter" id="rel-showall-label" hidden><input type="checkbox" id="rel-show-all"><span id="rel-showall-text">显示全部</span></label>
         <label class="rel-filter" id="rel-filter-label" hidden><input type="checkbox" id="rel-proto-only">仅主角边</label>
         <button type="button" id="btn-rel-mode" aria-pressed="false">全景</button>
         <button type="button" id="btn-rel-zoom">⛶ 放大查看</button>
@@ -289,7 +291,7 @@
         <!-- 支持本站·次级入口（r18 Xu 裁定：主入口在首页底部分享行；此处保留一行安静次级入口，同一弹层） -->
         <p class="support-line">若愿支持本站长期考订，可<button type="button" class="support-link-btn" id="support-link">支持本站</button>。</p>
         <ul>
-          <li>v0.14 —— 人物色彩改为「国色制」：一国一色，同国人物同色，个人由徽记（形）分辨；并观双轨改以线型相分（主人物长划线、对照人物珠点线，端点圆／方），灰度下亦可辨；「添加对照人物」改开关式（再点已选者即移出、回单人），「对调」按钮退役；全屏播放控件移至左上角，不再遮挡地点卡片；新增第 27 位主角子产（郑）与第 16 类「政制」事件图标</li>
+          <li>v0.14 —— 人物色彩改为「国色制」：一国一色，同国人物同色，个人由徽记（形）分辨；并观双轨改以线型相分（主人物长划线、对照人物珠点线，端点圆／方），灰度下亦可辨；「添加对照人物」改开关式（再点已选者即移出、回单人），「对调」按钮退役；全屏播放控件移至左上角，不再遮挡地点卡片；新增第 27 位主角子产（郑）与第 16 类「政制」事件图标；关系全景图默认只列 27 位主角，勾「显示全部」可见全库；《诗经》引文的分层色由青绿改菉色，与郑国色分开</li>
           <li>v0.13 —— 双人并观：从关系图两人关系卡或人物地图「添加对照人物」进入，两条行迹同图（各主题色、同国相近者副轨点划线）；绝对年轴按年并观、生卒灰置；交会检测分「同场」与「同年同地」两级，附「同城未必同时，不能仅据同年同地断定相遇」的口径；手机端交会一览折叠为底部条</li>
           <li>v0.12 —— 全站更名为「经纬春秋」（副题「左传为经，诸书为纬，牵系有据」）；楚庄王线上线（主角十五人，一鸣惊人、问鼎中原、邲之战）；头部时间双标（春秋纪年时段＋考订前沿「已考订至前591」）；关于页站名注脚；「重看引导」落位修复</li>
           <li>v0.11 —— 人物色彩改为两级国色系（齐红 · 鲁赭 · 郑青 · 晋栗 · 秦玄 · 楚紫，同国分深浅），关系全景按国着色、阵营分区；首访引导结束回到首页「选一个人」；许可声明就位（代码 MIT · 数据 CC BY 4.0）</li>
