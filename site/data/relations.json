@@ -2041,5 +2041,113 @@
     "rel_label": "耻其贪天之功要市于君、不忍与同位（《史记》层）",
     "reliability": "medium",
     "source_note": "史记晋世家「而子犯以為己功而要市於君，固足羞也。吾不忍與同位」；左传僖二十四推言「二三子以為己力，不亦誣乎」不指名，故此边只成立于《史记》层，reliability 降 medium"
+  },
+  {
+    "id": "R245",
+    "person_a": "P_ZIPI",
+    "person_b": "P_ZICHAN",
+    "rel_type": "其他",
+    "rel_label": "授之以政而委国事（「虎帅以听，谁敢犯子」／「子皮以为忠，故委政焉」）",
+    "reliability": "high",
+    "source_note": "左传襄公三十年「郑子皮授子产政」；襄公三十一年「子皮以为忠，故委政焉，子产是以能为郑国」"
+  },
+  {
+    "id": "R246",
+    "person_a": "P_ZICHAN",
+    "person_b": "P_ZIPI",
+    "rel_type": "师友",
+    "rel_label": "谏其勿使尹何为邑（「未能操刀而使割」），子皮服而听之；伯有之乱子皮怒止驷氏之攻以护之",
+    "reliability": "high",
+    "source_note": "左传襄公三十一年「猶未能操刀而使割也」「自今請雖吾家，聽子而行」；襄公三十年「子皮怒之曰：禮，國之幹也」"
+  },
+  {
+    "id": "R247",
+    "person_a": "P_ZICHAN",
+    "person_b": "P_SHUXIANG",
+    "rel_type": "师友",
+    "rel_label": "诤友：叔向诒书责其铸刑书、子产复书「吾以救世也」；叔向又称「子产有辞，诸侯赖之」",
+    "reliability": "high",
+    "source_note": "左传昭公六年叔向诒书与子产复书；襄公三十一年「辭之不可以已也如是夫」；襄公三十年叔向问郑国之政于子产"
+  },
+  {
+    "id": "R248",
+    "person_a": "P_ZICHAN",
+    "person_b": "P_RANMING",
+    "rel_type": "师友",
+    "rel_label": "始知然明而问为政；然明请毁乡校，闻其答而服曰「今而后知吾子之信可事也」",
+    "reliability": "high",
+    "source_note": "左传襄公二十五年「子產始知然明，問為政焉」；襄公三十一年「然明謂子產曰：毀鄉校，何如」"
+  },
+  {
+    "id": "R249",
+    "person_a": "P_ZICHAN",
+    "person_b": "P_PIZAO",
+    "rel_type": "其他",
+    "rel_label": "两却其以宝禳火之请：「灶焉知天道？是亦多言矣」",
+    "reliability": "high",
+    "source_note": "左传昭公十七年「子產弗與」；昭公十八年「子產不可」「天道遠，人道邇」"
+  },
+  {
+    "id": "R250",
+    "person_a": "P_ZICHAN",
+    "person_b": "P_ZIDASHU",
+    "rel_type": "其他",
+    "rel_label": "临终授政并诲以宽猛（「我死，子必为政」）；子大叔早年问政得「政如农功」之答",
+    "reliability": "high",
+    "source_note": "左传昭公二十年「鄭子產有疾，謂子大叔曰：我死，子必為政」；襄公二十五年「子大叔問政於子產」"
+  },
+  {
+    "id": "R251",
+    "person_a": "P_KONGZI",
+    "person_b": "P_ZICHAN",
+    "rel_type": "其他",
+    "rel_label": "《左传》记仲尼三评子产：「人谓子产不仁，吾不信也」、宽猛相济、闻卒出涕「古之遗爱也」",
+    "reliability": "high",
+    "source_note": "左传襄公三十一年（前542，孔子时年十岁，系追记之评）、昭公二十年两处（前522，孔子年三十）"
+  },
+  {
+    "id": "R252",
+    "person_a": "P_CUIZHU",
+    "person_b": "P_QIZHUANG",
+    "rel_type": "拥立",
+    "rel_label": "齐灵公疾而微逆公子光立之（襄公十九年）",
+    "reliability": "high",
+    "source_note": "左传襄公十九年「齊侯疾，崔杼微逆光。疾病，而立之」"
+  },
+  {
+    "id": "R253",
+    "person_a": "P_CUIZHU",
+    "person_b": "P_QIZHUANG",
+    "rel_type": "敌对",
+    "rel_label": "以庄公通棠姜屡如崔氏故，伺间弑之于崔氏之室（襄公二十五年）",
+    "reliability": "high",
+    "source_note": "左传襄公二十五年「公踰牆，又射之，中股，反隊，遂弒之」；春秋经「夏五月乙亥，齊崔杼弒其君光」"
+  },
+  {
+    "id": "R254",
+    "person_a": "P_YANYING",
+    "person_b": "P_QIZHUANG",
+    "rel_type": "君臣",
+    "rel_label": "君见弑而不死不亡：枕尸股而哭、三踊而出，以「君为社稷死则死之」为断",
+    "reliability": "high",
+    "source_note": "左传襄公二十五年「枕尸股而哭。興，三踊而出」「故君為社稷死，則死之；為社稷亡，則亡之」"
+  },
+  {
+    "id": "R255",
+    "person_a": "P_YANYING",
+    "person_b": "P_CUIZHU",
+    "rel_type": "其他",
+    "rel_label": "崔氏之门不死不亡而崔子舍之「民之望也，舍之得民」；大宫之盟夺其辞而不与崔庆",
+    "reliability": "high",
+    "source_note": "左传襄公二十五年「人謂崔子：必殺之。崔子曰：民之望也，舍之得民」「嬰所不唯忠於君、利社稷者是與，有如上帝」"
+  },
+  {
+    "id": "R256",
+    "person_a": "P_ZICHONG",
+    "person_b": "P_ZIFAN",
+    "rel_type": "其他",
+    "rel_label": "鄢陵败后责其陨师徒「盍图之」，子反遂死，王使止之弗及（成公十六年）",
+    "reliability": "high",
+    "source_note": "左传成公十六年「子重復謂子反曰：初隕師徒者，而亦聞之矣。盍圖之」「王使止之，弗及而卒」"
   }
 ]

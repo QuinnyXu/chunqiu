@@ -1188,5 +1188,145 @@
     "source_type": "secondary",
     "url": "https://ctext.org/lv-shi-chun-qiu/gui-gong/zh",
     "notes": "先秦诸子（杂家）说理层：管仲病中桓公问相，管仲以鲍叔牙「清廉潔直，視不己若者，不比於人；一聞人之過，終身不忘」而不可为政，转荐隰朋。成书战国末（吕不韦门客集撰），非当代记事；《管子·戒》《庄子·徐无鬼》有同类异文而措辞各异，本库只取吕览一家以免混淆；《左传》全无病榻论相之文。"
+  },
+  {
+    "id": "Z079",
+    "title": "《春秋左传·襄公八年》",
+    "work": "春秋左传",
+    "section": "襄公八年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-ba-nian/zh",
+    "notes": "子产首见于《左传》：谏郑人侵蔡之喜「小国无文德而有武功」。"
+  },
+  {
+    "id": "Z080",
+    "title": "《春秋左传·襄公十年》",
+    "work": "春秋左传",
+    "section": "襄公十年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-shi-nian/zh",
+    "notes": "郑西宫之难：尉止等五族作乱杀子驷、子国、子耳；子产完守备攻盗于北宫，又请焚子孔之载书。"
+  },
+  {
+    "id": "Z081",
+    "title": "《春秋左传·襄公二十四年》",
+    "work": "春秋左传",
+    "section": "襄公二十四年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-er-shi-si-nian/zh",
+    "notes": "子产寓书于子西以告晋范宣子论重币：「德，国家之基也」。"
+  },
+  {
+    "id": "Z082",
+    "title": "《春秋左传·襄公二十五年》",
+    "work": "春秋左传",
+    "section": "襄公二十五年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-er-shi-wu-nian/zh",
+    "notes": "子产始知然明而问为政；子大叔问政于子产得「政如农功」之答。按：本年另载崔杼弑齐庄公一节，round23 第二件（时代骨干批）当复用本行，勿重建。"
+  },
+  {
+    "id": "Z083",
+    "title": "《春秋左传·襄公三十年》",
+    "work": "春秋左传",
+    "section": "襄公三十年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-san-shi-nian/zh",
+    "notes": "郑伯有之乱与子皮授子产政；子产使都鄙有章、庐井有伍，从政一年及三年舆人之诵。"
+  },
+  {
+    "id": "Z084",
+    "title": "《春秋左传·襄公三十一年》",
+    "work": "春秋左传",
+    "section": "襄公三十一年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-san-shi-yi-nian/zh",
+    "notes": "子产坏晋馆垣、不毁乡校；又谏子皮勿使尹何为邑，子皮委政焉。"
+  },
+  {
+    "id": "Z085",
+    "title": "《春秋左传·昭公六年》",
+    "work": "春秋左传",
+    "section": "昭公六年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/zhao-gong-liu-nian/zh",
+    "notes": "三月郑人铸刑书；晋叔向诒书责之，子产复书「吾以救世也」；士文伯以火见占郑将火。"
+  },
+  {
+    "id": "Z086",
+    "title": "《春秋左传·昭公十七年》",
+    "work": "春秋左传",
+    "section": "昭公十七年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/zhao-gong-shi-qi-nian/zh",
+    "notes": "冬有星孛于大辰；郑裨灶言宋卫陈郑将同日火、请用瓘斝玉瓒禳之，子产弗与。"
+  },
+  {
+    "id": "Z087",
+    "title": "《春秋左传·昭公十八年》",
+    "work": "春秋左传",
+    "section": "昭公十八年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/zhao-gong-shi-ba-nian/zh",
+    "notes": "五月壬午宋卫陈郑皆火；裨灶复请禳，子产不可，曰「天道远，人道迩」；又载子产救火之措置。"
+  },
+  {
+    "id": "Z088",
+    "title": "《春秋左传·昭公二十年》",
+    "work": "春秋左传",
+    "section": "昭公二十年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/zhao-gong-er-shi-nian/zh",
+    "notes": "子产有疾遗言宽猛、疾数月而卒；子大叔为政与萑苻之盗；仲尼评宽猛相济，闻子产卒出涕曰「古之遗爱也」。"
+  },
+  {
+    "id": "Z089",
+    "title": "《春秋左传·成公十六年》",
+    "work": "春秋左传",
+    "section": "成公十六年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/cheng-gong-shi-liu-nian/zh",
+    "notes": "晋楚鄢陵之战：范文子不欲战而栾武子主战；吕锜射共王中目；子反醉而不能见、楚师宵遁；子反自请死而卒。"
+  },
+  {
+    "id": "Z090",
+    "title": "《春秋左传·襄公四年》",
+    "work": "春秋左传",
+    "section": "襄公四年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-si-nian/zh",
+    "notes": "无终子使孟乐如晋请和诸戎；魏绛谏勿伐、引后羿之戒而进「和戎五利」，晋侯说，使之盟诸戎。"
+  },
+  {
+    "id": "Z091",
+    "title": "《春秋左传·襄公十一年》",
+    "work": "春秋左传",
+    "section": "襄公十一年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-shi-yi-nian/zh",
+    "notes": "晋侯以乐之半赐魏绛「八年之中，九合诸侯」；绛辞而以「居安思危，思则有备，有备无患」为规，乃受。"
+  },
+  {
+    "id": "Z092",
+    "title": "《春秋左传·襄公二十七年》",
+    "work": "春秋左传",
+    "section": "襄公二十七年",
+    "category": "传世文献",
+    "source_type": "primary",
+    "url": "https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-er-shi-qi-nian/zh",
+    "notes": "向戌弭兵：晋楚齐秦皆许，子木请晋楚之从交相见，盟于宋西门之外；向戌请赏而子罕削简。本年另载崔氏之乱与崔杼之死，本件未立事目。"
   }
 ]
