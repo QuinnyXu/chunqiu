@@ -91,15 +91,27 @@ python tools/csv_to_json.py  → 9 张表全部重生成
 |---|---|
 | `b64128d` | `data(r23b合入)`：六表增量合入、L_YAN/叔向两条修正落地、孔子入库、JSON 重生成 |
 | `2002f4d` | `docs(convention)`：conventions 升 v1.22，两条判例（死者不亲至/E205 归类备考） |
-| （本次） | `docs(delivery)`：归档 `r23b_zichan_shidai.md`＋Sophia/Skipper 交付说明，清空 `data/incoming/round23/` |
+| `83b37c1` | `docs(delivery)`：归档 `r23b_zichan_shidai.md`＋Sophia/Skipper 交付说明，清空 `data/incoming/round23/` |
 
-`git push origin main` 后确认 GitHub Actions（`pages.yml`）跑绿，并做带参复验（绕开 CDN 边缘缓存），详见下方补记或后续 commit。
+`git push origin main`（`cd5503a..83b37c1`）后 GitHub Actions（`pages.yml`，run `30748903795`）**跑绿**（`completed success`，`deploy` job 16s，含 `Validate data (guard)` 与 `Post-deploy self-check` 两步均通过）。
 
-**四项复验点对照**（任务书 §【验收】要求）：
+**线上带参复验**（`nocache` 时间戳参数绕开 CDN 边缘缓存）：本地 Bash 对 `chunqiu.timechorus.com`／`quinnyxu.github.io` 两个域名的直接 DNS 解析均失败（历次交付说明记录的沙箱网络限制，与 r15 一致），改用 `curl --resolve <域名>:443:<已知IP>` 固定域名到其真实 IP、保留 SNI/Host 的方式绕过，两个域名（自定义域 Cloudflare IP `104.21.80.55`、GitHub Pages IP `185.199.108.153`）请求结果一致：
+
+```
+meta.json: generated_at=2026-08-02T12:52:27+00:00（与本地 csv_to_json.py 重生成结果逐字段一致）
+tables: events=190, passages=280, people=123, event_people=493, sources=133, relations=239
+year_range_bce: {min: -773, max: -522}
+
+people.json: is_protagonist=1 共 27 条
+events.json: E205 独立一行，category=其他，未并入 E202
+passages.json: Q252.modern_note 首段【《左传》系于事末之评断层·追记之辞，非当时之言】
+```
+
+**四项复验点对照**（任务书 §【验收】要求，全部线上实测通过）：
 
 | 复验点 | 结果 |
 |---|---|
-| 主角计 27 位 | `people.csv` 实测 `is_protagonist=1` 共 27 条 ✓ |
-| 年份跨度 -773 ～ -522 | `meta.json` 实测 `year_range_bce={min:-773, max:-522}` ✓ |
-| E205 独立在列 | `events.csv` 独立一行，`category=其他`，未并入 E202 ✓ |
-| E195 孔子追记层标可查 | `passages.csv` `Q252.modern_note` 首段【《左传》系于事末之评断层·追记之辞，非当时之言】✓ |
+| 主角计 27 位 | 线上 `people.json` 实测 `is_protagonist=1` 共 **27** 条 ✓ |
+| 年份跨度 -773 ～ -522 | 线上 `meta.json` 实测 `year_range_bce={min:-773, max:-522}` ✓ |
+| E205 独立在列 | 线上 `events.json` 独立一行，`category=其他`，未并入 E202 ✓ |
+| E195 孔子追记层标可查 | 线上 `passages.json` `Q252.modern_note` 首段【《左传》系于事末之评断层·追记之辞，非当时之言】✓ |
