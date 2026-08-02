@@ -107,6 +107,8 @@ const HOME_PENDING = "人物线整理中";
 /* 轨迹降级（r19b 通用机制）：亲至可落图地点不足两处者，无从连成轨迹，
  * 播放按钮以此静态说明替代（单点定位与事件仍正常显示）。并观配对同句降级。 */
 const PLAY_DEGRADE_NOTE = "亲至可考不足两地，暂无轨迹可播——已知地点如图。";
+/* 播放按钮文案（r24a 裁定 1b）：单人与并观两模式统一，同一个动作不该有两个名字。 */
+const PLAY_LABEL = { idle: "▶ 轨迹按时间播放", pause: "⏸ 暂停", resume: "▶ 继续播放" };
 /* 人物卡流向 chip 的语义说明（r21）：chip 列的是人物线所历之国，与「亲至轨迹」是两件事。
  * 措辞守 presence 分寸：「相关」＝史文无其在场明文，不得写成或暗示「其实不在场」。 */
 const FLOW_CHIP_NOTE = "人物线所历之国（据 people.state 出身→归宿诸段），非亲至轨迹；" +
@@ -1880,24 +1882,24 @@ function singlePlayCfg(traj, anchors, theme) {
     },
     onPause() { hideCaption(); },
     onResume() { if (lastStation >= 0) showCaption(captionText(lastStation)); },
-    onFinish() { hideCaption(); setPlayBtnText("single", "▶ 轨迹按时间播放"); },
+    onFinish() { hideCaption(); setPlayBtnText("single", PLAY_LABEL.idle); },
     onStop() {
       hideCaption(true);
-      setPlayBtnText("single", "▶ 轨迹按时间播放");
+      setPlayBtnText("single", PLAY_LABEL.idle);
       const m = document.querySelector("#play-marker"); if (m) m.setAttribute("hidden", "");
     },
   };
 }
 function toggleSinglePlay(traj, anchors, theme) {
   if (player.cfg && player.cfg.mode === "single" && player.raf && !player.paused) {
-    playerPause(); setPlayBtnText("single", "▶ 继续播放"); return;
+    playerPause(); setPlayBtnText("single", PLAY_LABEL.resume); return;
   }
   if (player.cfg && player.cfg.mode === "single" && player.paused) {
-    playerResume(); setPlayBtnText("single", "⏸ 暂停"); return;
+    playerResume(); setPlayBtnText("single", PLAY_LABEL.pause); return;
   }
   if (traj.length < 2) return;
   playerStart(singlePlayCfg(traj, anchors, theme));
-  setPlayBtnText("single", "⏸ 暂停");
+  setPlayBtnText("single", PLAY_LABEL.pause);
 }
 
 /* ==================================================================
@@ -1924,32 +1926,61 @@ function goCompare(a, b) {
   if (location.hash === h) render(); else location.hash = h;
 }
 
-/* 人物地图工具条「添加对照人物」小面板：列出其余主角，择一进并观 */
-function initComparePicker() {
-  const btn = $("#btn-compare");
-  const pick = $("#compare-pick");
+/* 「＋ 添加对照人物」开关式选人面板（r24a 裁定 1b 重构）。
+ * 两视图各挂一份（单人地图 #btn-compare／并观 #cmp-btn-compare），按钮文案与形态两处一致、常驻不变形。
+ * 开关语义（面板每次打开按当前 hash 重建，故实时反映当前组合）：
+ *   单人态点某人      → 加入并观（甲＝当前页主人物，乙＝所点者）
+ *   并观态点「当前乙」→ 移出，自动回单人模式（落回甲的地图视图）
+ *   并观态点「另一人」→ 直接换乙，甲不变
+ * 「⇄ 对调」按钮已随本轮退役：想以对方为主，自其人物页进入并观即可，
+ * hash #compare=甲,乙 的语义（甲＝当前页主）不变，角色随入口自明。 */
+function comparePickerCtx() {
+  // 甲＝当前页主人物；并观视图取 state.pair[0]，单人视图取 state.person
+  if (state.view === "compare" && state.pair && state.pair.length === 2) {
+    return { host: state.pair[0], partner: state.pair[1] };
+  }
+  return { host: state.person, partner: null };
+}
+function initComparePicker(btnSel, pickSel) {
+  const btn = $(btnSel);
+  const pick = $(pickSel);
   if (!btn || !pick) return;
   const close = () => { pick.hidden = true; btn.setAttribute("aria-expanded", "false"); };
   const build = () => {
     pick.textContent = "";
-    const cur = state.person;
+    const { host, partner } = comparePickerCtx();
+    if (!host) return;
     PROTAGONISTS.forEach(m => {
-      if (m.id === cur) return;
+      if (m.id === host) return;
       if (!PEOPLE[m.id]) return;
+      const on = m.id === partner;
       const b = document.createElement("button");
       b.type = "button";
-      b.setAttribute("role", "menuitem");
-      b.className = "cmp-pick-item";
+      b.setAttribute("role", "menuitemcheckbox");
+      b.setAttribute("aria-checked", on ? "true" : "false");
+      b.className = "cmp-pick-item" + (on ? " on" : "");
       const dot = document.createElement("i");
       dot.style.background = m.color || "#B4652F";
       b.appendChild(dot);
       b.appendChild(document.createTextNode(personName(m.id)));
-      b.addEventListener("click", () => { close(); goCompare(cur, m.id); });
+      if (on) {
+        const tick = document.createElement("span");
+        tick.className = "cmp-pick-tick";
+        tick.textContent = "✓";
+        tick.setAttribute("aria-hidden", "true");
+        b.appendChild(tick);
+        b.title = "再点一次移出并观，回到单人地图";
+      }
+      b.addEventListener("click", () => {
+        close();
+        if (on) setHash(host, "map");        // 再点当前乙 → 移出，自动回单人
+        else goCompare(host, m.id);          // 加入并观 / 直接换乙
+      });
       pick.appendChild(b);
     });
   };
   btn.addEventListener("click", () => {
-    if (!state.person) return;
+    if (!comparePickerCtx().host) return;
     if (pick.hidden) { build(); pick.hidden = false; btn.setAttribute("aria-expanded", "true"); }
     else close();
   });
@@ -1957,6 +1988,7 @@ function initComparePicker() {
     if (pick.hidden) return;
     if (!pick.contains(e.target) && e.target !== btn) close();
   });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pick.hidden) close(); });
 }
 
 /* 某人「亲至且在世」的事件（供检测与轨迹）：presence≠相关；并按 person 生卒年做生死过滤
@@ -2197,8 +2229,9 @@ function cmpComputeModel(A, B) {
   cmp.lifeA = lifeSpan(A, cmp.trajA);
   cmp.lifeB = lifeSpan(B, cmp.trajB);
   cmp.meetings = detectMeetings(A, B);
-  cmp.similar = (PEOPLE[A].state || "").split("/")[0] === (PEOPLE[B].state || "").split("/")[0] &&
-                Math.abs(relLum(cmp.colorA) - relLum(cmp.colorB)) < 0.18;
+  /* r24a 国色制：同国即同色，故 similar 由旧的「同国且明暗相近」改为直接判「双方同色」。
+   * 它已不再决定线型（乙轨珠点线为无条件，见 CMP_DASH），只用于图例文案提示。 */
+  cmp.similar = cmp.colorA.toLowerCase() === cmp.colorB.toLowerCase();
 
   const los = [cmp.lifeA.lo, cmp.lifeB.lo].filter(v => v != null);
   const his = [cmp.lifeA.hi, cmp.lifeB.hi].filter(v => v != null);
@@ -2238,7 +2271,7 @@ function renderCompare() {
 
   // 工具条：两人皆亲至落点<2（无从连成任一轨迹）时同句降级，否则至少一轨可动即可播
   const playBtn = $("#cmp-play");
-  playBtn.textContent = "▶ 按年并观";
+  playBtn.textContent = PLAY_LABEL.idle; // r24a：两模式文案统一
   setPlayDegrade("compare", cmp.trajA.length < 2 && cmp.trajB.length < 2);
   playBtn.onclick = toggleComparePlay;
   $("#cmp-scope").onclick = () => {
@@ -2247,14 +2280,22 @@ function renderCompare() {
     $("#cmp-scope").textContent = cmp.mode === "fit" ? "视野：活动范围" : "视野：全图";
   };
   $("#cmp-zoom").onclick = openCmpOverlay;
-  $("#cmp-swap").onclick = () => goCompare(B, A);
+  // r24a：「⇄ 对调」按钮退役——以对方为主请自其人物页进入并观（hash 甲＝当前页主，语义不变）
   $("#cmp-status").textContent =
     "交会共 " + cmp.meetings.length + " 处（同场 " +
     cmp.meetings.filter(m => m.level === "a").length + " · 同年同地 " +
     cmp.meetings.filter(m => m.level === "b").length + "）。";
 }
 
-/* 绘制并观地图：底图＋两人亲至轨迹（各主题色，副轨可点划线）＋交会点＋两枚行进标记 */
+/* 并观双轨线型（r24a 裁定 1a，国色制下由色彩移交纹理承担区分）：
+ * 甲＝当前页主人物，用长划虚线——与单人地图轨迹「6 5」完全同式，单人样式一律不动；
+ * 乙＝添加的对照人物，用珠点线——近零段长＋圆线帽，渲染为一串圆珠。
+ * 两式皆配 vector-effect="non-scaling-stroke"，故 dasharray 在屏幕坐标下求值，
+ * 珠径珠距在任意缩放级别恒定（放大不拉成长划、缩小不糊成实线）。
+ * 段长取 0.5 而非 0：部分渲染器会丢弃零长段，0.5 配圆帽仍是一枚正圆珠。 */
+const CMP_DASH = { A: "6 5", B: "0.5 8" };
+const CMP_DASH_W = { A: "2", B: "2.6" }; // 珠点略加粗，使珠身与长划等重
+/* 绘制并观地图：底图＋两人亲至轨迹（甲长划／乙珠点）＋交会点＋两枚行进标记 */
 function cmpBuildMap() {
   const canvas = $("#cmp-canvas");
   canvas.innerHTML = baseMapText;
@@ -2270,14 +2311,15 @@ function cmpBuildMap() {
   });
 
   const fitPoints = [];
-  const drawTraj = (traj, color, dashed, key) => {
+  const drawTraj = (traj, color, key) => {
     if (traj.length > 1) {
       const pl = document.createElementNS(NSVG, "polyline");
       pl.setAttribute("points", traj.map(t => t.x + "," + t.y).join(" "));
       pl.setAttribute("fill", "none");
       pl.setAttribute("stroke", color);
-      pl.setAttribute("stroke-width", "2");
-      pl.setAttribute("stroke-dasharray", dashed ? "8 3 2 3" : "6 5"); // 副轨点划线
+      pl.setAttribute("stroke-width", CMP_DASH_W[key]);
+      pl.setAttribute("stroke-dasharray", CMP_DASH[key]); // 甲长划／乙珠点（无条件）
+      if (key === "B") pl.setAttribute("stroke-linecap", "round"); // 圆帽：段长 0.5 渲染为圆珠
       pl.setAttribute("opacity", "0.72");
       pl.setAttribute("vector-effect", "non-scaling-stroke");
       anchors.appendChild(pl);
@@ -2301,8 +2343,8 @@ function cmpBuildMap() {
       anchors.appendChild(dot);
     });
   };
-  drawTraj(cmp.trajA, cmp.colorA, false, "A");
-  drawTraj(cmp.trajB, cmp.colorB, cmp.similar, "B");
+  drawTraj(cmp.trajA, cmp.colorA, "A");
+  drawTraj(cmp.trajB, cmp.colorB, "B");
 
   // 交会点：a 级金环「同场」、b 级高亮环；点击→交会详情（并定位）
   const placed = new Map(); // place_id → {x,y, list}
@@ -2418,7 +2460,7 @@ function cmpBuildAxis() {
          (life.death != null ? "卒 " : "活跃止 ") + yearLabel(life.death != null ? life.death : life.hi), "hi");
   };
   lifeBar(cmp.lifeA, cmp.colorA, "26%", false);
-  lifeBar(cmp.lifeB, cmp.colorB, "58%", cmp.similar);
+  lifeBar(cmp.lifeB, cmp.colorB, "58%", true); // 乙条恒作虚式，与其珠点轨迹呼应（r24a）
 
   // 交会标记（三角）
   const byYear = new Map();
@@ -2457,25 +2499,44 @@ function cmpBuildAxis() {
   axis.appendChild(head);
 }
 
+/* 并观图例（r24a 裁定 1a·c）：每轨一行「线样＋端点形＋姓名」，线样与图上实绘同一 dasharray，
+ * 使「甲·长划／乙·珠点」两式在图例里就能对上。国色制下同国两人同色，
+ * 故图例的辨识信息全在线样与端点形，不依赖色彩（灰度截图下仍可读）。 */
+function cmpLineSwatch(color, key) {
+  const w = 34, h = 12;
+  return '<svg class="cmp-lg-line" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h +
+    '" aria-hidden="true"><line x1="1" y1="6" x2="' + (w - 1) + '" y2="6" stroke="' + color +
+    '" stroke-width="' + CMP_DASH_W[key] + '" stroke-dasharray="' + CMP_DASH[key] + '"' +
+    (key === "B" ? ' stroke-linecap="round"' : "") + "/></svg>";
+}
 function cmpBuildLegend() {
   const lg = $("#cmp-legend");
   lg.textContent = "";
-  const item = (color, shape, name, dashed) => {
+  const item = (color, key, name, styleName) => {
     const s = document.createElement("span");
-    const sym = shape === "rect"
-      ? '<i class="cmp-lg-sq" style="border-color:' + color + (dashed ? ";border-style:dashed" : "") + '"></i>'
-      : '<i class="cmp-lg-ci" style="border-color:' + color + '"></i>';
-    s.innerHTML = sym + "<b style='color:" + color + "'>" + name + "</b>";
+    s.className = "cmp-lg-track";
+    const dot = key === "A"
+      ? '<i class="cmp-lg-ci" style="border-color:' + color + '"></i>'
+      : '<i class="cmp-lg-sq" style="border-color:' + color + '"></i>';
+    s.innerHTML = cmpLineSwatch(color, key) + dot +
+      "<b style='color:" + color + "'>" + name + "</b>" +
+      '<em class="cmp-lg-style">' + styleName + "</em>";
     lg.appendChild(s);
   };
-  item(cmp.colorA, "circle", personName(cmp.A), false);
-  item(cmp.colorB, "rect", personName(cmp.B), cmp.similar);
+  item(cmp.colorA, "A", personName(cmp.A), "甲 · 长划");
+  item(cmp.colorB, "B", personName(cmp.B), "乙 · 珠点");
   const a = document.createElement("span");
   a.innerHTML = '<i class="cmp-lg-ring lv-a"></i>同场';
   lg.appendChild(a);
   const b = document.createElement("span");
   b.innerHTML = '<i class="cmp-lg-ring lv-b"></i>同年同地';
   lg.appendChild(b);
+  if (cmp.similar) {                       // 同国同色：明说区分靠线型与端点形，不靠颜色
+    const n = document.createElement("span");
+    n.className = "cmp-lg-note";
+    n.textContent = "同国同色，以线型与端点形相分";
+    lg.appendChild(n);
+  }
 }
 
 /* 交会侧栏：免责句常驻顶部＋逐条交会（年份·地点·两侧事件·级别徽标）；点击→定位并展开 */
@@ -2716,7 +2777,7 @@ function comparePlayCfg() {
     mode: "dual", dur, beats,
     onStart() { cmp.markerA.removeAttribute("hidden"); cmp.markerB.removeAttribute("hidden"); cmpResetLit(); },
     render(el) { cmpRenderAtSc(e2sc(el)); },
-    onFinish() { setPlayBtnText("dual", "▶ 按年并观"); cmpCaptionFade(); }, // 结束保留 .lit（常亮留痕）
+    onFinish() { setPlayBtnText("dual", PLAY_LABEL.idle); cmpCaptionFade(); }, // 结束保留 .lit（常亮留痕）
     onStop() { cmpCleanup(); },
   };
 }
@@ -2726,20 +2787,20 @@ function cmpCaptionFade() {
 }
 function cmpCleanup() {
   const c = $("#cmp-caption"); if (c) { c.classList.remove("show"); c.hidden = true; c.textContent = ""; }
-  setPlayBtnText("dual", "▶ 按年并观");
+  setPlayBtnText("dual", PLAY_LABEL.idle);
   const head = document.querySelector("#cmp-playhead"); if (head) head.hidden = true;
   if (cmp.svg) { cmp.svg.classList.remove("cmp-play-active"); // 退出播放态：交会点回常态（非待亮）
     cmp.svg.querySelectorAll(".cmp-meet.lit").forEach(g => g.classList.remove("lit")); }
 }
 function toggleComparePlay() {
   if (player.cfg && player.cfg.mode === "dual" && player.raf && !player.paused) {
-    playerPause(); setPlayBtnText("dual", "▶ 继续并观"); return;
+    playerPause(); setPlayBtnText("dual", PLAY_LABEL.resume); return;
   }
   if (player.cfg && player.cfg.mode === "dual" && player.paused) {
-    playerResume(); setPlayBtnText("dual", "⏸ 暂停"); return;
+    playerResume(); setPlayBtnText("dual", PLAY_LABEL.pause); return;
   }
   playerStart(comparePlayCfg());
-  setPlayBtnText("dual", "⏸ 暂停");
+  setPlayBtnText("dual", PLAY_LABEL.pause);
 }
 
 /* 并观全屏：复用 #map-overlay 容器与 bindZoomGesture（容器统一律，与地图/关系图全屏同机制）。
@@ -3444,6 +3505,12 @@ function drawStateHalos(layer, people, CX, CY, R, NS) {
   }
 }
 
+/* 全景节点呈现参数（r24a §9.3 硬性项实测后上调一档，实测对照见 delivery_vision_r24a §四）：
+ * PANO_RING_W  主角节点的绢帛分隔描边宽（2 → 3.4）——国色制下同国同色，靠它划出盘缘；
+ * PANO_BADGE   节点内嵌徽记边长（20 → 22）；
+ * PANO_BADGE_SW 徽记线宽（源文件 2 → 呈现 2.6），以 CSS 覆盖 SVG 呈现属性，源文件不改。
+ * 三者与「徽记源文件一律 stroke-width=2」的规约不冲突：改的只是呈现端。 */
+const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";
 /* ----- 全景视图（分组环形布局，round6 原样保留；本轮加过滤器与国别底晕） ----- */
 function drawPanoGraph() {
   const NS = "http://www.w3.org/2000/svg";
@@ -3457,6 +3524,7 @@ function drawPanoGraph() {
   const haloLayer = document.createElementNS(NS, "g"); // 国别底晕（最底层）
   const edgeLayer = document.createElementNS(NS, "g");
   const nodeLayer = document.createElementNS(NS, "g");
+  const badgeTop = document.createElementNS(NS, "g"); // 徽记顶层（r24a，见节点绘制处注释）
   svg.appendChild(haloLayer);
   svg.appendChild(edgeLayer);
   svg.appendChild(nodeLayer);
@@ -3473,7 +3541,7 @@ function drawPanoGraph() {
     const ang = (i / people.length) * Math.PI * 2 - Math.PI / 2;
     relView.nodes.set(p.id, {
       p, x: CX + R * Math.cos(ang), y: CY + R * Math.sin(ang), ang,
-      proto: PROTAGONISTS.find(m => m.id === p.id) || null, el: null,
+      proto: PROTAGONISTS.find(m => m.id === p.id) || null, el: null, badgeEl: null,
     });
   });
 
@@ -3532,17 +3600,28 @@ function drawPanoGraph() {
     c.setAttribute("r", node.proto ? 15 : 8);
     c.setAttribute("fill", node.proto ? node.proto.color : "#FBF7EC");
     c.setAttribute("stroke", node.proto ? "#F4EDDF" : "#7A7166");
-    c.setAttribute("stroke-width", node.proto ? 2 : 1.4);
+    /* 主角节点的绢帛描边由 2 上调至 PANO_RING_W（r24a §9.3）：
+     * 环上 123 人、槽距仅 12.87，主角节点 r=15 故盘面本就相互叠压；旧制靠同族深浅不同
+     * 尚能看出盘缘，国色制下同国同色，一段弧遂并作一块色团（实测对照截图见交付说明 §四）。
+     * 绢帛色描边是与填充色无关的分隔线——加宽它即可在同色相邻处重新划出盘缘。 */
+    c.setAttribute("stroke-width", node.proto ? PANO_RING_W : 1.4);
     g.appendChild(c);
     if (node.proto) {
       fetchSVG(node.proto.badge).then(t => {
         const doc = new DOMParser().parseFromString(t, "image/svg+xml");
         const b = document.importNode(doc.documentElement, true);
-        b.setAttribute("x", node.x - 10); b.setAttribute("y", node.y - 10);
-        b.setAttribute("width", 20); b.setAttribute("height", 20);
+        const h = PANO_BADGE / 2;
+        b.setAttribute("x", node.x - h); b.setAttribute("y", node.y - h);
+        b.setAttribute("width", PANO_BADGE); b.setAttribute("height", PANO_BADGE);
         b.style.color = "#F4EDDF";
+        b.style.strokeWidth = PANO_BADGE_SW; // CSS 胜过 SVG 呈现属性，故整枚线宽同步上调
         b.style.pointerEvents = "none";
-        g.appendChild(b);
+        /* 徽记入独立顶层：旧法把徽记塞进各自节点的 <g>，而 <g> 按环序依次追加，
+         * 于是后一节点的盘面正好盖住前一节点的徽记——同弧六人只有最后一枚徽记露得出来。
+         * 提到 badgeTop 层后，27 枚徽记一律叠在所有盘面之上。 */
+        badgeTop.appendChild(b);
+        node.badgeEl = b;
+        if (relView.focus) b.style.opacity = node.el && node.el.style.opacity || "";
       });
     }
     const label = document.createElementNS(NS, "text");
@@ -3560,6 +3639,7 @@ function drawPanoGraph() {
     nodeLayer.appendChild(g);
     node.el = g;
   }
+  svg.appendChild(badgeTop); // 徽记顶层：置于全部节点盘面之上（见上方注释）
 
   // 「仅主角边」下无边可挂的配角淡出
   relView.isolated.clear();
@@ -3592,7 +3672,9 @@ function focusRelNode(pid) {
     }
   }
   for (const node of relView.nodes.values()) {
-    node.el.style.opacity = neighbors.has(node.p.id) ? "1" : "0.22";
+    const op = neighbors.has(node.p.id) ? "1" : "0.22";
+    node.el.style.opacity = op;
+    if (node.badgeEl) node.badgeEl.style.opacity = op; // 徽记已移出 <g>，须同步淡出（r24a）
     node.el.classList.toggle("focused", node.p.id === pid);
   }
   showRelDetail(mine, pid);
@@ -3605,7 +3687,9 @@ function resetRelFocus() {
     if (edge.badge) edge.badge.style.opacity = "";
   }
   for (const node of relView.nodes.values()) {
-    node.el.style.opacity = relView.isolated.has(node.p.id) ? "0.25" : "";
+    const op = relView.isolated.has(node.p.id) ? "0.25" : "";
+    node.el.style.opacity = op;
+    if (node.badgeEl) node.badgeEl.style.opacity = op; // 同上
     node.el.classList.remove("focused");
   }
   const panel = $("#rel-panel");
@@ -3809,7 +3893,14 @@ function buildSearchIndex() {
     });
   }
   for (const e of DATA.events) {
-    if (!protoForEvent(e.id)) continue; // 无主角关联的事件无时间线落点（当前库为 0 条）
+    /* ⚠ 注释订正（r24a 走查实测）：本行原注「无主角关联的事件无时间线落点（当前库为 0 条）」，
+     * 该「0 条」自 r23b 起已不成立——现库 190 条事件中有 13 条无任何主角挂链
+     * （E021/E059/E077/E078/E081/E184/E200–E206），其中 6 条为 r23b 时代骨干批新入。
+     * 这些事件因此在全站不可达：不入任何主角时间线、被本行排除在搜索之外、资料库亦无事件页
+     * （LIB_TABS 只有 background/archaeology/sources）。**本轮不擅自改变可达性**——
+     * 让它们可达需要一个「事件详情」落点或「每条事件须至少挂一名主角」的编纂规则，
+     * 二者皆属产品/编纂决定，已在 delivery_vision_r24a 上报候裁。此处仅订正失效的注释。 */
+    if (!protoForEvent(e.id)) continue;
     const pl = e.place_id ? PLACES[e.place_id] : null;
     SEARCH_INDEX.push({
       group: "events",
@@ -4575,8 +4666,9 @@ async function boot() {
   });
   $("#btn-rel-zoom").addEventListener("click", openRelOverlay);
   $("#btn-overlay-close").addEventListener("click", closeOverlay);
-  // 并观入口·人物地图工具条「添加对照人物」：从其余主角中择一，进并观
-  initComparePicker();
+  // 并观入口「＋ 添加对照人物」：单人地图与并观两视图各一份，开关式（r24a 裁定 1b）
+  initComparePicker("#btn-compare", "#compare-pick");
+  initComparePicker("#cmp-btn-compare", "#cmp-compare-pick");
   $("#home-compare-link").addEventListener("click", () => goCompare("P_WENJIANG", "P_QIXIANG"));
   $("#cmp-sheet-toggle").addEventListener("click", () => {
     const on = document.body.classList.toggle("cmp-sheet-open");

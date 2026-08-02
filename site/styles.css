@@ -1160,11 +1160,14 @@ footer.site-footer {
 }
 body.no-scroll { overflow: hidden; }
 
-/* 全屏播放悬浮控件（任务三·r17b）：左下角浮起，不遮轨迹与图例；触屏热区足够 */
+/* 全屏播放悬浮控件（r17b 引入；r24a 由左下角移至左上角、关闭钮之下）。
+ * 移位动因：旧位与地点抽屉/站点卡的弹出区重叠，手机全屏播放中点开任一站点卡即被遮挡
+ * （网友实测反馈）。元素已移入 .map-overlay-body（position:relative，且在顶部工具条之下），
+ * 故 top:14px 即「关闭钮之下、留安全间距」。腾出的左下角归图例与字幕条。触屏热区仍 ≥44px。 */
 .overlay-controls {
   position: absolute;
   left: 14px;
-  bottom: 14px;
+  top: 14px;
   z-index: 8;
   display: flex;
   gap: 0.5rem;
@@ -1185,7 +1188,7 @@ body.no-scroll { overflow: hidden; }
 }
 .overlay-controls button:focus-visible { outline: 2px solid var(--ochre); outline-offset: 2px; }
 @media (max-width: 680px) {
-  .overlay-controls { left: 10px; bottom: 10px; }
+  .overlay-controls { left: 10px; top: 10px; }
 }
 
 /* ---------- 屏4 资料库 ---------- */
@@ -1819,6 +1822,15 @@ body.no-scroll { overflow: hidden; }
 }
 .cmp-lg-ring.lv-a { border-color: var(--ochre); }
 .cmp-lg-ring.lv-b { border-color: var(--cinnabar); border-style: dashed; }
+/* r24a 裁定 1a·c：图例标注「甲·长划／乙·珠点」两式。线样由 JS 以内联 SVG 绘出，
+ * 与图上实绘同一 dasharray，故图例与图面永不脱节（改线型只需改 CMP_DASH 一处）。 */
+.cmp-lg-line { display: inline-block; vertical-align: middle; flex: 0 0 auto; }
+.cmp-lg-track { gap: 0.3rem !important; }
+.cmp-lg-style {
+  font-style: normal; font-size: 0.72rem; color: var(--ink-soft);
+  letter-spacing: 0.02em; white-space: nowrap;
+}
+.cmp-lg-note { font-size: 0.72rem; color: var(--ink-soft); }
 
 /* 交会点（SVG）交互态 */
 .cmp-meet { cursor: pointer; }
@@ -1945,6 +1957,14 @@ body.no-scroll { overflow: hidden; }
 }
 .cmp-pick-item:hover, .cmp-pick-item:focus-visible { background: var(--silk); }
 .cmp-pick-item i { width: 0.6rem; height: 0.6rem; border-radius: 50%; flex: 0 0 auto; }
+/* 开关式选中态（r24a 裁定 1b）：当前并观中的对照人物带国色描边＋对勾，
+ * 再点一次即移出并回单人模式。面板每次打开重建，故恒与当前 hash 一致。 */
+.cmp-pick-item.on {
+  background: var(--silk);
+  box-shadow: inset 0 0 0 1.5px var(--theme);
+  font-weight: 600;
+}
+.cmp-pick-tick { margin-left: auto; color: var(--theme); font-size: 0.85em; }
 
 /* 关系卡「并观其迹」按钮 */
 .cmp-enter { border-color: var(--bronze) !important; color: var(--bronze); }

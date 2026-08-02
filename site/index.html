@@ -167,11 +167,16 @@
     <div class="map-layout cmp-layout">
       <div class="map-main">
         <div class="map-toolbar">
-          <button type="button" id="cmp-play">▶ 按年并观</button>
+          <button type="button" id="cmp-play">▶ 轨迹按时间播放</button>
           <span class="play-degrade" id="cmp-play-degrade" hidden></span>
           <button type="button" id="cmp-scope">视野：活动范围</button>
           <button type="button" id="cmp-zoom">⛶ 放大查看</button>
-          <button type="button" id="cmp-swap" title="对调主/副轨">⇄ 对调</button>
+          <!-- 开关式选人面板（r24a 裁定 1b）：与单人地图同一按钮文案与形态，常驻不变形。
+               「⇄ 对调」已退役——以对方为主请自其人物页进入并观，hash 甲＝当前页主，语义不变。 -->
+          <div class="cmp-pick-wrap">
+            <button type="button" id="cmp-btn-compare" aria-expanded="false" aria-haspopup="true">＋ 添加对照人物</button>
+            <div class="cmp-pick" id="cmp-compare-pick" role="menu" aria-label="选择对照人物（再点已选者即移出并观）" hidden></div>
+          </div>
           <span class="map-status" id="cmp-status"></span>
         </div>
         <div class="cmp-legend" id="cmp-legend" aria-label="并观图例"></div>
@@ -183,7 +188,7 @@
         <div class="cmp-axis-wrap">
           <div class="cmp-axis" id="cmp-axis" role="img" aria-label="两人生卒与交会年轴"></div>
         </div>
-        <p class="map-note">圆点＝<span id="cmp-legend-a">甲</span>亲至站；方点＝<span id="cmp-legend-b">乙</span>亲至站；环＝交会点。轨迹只连亲至。</p>
+        <p class="map-note"><b>长划线＋圆点</b>＝<span id="cmp-legend-a">甲</span>（当前页主人物）；<b>珠点线＋方点</b>＝<span id="cmp-legend-b">乙</span>（对照人物）；环＝交会点。轨迹只连亲至。</p>
       </div>
       <div class="map-side cmp-side">
         <aside class="panel cmp-detail" id="cmp-detail" hidden aria-live="polite"></aside>
@@ -276,7 +281,7 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.13（双人并观：两条行迹同图、按年并观、交会检测）。
+        <p id="about-version">当前版本 v0.14（国色制：一国一色、徽记定人、纹理定轨）。
           <button type="button" class="tour-replay" id="tour-replay">重看引导</button></p>
         <!-- 许可声明（conventions §12·裁定3）：代码 MIT、数据 CC BY 4.0；文件在仓库根，站点部署根为 site/，
              故链接指向仓库内两文件的规范地址（同「开源仓库」外链域） -->
@@ -284,6 +289,7 @@
         <!-- 支持本站·次级入口（r18 Xu 裁定：主入口在首页底部分享行；此处保留一行安静次级入口，同一弹层） -->
         <p class="support-line">若愿支持本站长期考订，可<button type="button" class="support-link-btn" id="support-link">支持本站</button>。</p>
         <ul>
+          <li>v0.14 —— 人物色彩改为「国色制」：一国一色，同国人物同色，个人由徽记（形）分辨；并观双轨改以线型相分（主人物长划线、对照人物珠点线，端点圆／方），灰度下亦可辨；「添加对照人物」改开关式（再点已选者即移出、回单人），「对调」按钮退役；全屏播放控件移至左上角，不再遮挡地点卡片；新增第 27 位主角子产（郑）与第 16 类「政制」事件图标</li>
           <li>v0.13 —— 双人并观：从关系图两人关系卡或人物地图「添加对照人物」进入，两条行迹同图（各主题色、同国相近者副轨点划线）；绝对年轴按年并观、生卒灰置；交会检测分「同场」与「同年同地」两级，附「同城未必同时，不能仅据同年同地断定相遇」的口径；手机端交会一览折叠为底部条</li>
           <li>v0.12 —— 全站更名为「经纬春秋」（副题「左传为经，诸书为纬，牵系有据」）；楚庄王线上线（主角十五人，一鸣惊人、问鼎中原、邲之战）；头部时间双标（春秋纪年时段＋考订前沿「已考订至前591」）；关于页站名注脚；「重看引导」落位修复</li>
           <li>v0.11 —— 人物色彩改为两级国色系（齐红 · 鲁赭 · 郑青 · 晋栗 · 秦玄 · 楚紫，同国分深浅），关系全景按国着色、阵营分区；首访引导结束回到首页「选一个人」；许可声明就位（代码 MIT · 数据 CC BY 4.0）</li>
@@ -308,10 +314,13 @@
     <span class="map-overlay-hint" id="map-overlay-hint">拖移平移 · 滚轮/双指缩放 · 点击地点看详情</span>
     <button type="button" id="btn-overlay-close">✕ 关闭（Esc）</button>
   </div>
-  <div class="map-overlay-body" id="map-overlay-body"></div>
-  <!-- 全屏播放悬浮控件（左下角，单人/并观同用；随全屏态显隐，不遮轨迹与图例） -->
-  <div class="overlay-controls" id="overlay-controls" hidden>
-    <button type="button" id="ov-play">▶ 播放</button>
+  <div class="map-overlay-body" id="map-overlay-body">
+    <!-- 全屏播放悬浮控件（r24a 移位：左上角、关闭钮之下，单人/并观同用；随全屏态显隐）。
+         旧位在左下角，与地点抽屉/站点卡的弹出区重叠，手机全屏播放中点开站点卡即被遮挡
+         （网友实测反馈）。移入 .map-overlay-body 后自然落在顶部工具条之下，左下角腾给图例。 -->
+    <div class="overlay-controls" id="overlay-controls" hidden>
+      <button type="button" id="ov-play">▶ 播放</button>
+    </div>
   </div>
 </div>
 
