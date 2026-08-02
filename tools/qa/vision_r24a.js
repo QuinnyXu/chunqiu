@@ -246,6 +246,80 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   say("  【对照】控件若仍在旧位（左下 bottom:14px），与本次站点卡的重叠面积 = " + oldPosOverlap + " px²");
   await mob.close();
 
+  // ---------- 4b) r24a-fix 永久回归门：单↔双任意次往返，全屏控件恒在、恒可点、状态恒同步 ----------
+  /* 起因（Xu 生产实测报障）：r24a 把控件从浮层根移入 #map-overlay-body 后，openRelOverlay /
+   *   closeRelOverlay / openCmpOverlay 三处 `body.textContent=""` 会把这个静态单例节点连带销毁，
+   *   此后 $("#overlay-controls") 恒 null、旧 setupOverlayControls 静默空转，单人全屏也一并没了控件，
+   *   须整页刷新才复原。修法：mountOverlayControls() 每次开浮层幂等重建（DOM 可弃、状态派生）。
+   * 本节**永久保留**：往返切视图全程不刷新（刷新会掩盖此 bug），每次开全屏都断言存在＋可点＋状态同步。 */
+  H("4b) 全屏控件往返回归门（r24a-fix·永久保留）");
+  const ctlProbe = () => {
+    const ov = document.querySelector("#overlay-controls"), btn = document.querySelector("#ov-play");
+    if (!ov || !btn) return { exists: false };
+    const r = btn.getBoundingClientRect();
+    const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+    return { exists: true, inBody: !!ov.closest("#map-overlay-body"), vis: !ov.hidden,
+             w: Math.round(r.width), h: Math.round(r.height),
+             hit: !!(top && (top === btn || btn.contains(top))),   // 顶层命中＝真可点、未被遮挡
+             txt: btn.textContent };
+  };
+  // 四档宽度全跑（桌面 1440 / 窄桌面 1024 / 平板 768 / 手机 390）——控件位置与热区随断点变化，逐档实测
+  for (const dev of [{ n: "1440桌面", w: 1440, h: 900 }, { n: "1024窄桌", w: 1024, h: 768 },
+                     { n: "768平板", w: 768, h: 1024 }, { n: "390手机", w: 390, h: 780 }]) {
+    const rp = await c.newPage();
+    await rp.setViewportSize({ width: dev.w, height: dev.h });
+    const rerrs = [];
+    rp.on("pageerror", e => rerrs.push(e.message));
+    await rp.goto(origin + "/#/p/P_WENJIANG/map", { waitUntil: "load" }); await rp.waitForTimeout(1200);
+    const goHash = async (h) => { await rp.evaluate(x => { location.hash = x; }, h); await rp.waitForTimeout(900); };
+    // 一次「开全屏 → 查控件 → 播/停各一次 → 关全屏」的完整核验
+    const round = async (label, hash, zoomSel, mainSel, shot) => {
+      await goHash(hash);
+      await rp.click(zoomSel); await rp.waitForTimeout(500);
+      const g = await rp.evaluate(ctlProbe);
+      OK(g.exists && g.inBody && g.vis, dev.n + "·" + label + "：控件存在且在全屏容器内（" + JSON.stringify(g) + "）");
+      OK(!!g.exists && g.hit && g.h >= 44, dev.n + "·" + label + "：按钮可点——顶层命中且热区高 " + (g.h || 0) + "px ≥44px");
+      if (g.exists) {
+        const before = await rp.evaluate(s => document.querySelector(s).textContent, mainSel);
+        await rp.click("#ov-play"); await rp.waitForTimeout(600);
+        const playing = await rp.evaluate(s => ({ raf: !!(typeof player !== "undefined" && player.raf),
+          ov: document.querySelector("#ov-play").textContent, main: document.querySelector(s).textContent }), mainSel);
+        await rp.click("#ov-play"); await rp.waitForTimeout(500);
+        const paused = await rp.evaluate(s => ({ raf: !!(typeof player !== "undefined" && player.raf),
+          ov: document.querySelector("#ov-play").textContent, main: document.querySelector(s).textContent }), mainSel);
+        OK(playing.raf && !paused.raf, dev.n + "·" + label + "：点控件真起播、再点真暂停（raf " +
+           playing.raf + "→" + paused.raf + "）");
+        OK(playing.ov === playing.main && paused.ov === paused.main && paused.ov !== playing.ov,
+           dev.n + "·" + label + "：控件文案与主按钮同步（开前「" + before + "」→ 播「" + playing.ov +
+           "」→ 停「" + paused.ov + "」）");
+      }
+      if (mainSel === "#cmp-play") {   // r24a-fix 顺带修正：全屏内「交会一览」浮条须收起，不压字幕条
+        const st = await rp.evaluate(() => { const e = document.querySelector("#cmp-sheet-toggle");
+          if (!e) return null; const r = e.getBoundingClientRect();
+          return { disp: getComputedStyle(e).display, h: Math.round(r.height) }; });
+        OK(!!st && (st.disp === "none" || st.h === 0),
+           dev.n + "·" + label + "：「交会一览」浮条在全屏内已收起（display=" + (st && st.disp) + "）");
+      }
+      // 视觉留证：全屏尚开着时截一张（§9.3——触达类项目一律附无头浏览器截图，不以 DOM 断言代替眼见）
+      if (shot) await rp.screenshot({ path: path.join(OUT, "r24a_fix_" + shot + "_" + dev.w + ".png") });
+      await rp.click("#btn-overlay-close"); await rp.waitForTimeout(400);
+    };
+    // 单 → 双 → 单 → 双 → 单：两个整往返（Xu 复现路径即其首段），全程 hash 切换、绝不刷新
+    await round("第1次·单人全屏", "#/p/P_WENJIANG/map", "#btn-zoom", "#btn-play");
+    await round("第2次·并观全屏", "#compare=P_WENJIANG,P_QIXIANG", "#cmp-zoom", "#cmp-play");
+    await round("第3次·单人全屏", "#/p/P_WENJIANG/map", "#btn-zoom", "#btn-play");
+    await round("第4次·并观全屏", "#compare=P_WENJIANG,P_QIXIANG", "#cmp-zoom", "#cmp-play", "dual_fs");
+    // 插入关系图全屏（同一 #map-overlay 容器、会清空 body）作为干扰，再回单人：控件仍须重建
+    await goHash("#/relations");
+    await rp.click("#btn-rel-zoom"); await rp.waitForTimeout(800);
+    const relCtl = await rp.evaluate(ctlProbe);
+    OK(!relCtl.exists, dev.n + "·图谱全屏：不挂播放控件（关系图无轨迹可播）");
+    await rp.click("#btn-overlay-close"); await rp.waitForTimeout(400);
+    await round("第5次·单人全屏（图谱全屏之后）", "#/p/P_WENJIANG/map", "#btn-zoom", "#btn-play", "single_fs");
+    OK(rerrs.length === 0, dev.n + "·往返全程无页面错误（" + (rerrs.join(" | ") || "无") + "）");
+    await rp.close();
+  }
+
   // ---------- 5) §9.3 全景关系图节点徽记可辨性 ----------
   H("5) §9.3 硬性项：27 人级全景图节点徽记可辨性");
   await p.goto(origin + "/#/relations", { waitUntil: "load" }); await p.waitForTimeout(1600);

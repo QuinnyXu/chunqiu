@@ -117,7 +117,7 @@ const FLOW_CHIP_NOTE = "人物线所历之国（据 people.state 出身→归宿
  * 使「史文所系之地」与「亲至可考之地」在同一行里可分。 */
 const RELATED_PLACE_NOTE = (n) => "另有 " + n + " 处相关地点（史文无其在场明文），空心示之、不入轨迹。";
 /* 设置单人/并观播放控件的降级态：degraded=true 时隐藏播放按钮、改显静态说明，
- * 并令按钮 disabled（全屏浮层控件据此隐藏，见 setupOverlayControls）。 */
+ * 并令按钮 disabled（全屏浮层控件据此不建，见 mountOverlayControls）。 */
 function setPlayDegrade(mode, degraded) {
   const btnSel = mode === "single" ? "#btn-play" : "#cmp-play";
   const noteSel = mode === "single" ? "#play-degrade" : "#cmp-play-degrade";
@@ -1494,28 +1494,42 @@ function openOverlay() {
   $("#map-overlay-body").appendChild($("#play-caption")); // 字幕条随地图入全屏
   mapState.overlay = true;
   document.body.classList.add("no-scroll");
-  setupOverlayControls("single");
+  mountOverlayControls("single");
   $("#btn-overlay-close").focus();
 }
-/* 全屏浮层播放悬浮控件（r17b 引入·r18 定稿为仅「播放/暂停」）：单人/并观、桌面/手机四组合同用。
- * 播放/暂停委托主工具条按钮（复用其 onclick 闭包与播放状态）；文案由 setPlayBtnText 主/浮层同写，
- * 故全屏内外播放状态无缝双向同步（全屏中暂停→退出仍暂停；反之亦然）。退出全屏隐藏。 */
-function setupOverlayControls(mode) {
-  const box = $("#overlay-controls");
-  if (!box) return;
+/* 全屏浮层播放悬浮控件（r17b 引入·r18 定稿为仅「播放/暂停」·r24a 移位左上·r24a-fix 改幂等重建）：
+ * 单人/并观、桌面/手机四组合同用。播放/暂停委托主工具条按钮（复用其 onclick 闭包与播放状态）；
+ * 文案由 setPlayBtnText 主/浮层同写，故全屏内外播放状态无缝双向同步（全屏中暂停→退出仍暂停；反之亦然）。
+ *
+ * 【为何每次重建而非静态单例】控件挂在 #map-overlay-body 内（r24a 移位所致），而浮层的三处入口
+ *   ——openRelOverlay / closeRelOverlay / openCmpOverlay——都以 `body.textContent = ""` 清空容器再挂
+ *   自己的内容，静态单例节点被连带销毁后永不回来：此后 `$("#overlay-controls")` 恒为 null，旧
+ *   setupOverlayControls 的 `if (!box) return` 只是静默空转，于是单人全屏也一并没了控件，须整页刷新才复原
+ *   （r24a 生产实测：单人全屏→并观全屏→单人全屏，控件消失）。同源于 r17b「克隆体丢失事件绑定」一族问题：
+ *   凡跨浮层存活的节点/绑定都靠不住。断根之道是 DOM 可弃、状态派生——每次开浮层先清残留再新建，
+ *   显隐与文案一律从主工具条按钮当场读出，不依赖任何跨浮层存活的节点。 */
+function mountOverlayControls(mode) {
+  unmountOverlayControls();                    // 幂等：先清残留（含被 body 清空后遗留的引用），再重建
+  const body = $("#map-overlay-body");
+  if (!body) return null;
   const mainPlay = mode === "single" ? "#btn-play" : "#cmp-play";
   const mp = $(mainPlay);
-  const ovPlay = $("#ov-play");
-  box.hidden = !!(mp && mp.disabled);          // 无轨迹不可播则不显控件
-  if (box.hidden) return;
-  if (ovPlay) {
-    ovPlay.textContent = mp ? mp.textContent : "▶ 播放"; // 开全屏即同步当前播放/暂停态
-    ovPlay.onclick = () => { const b = $(mainPlay); if (b) b.click(); }; // 委托：复用主按钮 onclick 闭包
-  }
+  if (!mp || mp.disabled) return null;         // 无轨迹不可播则不建控件（等价于旧的 box.hidden）
+  const box = document.createElement("div");
+  box.className = "overlay-controls";
+  box.id = "overlay-controls";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.id = "ov-play";
+  btn.textContent = mp.textContent;            // 状态派生：开全屏即同步当前播放/暂停态
+  btn.onclick = () => { const b = $(mainPlay); if (b) b.click(); }; // 委托：复用主按钮 onclick 闭包
+  box.appendChild(btn);
+  body.appendChild(box);                       // 末位挂载 → 叠于地图 svg 之上（另有 z-index:8 兜底）
+  return box;
 }
-function hideOverlayControls() {
+function unmountOverlayControls() {
   const box = $("#overlay-controls");
-  if (box) box.hidden = true;
+  if (box) box.remove();
 }
 function closeOverlay() {
   if (cmpZoom.active) { closeCmpOverlay(); return; }
@@ -1525,7 +1539,7 @@ function closeOverlay() {
   const overlay = $("#map-overlay");
   overlay.hidden = true;
   document.body.classList.remove("no-scroll");
-  hideOverlayControls();
+  unmountOverlayControls();
   if (mapState.svg) $("#map-canvas").appendChild(mapState.svg);
   const frame = document.querySelector(".map-frame");
   if (frame) frame.appendChild($("#play-caption")); // 字幕条归位内嵌地图
@@ -1646,6 +1660,7 @@ function openRelOverlay() {
   $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点连线/节点看关系";
   const body = $("#map-overlay-body");
   body.textContent = "";
+  unmountOverlayControls(); // 关系图无轨迹播放，本浮层不挂控件（body 已清空，此处显式声明意图）
   body.appendChild(clone);
   overlay.hidden = false; // 先显示再量 bbox / 容器尺寸（display:none 下 getBBox 与 clientW/H 归零）
   document.body.classList.add("no-scroll");
@@ -2825,7 +2840,7 @@ function openCmpOverlay() {
   const start = cmp.mode === "fit" ? cmp.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H };
   cmpZoom.box = { ...start };
   cmp.svg.setAttribute("viewBox", start.x + " " + start.y + " " + start.w + " " + start.h);
-  setupOverlayControls("dual");
+  mountOverlayControls("dual");   // 须在上面 body.textContent="" 之后（重建即在新容器内挂新节点）
   $("#btn-overlay-close").focus();
 }
 function closeCmpOverlay() {
@@ -2835,7 +2850,7 @@ function closeCmpOverlay() {
   overlay.setAttribute("aria-label", "地图全屏查看");
   $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点击地点看详情";
   document.body.classList.remove("no-scroll");
-  hideOverlayControls();
+  unmountOverlayControls();
   cmpZoom.active = false;
   if (cmp.svg) $("#cmp-canvas").appendChild(cmp.svg);
   const frame = $("#cmp-frame");

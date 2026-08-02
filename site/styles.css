@@ -1177,7 +1177,9 @@ body.no-scroll { overflow: hidden; }
 /* 全屏播放悬浮控件（r17b 引入；r24a 由左下角移至左上角、关闭钮之下）。
  * 移位动因：旧位与地点抽屉/站点卡的弹出区重叠，手机全屏播放中点开任一站点卡即被遮挡
  * （网友实测反馈）。元素已移入 .map-overlay-body（position:relative，且在顶部工具条之下），
- * 故 top:14px 即「关闭钮之下、留安全间距」。腾出的左下角归图例与字幕条。触屏热区仍 ≥44px。 */
+ * 故 top:14px 即「关闭钮之下、留安全间距」。腾出的左下角归图例与字幕条。触屏热区仍 ≥44px。
+ * r24a-fix：节点不再静态写在 index.html，改由 app.js mountOverlayControls() 每次开浮层重建
+ * （容器 .map-overlay-body 会被浮层入口清空，单例节点存活不了），本组样式不变、仍是唯一样式出处。 */
 .overlay-controls {
   position: absolute;
   left: 14px;
@@ -2015,6 +2017,11 @@ body.no-scroll { overflow: hidden; }
   }
   body.cmp-sheet-open .cmp-side.map-side { transform: translateY(0); }
   body.cmp-sheet-open .cmp-sheet-toggle { bottom: 76vh; }
+  /* r24a-fix 顺带修正（走查截图发现，与本轮控件 bug 无因果、可单独回退）：
+     「交会一览」浮条 position:fixed;z-index:60 高于全屏浮层（#map-overlay z-index:50），
+     故并观全屏时它悬在浮层之上、正压住底部播放字幕条。任一全屏/模态开启（body.no-scroll）
+     即收起该浮条——与 r24a 控件移位同族动因（全屏内不得被外部浮动元素遮挡）。 */
+  body.no-scroll .cmp-sheet-toggle { display: none; }
   .cmp-pick { grid-template-columns: 1fr 1fr; min-width: min(20rem, 82vw); }
   .cmp-axis { margin: 1.6rem 0.3rem 1.6rem; }
 }
