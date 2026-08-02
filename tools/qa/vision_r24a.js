@@ -421,6 +421,44 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     OK(bad.length === 0 && hex(th) === STATE_HEX[st], st + "·" + id + " 三视图正常，主题色 " + hex(th) + (bad.length ? " ／ " + bad.join(",") : ""));
   }
 
+  // ---------- 10) 首访引导三步复核（含色相关步骤）----------
+  H("10) 首访三步引导复核（第二/三步落在文姜＝齐色页面）");
+  const tp = await c.newPage();
+  await tp.addInitScript(() => { try { localStorage.removeItem("chunqiu_tour_v1"); } catch (e) { } });
+  await tp.setViewportSize({ width: 1440, height: 900 });
+  await tp.goto(origin + "/#/", { waitUntil: "load" }); await tp.waitForTimeout(1600);
+  const steps = [];
+  for (let i = 0; i < 3; i++) {
+    const st = await tp.evaluate(() => {
+      const pop = document.querySelector("#tour-pop"), hole = document.querySelector("#tour-hole");
+      const hr = hole ? hole.getBoundingClientRect() : null;
+      return { on: !!(pop && !pop.hidden), label: (document.querySelector("#tour-step") || {}).textContent,
+               text: (document.querySelector("#tour-text") || {}).textContent,
+               holeOk: !!(hr && hr.width > 0 && hr.height > 0 && (hr.x > 0 || hr.y > 0)),
+               theme: getComputedStyle(document.documentElement).getPropertyValue("--theme").trim() };
+    });
+    steps.push(st);
+    say("  " + (st.label || "?") + "：" + (st.text || "") + " ｜ 高亮框有效=" + st.holeOk + " ｜ --theme=" + st.theme);
+    await tp.screenshot({ path: path.join(OUT, "r24a_17_tour" + (i + 1) + ".png") });
+    if (i < 2) { await tp.click("#tour-next"); await tp.waitForTimeout(1300); }
+  }
+  OK(steps.every(s => s.on), "三步引导逐步弹出");
+  OK(steps.every(s => s.holeOk), "三步高亮框皆落在真实元素上（非左上角 0,0 —— r15 旧 bug 未复发）");
+  const hex2 = (x) => { const m = x.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/); return m ? "#" + [1, 2, 3].map(i => (+m[i]).toString(16).padStart(2, "0")).join("").toUpperCase() : x.toUpperCase(); };
+  OK(hex2(steps[1].theme) === "#A5322A" && hex2(steps[2].theme) === "#A5322A",
+     "第二/三步落在文姜页，主题色已是齐国色 #A5322A（旧为文姜个人色 #B23A2F）");
+  await tp.click("#tour-next"); await tp.waitForTimeout(900);
+  // endTour() 隐藏的是外层 #tour（遮罩容器），不是 #tour-pop；连带 personCtx=null、子导航收起
+  const done = await tp.evaluate(() => ({ hidden: document.querySelector("#tour").hidden,
+    navHidden: document.querySelector("#person-nav").hidden, hash: location.hash,
+    views: ["home", "timeline"].filter(v => !document.querySelector("#view-" + v).hidden),
+    seen: (() => { try { return localStorage.getItem("chunqiu_tour_v1"); } catch (e) { return null; } })() }));
+  say("  收尾态：" + JSON.stringify(done));
+  OK(done.hidden && done.views.includes("home") && done.navHidden,
+     "「开始探索」收尾：遮罩收起、回首页、人物子导航清空");
+  OK(done.seen === "1", "首访标记已写入 localStorage（不再复弹）");
+  await tp.close();
+
   say("\n控制台告警：" + (warns.length ? warns.join(" | ") : "无"));
   say("页面错误：" + (errs.length ? errs.join(" | ") : "无"));
   const fails = log.filter(l => l.startsWith("  [FAIL]"));
