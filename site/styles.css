@@ -1078,7 +1078,9 @@ footer.site-footer {
 .disclaimer-pop p { margin: 0 0 0.4rem; }
 .disclaimer-pop p:last-child { margin-bottom: 0; }
 
-/* ---------- 播放字幕条（到站信息叠加地图内，融入绢帛底） ---------- */
+/* ---------- 播放字幕条（到站信息叠加地图内，融入绢帛底） ----------
+ * r24a-fix2：#play-caption / #cmp-caption 不再静态写在 index.html，改由 app.js mountCaption()
+ * 按当前浮层状态派生重建（同 .overlay-controls 的处置，理由见那里）。本组样式不变、仍是唯一样式出处。 */
 .play-caption {
   position: absolute;
   left: 50%;

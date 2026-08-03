@@ -127,7 +127,7 @@
           </div>
           <span class="map-status" id="map-status"></span>
         </div>
-        <div class="map-frame">
+        <div class="map-frame" id="map-frame">
           <div class="map-canvas" id="map-canvas" role="application" aria-label="人物活动地图"></div>
           <div class="map-legend" id="map-legend">
             <span><i class="lg-dot lg-solid"></i>亲至</span>
@@ -138,7 +138,10 @@
             <summary id="map-nogeo-summary">0 条事件无地望</summary>
             <ul id="map-nogeo-list"></ul>
           </details>
-          <p class="play-caption" id="play-caption" aria-live="polite" hidden></p>
+          <!-- 播放字幕条（#play-caption）不在此处静态声明：它要随地图进出全屏浮层，
+               而浮层容器会被入口清空，跨浮层存活的单例节点靠不住（同 #overlay-controls 的根因）。
+               故 r24a-fix2 起改为「文本存于 captionState、节点随时可弃用时重建」，
+               唯一定义在 app.js 的 mountCaption()；样式仍见 styles.css 的 .play-caption。 -->
           <button type="button" class="map-disclaimer" id="btn-disclaimer" aria-expanded="false">示意底图 ⓘ</button>
           <div class="disclaimer-pop" id="disclaimer-pop" hidden>
             <p><strong>列国底色与水系皆艺术示意，非考据疆界。</strong></p>
@@ -182,7 +185,7 @@
         <div class="cmp-legend" id="cmp-legend" aria-label="并观图例"></div>
         <div class="map-frame" id="cmp-frame">
           <div class="map-canvas" id="cmp-canvas" role="application" aria-label="双人并观活动地图"></div>
-          <p class="play-caption" id="cmp-caption" aria-live="polite" hidden></p>
+          <!-- 并观字幕条（#cmp-caption）同样不静态声明，理由与出处同上：app.js mountCaption("dual")。 -->
         </div>
         <!-- 绝对年轴：两人生卒条、生卒刻度、交会标记、播放游标 -->
         <div class="cmp-axis-wrap">

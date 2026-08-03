@@ -1056,6 +1056,7 @@ function renderMap() {
   resetPlacePanel();
   const canvas = $("#map-canvas");
   canvas.innerHTML = baseMapText;
+  mountCaption("single");   // 内嵌图框内的字幕条同为派生物（静态节点已移除，见 mountCaption 注释）
   const svg = canvas.querySelector("svg");
   mapState.svg = svg;
   const anchors = svg.querySelector("#layer-anchors");
@@ -1491,8 +1492,8 @@ function openOverlay() {
   const overlay = $("#map-overlay");
   overlay.hidden = false;
   $("#map-overlay-body").appendChild(mapState.svg);
-  $("#map-overlay-body").appendChild($("#play-caption")); // 字幕条随地图入全屏
   mapState.overlay = true;
+  mountCaption("single");  // 字幕条派生式重挂入全屏容器（须在 mapState.overlay 置位之后——容器由它派生）
   document.body.classList.add("no-scroll");
   mountOverlayControls("single");
   $("#btn-overlay-close").focus();
@@ -1541,9 +1542,8 @@ function closeOverlay() {
   document.body.classList.remove("no-scroll");
   unmountOverlayControls();
   if (mapState.svg) $("#map-canvas").appendChild(mapState.svg);
-  const frame = document.querySelector(".map-frame");
-  if (frame) frame.appendChild($("#play-caption")); // 字幕条归位内嵌地图
   mapState.overlay = false;
+  mountCaption("single");  // 字幕条派生式重挂回内嵌图框（须在 mapState.overlay 清零之后）
   mapState.pointers.clear();
   mapState.pinch = null;
   mapState.panStart = null;
@@ -1832,21 +1832,76 @@ function setPlayBtnText(mode, txt) {
   [main, "#ov-play"].forEach(id => { const b = $(id); if (b) b.textContent = txt; });
 }
 
+/* ---------- 播放字幕条（单人 #play-caption / 并观 #cmp-caption）· r24a-fix2 断根为派生式重挂 ----------
+ * 【为何不再是静态单例】与 mountOverlayControls 同源（详见其上方注释）：字幕条须随图进出全屏，
+ *   旧法是「开浮层 move 进 #map-overlay-body、关浮层 move 回内嵌图框」——节点跨浮层存活。
+ *   现行三处入口（openRelOverlay / closeRelOverlay / openCmpOverlay）都以 `body.textContent=""`
+ *   清空容器，只要有哪一次退出没走到 move-back（或将来再添一处清空型入口），节点即被连带销毁且
+ *   永不回来：此后 $("#play-caption") 恒 null，showCaption/cmpCaption 静默空转（字幕永久消失），
+ *   closeOverlay 还会在 appendChild(null) 上抛错。
+ *   ⚠ 记实：r24a-fix2 走查实测（探针逐帧监视两节点的 document.contains），现行入口下**尚无可达的
+ *   销毁路径**——captions 与 #overlay-controls 的差别正在于每次退出都被 move 出容器。故本次是断隐患、
+ *   不是修活 bug；断的是「跨浮层存活的单例」这一类，而非某一条已发生的路径。
+ * 【断根之道】文本与显隐存于 captionState（唯一真源），DOM 只是它的投影：归属容器由当前浮层状态
+ *   当场派生（captionHost），节点随时可弃、用时重建（captionEl 自愈）。静态节点已自 index.html
+ *   移除，此处是其唯一出处。 */
+const captionState = { single: { text: "", show: false }, dual: { text: "", show: false } };
+const CAPTION_SEL = { single: "#play-caption", dual: "#cmp-caption" };
+/* 字幕条该挂在哪：浮层开着＝全屏容器，否则＝各自内嵌图框。当场从浮层状态读出，不记忆、不缓存。 */
+function captionHost(mode) {
+  if (mode === "single") return mapState.overlay ? $("#map-overlay-body") : $("#map-frame");
+  return cmpZoom.active ? $("#map-overlay-body") : $("#cmp-frame");
+}
+function unmountCaption(mode) { const el = $(CAPTION_SEL[mode]); if (el) el.remove(); }
+/* 幂等重建：先清残留再新建；文本与显隐当场从 captionState 读出。
+ * 重挂不做淡入（换容器应是瞬时的），故 .show 直接随创建写死，不走 rAF。 */
+function mountCaption(mode) {
+  unmountCaption(mode);
+  const host = captionHost(mode);
+  if (!host) return null;
+  const st = captionState[mode];
+  const el = document.createElement("p");
+  el.className = "play-caption" + (st.show ? " show" : "");
+  el.id = CAPTION_SEL[mode].slice(1);
+  el.setAttribute("aria-live", "polite");
+  el.textContent = st.text;
+  el.hidden = !st.show;
+  host.appendChild(el);   // 先填内容后入 DOM：重挂不触发 aria-live 播报（同一句话不重念一遍）
+  return el;
+}
+/* 取当前字幕条；若不存在、或不在其应属容器内（浮层刚开、容器被清空过），就地重建后再返回 */
+function captionEl(mode) {
+  const el = $(CAPTION_SEL[mode]);
+  const host = captionHost(mode);
+  if (!host) return null;
+  return (el && el.parentNode === host) ? el : mountCaption(mode);
+}
+/* 播放引擎唯一的写入口：先写状态，再投影到当前节点（淡入照旧走 rAF＋.show） */
+function setCaption(mode, text) {
+  const st = captionState[mode];
+  st.text = text; st.show = true;
+  const el = captionEl(mode);
+  if (!el) return;
+  el.textContent = text;
+  el.hidden = false;
+  requestAnimationFrame(() => { if (captionState[mode].show) el.classList.add("show"); });
+}
+function clearCaption(mode, immediate) {
+  const st = captionState[mode];
+  st.show = false;
+  if (immediate) st.text = "";
+  const el = $(CAPTION_SEL[mode]);
+  if (!el) return;
+  el.classList.remove("show");
+  if (immediate) { el.hidden = true; el.textContent = ""; return; }
+  setTimeout(() => {                       // 淡出后再收起；期间若被重挂，按 id 重取当前节点
+    const e2 = $(CAPTION_SEL[mode]);
+    if (e2 && !e2.classList.contains("show")) e2.hidden = true;
+  }, 300);
+}
 /* ---------- 单人地图字幕（到站播报，aria-live=polite） ---------- */
-function showCaption(text) {
-  const c = $("#play-caption");
-  if (!c) return;
-  c.textContent = text;
-  c.hidden = false;
-  requestAnimationFrame(() => c.classList.add("show"));
-}
-function hideCaption(immediate) {
-  const c = $("#play-caption");
-  if (!c) return;
-  c.classList.remove("show");
-  if (immediate) { c.hidden = true; c.textContent = ""; }
-  else setTimeout(() => { if (!c.classList.contains("show")) c.hidden = true; }, 300);
-}
+function showCaption(text) { setCaption("single", text); }
+function hideCaption(immediate) { clearCaption("single", immediate); }
 
 /* ---------- 单轨模式 cfg：单标记沿单轨按段长推进，逐段 easeInOut，到站播报（无 beat 暂停） ---------- */
 function singlePlayCfg(traj, anchors, theme) {
@@ -2314,6 +2369,7 @@ const CMP_DASH_W = { A: "2", B: "2.6" }; // 珠点略加粗，使珠身与长划
 function cmpBuildMap() {
   const canvas = $("#cmp-canvas");
   canvas.innerHTML = baseMapText;
+  mountCaption("dual");     // 同上：内嵌并观图框的字幕条亦为派生物
   const svg = canvas.querySelector("svg");
   cmp.svg = svg;
   const anchors = svg.querySelector("#layer-anchors");
@@ -2760,15 +2816,11 @@ function cmpRenderAtSc(sc) {
   cmpCaption(year);
 }
 function cmpCaption(year) {
-  const c = $("#cmp-caption");
-  if (!c) return;
   const st = (life) => (life.lo != null && year < life.lo) ? "未生"
     : (life.hi != null && year > life.hi) ? "已卒" : "在世";
-  c.hidden = false;
-  c.textContent = yearLabel(Math.round(year)) + " · " +
+  setCaption("dual", yearLabel(Math.round(year)) + " · " +
     personName(cmp.A) + "（" + st(cmp.lifeA) + "） / " +
-    personName(cmp.B) + "（" + st(cmp.lifeB) + "）";
-  requestAnimationFrame(() => c.classList.add("show"));
+    personName(cmp.B) + "（" + st(cmp.lifeB) + "）");
 }
 /* 交会锚被标记经过：点亮该交会地（加 .lit → 常亮至结束/重置），不闪烁、不暂停、不打断行进。
  * 侧栏—地图一一对应、免责句、相邻记载分辨全部保留（在侧栏与弹卡内，见 cmpBuildSidebar/cmpShowMeetings）。 */
@@ -2796,12 +2848,9 @@ function comparePlayCfg() {
     onStop() { cmpCleanup(); },
   };
 }
-function cmpCaptionFade() {
-  const c = $("#cmp-caption");
-  if (c) { c.classList.remove("show"); setTimeout(() => { if (c && !c.classList.contains("show")) c.hidden = true; }, 300); }
-}
+function cmpCaptionFade() { clearCaption("dual", false); }
 function cmpCleanup() {
-  const c = $("#cmp-caption"); if (c) { c.classList.remove("show"); c.hidden = true; c.textContent = ""; }
+  clearCaption("dual", true);
   setPlayBtnText("dual", PLAY_LABEL.idle);
   const head = document.querySelector("#cmp-playhead"); if (head) head.hidden = true;
   if (cmp.svg) { cmp.svg.classList.remove("cmp-play-active"); // 退出播放态：交会点回常态（非待亮）
@@ -2830,10 +2879,10 @@ function openCmpOverlay() {
   const body = $("#map-overlay-body");
   body.textContent = "";
   body.appendChild(cmp.svg);
-  body.appendChild($("#cmp-caption")); // 字幕随图入全屏
   overlay.hidden = false;
   document.body.classList.add("no-scroll");
   cmpZoom.active = true;
+  mountCaption("dual");  // 字幕条派生式重挂入全屏容器（须在 body 清空与 cmpZoom.active 置位之后）
   cmpZoom.svg = cmp.svg;
   cmpZoom.vbW = MAP_W; cmpZoom.vbH = MAP_H; cmpZoom.aspect = 0;
   cmpZoom.pointers = new Map(); cmpZoom.pinch = null; cmpZoom.panStart = null; cmpZoom.panDist = 0;
@@ -2853,8 +2902,7 @@ function closeCmpOverlay() {
   unmountOverlayControls();
   cmpZoom.active = false;
   if (cmp.svg) $("#cmp-canvas").appendChild(cmp.svg);
-  const frame = $("#cmp-frame");
-  if (frame) frame.appendChild($("#cmp-caption"));
+  mountCaption("dual");  // 字幕条派生式重挂回内嵌图框（须在 cmpZoom.active 清零之后）
   cmpApplyView(cmp.mode === "fit" ? cmp.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
 }
 

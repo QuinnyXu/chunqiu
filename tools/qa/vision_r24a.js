@@ -6,6 +6,9 @@
 //   §5  改为 A/B 两态实测——A＝默认 27 主角环、B＝勾「显示全部」回全库；
 //       原「槽距 < 节点直径」的 ⚠ 记实随之改写为「B 态仍如此、A 态已解」。
 //   §5b 新增：诗歌层菉色 --poem 的落地与**渲染后**色距实测（不只查源文件）。
+//
+// r24a-fix2 扩充：§4b 往返门加验字幕条（存在／归属容器／唯一／随播更新／退出归位），
+//   §4c 新立「字幕条断根反证」——注入浮层容器清空后要求自愈重建（旧的静态单例必败）。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -251,8 +254,10 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
    *   closeRelOverlay / openCmpOverlay 三处 `body.textContent=""` 会把这个静态单例节点连带销毁，
    *   此后 $("#overlay-controls") 恒 null、旧 setupOverlayControls 静默空转，单人全屏也一并没了控件，
    *   须整页刷新才复原。修法：mountOverlayControls() 每次开浮层幂等重建（DOM 可弃、状态派生）。
-   * 本节**永久保留**：往返切视图全程不刷新（刷新会掩盖此 bug），每次开全屏都断言存在＋可点＋状态同步。 */
-  H("4b) 全屏控件往返回归门（r24a-fix·永久保留）");
+   * 本节**永久保留**：往返切视图全程不刷新（刷新会掩盖此 bug），每次开全屏都断言存在＋可点＋状态同步。
+   * r24a-fix2 扩：同一往返里连字幕条（#play-caption / #cmp-caption）一并断言——它们与控件同型，
+   *   过去也是「被 move 进浮层、退出再 move 回」的跨浮层单例，本轮同改派生式重挂。 */
+  H("4b) 全屏控件＋字幕条往返回归门（r24a-fix／fix2·永久保留）");
   const ctlProbe = () => {
     const ov = document.querySelector("#overlay-controls"), btn = document.querySelector("#ov-play");
     if (!ov || !btn) return { exists: false };
@@ -262,6 +267,15 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
              w: Math.round(r.width), h: Math.round(r.height),
              hit: !!(top && (top === btn || btn.contains(top))),   // 顶层命中＝真可点、未被遮挡
              txt: btn.textContent };
+  };
+  /* 字幕条探针（r24a-fix2）：存在性、归属容器、唯一性（无残留重份）、可见性与文本 */
+  const capProbe = (sel) => {
+    const all = document.querySelectorAll(sel), e = all[0];
+    if (!e) return { exists: false, dup: 0, text: "" };
+    const r = e.getBoundingClientRect();
+    return { exists: true, dup: all.length, inBody: !!e.closest("#map-overlay-body"),
+             hidden: !!e.hidden, op: +getComputedStyle(e).opacity,
+             w: Math.round(r.width), h: Math.round(r.height), text: (e.textContent || "").trim() };
   };
   // 四档宽度全跑（桌面 1440 / 窄桌面 1024 / 平板 768 / 手机 390）——控件位置与热区随断点变化，逐档实测
   for (const dev of [{ n: "1440桌面", w: 1440, h: 900 }, { n: "1024窄桌", w: 1024, h: 768 },
@@ -279,11 +293,21 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
       const g = await rp.evaluate(ctlProbe);
       OK(g.exists && g.inBody && g.vis, dev.n + "·" + label + "：控件存在且在全屏容器内（" + JSON.stringify(g) + "）");
       OK(!!g.exists && g.hit && g.h >= 44, dev.n + "·" + label + "：按钮可点——顶层命中且热区高 " + (g.h || 0) + "px ≥44px");
+      // r24a-fix2：字幕条须随图入全屏——存在、在浮层容器内、全站仅一份（浮层外不得留残份）
+      const capSel = mainSel === "#btn-play" ? "#play-caption" : "#cmp-caption";
+      const capMode = mainSel === "#btn-play" ? "single" : "dual";
+      const c0 = await rp.evaluate(capProbe, capSel);
+      OK(c0.exists && c0.inBody && c0.dup === 1,
+         dev.n + "·" + label + "：字幕条随图入全屏（" + JSON.stringify(c0) + "）");
       if (g.exists) {
         const before = await rp.evaluate(s => document.querySelector(s).textContent, mainSel);
         await rp.click("#ov-play"); await rp.waitForTimeout(600);
         const playing = await rp.evaluate(s => ({ raf: !!(typeof player !== "undefined" && player.raf),
           ov: document.querySelector("#ov-play").textContent, main: document.querySelector(s).textContent }), mainSel);
+        const cPlay = await rp.evaluate(capProbe, capSel);   // 实播采样：播放中字幕条须在浮层内显影且有文本
+        OK(cPlay.exists && cPlay.inBody && !cPlay.hidden && cPlay.text.length > 0 && cPlay.op > 0.5,
+           dev.n + "·" + label + "：播放中浮层内字幕条已显影「" + cPlay.text.slice(0, 24) +
+           "」（opacity " + cPlay.op + "）");
         await rp.click("#ov-play"); await rp.waitForTimeout(500);
         const paused = await rp.evaluate(s => ({ raf: !!(typeof player !== "undefined" && player.raf),
           ov: document.querySelector("#ov-play").textContent, main: document.querySelector(s).textContent }), mainSel);
@@ -292,6 +316,21 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
         OK(playing.ov === playing.main && paused.ov === paused.main && paused.ov !== playing.ov,
            dev.n + "·" + label + "：控件文案与主按钮同步（开前「" + before + "」→ 播「" + playing.ov +
            "」→ 停「" + paused.ov + "」）");
+        /* 「随播更新」的确定性判据：直接调播放引擎的播报入口（showCaption / cmpCaption——两版皆有，
+         * 不引入只存在于新码的 API），写出的话必须落在**浮层里的那个节点**上；
+         * 若浮层内是残留/失联节点、真节点在别处，此项即报 FAIL。在暂停态做，免被播放帧覆写。 */
+        const probeTxt = "QA·字幕探针" + Date.now();
+        const cInj = await rp.evaluate(async ([sel, txt, mode]) => {
+          if (mode === "single") showCaption(txt); else cmpCaption(-700);
+          await new Promise(r => setTimeout(r, 120));
+          const e = document.querySelector(sel);
+          return e ? { inBody: !!e.closest("#map-overlay-body"), hidden: !!e.hidden,
+                       text: (e.textContent || "").trim() } : { none: true };
+        }, [capSel, probeTxt, capMode]);
+        const want = capMode === "single" ? probeTxt : "前700";   // yearLabel(-700) → 「前700」，无「年」字
+        OK(!!cInj && cInj.inBody && !cInj.hidden && (cInj.text || "").includes(want),
+           dev.n + "·" + label + "：字幕条随播更新——引擎播报直落浮层内节点（实测「" +
+           ((cInj && cInj.text) || "—").slice(0, 24) + "」）");
       }
       if (mainSel === "#cmp-play") {   // r24a-fix 顺带修正：全屏内「交会一览」浮条须收起，不压字幕条
         const st = await rp.evaluate(() => { const e = document.querySelector("#cmp-sheet-toggle");
@@ -303,6 +342,9 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
       // 视觉留证：全屏尚开着时截一张（§9.3——触达类项目一律附无头浏览器截图，不以 DOM 断言代替眼见）
       if (shot) await rp.screenshot({ path: path.join(OUT, "r24a_fix_" + shot + "_" + dev.w + ".png") });
       await rp.click("#btn-overlay-close"); await rp.waitForTimeout(400);
+      const cBack = await rp.evaluate(capProbe, capSel);   // 退出后须归位内嵌图框，且不留重份
+      OK(cBack.exists && !cBack.inBody && cBack.dup === 1,
+         dev.n + "·" + label + "：关全屏后字幕条归位内嵌图框（" + JSON.stringify(cBack) + "）");
     };
     // 单 → 双 → 单 → 双 → 单：两个整往返（Xu 复现路径即其首段），全程 hash 切换、绝不刷新
     await round("第1次·单人全屏", "#/p/P_WENJIANG/map", "#btn-zoom", "#btn-play");
@@ -314,10 +356,73 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     await rp.click("#btn-rel-zoom"); await rp.waitForTimeout(800);
     const relCtl = await rp.evaluate(ctlProbe);
     OK(!relCtl.exists, dev.n + "·图谱全屏：不挂播放控件（关系图无轨迹可播）");
+    const relCap = await rp.evaluate(() => {
+      const a = document.querySelector("#play-caption"), b = document.querySelector("#cmp-caption");
+      return { a: !!a, b: !!b, aIn: !!(a && a.closest("#map-overlay-body")), bIn: !!(b && b.closest("#map-overlay-body")) };
+    });
+    OK(relCap.a && relCap.b && !relCap.aIn && !relCap.bIn,
+       dev.n + "·图谱全屏：两条字幕条俱在、且都不在浮层容器内——不受图谱入口清空 body 的牵连（" +
+       JSON.stringify(relCap) + "）");
     await rp.click("#btn-overlay-close"); await rp.waitForTimeout(400);
     await round("第5次·单人全屏（图谱全屏之后）", "#/p/P_WENJIANG/map", "#btn-zoom", "#btn-play", "single_fs");
     OK(rerrs.length === 0, dev.n + "·往返全程无页面错误（" + (rerrs.join(" | ") || "无") + "）");
     await rp.close();
+  }
+
+  // ---------- 4c) 字幕条断根反证（r24a-fix2·构造式：浮层容器被清空后须自愈）----------
+  /* 为何是构造式、而非把 bug 复现出来：r24a-fix2 走查用探针逐帧监视两条字幕条是否仍在 document 内，
+   *   把现行全部入口（单↔并观↔图谱全屏往返、Esc、后退/前进、播放中切视图、全屏内开抽屉…）跑了一遍，
+   *   **没有**一条可达路径能销毁它们——因为 captions 与 #overlay-controls 不同，每次退出都被 move 出容器。
+   *   故 r24a-fix2 断的是「跨浮层存活的单例」这一类隐患，而非某条已发生的路径（详见交付说明 §二十）。
+   *   本节据此按类立断言：注入与那三处入口一模一样的 `#map-overlay-body.textContent=""`，
+   *   此后播报须能自愈重建字幕条、往返归位不丢、关全屏不抛错。
+   *   旧法（静态单例 move 进 move 出）在此必败：节点被连带销毁后 $("#play-caption") 恒 null、
+   *   播报静默空转，closeOverlay 还会在 appendChild(null) 上抛 TypeError。本节即新断言的咬合力所在。 */
+  H("4c) 字幕条断根反证（r24a-fix2·构造式：容器清空后自愈）");
+  for (const dev of [{ n: "1440桌面", w: 1440, h: 900 }, { n: "390手机", w: 390, h: 780 }]) {
+    for (const cs of [
+      { mode: "single", label: "单人", hash: "#/p/P_WENJIANG/map", zoom: "#btn-zoom",
+        sel: "#play-caption", frame: "#map-frame", want: "QA·断根探针" },
+      { mode: "dual", label: "并观", hash: "#compare=P_WENJIANG,P_QIXIANG", zoom: "#cmp-zoom",
+        sel: "#cmp-caption", frame: "#cmp-frame", want: "前700" }]) {
+      const zp = await c.newPage();
+      await zp.setViewportSize({ width: dev.w, height: dev.h });
+      const zerrs = []; zp.on("pageerror", e => zerrs.push(e.message));
+      await zp.goto(origin + "/" + cs.hash, { waitUntil: "load" }); await zp.waitForTimeout(1200);
+      await zp.click(cs.zoom); await zp.waitForTimeout(500);
+      await zp.click("#ov-play"); await zp.waitForTimeout(700);
+      const cBefore = await zp.evaluate(capProbe, cs.sel);
+      OK(cBefore.exists && cBefore.inBody,
+         dev.n + "·" + cs.label + "：清空前字幕条在浮层内（「" + (cBefore.text || "").slice(0, 20) + "」）");
+      await zp.click("#ov-play"); await zp.waitForTimeout(400);   // 先暂停：免播放帧覆写下面的探针文本
+      // 注入与三处浮层入口同款的容器清空动作
+      await zp.evaluate(() => { document.querySelector("#map-overlay-body").textContent = ""; });
+      await zp.waitForTimeout(200);
+      const healed = await zp.evaluate(async ([mode, sel]) => {
+        if (mode === "single") showCaption("QA·断根探针"); else cmpCaption(-700);
+        await new Promise(r => setTimeout(r, 150));
+        const e = document.querySelector(sel);
+        return e ? { exists: true, inBody: !!e.closest("#map-overlay-body"), hidden: !!e.hidden,
+                     text: (e.textContent || "").trim() } : { exists: false };
+      }, [cs.mode, cs.sel]);
+      OK(healed.exists && healed.inBody && !healed.hidden && (healed.text || "").includes(cs.want),
+         dev.n + "·" + cs.label + "：容器被清空后，播报仍能自愈重建字幕条于浮层内（" + JSON.stringify(healed) + "）");
+      await zp.click("#btn-overlay-close"); await zp.waitForTimeout(500);
+      const zBack = await zp.evaluate(([sel, fr]) => {
+        const e = document.querySelector(sel);
+        return { exists: !!e, inBody: !!(e && e.closest("#map-overlay-body")), inFrame: !!(e && e.closest(fr)),
+                 dup: document.querySelectorAll(sel).length };
+      }, [cs.sel, cs.frame]);
+      OK(zBack.exists && !zBack.inBody && zBack.inFrame && zBack.dup === 1,
+         dev.n + "·" + cs.label + "：清空过后关全屏，字幕条照样归位 " + cs.frame + "（" + JSON.stringify(zBack) + "）");
+      await zp.click(cs.zoom); await zp.waitForTimeout(600);
+      const zAgain = await zp.evaluate(capProbe, cs.sel);
+      OK(zAgain.exists && zAgain.inBody && zAgain.dup === 1,
+         dev.n + "·" + cs.label + "：再开全屏字幕条仍在、无重份（往返不丢）");
+      await zp.screenshot({ path: path.join(OUT, "r24a_fix2_" + cs.mode + "_" + dev.w + ".png") });
+      OK(zerrs.length === 0, dev.n + "·" + cs.label + "：断根反证全程无页面错误（" + (zerrs.join(" | ") || "无") + "）");
+      await zp.close();
+    }
   }
 
   // ---------- 5) §9.3 全景关系图节点徽记可辨性 ----------
