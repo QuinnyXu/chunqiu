@@ -944,11 +944,22 @@ function consumeTimelineSpot(list) {
     : det;
   det.classList.add("spotlight");
   setTimeout(() => det.classList.remove("spotlight"), 2400);
-  requestAnimationFrame(() => {
+  spotScrollInto(target, det.querySelector("summary"));
+}
+/* 搜索直达的落点滚动（r25 顺带修正，实测见 delivery_vision_r25 §顺带修正）。
+ * 现象：hash 导航（setHash → hashchange → render）之后，在**同一帧**内发起的程序化平滑滚动
+ *   一次也不会执行——实测 scrollY 全程恒 0，即滚动动画根本没起步，而非中途被打断
+ *   （对照：同一份代码在无 hash 导航时手动触发，scrollY 从 5 一路涨到 18806，完全正常）。
+ *   成因是导航自身的「滚动到片段/回顶」与我们的程序化滚动撞在同一帧，后者被吞掉。
+ * 后果：搜「乡校」直达 E195，卡片确实展开了、spotlight 也确实闪了，但它停在 y=1034——
+ *   视口只有 900，读者看到的仍是页顶。**DOM 状态对 ≠ 读者看得见**（见 design_notes §7.3）。
+ * 影响面：自 r11 起既有，非本轮引入；未被发现是因为过去的断言只查 open/类名，一条都不查像素。
+ * 修法：让出一帧再滚（双 rAF）。回归门见 tools/qa/vision_r24a.js §12，退回单 rAF 即全红。 */
+function spotScrollInto(target, focusEl) {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
     target.scrollIntoView({ block: "center", behavior: "smooth" });
-    const sum = det.querySelector("summary");
-    if (sum) sum.focus({ preventScroll: true });
-  });
+    if (focusEl) focusEl.focus({ preventScroll: true });
+  }));
 }
 function addChip(parent, text, extra) {
   const c = document.createElement("span");
