@@ -1506,9 +1506,11 @@ function openOverlay() {
  *   ——openRelOverlay / closeRelOverlay / openCmpOverlay——都以 `body.textContent = ""` 清空容器再挂
  *   自己的内容，静态单例节点被连带销毁后永不回来：此后 `$("#overlay-controls")` 恒为 null，旧
  *   setupOverlayControls 的 `if (!box) return` 只是静默空转，于是单人全屏也一并没了控件，须整页刷新才复原
- *   （r24a 生产实测：单人全屏→并观全屏→单人全屏，控件消失）。同源于 r17b「克隆体丢失事件绑定」一族问题：
+ *   （r24a 生产实测：单人全屏→并观全屏→单人全屏，控件消失）。同源于 r16「克隆体丢失事件绑定」一族问题
+ *   （此处旧注误记为 r17b，r24a-fix2 收尾据 delivery_vision_r16 §根因① 与下方 openRelOverlay 注释订正为 r16）：
  *   凡跨浮层存活的节点/绑定都靠不住。断根之道是 DOM 可弃、状态派生——每次开浮层先清残留再新建，
- *   显隐与文案一律从主工具条按钮当场读出，不依赖任何跨浮层存活的节点。 */
+ *   显隐与文案一律从主工具条按钮当场读出，不依赖任何跨浮层存活的节点。
+ *   本条即 design_notes §7.1「同族三相」之相三（无重建路径），正解＝派生式重挂；改动本函数前请先读该节。 */
 function mountOverlayControls(mode) {
   unmountOverlayControls();                    // 幂等：先清残留（含被 body 清空后遗留的引用），再重建
   const body = $("#map-overlay-body");
@@ -1555,7 +1557,9 @@ function closeOverlay() {
  * 克隆而非移动：内嵌图保持原位、其 recenter/看连线交互不受影响。
  * r16 两处修复见 openRelOverlay：①克隆丢失事件绑定→按 data-detail/data-node 在克隆体上重绑，
  * 且全屏内点边/点节点一律走底部抽屉（对齐地图全屏，而非内嵌右侧卡片）；②取景改 fit-to-container，
- * 按容器实测宽高定 viewBox 比例，竖屏 cover、横屏 contain，令手机进入全屏即明显放大。 ---------- */
+ * 按容器实测宽高定 viewBox 比例，竖屏 cover、横屏 contain，令手机进入全屏即明显放大。
+ * 【规范】①即 design_notes §7.1「同族三相」的最早一例（绑定版）：cloneNode(true) 不复制 addEventListener
+ *   注册的处理器，克隆体成哑元素；正解＝按身份（data-detail/data-node）派生式重绑，不指望绑定跨容器存活。 ---------- */
 const relZoom = {
   active: false, svg: null, vbW: 0, vbH: 0, minFrac: 0.2, box: null, aspect: 0,
   pointers: new Map(), pinch: null, panStart: null, panDist: 0,
@@ -1844,7 +1848,11 @@ function setPlayBtnText(mode, txt) {
  *   不是修活 bug；断的是「跨浮层存活的单例」这一类，而非某一条已发生的路径。
  * 【断根之道】文本与显隐存于 captionState（唯一真源），DOM 只是它的投影：归属容器由当前浮层状态
  *   当场派生（captionHost），节点随时可弃、用时重建（captionEl 自愈）。静态节点已自 index.html
- *   移除，此处是其唯一出处。 */
+ *   移除，此处是其唯一出处。
+ * 【规范】本条即 design_notes §7.1「同族三相」之相二（被 move 的单例），正解＝状态为唯一真源；
+ *   captionHost 按 id 取图框（#map-frame／#cmp-frame）则是相一（靠文档顺序认亲）的正解＝身份取代位置。
+ *   mountCaption 的调用点须排在浮层状态位（mapState.overlay／cmpZoom.active）改写之后——容器由状态派生。
+ *   自验口径见 design_notes §7.2（按类反证＋交叉验证）与 tools/qa/vision_r24a.js §4b／§4c。 */
 const captionState = { single: { text: "", show: false }, dual: { text: "", show: false } };
 const CAPTION_SEL = { single: "#play-caption", dual: "#cmp-caption" };
 /* 字幕条该挂在哪：浮层开着＝全屏容器，否则＝各自内嵌图框。当场从浮层状态读出，不记忆、不缓存。 */
