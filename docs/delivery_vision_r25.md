@@ -157,7 +157,24 @@ E205 的崔杼与齐庄公皆标「相关」——合 conventions v1.22「死者
 | 1 | `625ff0f` | fix：落锚滚动顺带修正（**回退即恢复旧行为，不影响其他功能**） |
 | 2 | `b379813` | feat：编年视图本体＋搜索接入＋卡组件抽出＋文案与版本 |
 | 3 | `8a9aed3` | test：回归总门 §11/§12 扩充＋§8 卫生 |
-| 4 | 见下 | docs：design_notes v2.2 ＋ 本交付说明 |
+| 4 | `8303e73` | docs：design_notes v2.2 ＋ 本交付说明 |
+
+四批已 push（`a0c508b..8303e73`）。
+
+### 上线与生产复验（授权范围内执行）
+
+- **Actions**：run `30781035256` — Deploy site to GitHub Pages，**success**（16s）。
+- **线上已是新版**（沙箱内 DNS 不通，`--resolve` 直连 CF 边缘 `172.67.174.133`，`/index.html` 带 `-L` 跟 308）：
+  `index.html` 命中 `data-view="chronicle"` 1 处、`app.js` 命中 `renderChronicle` 4 处，带 `?cachebust` 绕边缘缓存。
+- **生产带参全门复验**：
+  ```
+  QA_BASE_URL="https://chunqiu.timechorus.com" \
+  QA_HOST_RESOLVER="MAP chunqiu.timechorus.com 172.67.174.133" \
+  node tools/qa/vision_r24a.js
+  ```
+  **342 项通过，0 项未过；页面错误 0；控制台告警 0。**
+  （本地跑时控制台恒有 CF beacon 的 CORS 报错——那是 `127.0.0.1` 源与 beacon 的跨域校验，**生产站上为 0**，这次连那两条噪声也没有。）
+- 生产实测：190 行上表、13/13 无主角挂链事件在表、行序与 `evtCompare` 逐条相同、一次渲染 **3.1 ms**；搜「崔杼弑其君」→ 直达编年 → scrollY 13290 落锚前548（该年 5 条）。
 
 ## 十、文档
 
