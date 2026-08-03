@@ -673,3 +673,111 @@ Xu 的生产实测路径：单人地图 →「放大查看」（控件在）→ 
 1. **同族隐患的巡查建议（排程）**：本条与 r17b 点边失灵同源——"跨浮层存活的节点/绑定"。本次已把控件一族清干净，但 `#play-caption`／`#cmp-caption` 仍是**被 move 进浮层、退出时再 move 回去**的单例（`openOverlay`/`closeOverlay`、`openCmpOverlay`/`closeCmpOverlay` 各一处）。目前未发现失效路径（清空容器的三处入口都不会在字幕条寄居期间触发），但它与本次出事的结构完全同型。建议排一次专项巡查（非紧急），把字幕条一并改为派生式重挂；本轮**未动**，避免热修扩大改动面。
 2. **顺带修正的去留（候裁）**：19.6 的 `.cmp-sheet-toggle` 一条虽同族且已随本次上线，仍请领队追认；若认为热修不宜夹带，单独 revert 该 CSS 规则与 §4b 对应 8 项断言即可，主体不受影响。
 3. 本轮**无**数据改动、**无** conventions／design_notes 改动需求（视觉规范未变，仅实现方式由静态节点改为运行时重建）。
+
+---
+
+## 二十、r24a-fix2 微任务：caption 单例断根（承 §19.9 条 1 之采纳）
+
+### 20.1 交代在前：本轮是**断隐患**，不是修活 bug
+
+§19.9 条 1 建议专项巡查 `#play-caption`／`#cmp-caption`，领队采纳。动手前我先做了**可达性走查**，结论须先摆明，免得交付说明把隐患写成事故：
+
+走查手法——页面加载后抓住这两个节点的**对象引用**，逐帧（50ms）检查 `document.contains(node)`，一旦为 false 即记为"已销毁"；然后把现行**全部**入口跑一遍：单人全屏 ⇄ 并观全屏 ⇄ 图谱全屏两个整往返、Esc 关闭、浏览器后退/前进、全屏开着直接换 hash、播放中切视图、全屏内开地点抽屉、图谱全屏内点节点开抽屉直跳并观、脚本强制 `goCompare` 等 **40 余步**。
+
+**实测：销毁记录 0 条，页面错误 0。** 两条字幕条在每一步都健在，位置在"浮层"与"内嵌图框"之间正确往返。
+
+根因很清楚：字幕条与 `#overlay-controls` 的**差别在于退出时被 move 出容器**——`closeOverlay`／`closeCmpOverlay` 每次都把它搬回内嵌图框，而三处 `body.textContent=""` 入口（`openRelOverlay`／`closeRelOverlay`／`openCmpOverlay`）只在浮层已退出后才可能被触达；`#overlay-controls` 则是**静态写死在浮层容器内、退出也不搬走**，故一清即死。二者同型不同命。
+
+所以本轮断的是**「跨浮层存活的单例」这一类**，不是某条已发生的路径。这一点也决定了自证方法（见 20.4）。
+
+### 20.2 改法：与 `mountOverlayControls` 同款范式
+
+唯一真源从 DOM 移到状态：
+
+- **`captionState = { single: {text, show}, dual: {text, show} }`** —— 文本与显隐的唯一出处；DOM 只是它的投影。
+- **`captionHost(mode)`** —— 该挂在哪**当场派生**：浮层开着＝`#map-overlay-body`，否则＝各自内嵌图框（`#map-frame`／`#cmp-frame`）。不记忆、不缓存。
+- **`mountCaption(mode)`** —— 幂等重建：先 `unmountCaption` 清残留，再 `createElement` 新建，文本/显隐当场从 `captionState` 读出，**先填内容后入 DOM**（重挂不触发 `aria-live` 播报，同一句话不重念）。重挂不做淡入——换容器应是瞬时的。
+- **`captionEl(mode)`** —— **自愈**取节点：不存在、或不在应属容器内（浮层刚开、容器被清空过），就地重建后再返回。
+- **`setCaption` / `clearCaption`** —— 播放引擎唯一写入口：先写状态，再投影到当前节点；淡入淡出照旧（`rAF` ＋ `.show` ＋ 300ms）。
+
+调用侧一一改接：`showCaption`／`hideCaption`／`cmpCaption`／`cmpCaptionFade`／`cmpCleanup` 全部改走状态入口；`openOverlay`／`closeOverlay`／`openCmpOverlay`／`closeCmpOverlay` 由 `appendChild(既有节点)` 改为 `mountCaption(mode)`，且**都放在浮层状态位（`mapState.overlay`／`cmpZoom.active`）改写之后**——容器由状态派生，顺序错了就派生错。`renderMap`／`cmpBuildMap` 各补一处 `mountCaption`，内嵌图框里的字幕条同为派生物。
+
+**播放引擎、轨迹、字幕文案与时序一行未动**：`captionText()` 的到站措辞、并观逐帧年份句、暂停即淡出、`onStop` 立清，行为与改前逐字一致。
+
+### 20.3 index.html 静态节点删除 ＋ 一处顺带修正
+
+- 删去两个静态 `<p class="play-caption">`，原位各留注释指向 JS 唯一出处（同 `#overlay-controls` 一轮的处理）；`styles.css` 的 `.play-caption` 一组**样式一字未改**，只在块首加注说明节点已改由 JS 派生。
+- **顺带修正（可单独回退）**：单人图框补 `id="map-frame"`，`captionHost` 与原 `closeOverlay` 里的 `document.querySelector(".map-frame")` 一并改为 `$("#map-frame")`。原因：`#cmp-frame` 也带 `class="map-frame"`，旧写法靠"文档里第一个 `.map-frame`"认亲——只要哪天 `<section>` 顺序一调，单人字幕条就会被搬进并观图框。字幕条归属既已成为本次断根的核心，这条"靠文档顺序的默契"不宜留。**回退面**：撤掉 `id="map-frame"` 并把两处选择器改回 `.map-frame` 即可，与主体解耦。
+
+### 20.4 §4b 扩断言 ＋ §4c 新立断根反证
+
+**§4b（往返门，四档宽度 × 5 次开全屏）** 每次开全屏／关全屏各加三项字幕条断言：
+
+1. **随图入全屏**——存在、落在 `#map-overlay-body` 内、**全站仅一份**（浮层外不得留残份）；
+2. **播放中显影**——在浮层内、`hidden=false`、文本非空、`opacity > 0.5`（实播采样，不是查 DOM 属性了事）；
+3. **随播更新**——暂停态直接调播放引擎的播报入口（`showCaption` / `cmpCaption`，**两版皆有的 API**，不引入只存在于新码的函数），写出的话必须落在**浮层里的那个节点**上；若浮层内是残留/失联节点、真节点在别处，此项即报 FAIL；
+4. **退出归位**——关全屏后回到内嵌图框、无重份。
+另加：图谱全屏时断言两条字幕条**俱在且都不在浮层容器内**（故不受其清空 body 牵连）。
+
+**§4c 断根反证（新立，1440 桌面 ＋ 390 手机 × 单人/并观）**——既然没有可达路径可复现，就**按类立断言**：注入与那三处入口**一模一样**的 `#map-overlay-body.textContent = ""`，此后要求
+
+- 播报能**自愈重建**字幕条于浮层内；
+- 清空过后关全屏，字幕条**照样归位**对应内嵌图框；
+- 再开全屏仍在、**无重份**；
+- **全程无页面错误**。
+
+旧法在此必败：节点被连带销毁后 `$("#play-caption")` 恒 null，播报静默空转，`closeOverlay` 还要在 `appendChild(null)` 上抛 `TypeError`。这一节就是新断言的咬合力所在。
+
+总门由 **185 → 289 项**（新增 104 项）。
+
+### 20.5 stash 自证（沿用 §19.5 纪律）
+
+把 `site/` 三个文件 `git stash` 回本次修复前，**用同一份新 harness 重跑**：
+
+- **精确 16 项 FAIL**，全部落在 §4c，四组（1440/390 × 单人/并观）各 4 项：`{"exists":false}`（自愈失败）、归位失败、再开仍失、并**确实抛出** `Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.` ×2；
+- §4b 新增的字幕条断言在旧码上**全过**——这正好与 20.1 的走查结论互为印证：现行入口下字幕条尚无可达的销毁路径，旧码在真实路径上并不出错，只是**经不起再多一处清空型入口**。
+- `git stash pop` 复原后重跑：**289 项全过、0 未过、页面错误 0**。
+
+### 20.6 与待裁的 `.cmp-sheet-toggle` 一条的交互
+
+§19.6 顺带加的 `body.no-scroll .cmp-sheet-toggle { display: none; }` **原样保留、本轮一字未动**（`git diff site/styles.css` 只有一段注释）。
+
+**遮挡关系未变**：字幕条改派生式后，`class`、`z-index`（6）、定位与 `.map-overlay-body .play-caption { bottom: 18px }` 全部照旧，改的只是"节点从哪来"；`.cmp-sheet-toggle` 在全屏内仍由该条规则收起，两者不再相遇。§4b 对它的 8 项断言本轮继续全过（1440/1024/768/390 × 第 2、4 次并观全屏）。
+
+> **提醒待裁（第二次挂出）**：§19.6 这条 CSS 至今未获追认/回退的明确答复。若判为不宜夹带，单独 revert 该规则与 §4b 对应 8 项断言即可，**与 r24a-fix2 主体完全解耦**。
+
+### 20.7 数据零改动
+
+`data/csv/` 与 `site/data/` **一字未动**（`git status data/ site/data/` 为空可证）；`python tools/validate.py` → `OK：全部校验通过`。改动仅四文件：`site/app.js`、`site/index.html`、`site/styles.css`、`tools/qa/vision_r24a.js`。
+
+### 20.8 上线与生产复验（本轮授权推送）
+
+| 项 | 结果 |
+|---|---|
+| 提交 | `3a1564d`（fix/site ＋ harness）、本节交付说明另提一次 |
+| push | `6528de9..3a1564d main -> main` |
+| Actions | run `30775160672` **success**（22s），含 `Validate data (guard)`、`Post-deploy self-check` 全绿 |
+| 产物核对（`curl -L --resolve`，带随机参绕边缘缓存） | `app.js` 命中 `mountCaption` **10 处**、`captionState` **7 处**；`index.html` 中 `id="play-caption"` / `id="cmp-caption"` **各 0 处**（静态节点确已删）、`id="map-frame"` **1 处**；`styles.css` 中 `body.no-scroll .cmp-sheet-toggle` **仍在 1 处**（待裁项原样） |
+| 生产站跑总门 | `QA_BASE_URL=https://chunqiu.timechorus.com QA_HOST_RESOLVER="MAP chunqiu.timechorus.com 172.67.174.133"` → **289 项全过、0 未过、页面错误 0、控制台告警 0** |
+
+**四档宽度 × 真点按钮人工路径复测**（生产站，全程不刷新；单人全屏 → 播放 → 真点「＋ 添加对照人物」入并观 → 全屏播放 → 图谱全屏作干扰 → 回单人全屏）：
+
+| 步骤 | 1440 桌面 | 1024 窄桌 | 768 平板 | 390 手机 |
+|---|---|---|---|---|
+| 开单人全屏 | 浮层内 · 份数 1 | 浮层内 · 1 | 浮层内 · 1 | 浮层内 · 1 |
+| 全屏播放中 | `307×33 op=1`「第2/8站 曲阜/鲁 · 前706 · 文姜生子同」 | `307×33 op=1` 同文 | `307×33 op=1` 同文 | `294×32 op=1` 同文 |
+| 关全屏 | 归位内嵌框 · 1 | 归位 · 1 | 归位 · 1 | 归位 · 1 |
+| 并观全屏播放中 | `op=1`「前704 · 文姜（在世） / 齐襄公（未生）」 | 同 | 同 | `291×32` 同 |
+| 交会一览浮条 | `display:none` | 同 | 同 | 同 |
+| 图谱全屏期间 | 两条字幕条**俱在**且都在内嵌框（不受其清空 body 牵连） | 同 | 同 | 同 |
+| 图谱后再开单人全屏 | 浮层内 · 1 · 字幕如常 | 同 | 同 | 同 |
+| 页面错误 | 无 | 无 | 无 | 无 |
+
+全程**份数恒为 1**（无残份、无丢失），退出全屏后播放继续、字幕条在内嵌框内照常更新（并观年份 704→701 可见推进）——此为改前既有行为，本轮未变。截图留证：`tools/qa/screenshots/r24a_fix2_prod_{single,dual}_{1440,1024,768,390}.png`，另有本地断根反证四张 `r24a_fix2_{single,dual}_{1440,390}.png`。
+
+### 20.9 疑点与排程建议（**仅记录上报，未自行裁量**）
+
+1. **待裁项第二次挂出**：§19.6 的 `body.no-scroll .cmp-sheet-toggle { display: none; }` 仍未获追认/回退答复，本轮原样保留未动（见 20.6）。
+2. **顺带修正待追认**：20.3 的 `id="map-frame"`（连带两处选择器由 `.map-frame` 改 `$("#map-frame")`）——按「顺带修正三步」上报，可单独回退。
+3. **同族清点已尽**：`#overlay-controls`（r24a-fix）与两条字幕条（本轮）之后，`#map-overlay-body` 内**不再有**任何跨浮层存活的静态节点——浮层内容此后一律派生式重建。图谱全屏的克隆体本就是每次新建。此族隐患至此清完，**无需再排后续巡查**。
+4. 本轮**无**数据改动、**无** conventions／design_notes 改动需求（视觉规范未变，只改节点从何而来）。
