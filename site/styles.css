@@ -1209,6 +1209,184 @@ body.no-scroll { overflow: hidden; }
   .overlay-controls { left: 10px; top: 10px; }
 }
 
+/* ---------- 屏7 编年（r25）：全库事件按年铺开的大事年表 ----------
+ * 卡体一律复用 .event 组件（时间线同源，见 app.js eventBodyNode），此处只改三件事：
+ * ① 去掉时间线的左侧轨与结点（编年无「一个人的线」，年份自己就是轴）；
+ * ② 行内加国色签；③ 视图内 --theme 归暖赭。
+ * ③ 的理由：--theme 由 :root 承载当前人物语境色，读者从某人物页进编年时它仍是该国国色，
+ * 会让整张全局年表染上一个与本表无关的国的色。编年是全局视图，故在本节内把 --theme 收回界面色，
+ * 逐行的国别信息一律由国色签承担——**色只答一件事**，这与国色制「国色定色」的分工一致。 */
+#view-chronicle { --theme: var(--ochre); }
+.chron-intro {
+  margin: -0.7rem 0 0.85rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.chron-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0 0 0.9rem;
+  padding: 0.55rem 0.7rem 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--silk-panel);
+}
+.chron-fgroup { display: flex; flex-wrap: wrap; align-items: center; gap: 0.1rem; }
+.chron-flabel {
+  font-family: var(--serif);
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  flex: 0 0 3.4em;
+}
+/* 筛选 chips：沿用 .chip 形制（同一套胶囊语言），加上按钮所需的可点与选中态 */
+button.chron-chip {
+  font: inherit;
+  font-size: 0.74rem;
+  font-family: var(--sans);
+  background: none;
+  cursor: pointer;
+  min-height: 26px;
+  line-height: 1.5;
+  padding: 0.05rem 0.55rem;
+}
+button.chron-chip:hover { border-color: var(--ochre); color: var(--ochre); }
+button.chron-chip[aria-pressed="true"] {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: rgba(46, 42, 36, 0.07);
+  font-weight: 600;
+}
+.chron-chip .cc-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--tag, var(--line));
+  margin-right: 0.32rem;
+  vertical-align: baseline;
+}
+.chron-fbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-top: 0.15rem; }
+.chron-clear {
+  font: inherit;
+  font-size: 0.74rem;
+  font-family: var(--sans);
+  background: none;
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  padding: 0.05rem 0.6rem;
+  min-height: 26px;
+  cursor: pointer;
+}
+.chron-clear:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
+.chron-clear[hidden] { display: none; }
+.chron-status { font-size: 0.76rem; color: var(--ink-soft); }
+
+.chron-list { list-style: none; margin: 0; padding: 0; }
+.chron-empty {
+  padding: 1.2rem 0.9rem;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  border: 1px dashed var(--line);
+  border-radius: 3px;
+  text-align: center;
+}
+.chron-list li { margin: 0 0 0.3rem; }
+/* 复用 .event 的一切（hover/hint/图标/展开），只撤掉时间线专属的左轨与结点 */
+.chron-list .event { margin-left: 0; }
+.chron-list .event::before { display: none; }
+/* 年与年之间留一线空白成组；同年续条的年份淡置作「同上」解——年份仍在（每行皆可独立读），
+ * 只是不再抢一次注意力，读者扫下来自然看得出「这几条是同一年的事」。 */
+.chron-row.year-start { margin-top: 0.7rem; }
+.chron-row.same-year .when { opacity: 0.5; }
+/* 落锚该年（搜索直达）：该年全部行标一道暖赭内线，同年多事时一眼见其左右邻 */
+.chron-row.year-anchor { box-shadow: inset 3px 0 0 var(--ochre); }
+.chron-row.same-year.year-anchor .when { opacity: 1; }
+/* 年表以「一事一行」为体：展开提示收回同一行末，不像时间线那样另占一行——
+ * 190 行若每行都多一行提示，表身平白高出一倍，扫读的便利就折在这里了。 */
+.chron-row .evt-hint { flex: 0 0 auto; margin: 0 0 0 auto; text-align: right; }
+.chron-row .evt-title { flex: 1 1 14em; }
+.chron-row .when { min-width: 8.5em; }
+/* 国色签：色取事发地所属国的国色；无地望／未立国色者作中性虚线签 */
+.chron-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  flex: 0 0 auto;
+  font-family: var(--serif);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--tag, var(--ink-soft));
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0 0.55rem;
+  line-height: 1.7;
+}
+.chron-state i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+.chron-state.is-neutral { color: var(--ink-soft); border-style: dashed; }
+.chron-state.is-neutral i { background: none; border: 1px solid currentColor; }
+
+/* 所系人物徽记签（编年卡内）：主角带徽记＋国色，配角只出名字；
+ * 「相关」＝史文无其在场明文，作虚线空心签——与地图空心点、时间线 presence 标签同一套语汇。 */
+.evt-people {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.6rem 0 0;
+}
+.evt-people-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  margin-right: 0.15rem;
+}
+.evt-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font: inherit;
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.06rem 0.6rem 0.06rem 0.4rem;
+  min-height: 28px;
+  cursor: pointer;
+}
+.evt-person .ep-badge { width: 18px; height: 18px; flex: 0 0 auto; color: var(--tag, var(--ink-soft)); }
+.evt-person .ep-badge svg { width: 100%; height: 100%; display: block; }
+.evt-person.is-proto { border-color: var(--tag); color: var(--tag); }
+.evt-person.is-related { border-style: dashed; }
+.evt-person.is-related .ep-badge { opacity: 0.6; }
+.evt-person small { font-family: var(--sans); font-size: 0.66rem; color: var(--ink-soft); }
+.evt-person:hover { background: rgba(180, 101, 47, 0.09); }
+
+@media (max-width: 680px) {
+  /* 手机：行触区与签触区达标，标题独占一行不被挤成两字一断 */
+  .chron-row summary { min-height: 44px; padding: 0.6rem 0.75rem 0.5rem; gap: 0.5rem; }
+  .chron-row .evt-title { flex: 1 1 100%; }
+  .chron-row .evt-hint { flex: 0 0 100%; margin-left: 0; }  /* 窄屏行内已挤，提示回落次行 */
+  .chron-row .when { min-width: 0; }
+  .chron-filters { padding: 0.5rem 0.55rem 0.3rem; }
+  .chron-flabel { flex: 0 0 100%; margin-bottom: 0.1rem; }
+  button.chron-chip { min-height: 32px; padding: 0.15rem 0.6rem; }
+  .chron-clear { min-height: 32px; }
+  .evt-person { min-height: 34px; }
+}
+
 /* ---------- 屏4 资料库 ---------- */
 .lib-toolbar {
   display: flex;

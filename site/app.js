@@ -180,9 +180,14 @@ async function fetchSVG(name) {
  *   #/                        选人（首页）
  *   #/p/<PID>/timeline|map|relations   人物视图（relations=以其为中心的 ego 图）
  *   #/relations               全景关系图谱（56 人）
+ *   #/chronicle               编年（全库事件大事年表，r25）
  *   #/library[/<tab>][?q=…]   资料库
  *   #/about                   关于
- * 旧格式（#person=X&view=…）由 legacyToNewHash 就地改写重定向，外部旧链接不失效。 */
+ * 旧格式（#person=X&view=…）由 legacyToNewHash 就地改写重定向，外部旧链接不失效。
+ * r25 注：任务书写作 `#view=chronicle`，那是 r10 之前的旧 hash 形态；本站自 r10 起
+ * 一律 `#/<view>`（见 legacyToNewHash）。故规范形态定为 `#/chronicle`，
+ * 同时把 chronicle 并入旧格式白名单——`#view=chronicle` 照旧可用，会被就地改写为 `#/chronicle`，
+ * 两种写法都通，站内链接与分享一律用规范形态。 */
 const PERSON_VIEWS = ["timeline", "map", "relations"];
 const LIB_TABS = ["background", "archaeology", "sources"];
 
@@ -193,7 +198,7 @@ function legacyToNewHash(h) {
     if (k && v !== undefined) o[k] = v;
   }
   const person = PROTAGONISTS.some(p => p.id === o.person) ? o.person : null;
-  let view = ["home", "timeline", "map", "library", "relations", "about"].includes(o.view) ? o.view : null;
+  let view = ["home", "timeline", "map", "library", "relations", "about", "chronicle"].includes(o.view) ? o.view : null;
   if (person && (!view || view === "home")) view = "timeline"; // 旧 #person=X 落其时间线
   if (person && PERSON_VIEWS.includes(view)) return buildHash(person, view);
   // 库/关于/全景等全局视图：旧链接中的 person 语境不再入 hash
@@ -202,7 +207,7 @@ function legacyToNewHash(h) {
     if (o.q) { try { q = decodeURIComponent(o.q); } catch { q = o.q; } }
     return buildHash(null, "library", LIB_TABS.includes(o.tab) ? o.tab : "background", q);
   }
-  if (view === "relations" || view === "about") return buildHash(null, view);
+  if (view === "relations" || view === "about" || view === "chronicle") return buildHash(null, view);
   return "#/";
 }
 
@@ -248,7 +253,7 @@ function parseHash() {
     }
     return st;
   }
-  if (segs[0] === "relations" || segs[0] === "about") { st.view = segs[0]; return st; }
+  if (segs[0] === "relations" || segs[0] === "about" || segs[0] === "chronicle") { st.view = segs[0]; return st; }
   if (segs[0] === "library") {
     st.view = "library";
     if (LIB_TABS.includes(segs[1])) st.tab = segs[1];
@@ -260,7 +265,7 @@ function parseHash() {
 let homeMode = "map";
 function buildHash(person, view, tab, q) {
   if (person && PERSON_VIEWS.includes(view)) return "#/p/" + person + "/" + view;
-  if (view === "relations" || view === "about") return "#/" + view;
+  if (view === "relations" || view === "about" || view === "chronicle") return "#/" + view;
   if (view === "library") {
     let h = "#/library";
     if (tab && tab !== "background") h += "/" + tab;
@@ -391,7 +396,7 @@ function render() {
   document.querySelectorAll(".main-nav button").forEach(btn => {
     btn.setAttribute("aria-current", String(btn.dataset.view === navCur));
   });
-  for (const v of ["home", "timeline", "map", "library", "relations", "about", "compare"]) {
+  for (const v of ["home", "timeline", "map", "library", "relations", "about", "compare", "chronicle"]) {
     $("#view-" + v).hidden = (state.view !== v);
   }
   $("#timeline-relations-entry").hidden = !state.person;
@@ -406,6 +411,7 @@ function render() {
   if (state.view === "library") renderLibrary();
   if (state.view === "relations") renderRelations();
   if (state.view === "compare") renderCompare();
+  if (state.view === "chronicle") renderChronicle();
 
   // 滚动复位（r14，Xiangtao 反馈 2）：凡前向导航（点卡/切人/切视图/关于页内链/搜索直达）一律回顶，
   // 时间线从最早一张卡开始；唯浏览器前进/后退（popstate 先于 hashchange 置位 navByPop）不干预，
@@ -817,6 +823,129 @@ function splitCaveat(note) {
   return m ? { caveat: m[1], rest: note.slice(m[0].length) } : { caveat: "", rest: note || "" };
 }
 
+/* ---------- 事件卡组件（时间线与编年共用，r25 抽出） ----------
+ * 同一事件在两处呈现必须完全同形：meta chips、summary、引文（层徽标＋编者层标＋出处脚注）
+ * 一律走这三个函数，不得各写一份——两份实现必然分叉，分叉之后「哪个才是规格」就没人答得上来。
+ * 视图差异只有两处，由 opts 显式传入，函数内不猜自己身在何视图：
+ *   personal —— 人物视图特有的「亲至／相关」chip。presence 是「此人与此事」的关系，
+ *               不是事件自身的属性，故编年（无人物语境）不出此 chip，改由挂链人物签逐人标注。
+ *   people   —— 编年特有的挂链人物徽记签（见 eventPeopleNode）。 */
+function eventChipsNode(evt, opts) {
+  const chips = document.createElement("div");
+  chips.className = "meta-chips";
+  const place = evt.place_id ? PLACES[evt.place_id] : null;
+  if (place) addChip(chips, "地点 · " + place.ancient_name, "");
+  if (evt.category) addChip(chips, evt.category, "");
+  if (evt.reliability) addChip(chips, REL_LABEL[evt.reliability] || evt.reliability, "rel-" + evt.reliability);
+  if (evt.importance) addChip(chips, "重要度 " + evt.importance, "");
+  if (opts && opts.personal) addChip(chips, evt.presence, evt.presence === "相关" ? "rel-low" : "rel-high");
+  return chips;
+}
+/* 引文块：分层徽标（r13）＋编者层标（r21）＋出处脚注，一字不改地沿用时间线旧渲染 */
+function eventQuotesFrag(evt) {
+  const frag = document.createDocumentFragment();
+  for (const q of DATA.passages.filter(p => p.event_id === evt.id)) {
+    const bq = document.createElement("blockquote");
+    // 引文分层徽标（r13）：原文＝经传骨架（无徽标）；其余各层给专属色徽标——
+    // 经义异闻（公羊/穀梁传注异说）、后出叙事（史记等晚出戏剧化）、诗歌（诗经舆论层）、言论、评论。
+    const layer = QLAYER_CLASS[q.quote_type] || "";
+    const { caveat, rest } = splitCaveat(q.modern_note);
+    bq.className = "quote" + (layer ? " " + layer : "") + (caveat ? " has-caveat" : "");
+    bq.dataset.qid = q.id;
+    if (q.quote_type && q.quote_type !== "原文") {
+      const tag = document.createElement("span");
+      tag.className = "q-layer";
+      tag.textContent = q.quote_type;
+      bq.appendChild(tag);
+    }
+    // 编者层标：置于原文之前（读到话术之前先见其分层处置），文字取自 modern_note 首段【…】
+    if (caveat) {
+      const cv = document.createElement("p");
+      cv.className = "q-caveat";
+      cv.setAttribute("role", "note");
+      cv.textContent = caveat;
+      bq.appendChild(cv);
+    }
+    const qp = document.createElement("p");
+    qp.textContent = q.quote_original;
+    bq.appendChild(qp);
+    const ft = document.createElement("footer");
+    const src = SOURCES[q.source_id];
+    // 类型已进徽标、层标已前置，脚注不再重复
+    ft.textContent = "—— " + (src ? src.title : q.source_id) + (rest ? " · " + rest : "");
+    bq.appendChild(ft);
+    frag.appendChild(bq);
+  }
+  return frag;
+}
+function eventBodyNode(evt, opts) {
+  const body = document.createElement("div");
+  body.className = "event-body";
+  body.appendChild(eventChipsNode(evt, opts));
+  const sm = document.createElement("p");
+  sm.textContent = evt.summary || "";
+  sm.style.margin = "0";
+  body.appendChild(sm);
+  if (opts && opts.people) body.appendChild(eventPeopleNode(evt));
+  body.appendChild(eventQuotesFrag(evt));
+  return body;
+}
+/* 挂链人物徽记签（r25，编年专用）：编年按年铺开、没有人物语境，故每张卡须自己交代「事系何人」，
+ * 并由此把读者送回人物线——这也是编年与人物视图之间的往返通道。
+ * 主角带徽记：国色制下徽记是个人身份的唯一色外锚点（design_notes §2.0/§2.5），签色取其国色；
+ * 配角无徽记（本库只为主角作徽记），出名字即可，点开落其 ego 关系图。
+ * presence 措辞守 §6/§7 从严口径：「相关」＝**史文无其在场明文**，作虚线空心签，
+ * 一律不得写成或暗示「其人不在场」。 */
+function eventPeopleNode(evt) {
+  const wrap = document.createElement("div");
+  wrap.className = "evt-people";
+  const links = DATA.event_people.filter(l => l.event_id === evt.id && PEOPLE[l.person_id]);
+  if (!links.length) return wrap;
+  const lab = document.createElement("span");
+  lab.className = "evt-people-label";
+  lab.textContent = "所系人物";
+  wrap.appendChild(lab);
+  // 亲至在前、主角在前，其余按 id——与全站「排序须可复算」的口径一致，不靠数据行序
+  links.sort((a, b) =>
+    (((a.presence || "亲至") === "相关") - ((b.presence || "亲至") === "相关")) ||
+    (protoRank(a.person_id) - protoRank(b.person_id)) ||
+    a.person_id.localeCompare(b.person_id));
+  for (const l of links) {
+    const p = PEOPLE[l.person_id];
+    const meta = PROTAGONISTS.find(m => m.id === l.person_id);
+    const related = (l.presence || "亲至") === "相关";
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "evt-person" + (meta ? " is-proto" : "") + (related ? " is-related" : "");
+    b.dataset.pid = l.person_id;
+    if (meta) {
+      b.style.setProperty("--tag", meta.color || "var(--ochre)");
+      const bd = document.createElement("span");
+      bd.className = "ep-badge";
+      bd.setAttribute("aria-hidden", "true");
+      fetchSVG(meta.badge).then(t => { bd.innerHTML = t; });
+      b.appendChild(bd);
+    }
+    const nm = document.createElement("span");
+    nm.className = "ep-name";
+    nm.textContent = p.name;
+    b.appendChild(nm);
+    const pr = document.createElement("small");
+    pr.textContent = related ? "相关" : "亲至";
+    b.appendChild(pr);
+    b.title = p.name + (l.role_in_event ? " · " + l.role_in_event : "") +
+      (related ? "（相关：史文无其在场明文）" : "（亲至：史文明书其在事发地）") +
+      " —— 点开" + (meta ? "其时间线并定位此事" : "其关系图");
+    b.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();   // 勿连带切换所在 <details> 的开合
+      goEventPerson(l.person_id, evt.id);
+    });
+    wrap.appendChild(b);
+  }
+  return wrap;
+}
+
 /* ---------- 屏2 时间线 ---------- */
 function renderTimeline() {
   // 头部姓名行：完整形式（姓/氏/名/字可考部分）＋「姓氏有别」科普
@@ -875,57 +1004,8 @@ function renderTimeline() {
     sum.appendChild(hint);
     det.appendChild(sum);
 
-    const body = document.createElement("div");
-    body.className = "event-body";
-
-    const chips = document.createElement("div");
-    chips.className = "meta-chips";
-    const place = evt.place_id ? PLACES[evt.place_id] : null;
-    if (place) addChip(chips, "地点 · " + place.ancient_name, "");
-    if (evt.category) addChip(chips, evt.category, "");
-    if (evt.reliability) addChip(chips, REL_LABEL[evt.reliability] || evt.reliability, "rel-" + evt.reliability);
-    if (evt.importance) addChip(chips, "重要度 " + evt.importance, "");
-    addChip(chips, evt.presence, evt.presence === "相关" ? "rel-low" : "rel-high");
-    body.appendChild(chips);
-
-    const sm = document.createElement("p");
-    sm.textContent = evt.summary || "";
-    sm.style.margin = "0";
-    body.appendChild(sm);
-
-    for (const q of DATA.passages.filter(p => p.event_id === evt.id)) {
-      const bq = document.createElement("blockquote");
-      // 引文分层徽标（r13）：原文＝经传骨架（无徽标）；其余各层给专属色徽标——
-      // 经义异闻（公羊/穀梁传注异说）、后出叙事（史记等晚出戏剧化）、诗歌（诗经舆论层）、言论、评论。
-      const layer = QLAYER_CLASS[q.quote_type] || "";
-      const { caveat, rest } = splitCaveat(q.modern_note);
-      bq.className = "quote" + (layer ? " " + layer : "") + (caveat ? " has-caveat" : "");
-      bq.dataset.qid = q.id;
-      if (q.quote_type && q.quote_type !== "原文") {
-        const tag = document.createElement("span");
-        tag.className = "q-layer";
-        tag.textContent = q.quote_type;
-        bq.appendChild(tag);
-      }
-      // 编者层标：置于原文之前（读到话术之前先见其分层处置），文字取自 modern_note 首段【…】
-      if (caveat) {
-        const cv = document.createElement("p");
-        cv.className = "q-caveat";
-        cv.setAttribute("role", "note");
-        cv.textContent = caveat;
-        bq.appendChild(cv);
-      }
-      const qp = document.createElement("p");
-      qp.textContent = q.quote_original;
-      bq.appendChild(qp);
-      const ft = document.createElement("footer");
-      const src = SOURCES[q.source_id];
-      // 类型已进徽标、层标已前置，脚注不再重复
-      ft.textContent = "—— " + (src ? src.title : q.source_id) + (rest ? " · " + rest : "");
-      bq.appendChild(ft);
-      body.appendChild(bq);
-    }
-    det.appendChild(body);
+    // 人物视图：带 presence chip、不带挂链人物签（此页本就只讲这一个人）
+    det.appendChild(eventBodyNode(evt, { personal: true }));
     li.appendChild(det);
     list.appendChild(li);
   }
@@ -1014,6 +1094,214 @@ function renderRuler(events) {
     svg.appendChild(dot);
   }
   box.appendChild(svg);
+}
+
+/* ---------- 屏7 编年（r25）：全库事件按年铺开的大事年表 ----------
+ * 立此视图的根由：在此之前「事件只经主角时间线呈现」，故 13 条无主角挂链的事件
+ * （E205 齐太史书「崔杼弑其君」、E206 弭兵之会等）在全站三条通路上全部关闭——
+ * r24a 走查实测并上报，领队裁定甲案：**全库事件从此人人可达**。编年即其落点。
+ *
+ * 本视图完全数据驱动：事件、年份、鲁君纪年、分类、地望、引文、挂链人物，一律读 site/data/*.json，
+ * 代码里不写死任何一条史料；新事件入库即自动上表，前端不需再动一行（B2 合入后编年自动长大）。
+ * 排序一律走全站同一个 evtCompare —— (year_bce, sort_key, id)，不另立口径。 */
+const chronView = { states: new Set(), cats: new Set() };
+const CHRON_NO_PLACE = "无地望";     // 事件无 place_id
+const CHRON_OTHER = "其他";          // 有地望，但其国不在九国色家族之列
+/* 事件的国色签：色取事件**地点所属国**（places.state）的国色，签文一律显示 state 字段原文。
+ * places.state 存在复合写法（「齐鲁间」「晋/秦晋间」「周畿内」「申/楚」「郑/鲁」），
+ * 故按字符序取首个可识别的九国色家族名作**色键**——只用于着色与筛选归组，
+ * 不改写、不简化、不替史料决定「这地究竟属谁」：签文照显原文，读者见「齐鲁间」即知其为边地。
+ * 无地望者中性签；有地望而其国未立国色家族者（周/曹/邢/蔡/莒…）亦中性，但签文照显其国名——
+ * 中性只表「本站未为其立色」，不表「不知其国」。 */
+function chronStateOf(evt, pal) {
+  const pl = evt.place_id ? PLACES[evt.place_id] : null;
+  const raw = pl ? (pl.state || "") : "";
+  if (!raw) return { key: null, group: CHRON_NO_PLACE, label: CHRON_NO_PLACE, color: null };
+  let key = null;
+  for (const ch of raw) { if (STATE_FAMILY_VAR[ch]) { key = ch; break; } }
+  return { key, group: key || CHRON_OTHER, label: raw,
+           color: key ? (pal ? pal[key] : familyColor(key)) : null };
+}
+const chronFiltered = () => chronView.states.size > 0 || chronView.cats.size > 0;
+
+function renderChronicle() {
+  const list = $("#chron-list");
+  // 九国色一次读入，避免每行各调一次 getComputedStyle（190 行 × 一次强制取样没有必要）
+  const pal = Object.fromEntries(Object.keys(STATE_FAMILY_VAR).map(k => [k, familyColor(k)]));
+  /* 搜索直达优先于筛选：落锚是导航动作，筛选是浏览态。若不清筛选，
+   * 搜来的事件可能恰好被当前筛选挡在表外，读者只会看到一张空表。 */
+  if (pendingSpot && pendingSpot.view === "chronicle") { chronView.states.clear(); chronView.cats.clear(); }
+  const rows = DATA.events.slice().sort(evtCompare).map(e => ({ e, st: chronStateOf(e, pal) }));
+  renderChronFilters(rows);
+  const shown = rows.filter(r =>
+    (!chronView.states.size || chronView.states.has(r.st.group)) &&
+    (!chronView.cats.size || chronView.cats.has(r.e.category || CHRON_OTHER)));
+
+  const t0 = (typeof performance !== "undefined" ? performance.now() : 0);
+  list.textContent = "";
+  const frag = document.createDocumentFragment();
+  let prevYear = null;
+  for (const r of shown) {
+    frag.appendChild(chronRow(r, prevYear));
+    prevYear = r.e.year_bce;
+  }
+  if (!shown.length) {   // 两组筛选取交集，可以筛空（如「陈 × 婚嫁」）；空表须自己说话，不留白屏
+    const em = document.createElement("li");
+    em.className = "chron-empty";
+    em.textContent = "此组合下库中无事件——松开一两个条件试试。";
+    frag.appendChild(em);
+  }
+  list.appendChild(frag);
+  /* 规模实测留痕（r25 任务书「约 225 行直接渲染，无需虚拟滚动，请实测确认」）：
+   * 直接渲染全部行、不做虚拟滚动，条目详情按需展开（chronEnsureBody）。
+   * 实测数值由 tools/qa/vision_r24a.js §11 读此字段报数。 */
+  list.dataset.renderMs = String(Math.round(((typeof performance !== "undefined" ? performance.now() : 0) - t0) * 100) / 100);
+  list.dataset.rows = String(shown.length);
+
+  const nOrphan = rows.filter(r => !DATA.event_people.some(l =>
+    l.event_id === r.e.id && isProto(l.person_id))).length;
+  $("#chron-intro").textContent =
+    "全库 " + rows.length + " 条事件按年铺开，同年之内依经传季月次第（sort_key）排列；" +
+    "其中 " + nOrphan + " 条未系于任何主角，只此一处可见。点任一行，展开其出处、可靠度与所系人物。";
+  $("#chron-status").textContent = chronFiltered()
+    ? "筛选中：现列 " + shown.length + " / " + rows.length + " 条。"
+    : "现列 " + shown.length + " 条（全库）。";
+  consumeChronicleSpot(list);
+}
+
+function chronRow(r, prevYear) {
+  const e = r.e;
+  const li = document.createElement("li");
+  const det = document.createElement("details");
+  const hasQuote = DATA.passages.some(pp => pp.event_id === e.id);
+  const sameYear = prevYear !== null && prevYear === e.year_bce;
+  det.className = "event chron-row" + (e.importance === 1 ? " major" : "") +
+                  (hasQuote ? " has-quote" : "") +
+                  (sameYear ? " same-year" : (prevYear !== null ? " year-start" : ""));
+  det.dataset.eid = e.id;
+  det.dataset.year = String(e.year_bce);
+  det.dataset.state = r.st.group;
+  det.dataset.cat = e.category || CHRON_OTHER;
+
+  const sum = document.createElement("summary");
+  const ico = document.createElement("span");
+  ico.className = "cat-ico";
+  ico.title = e.category || CHRON_OTHER;
+  fetchSVG(CAT_ICON[e.category] || "qita").then(t => { ico.innerHTML = t; });
+  sum.appendChild(ico);
+
+  const when = document.createElement("span");
+  when.className = "when";
+  when.textContent = yearLabel(e.year_bce);
+  const small = document.createElement("small");
+  small.textContent = [e.lu_reign, e.season_month].filter(Boolean).join(" · ");
+  when.appendChild(small);
+  sum.appendChild(when);
+
+  const tag = document.createElement("span");
+  tag.className = "chron-state" + (r.st.color ? "" : " is-neutral");
+  if (r.st.color) tag.style.setProperty("--tag", r.st.color);
+  const dot = document.createElement("i");
+  dot.setAttribute("aria-hidden", "true");
+  tag.appendChild(dot);
+  tag.appendChild(document.createTextNode(r.st.label));
+  tag.title = r.st.group === CHRON_NO_PLACE
+    ? "本条无地望（事不系于一地，或地望无考）"
+    : "事发地属「" + r.st.label + "」" + (r.st.color ? "，签色即其国色" : "（该国未立国色，作中性签）");
+  sum.appendChild(tag);
+
+  const title = document.createElement("span");
+  title.className = "evt-title";
+  title.textContent = e.title;
+  sum.appendChild(title);
+
+  const hint = document.createElement("span");
+  hint.className = "evt-hint";
+  hint.setAttribute("aria-hidden", "true");
+  sum.appendChild(hint);
+  det.appendChild(sum);
+
+  /* 详情按需构建：190 行若全量预建卡体（含 280 条引文与近 500 枚人物签），
+   * 首屏要白白造出读者九成不会展开的 DOM。展开即建、幂等可重入（见 chronEnsureBody）。 */
+  det.addEventListener("toggle", () => { if (det.open) chronEnsureBody(det); });
+  li.appendChild(det);
+  return li;
+}
+/* 幂等构建卡体（§7 体例二/三：DOM 可弃、用时重建，节点身份取自 data-eid 而非闭包记忆）。
+ * 已有卡体即返回；节点若被换掉，下次展开照样自建，不存在「一定还在」的假定。 */
+function chronEnsureBody(det) {
+  if (det.querySelector(".event-body")) return;
+  const evt = EVENTS[det.dataset.eid];
+  if (!evt) return;
+  det.appendChild(eventBodyNode(evt, { people: true }));
+}
+
+/* 轻筛选（一期从简，不做年段滑块）：按国、按分类各一组 chips，组内多选取并集、组间取交集。
+ * 计数一律按全库算（非按当前筛选结果），使读者一眼见得全局分布，选中后也不会看到计数跳变。 */
+function renderChronFilters(rows) {
+  const mk = (host, label, items, sel) => {
+    host.textContent = "";
+    const lb = document.createElement("span");
+    lb.className = "chron-flabel";
+    lb.textContent = label;
+    host.appendChild(lb);
+    for (const it of items) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip chron-chip";
+      b.dataset.key = it.key;
+      b.setAttribute("aria-pressed", String(sel.has(it.key)));
+      if (it.color) {
+        b.style.setProperty("--tag", it.color);
+        const d = document.createElement("i");
+        d.className = "cc-dot";
+        d.setAttribute("aria-hidden", "true");
+        b.appendChild(d);
+      }
+      b.appendChild(document.createTextNode(it.key + " " + it.n));
+      b.addEventListener("click", () => {
+        if (sel.has(it.key)) sel.delete(it.key); else sel.add(it.key);
+        renderChronicle();
+      });
+      host.appendChild(b);
+    }
+  };
+  const pal = Object.fromEntries(Object.keys(STATE_FAMILY_VAR).map(k => [k, familyColor(k)]));
+  const cnt = (fn) => rows.reduce((m, r) => { const k = fn(r); m[k] = (m[k] || 0) + 1; return m; }, {});
+  const sc = cnt(r => r.st.group);
+  const stateItems = [...Object.keys(STATE_FAMILY_VAR), CHRON_OTHER, CHRON_NO_PLACE]
+    .filter(k => sc[k]).map(k => ({ key: k, n: sc[k], color: pal[k] || null }));
+  const cc = cnt(r => r.e.category || CHRON_OTHER);
+  const catItems = Object.keys(CAT_ICON).filter(k => cc[k]).map(k => ({ key: k, n: cc[k], color: null }));
+  mk($("#chron-f-state"), "按国", stateItems, chronView.states);
+  mk($("#chron-f-cat"), "按分类", catItems, chronView.cats);
+  const clr = $("#chron-clear");
+  clr.hidden = !chronFiltered();
+}
+
+/* 搜索直达编年：展开目标事件、落锚其年（同年诸条一并标出），原文命中再定位到具体引文块 */
+function consumeChronicleSpot(list) {
+  if (!pendingSpot || pendingSpot.view !== "chronicle") return;
+  const spot = pendingSpot;
+  pendingSpot = null;
+  const det = list.querySelector('details[data-eid="' + spot.eid + '"]');
+  if (!det) return;
+  chronEnsureBody(det);
+  det.open = true;
+  const target = spot.type === "quote"
+    ? det.querySelector('[data-qid="' + spot.qid + '"]') || det
+    : det;
+  det.classList.add("spotlight");
+  setTimeout(() => det.classList.remove("spotlight"), 2400);
+  // 落锚该年：同年诸行一并加锚标（同年多事时，一眼见其左右邻）
+  const y = det.dataset.year;
+  const sameYear = list.querySelectorAll('details[data-year="' + y + '"]');
+  sameYear.forEach(d => d.classList.add("year-anchor"));
+  const evt = EVENTS[spot.eid];
+  $("#chron-status").textContent =
+    "已落锚 " + yearLabel(+y) + (evt && evt.lu_reign ? " · " + evt.lu_reign : "") +
+    "（该年 " + sameYear.length + " 条）。" + $("#chron-status").textContent;
+  spotScrollInto(target, det.querySelector("summary"));
 }
 
 /* ---------- 屏3 地图 ---------- */
@@ -3962,15 +4250,17 @@ const protoRank = (pid) => {
   const i = PROTAGONISTS.findIndex(m => m.id === pid);
   return i < 0 ? 99 : i;
 };
-/* 事件归哪位主角的时间线：当前人物语境优先，其次主角序中首个亲至者，再次任一关联主角 */
-function protoForEvent(eid) {
-  const links = DATA.event_people.filter(l =>
-    l.event_id === eid && isProto(l.person_id) && PEOPLE[l.person_id]);
-  if (!links.length) return null;
-  if (personCtx && links.some(l => l.person_id === personCtx)) return personCtx;
-  links.sort((a, b) => protoRank(a.person_id) - protoRank(b.person_id));
-  const visit = links.find(l => (l.presence || "亲至") !== "相关");
-  return (visit || links[0]).person_id;
+/* ⚠ 旧函数 `protoForEvent(eid)`（「这条事件该归哪位主角的时间线」）已于 r25 随事件落点改制退役：
+ * 它存在的唯一理由是「事件没有自己的落点，须临时挑一位主角当宿主」，而挑法本身只能是猜——
+ * 当前人物语境优先、否则主角序中首个亲至者。编年视图给出全库事件的正式落点后，这道猜测不再需要。
+ * 由编年卡的挂链人物签回人物线时，人是读者点的，不必替他挑（见 goEventPerson）。 */
+
+/* 编年卡「所系人物」签的落点：主角 → 其时间线**并定位到同一条事件**（往返精确到事，不只到人）；
+ * 非主角无时间线，落其 ego 关系图（同 goSearchPerson 的既有语义）。 */
+function goEventPerson(pid, eid) {
+  if (!(isProto(pid) && PEOPLE[pid])) { goSearchPerson(pid); return; }
+  pendingSpot = { view: "timeline", type: "event", eid };
+  setHash(pid, "timeline");
 }
 
 function buildSearchIndex() {
@@ -4005,15 +4295,12 @@ function buildSearchIndex() {
       go: () => goSearchPlace(pl.id),
     });
   }
+  /* r25：**全库事件一律入索引**，不再要求有主角挂链。
+   * 旧码此处有一行 `if (!protoForEvent(e.id)) continue;`——因为当时事件唯一的落点是主角时间线，
+   * 无主角挂链者搜出来也无处可去，故索引干脆跳过它们；r24a 走查实测这使 13 条事件全站不可达
+   * （E021/E059/E077/E078/E081/E184/E200–E206，含 E205 齐太史书「崔杼弑其君」、E206 弭兵之会），
+   * 上报后领队裁定甲案。r25 编年视图既已给出全库事件的落点，此处的过滤便随之取消。 */
   for (const e of DATA.events) {
-    /* ⚠ 注释订正（r24a 走查实测）：本行原注「无主角关联的事件无时间线落点（当前库为 0 条）」，
-     * 该「0 条」自 r23b 起已不成立——现库 190 条事件中有 13 条无任何主角挂链
-     * （E021/E059/E077/E078/E081/E184/E200–E206），其中 6 条为 r23b 时代骨干批新入。
-     * 这些事件因此在全站不可达：不入任何主角时间线、被本行排除在搜索之外、资料库亦无事件页
-     * （LIB_TABS 只有 background/archaeology/sources）。**本轮不擅自改变可达性**——
-     * 让它们可达需要一个「事件详情」落点或「每条事件须至少挂一名主角」的编纂规则，
-     * 二者皆属产品/编纂决定，已在 delivery_vision_r24a 上报候裁。此处仅订正失效的注释。 */
-    if (!protoForEvent(e.id)) continue;
     const pl = e.place_id ? PLACES[e.place_id] : null;
     SEARCH_INDEX.push({
       group: "events",
@@ -4026,8 +4313,7 @@ function buildSearchIndex() {
       go: () => goSearchEvent(e.id, null),
     });
   }
-  for (const q of DATA.passages) {
-    if (!protoForEvent(q.event_id)) continue;
+  for (const q of DATA.passages) {   // 同上：引文亦不再按「其事有无主角」筛，落点同为编年
     const src = SOURCES[q.source_id];
     const evt = EVENTS[q.event_id];
     const snippet = q.quote_original.length > 24 ? q.quote_original.slice(0, 24) + "…" : q.quote_original;
@@ -4055,13 +4341,17 @@ function goSearchPlace(plid) {
   pendingSpot = { view: "map", type: "place", placeId: plid };
   setHash(pid, "map");
 }
+/* 事件／原文命中一律落编年（r25）。
+ * 旧行为是落「某位主角的时间线」，须先由 protoForEvent 猜一位主角作宿主——那本是权宜：
+ * 事件当时没有自己的落点。编年既已是全库事件的正式落点，语义就该统一：
+ * **事件属于编年，人物线是它的一个视角**。挂链人物由卡内徽记签给出，一点即回其人物线，
+ * 通路未失、且不再有「这条事件归谁」的猜测。 */
 function goSearchEvent(eid, qid) {
-  const pid = protoForEvent(eid);
-  if (!pid) return;
+  if (!EVENTS[eid]) return;
   pendingSpot = qid
-    ? { view: "timeline", type: "quote", eid, qid }
-    : { view: "timeline", type: "event", eid };
-  setHash(pid, "timeline");
+    ? { view: "chronicle", type: "quote", eid, qid }
+    : { view: "chronicle", type: "event", eid };
+  setHash(null, "chronicle");
 }
 
 function initSearch() {
@@ -4715,6 +5005,7 @@ async function boot() {
     btn.addEventListener("click", () => {
       const v = btn.dataset.view;
       if (v === "relations") setHash(personCtx, "relations"); // 已选人→其 ego 图，未选人→全景
+      else if (v === "chronicle") setHash(null, "chronicle");  // 编年是全局视图，不带人物语境
       else if (v === "library") setHash(null, "library", state.tab, state.q);
       else if (v === "about") setHash(null, "about");
       else setHash(null, "home");
@@ -4732,6 +5023,12 @@ async function boot() {
   $("#pn-exit").addEventListener("click", () => {
     personCtx = null; // 清人物语境，回选人页
     setHash(null, "home");
+  });
+  // 编年「清除筛选」：两组 chips 一并归零（筛选是内存浏览态，不入 hash——分享链接一律给全表）
+  $("#chron-clear").addEventListener("click", () => {
+    chronView.states.clear();
+    chronView.cats.clear();
+    renderChronicle();
   });
   document.querySelectorAll(".lib-tabs button").forEach(btn => {
     btn.addEventListener("click", () => setHash(null, "library", btn.dataset.tab, state.q));
