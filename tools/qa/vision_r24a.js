@@ -9,6 +9,14 @@
 //
 // r24a-fix2 扩充：§4b 往返门加验字幕条（存在／归属容器／唯一／随播更新／退出归位），
 //   §4c 新立「字幕条断根反证」——注入浮层容器清空后要求自愈重建（旧的静态单例必败）。
+//
+// r25 扩充（本文件仍是 Vision 的回归总门，不另起脚本——既有的 §4b/§4c 两节永久保留在此，
+//   另起一份就得把它们抄一遍，抄本必然分叉）：
+//   §6b 的 E205/E206「全站不可达」记实随裁定甲案落地而改写为历史注，实判迁至 §11；
+//   §7  四档宽度回归纳入 /#/chronicle；
+//   §11 新立「编年视图」验收门（路由/上表完整性/排序/国色签/展开卡/人物签往返/
+//       搜索索引覆盖面/落锚/筛选/规模与性能/手机触区）；
+//   §12 新立「落锚滚动回归门」——判据是 scrollY 实测 >0 且目标在视口内，旧码（单 rAF）必红。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -629,31 +637,11 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     await p.screenshot({ path: path.join(OUT, "r24a_14_E195_caveat.png"), clip: e195box });
     say("  E195 截图已出：r24a_14_E195_caveat.png  clip=" + JSON.stringify(e195box));
   } else say("  ⚠ E195 截图 clip 无效：" + JSON.stringify(e195box));
-  /* E205 / E206 可达性实测。
-   * 走查发现：二者皆无主角挂链，而全站三条通路对它们全部关闭——
-   *   ① 时间线只按主角组织；② 全站搜索索引显式跳过无主角事件（app.js 建索引处）；
-   *   ③ 资料库无事件页（LIB_TABS 仅 background/archaeology/sources）。
-   * 故此处**不判 PASS/FAIL 于我方改动**，而是实测并报数，交领队裁定（见交付说明 §六之二）。 */
-  const reach = await p.evaluate(() => {
-    const ep = DATA.event_people, protos = new Set(DATA.people.filter(x => x.is_protagonist).map(x => x.id));
-    const linked = new Set(ep.filter(r => protos.has(r.person_id)).map(r => r.event_id));
-    const orphan = DATA.events.filter(e => !linked.has(e.id));
-    return { total: DATA.events.length, orphan: orphan.map(e => e.id),
-             inIndex: ["E205", "E206"].map(id => ({ id, hit: SEARCH_INDEX.some(s => s.group === "events" && s.label === (EVENTS[id] || {}).title) })),
-             libTabs: LIB_TABS };
-  });
-  say("  库内事件 " + reach.total + " 条，其中无主角挂链 " + reach.orphan.length + " 条：" + reach.orphan.join("/"));
-  say("  资料库页签：" + JSON.stringify(reach.libTabs) + "（无「事件」页）");
-  say("  E205/E206 是否进入搜索索引：" + JSON.stringify(reach.inIndex));
-  for (const q of ["崔杼弑其君", "弭兵"]) {
-    await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(800);
-    await p.click("#global-search"); await p.fill("#global-search", q); await p.waitForTimeout(600);
-    const n = await p.evaluate(() => document.querySelectorAll("[role=listbox] [role=option]").length);
-    say("  全站搜索「" + q + "」命中 " + n + " 条");
-  }
-  say("  ⚠ 结论：E205（太史简）与 E206（弭兵之会）在现行前端全站不可达——非本轮改动所致，"
-      + "系 r23b 新入的时代骨干批与「事件只经主角时间线呈现」这一既有前端架构之间的缺口。"
-      + "已上报候裁，本轮不擅自新增视图或改变可达性。");
+  /* E205 / E206 可达性——**本节的历史记录，勿删**：
+   *   r24a 走查实测二者在全站不可达（时间线只按主角组织；搜索索引显式跳过无主角事件；
+   *   资料库无事件页），当时按「不擅自改变可达性」上报候裁，故只报数、不判 PASS/FAIL。
+   *   r24a 裁定甲案后，r25 以编年视图闭合此缺口，可达性断言迁至 §11 逐项实判。
+   * 留此注是为后人对照：同一件事在 r24a 是记实、在 r25 是断言，中间隔的是一次裁定，不是口径松动。 */
   // 对照：有主角挂链的同批事件（E195）搜索直达正常
   await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(800);
   await p.click("#global-search"); await p.fill("#global-search", "乡校"); await p.waitForTimeout(600);
@@ -666,7 +654,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   for (const [w, h] of [[1440, 900], [1024, 800], [768, 900], [390, 780]]) {
     await p.setViewportSize({ width: w, height: h });
     // r24a-2：关系全景纳入宽度回归——本批在其工具条新增了「显示全部」勾选框，须验窄屏不撑破
-    for (const [tag, hash] of [["home", "/#/"], ["timeline", "/#/p/P_ZICHAN/timeline"], ["map", "/#/p/P_WENJIANG/map"], ["cmp", "/#compare=P_WENJIANG,P_QIXIANG"], ["relations", "/#/relations"]]) {
+    for (const [tag, hash] of [["home", "/#/"], ["timeline", "/#/p/P_ZICHAN/timeline"], ["map", "/#/p/P_WENJIANG/map"], ["cmp", "/#compare=P_WENJIANG,P_QIXIANG"], ["relations", "/#/relations"], ["chronicle", "/#/chronicle"]]) {
       await p.goto(origin + hash, { waitUntil: "load" }); await p.waitForTimeout(700);
       const ov = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
       OK(ov.sw <= ov.cw + 1, w + "px · " + tag + " 无横向溢出（scrollWidth " + ov.sw + " ≤ clientWidth " + ov.cw + "）");
@@ -690,6 +678,12 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   say("  分享卡：" + JSON.stringify(share));
   OK(share.open && share.w > 0, "分享卡对话框可开、canvas 已绘（" + share.w + "×" + share.h + "）");
   await p.screenshot({ path: path.join(OUT, "r24a_13_sharecard.png") });
+  /* r25 补：本节旧写法开完浮层就走，不关。其后各节都用 p.goto 只改 hash（同文档导航、不重载页面），
+   * 浮层遂一路开着——§9/§10 只查 DOM 属性故未受影响，§11 一用 p.click 就被它拦下 pointer events。
+   * 这既是 harness 卫生，也顺带把「分享卡关得掉」变成一条真断言。 */
+  await p.click("#share-close"); await p.waitForTimeout(300);
+  const shareClosed = await p.evaluate(() => document.querySelector("#share-overlay").hidden);
+  OK(shareClosed, "分享卡对话框可关，不遗留浮层拦截其后操作");
 
   // ---------- 9) 27 人全流程抽查（每国一人）----------
   H("9) 27 人回归抽查（每国一人 · 时间线/地图/ego 三视图）");
@@ -747,6 +741,289 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
      "「开始探索」收尾：遮罩收起、回首页、人物子导航清空");
   OK(done.seen === "1", "首访标记已写入 localStorage（不再复弹）");
   await tp.close();
+
+  // ---------- 11) r25 编年视图：全库事件人人可达 ----------
+  /* r24a §6b 实测并上报「E205/E206 等 13 条事件全站不可达」，领队裁定甲案：全库事件人人可达。
+   * 本节即该裁定的验收门，逐项实判——路由、上表完整性、排序、行构成、国色签、展开卡、
+   * 人物签往返、搜索索引覆盖面、落锚、筛选、规模与性能、四档与手机触区。
+   * 断言一律与数据对账（行数/序列/签色都从 DATA 现算再比），不写死任何一条史料。 */
+  H("11) r25 编年（chronicle）：全库事件按年铺开，人人可达");
+  await p.setViewportSize({ width: 1440, height: 900 });
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1500);
+  const chr = await p.evaluate(() => {
+    const list = document.querySelector("#chron-list");
+    const rows = [...list.querySelectorAll("details.chron-row")];
+    const protos = new Set(DATA.people.filter(x => x.is_protagonist).map(x => x.id));
+    const linked = new Set(DATA.event_people.filter(r => protos.has(r.person_id)).map(r => r.event_id));
+    const orphan = DATA.events.filter(e => !linked.has(e.id)).map(e => e.id);
+    // 期望序列：与全站同一个 evtCompare —— (year_bce, sort_key, id)
+    const want = DATA.events.slice().sort(evtCompare).map(e => e.id);
+    const got = rows.map(d => d.dataset.eid);
+    return {
+      view: state.view, hash: location.hash, shown: !document.querySelector("#view-chronicle").hidden,
+      nRows: rows.length, nEvents: DATA.events.length,
+      orphan, orphanOnTable: orphan.filter(id => !!list.querySelector('[data-eid="' + id + '"]')),
+      orderOk: JSON.stringify(want) === JSON.stringify(got),
+      firstThree: got.slice(0, 3), lastThree: got.slice(-3),
+      renderMs: +list.dataset.renderMs,
+      theme: getComputedStyle(document.querySelector("#view-chronicle")).getPropertyValue("--theme").trim(),
+      navCur: [...document.querySelectorAll(".main-nav button")].filter(b => b.getAttribute("aria-current") === "true").map(b => b.textContent),
+      hasNavBtn: !!document.querySelector('.main-nav button[data-view="chronicle"]'),
+      // 索引覆盖面：事件组与原文组必须各自等于全表条数（r25 取消了「无主角挂链即跳过」）
+      idxEvents: SEARCH_INDEX.filter(s => s.group === "events").length,
+      idxPassages: SEARCH_INDEX.filter(s => s.group === "passages").length,
+      nPassages: DATA.passages.length,
+      icons: list.querySelectorAll("details.chron-row .cat-ico svg").length,
+      tags: list.querySelectorAll("details.chron-row .chron-state").length,
+      // 无地望者必为中性签，且行数与数据对得上
+      noPlaceData: DATA.events.filter(e => !e.place_id).length,
+      noPlaceNeutral: [...list.querySelectorAll('details[data-state="无地望"] .chron-state')].filter(t => t.classList.contains("is-neutral")).length,
+    };
+  });
+  say("  行数 " + chr.nRows + " / 库内事件 " + chr.nEvents + "；渲染耗时 " + chr.renderMs + " ms");
+  say("  首三条 " + chr.firstThree.join(",") + " … 末三条 " + chr.lastThree.join(","));
+  say("  无主角挂链 " + chr.orphan.length + " 条：" + chr.orphan.join("/"));
+  OK(chr.view === "chronicle" && chr.hash === "#/chronicle" && chr.shown, "路由 #/chronicle 直达编年视图");
+  OK(chr.hasNavBtn && chr.navCur.length === 1 && chr.navCur[0] === "编年", "主导航「编年」已就位并高亮");
+  OK(chr.nRows === chr.nEvents, "全库 " + chr.nEvents + " 条事件一条不漏地上表（实绘 " + chr.nRows + " 行）");
+  OK(chr.orphan.length > 0 && chr.orphanOnTable.length === chr.orphan.length,
+     "13 条无主角挂链事件全部在表（" + chr.orphanOnTable.length + "/" + chr.orphan.length + "）——r24a 缺口闭合");
+  OK(chr.orderOk, "行序＝全站统一的 evtCompare (year_bce, sort_key, id)，与数据现算逐条相同");
+  OK(chr.icons === chr.nRows && chr.tags === chr.nRows, "每行皆有分类图标与国色签（图标 " + chr.icons + " / 签 " + chr.tags + "）");
+  OK(chr.noPlaceNeutral === chr.noPlaceData && chr.noPlaceData > 0,
+     "无地望事件 " + chr.noPlaceData + " 条一律中性签（实测中性 " + chr.noPlaceNeutral + "）");
+  OK(chr.theme.toUpperCase() === "#B4652F",
+     "编年视图内 --theme 归暖赭（" + chr.theme + "）——全局视图不随人物语境染色，国别信息只由国色签承担");
+  OK(chr.idxEvents === chr.nEvents, "搜索索引·事件组已扩至全库（" + chr.idxEvents + " / " + chr.nEvents + "）");
+  OK(chr.idxPassages === chr.nPassages, "搜索索引·原文组已扩至全库（" + chr.idxPassages + " / " + chr.nPassages + "）");
+  /* 规模与性能（任务书：约 225 行直接渲染，无需虚拟滚动，请实测确认）。
+   * 判据取两条：① DOM 行数 === 数据条数（若做了虚拟滚动，DOM 行数必小于数据条数）；
+   *            ② 一次直接渲染的耗时留数报账。不设阈值门（机器不同），只要求「非虚拟滚动」为真且报数。 */
+  OK(chr.nRows === chr.nEvents && chr.renderMs >= 0,
+     "直接渲染、无虚拟滚动：DOM 行数与数据条数相等，一次渲染实测 " + chr.renderMs + " ms");
+  await p.screenshot({ path: path.join(OUT, "r25_01_chronicle_1440.png") });
+
+  // 旧式 hash 兼容：#view=chronicle 应就地改写为规范形态
+  await p.goto(origin + "/#view=chronicle", { waitUntil: "load" }); await p.waitForTimeout(1200);
+  const legacy = await p.evaluate(() => ({ hash: location.hash, view: state.view, rows: document.querySelectorAll("#chron-list details").length }));
+  say("  旧式 #view=chronicle → " + JSON.stringify(legacy));
+  OK(legacy.hash === "#/chronicle" && legacy.view === "chronicle" && legacy.rows > 0,
+     "任务书所写的 #view=chronicle 亦可用，就地改写为规范形态 #/chronicle");
+
+  // 国色签取色：抽查每一国各一行，签色须等于其国色；复合地名（齐鲁间/晋-秦晋间）取首个可识别国
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1300);
+  const tagColors = await p.evaluate((HEX) => {
+    const toHex = (s) => { const m = (s || "").match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/); return m ? "#" + [1, 2, 3].map(i => (+m[i]).toString(16).padStart(2, "0")).join("").toUpperCase() : (s || "").toUpperCase(); };
+    const out = [], bad = [];
+    for (const k of Object.keys(HEX)) {
+      const d = document.querySelector('#chron-list details[data-state="' + k + '"]');
+      if (!d) { bad.push(k + "：表内无此国之事"); continue; }
+      const t = d.querySelector(".chron-state");
+      const got = toHex(getComputedStyle(t).color);
+      out.push({ k, label: t.textContent, got, eid: d.dataset.eid });
+      if (got !== HEX[k]) bad.push(k + " 签色 " + got + " ≠ 国色 " + HEX[k]);
+    }
+    // 复合地名一例：state 字段原文照显，不被简化
+    const comp = [...document.querySelectorAll("#chron-list .chron-state")].map(e => e.textContent).filter(t => /[\/间边]/.test(t));
+    return { out, bad, comp: [...new Set(comp)] };
+  }, STATE_HEX);
+  tagColors.out.forEach(x => say("    " + x.k + " ← 「" + x.label + "」" + x.got + "（" + x.eid + "）"));
+  say("  复合地名签（照显 places.state 原文，不简化）：" + JSON.stringify(tagColors.comp));
+  OK(tagColors.bad.length === 0, "九国色签取色全部等于其国色（异常：" + (tagColors.bad.join("；") || "无") + "）");
+  OK(tagColors.comp.length > 0, "复合地名（如「齐鲁间」「晋/秦晋间」）签文照显 places.state 原文 " + tagColors.comp.length + " 种");
+
+  // 展开卡：与时间线同源组件（chips/引文/层标）＋编年特有的所系人物签
+  const card = await p.evaluate(async () => {
+    const d = document.querySelector('#chron-list [data-eid="E205"]');
+    const beforeBody = !!d.querySelector(".event-body");   // 按需构建：展开前不应存在
+    d.querySelector("summary").click();
+    await new Promise(r => setTimeout(r, 300));
+    const links = DATA.event_people.filter(l => l.event_id === "E205").length;
+    return {
+      beforeBody, open: d.open, body: !!d.querySelector(".event-body"),
+      chips: [...d.querySelectorAll(".meta-chips .chip")].map(e => e.textContent),
+      quotes: d.querySelectorAll("blockquote.quote").length,
+      people: [...d.querySelectorAll(".evt-person")].map(e => e.innerText.replace(/\s+/g, " ")),
+      links, related: d.querySelectorAll(".evt-person.is-related").length,
+      hasSummaryText: (d.querySelector(".event-body p") || {}).textContent.length > 10,
+    };
+  });
+  say("  E205 卡：" + JSON.stringify(card));
+  OK(card.beforeBody === false && card.body === true,
+     "详情按需构建：展开前无卡体、展开后自建（190 行不预造读者九成不看的 DOM）");
+  OK(card.chips.some(t => /地点/.test(t)) && card.chips.some(t => /可靠性/.test(t)) && card.hasSummaryText,
+     "卡体复用时间线组件：地点/分类/可靠度/重要度 chips ＋ summary 齐备");
+  OK(card.quotes > 0, "引文块随卡呈现（" + card.quotes + " 条）");
+  OK(card.people.length === card.links && card.links > 0,
+     "所系人物签数与 event_people 挂链数相等（" + card.people.length + "/" + card.links + "）");
+  OK(card.related === card.links,
+     "E205 两名所系人物皆「相关」作虚线空心签——合 conventions v1.22「死者不作亲至」通例与 presence 从严口径");
+  await p.locator('#chron-list [data-eid="E205"]').screenshot({ path: path.join(OUT, "r25_02_E205_card.png") });
+
+  // E195 孔子追记层标在编年卡内呈现正常（任务书走查项）
+  const e195c = await p.evaluate(async () => {
+    const d = document.querySelector('#chron-list [data-eid="E195"]');
+    d.querySelector("summary").click();
+    await new Promise(r => setTimeout(r, 350));
+    return {
+      caveats: [...d.querySelectorAll(".q-caveat")].map(e => e.textContent.trim()),
+      caveatColor: (() => { const c = d.querySelector(".q-caveat"); if (!c) return null; const m = getComputedStyle(c).color.match(/(\d+), (\d+), (\d+)/); return m ? "#" + [1, 2, 3].map(i => (+m[i]).toString(16).padStart(2, "0")).join("").toUpperCase() : null; })(),
+      layers: [...d.querySelectorAll(".q-layer")].map(e => e.textContent.trim()),
+      protoBadges: d.querySelectorAll(".evt-person.is-proto .ep-badge svg").length,
+    };
+  });
+  say("  E195 编年卡层标：" + JSON.stringify(e195c));
+  OK(e195c.caveats.some(t => /追记之辞/.test(t) && /非当时之言/.test(t)),
+     "E195 孔子追记层标在编年卡内呈现正常（.q-caveat 引文之上）");
+  OK(e195c.caveatColor === "#B4652F", "编年卡内层标仍为暖赭（编者语态，未被层色或国色夺去）");
+  OK(e195c.layers.includes("评论"), "E195 层徽标「评论」随卡同现，层标/徽标分工不变");
+  OK(e195c.protoBadges > 0, "主角人物签带徽记（国色制下徽记是唯一逐人通道）");
+  await p.locator('#chron-list [data-eid="E195"]').screenshot({ path: path.join(OUT, "r25_03_E195_card.png") });
+
+  // 搜索直达＋落锚：崔杼弑其君 / 弭兵 —— 任务书验收首条
+  for (const cs of [{ q: "崔杼弑其君", eid: "E205", year: "-548" }, { q: "弭兵", eid: "E206", year: "-546" }]) {
+    await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(800);
+    await p.click("#global-search"); await p.fill("#global-search", cs.q); await p.waitForTimeout(600);
+    const hits = await p.evaluate(() => [...document.querySelectorAll("[role=listbox] [role=option]")].map(e => e.innerText.replace(/\s+/g, " ")));
+    say("  搜「" + cs.q + "」命中 " + hits.length + " 条，首条：" + (hits[0] || "—"));
+    OK(hits.length > 0, "搜「" + cs.q + "」有命中（" + hits.length + " 条）——r24a 时此二事全站不可达");
+    await p.evaluate(() => document.querySelectorAll("[role=listbox] [role=option]")[0].click());
+    await p.waitForTimeout(2000);
+    const land = await p.evaluate((c) => {
+      const d = document.querySelector('#chron-list [data-eid="' + c.eid + '"]');
+      const r = d ? d.getBoundingClientRect() : null;
+      return { hash: location.hash, found: !!d, open: !!(d && d.open),
+               sy: Math.round(scrollY), y: r ? Math.round(r.y) : null, vh: innerHeight,
+               inView: !!(r && r.y > -r.height && r.y < innerHeight),
+               anchored: document.querySelectorAll("#chron-list .year-anchor").length,
+               anchorYear: [...document.querySelectorAll("#chron-list .year-anchor")].every(e => e.dataset.year === c.year),
+               status: document.querySelector("#chron-status").textContent };
+    }, cs);
+    say("  落锚：" + JSON.stringify(land));
+    OK(land.hash === "#/chronicle" && land.found && land.open,
+       cs.q + "：直达编年并展开 " + cs.eid + "（验收首条：搜「崔杼弑其君」直达）");
+    OK(land.sy > 0 && land.inView,
+       cs.q + "：确已滚到位——scrollY " + land.sy + "、卡片在视口内（y=" + land.y + " / 视口 " + land.vh + "）");
+    OK(land.anchored > 0 && land.anchorYear,
+       cs.q + "：落锚该年，同年 " + land.anchored + " 条一并标出（年锚全部落在 " + cs.year + "）");
+    OK(/已落锚/.test(land.status), cs.q + "：状态行报出所落之年——" + land.status);
+    await p.screenshot({ path: path.join(OUT, "r25_04_land_" + cs.eid + ".png") });
+  }
+
+  // 人物签往返：主角签 → 其时间线并定位同一事件；非主角签 → 其 ego 关系图
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1300);
+  const trip = await p.evaluate(async () => {
+    const d = document.querySelector('#chron-list [data-eid="E195"]');
+    d.querySelector("summary").click(); await new Promise(r => setTimeout(r, 250));
+    const btn = [...d.querySelectorAll(".evt-person")].find(e => e.dataset.pid === "P_ZICHAN");
+    btn.click(); await new Promise(r => setTimeout(r, 1200));
+    const tl = document.querySelector('#timeline-list [data-eid="E195"]');
+    const r = tl ? tl.getBoundingClientRect() : null;
+    return { hash: location.hash, open: !!(tl && tl.open), sy: Math.round(scrollY),
+             y: r ? Math.round(r.y) : null, inView: !!(r && r.y > -r.height && r.y < innerHeight) };
+  });
+  say("  主角签往返：" + JSON.stringify(trip));
+  OK(trip.hash === "#/p/P_ZICHAN/timeline" && trip.open && trip.inView,
+     "编年卡主角签 → 其时间线并**定位到同一条事件**（往返精确到事，不只到人）");
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1300);
+  const trip2 = await p.evaluate(async () => {
+    const d = document.querySelector('#chron-list [data-eid="E205"]');
+    d.querySelector("summary").click(); await new Promise(r => setTimeout(r, 250));
+    const btn = [...d.querySelectorAll(".evt-person")].find(e => e.dataset.pid === "P_CUIZHU");
+    if (!btn) return { err: "无崔杼签" };
+    btn.click(); await new Promise(r => setTimeout(r, 1400));
+    return { hash: location.hash, view: state.view,
+             focus: !!document.querySelector('#rel-canvas [data-node="P_CUIZHU"]') };
+  });
+  say("  非主角签往返：" + JSON.stringify(trip2));
+  OK(trip2.hash === "#/relations" && trip2.view === "relations" && trip2.focus,
+     "编年卡非主角签（崔杼，本库无其时间线）→ 落其关系图，人在图上——全库事件的人也一并可达");
+
+  // 轻筛选：按国／按分类／交集／清除／空态
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1300);
+  const filt = await p.evaluate(async () => {
+    const hit = (host, txt) => [...document.querySelectorAll(host + " .chron-chip")].find(e => e.textContent.startsWith(txt));
+    const rows = () => document.querySelectorAll("#chron-list details").length;
+    const counts = { state: document.querySelectorAll("#chron-f-state .chron-chip").length,
+                     cat: document.querySelectorAll("#chron-f-cat .chron-chip").length };
+    // chips 计数须与数据对账：陈 = 事发地属陈的事件数
+    const chenChip = hit("#chron-f-state", "陈").textContent;
+    hit("#chron-f-state", "陈").click(); await new Promise(r => setTimeout(r, 200));
+    const a = { n: rows(), states: [...new Set([...document.querySelectorAll("#chron-list details")].map(d => d.dataset.state))],
+                pressed: hit("#chron-f-state", "陈").getAttribute("aria-pressed"), clr: !document.querySelector("#chron-clear").hidden };
+    hit("#chron-f-cat", "婚嫁").click(); await new Promise(r => setTimeout(r, 200));   // 陈 × 婚嫁 = 空
+    const b = { n: rows(), empty: !!document.querySelector(".chron-empty"), txt: (document.querySelector(".chron-empty") || {}).textContent };
+    hit("#chron-f-state", "楚").click(); await new Promise(r => setTimeout(r, 200));   // 组内并集：陈∪楚，再 × 婚嫁
+    const c2 = { n: rows(), states: [...new Set([...document.querySelectorAll("#chron-list details")].map(d => d.dataset.state))],
+                 cats: [...new Set([...document.querySelectorAll("#chron-list details")].map(d => d.dataset.cat))] };
+    document.querySelector("#chron-clear").click(); await new Promise(r => setTimeout(r, 250));
+    const d2 = { n: rows(), pressed: document.querySelectorAll('.chron-chip[aria-pressed="true"]').length,
+                 clr: !document.querySelector("#chron-clear").hidden };
+    return { counts, chenChip, a, b, c2, d2, total: DATA.events.length };
+  });
+  say("  筛选实测：" + JSON.stringify(filt));
+  OK(filt.counts.state >= 10 && filt.counts.cat === 16, "两组 chips 就位（按国 " + filt.counts.state + " 枚、按分类 " + filt.counts.cat + " 枚＝16 类枚举）");
+  OK(filt.a.states.length === 1 && filt.a.states[0] === "陈" && filt.a.pressed === "true" && filt.a.clr,
+     "按国筛选生效（陈 " + filt.a.n + " 条），chip 呈按下态、「清除筛选」现身");
+  OK(filt.b.n === 0 && filt.b.empty, "组间取交集可以筛空（陈 × 婚嫁），空表有话说：「" + (filt.b.txt || "") + "」");
+  OK(filt.c2.n > 0 && filt.c2.cats.length === 1 && filt.c2.cats[0] === "婚嫁" && filt.c2.states.every(s => s === "陈" || s === "楚"),
+     "组内取并集、组间取交集（陈∪楚 × 婚嫁 = " + filt.c2.n + " 条）");
+  OK(filt.d2.n === filt.total && filt.d2.pressed === 0 && !filt.d2.clr, "「清除筛选」一键归零，回全表 " + filt.d2.n + " 条");
+  await p.screenshot({ path: path.join(OUT, "r25_05_filters.png") });
+
+  // 手机：行触区、chips 触区、人物签触区
+  const cm = await c.newPage();
+  await cm.setViewportSize({ width: 390, height: 780 });
+  const cmErrs = []; cm.on("pageerror", e => cmErrs.push(e.message));
+  await cm.goto(origin + "/#/chronicle", { waitUntil: "load" }); await cm.waitForTimeout(1400);
+  const mobile = await cm.evaluate(async () => {
+    const d = document.querySelector("#chron-list details");
+    const sum = d.querySelector("summary").getBoundingClientRect();
+    const chip = document.querySelector("#chron-f-state .chron-chip").getBoundingClientRect();
+    d.querySelector("summary").click(); await new Promise(r => setTimeout(r, 300));
+    const per = d.querySelector(".evt-person");
+    const pr = per ? per.getBoundingClientRect() : null;
+    return { sumH: Math.round(sum.height), chipH: Math.round(chip.height),
+             personH: pr ? Math.round(pr.height) : null,
+             sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth,
+             titleWrap: getComputedStyle(d.querySelector(".evt-title")).flexBasis };
+  });
+  say("  手机实测：" + JSON.stringify(mobile));
+  OK(mobile.sumH >= 44, "手机行触区高 " + mobile.sumH + "px ≥44px");
+  OK(mobile.chipH >= 32, "手机筛选 chip 触区高 " + mobile.chipH + "px ≥32px");
+  OK(mobile.personH === null || mobile.personH >= 32, "手机人物签触区高 " + mobile.personH + "px ≥32px");
+  OK(mobile.sw <= mobile.cw + 1, "手机编年无横向溢出（" + mobile.sw + " ≤ " + mobile.cw + "）");
+  await cm.screenshot({ path: path.join(OUT, "r25_06_chronicle_390.png"), fullPage: false });
+  OK(cmErrs.length === 0, "手机编年全程无页面错误（" + (cmErrs.join(" | ") || "无") + "）");
+  await cm.close();
+
+  // ---------- 12) 落锚滚动回归门（r25 顺带修正·永久保留）----------
+  /* 为何单立一节、且必须留着：hash 导航之后在**同一帧**内发起的程序化平滑滚动一次也不会执行
+   *   （实测 scrollY 全程恒 0，动画根本没起步）。这条缺陷自 r11 起就在时间线的搜索直达里，
+   *   一直没被发现，正因为过去只断言「卡片展开了」，从不核**滚动是否真的发生**——
+   *   DOM 状态对、读者却看不见目标，是最容易漏过的一类。
+   * 故本节的判据只有一个：**scrollY 实测 > 0 且目标落在视口内**。旧码（单 rAF）在此必红。 */
+  H("12) 搜索直达落锚滚动回归门（r25 顺带修正·永久保留）");
+  for (const cs of [
+    { n: "编年·事件", hash: "#/chronicle", js: 'pendingSpot={view:"chronicle",type:"event",eid:"E205"};setHash(null,"chronicle");', sel: '#chron-list [data-eid="E205"]' },
+    { n: "编年·原文", hash: "#/chronicle", js: 'pendingSpot={view:"chronicle",type:"quote",eid:"E205",qid:"Q277"};setHash(null,"chronicle");', sel: '#chron-list [data-eid="E205"]' },
+    { n: "时间线·事件（既有路径）", hash: "#/p/P_ZICHAN/timeline", js: 'pendingSpot={view:"timeline",type:"event",eid:"E195"};setHash("P_ZICHAN","timeline");', sel: '#timeline-list [data-eid="E195"]' },
+  ]) {
+    await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(900);
+    const res = await p.evaluate(async ([js, sel]) => {
+      const trace = []; const t = setInterval(() => trace.push(Math.round(scrollY)), 80);
+      // eslint-disable-next-line no-eval
+      eval(js);
+      await new Promise(r => setTimeout(r, 2500)); clearInterval(t);
+      const d = document.querySelector(sel);
+      const r = d ? d.getBoundingClientRect() : null;
+      return { max: Math.max(...trace), sy: Math.round(scrollY), y: r ? Math.round(r.y) : null,
+               vh: innerHeight, inView: !!(r && r.y > -r.height && r.y < innerHeight), hash: location.hash };
+    }, [cs.js, cs.sel]);
+    say("  " + cs.n + "：" + JSON.stringify(res));
+    OK(res.max > 0 && res.inView,
+       cs.n + "：直达后确已滚动到位（scrollY 峰值 " + res.max + "，目标 y=" + res.y + " 落在视口 " + res.vh + " 内）");
+  }
 
   say("\n控制台告警：" + (warns.length ? warns.join(" | ") : "无"));
   say("页面错误：" + (errs.length ? errs.join(" | ") : "无"));
