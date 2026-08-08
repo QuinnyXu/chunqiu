@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T23:11:02+00:00",
+  "generated_at": "2026-08-08T19:40:01+00:00",
   "tables": {
     "archaeology": 6,
     "background": 11,
@@ -7,9 +7,9 @@
     "events": 201,
     "passages": 315,
     "people": 127,
-    "places": 78,
+    "places": 79,
     "relations": 247,
-    "sources": 142
+    "sources": 144
   },
   "year_range_bce": {
     "min": -773,

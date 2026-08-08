@@ -28,7 +28,10 @@ CATEGORIES = {
 HML = {"high", "medium", "low"}
 IMPORTANCE = {"1", "2", "3"}
 PRESENCE = {"亲至", "相关"}  # event_people.presence；空视同亲至
-YEAR_MIN, YEAR_MAX = -800, -480  # v1.11 放宽至覆盖全春秋（原 -600 已不敷楚庄王/邲之战等中晚期史事）
+YEAR_MIN, YEAR_MAX = -800, -464  # v1.24（fix26）放宽至《左传》全帙下限——哀公二十七年传末「悼之四年」
+  # （晋荀瑶帅师围郑，鲁悼公四年＝前464），为 C 段吴越篇入库前置；同时约束 events.year_bce（第186行）
+  # 与 people 生卒年字段（第248行）——两处共用本常量，改一处即同步，勿分别硬编码
+  # 原 v1.11 值 -480 已不敷《左传》记事下限（前468）与勾践卒（前465，见 docs/kaoding_wudu.md §4.1）
 LNG_MIN, LNG_MAX = 105.0, 122.0
 LAT_MIN, LAT_MAX = 29.5, 38.5
 
