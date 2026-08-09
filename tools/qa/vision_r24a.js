@@ -17,6 +17,14 @@
 //   §11 新立「编年视图」验收门（路由/上表完整性/排序/国色签/展开卡/人物签往返/
 //       搜索索引覆盖面/落锚/筛选/规模与性能/手机触区）；
 //   §12 新立「落锚滚动回归门」——判据是 scrollY 实测 >0 且目标在视口内，旧码（单 rAF）必红。
+//
+// r26 扩充（仍不另起脚本，理由同上）：
+//   §13 「论对」图标实装门（第 17 类）——含「政制行不是 lundui」的同尺度可分反证；
+//   §14 晋都迁点地图门（L_JIANG 故绛 / L_XINTIAN 新田 分立）——含「迁后仍挂故绛者须为 0 条」的
+//       审计式反证，与「锚点坐标＝conventions §4 公式现算值」的不手摆断言；
+//   §15 叔向 ego 图（姻亲边与祁大夫新配角）；
+//   §16 穆姬复查门——判据写成「亲至且可落图的地点数 ≥2 ⇔ 可播」的**双向自洽**式，
+//       不预设本轮答案，日后穆姬若真补上第二个亲至落点，本门自动翻绿、无需改码。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -959,10 +967,14 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     document.querySelector("#chron-clear").click(); await new Promise(r => setTimeout(r, 250));
     const d2 = { n: rows(), pressed: document.querySelectorAll('.chron-chip[aria-pressed="true"]').length,
                  clr: !document.querySelector("#chron-clear").hidden };
-    return { counts, chenChip, a, b, c2, d2, total: DATA.events.length };
+    return { counts, chenChip, a, b, c2, d2, total: DATA.events.length,
+             // r26：分类 chips 枚数不写死，改与「库内实际出现的分类数」对账——
+             // 写死 16 的旧断言会在枚举扩到 17 类时把「筛选里少一类」这件事读成"图标缺口"的附带损伤而漏掉。
+             catsInData: [...new Set(DATA.events.map(e => e.category || "其他"))].length };
   });
   say("  筛选实测：" + JSON.stringify(filt));
-  OK(filt.counts.state >= 10 && filt.counts.cat === 16, "两组 chips 就位（按国 " + filt.counts.state + " 枚、按分类 " + filt.counts.cat + " 枚＝16 类枚举）");
+  OK(filt.counts.state >= 10 && filt.counts.cat === filt.catsInData,
+     "两组 chips 就位（按国 " + filt.counts.state + " 枚、按分类 " + filt.counts.cat + " 枚＝库内实际出现的分类数 " + filt.catsInData + "）");
   OK(filt.a.states.length === 1 && filt.a.states[0] === "陈" && filt.a.pressed === "true" && filt.a.clr,
      "按国筛选生效（陈 " + filt.a.n + " 条），chip 呈按下态、「清除筛选」现身");
   OK(filt.b.n === 0 && filt.b.empty, "组间取交集可以筛空（陈 × 婚嫁），空表有话说：「" + (filt.b.txt || "") + "」");
@@ -1024,6 +1036,259 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     OK(res.max > 0 && res.inView,
        cs.n + "：直达后确已滚动到位（scrollY 峰值 " + res.max + "，目标 y=" + res.y + " 落在视口 " + res.vh + " 内）");
   }
+
+  // ---------- 13) r26「论对」图标实装门（第 17 类补齐）----------
+  /* conventions v1.23 §3 立第 17 类「论对」时，图标缺口登记为 r26 Vision 待办；v1.24 关闭 E196 观察项
+   * （维持归「政制」），故本轮论对为 E188/E212/E220 三条、非四条。本节断言一律与 DATA 现算对账，
+   * 不写死条数——若日后再有事目迁入「论对」，本门自动跟着涨，不会因为写死 3 而变成假绿灯。 */
+  H("13) r26「论对」图标实装（第 17 类）");
+  await p.setViewportSize({ width: 1440, height: 900 });
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1500);
+  const ldSrc = await p.evaluate(async () => {
+    const r = await fetch("assets/icons/lundui.svg"); const t = r.ok ? await r.text() : "";
+    return { ok: r.ok, len: t.length, vb: /viewBox="0 0 24 24"/.test(t), sw: /stroke-width="1\.6"/.test(t),
+             cc: /stroke="currentColor"/.test(t), fill: /fill="none"/.test(t), hard: /#[0-9a-fA-F]{3,6}/.test(t) };
+  });
+  OK(ldSrc.ok && ldSrc.vb && ldSrc.sw && ldSrc.cc && ldSrc.fill && !ldSrc.hard,
+     "lundui.svg 合图标语言：24×24 / stroke 1.6 / currentColor / fill none / 无硬编码色（" + ldSrc.len + " 字节）");
+  const cat = await p.evaluate(() => {
+    const cc = {}; for (const e of DATA.events) cc[e.category] = (cc[e.category] || 0) + 1;
+    const rows = [...document.querySelectorAll("#chron-list details.chron-row")];
+    const lun = rows.filter(d => d.dataset.cat === "论对");
+    return {
+      keys: Object.keys(CAT_ICON), mapped: CAT_ICON["论对"],
+      counts: cc, lunIds: lun.map(d => d.dataset.eid).sort(),
+      e196cat: (DATA.events.find(e => e.id === "E196") || {}).category,
+      // 每条论对行的图标是否确为 lundui（取其独有几何：x="3.8" 的牍身 rect）
+      iconOk: lun.map(d => { const s = d.querySelector(".cat-ico svg"); return !!(s && /x="3\.8"/.test(s.outerHTML)); }),
+      // 反证：任取一条政制行，其图标必不是 lundui
+      zzIcon: (() => { const d = rows.find(x => x.dataset.cat === "政制"); const s = d && d.querySelector(".cat-ico svg");
+                       return s ? /x="3\.8"/.test(s.outerHTML) : null; })(),
+      unmapped: [...new Set(DATA.events.map(e => e.category))].filter(k => !CAT_ICON[k]),
+    };
+  });
+  say("  CAT_ICON 键序：" + cat.keys.join("/"));
+  say("  库内分类计数：" + JSON.stringify(cat.counts));
+  OK(cat.keys.length === 17 && cat.mapped === "lundui", "CAT_ICON 已含 17 类，「论对」→ lundui");
+  OK(cat.unmapped.length === 0, "库内出现的分类无一落空映射（未映射：" + (cat.unmapped.join("、") || "无") + "）");
+  OK(cat.lunIds.length === cat.counts["论对"] && JSON.stringify(cat.lunIds) === JSON.stringify(["E188", "E212", "E220"]),
+     "编年内「论对」共 " + cat.lunIds.length + " 条＝" + cat.lunIds.join("/") + "（r26 裁定：E196 不迁，故为三条）");
+  OK(cat.e196cat === "政制", "E196 维持归「政制」（conventions v1.24 §3 观察项已关闭）");
+  OK(cat.iconOk.length > 0 && cat.iconOk.every(Boolean), "三条论对行皆已实装 lundui 图标（" + cat.iconOk.filter(Boolean).length + "/" + cat.iconOk.length + "）");
+  OK(cat.zzIcon === false, "反证：政制行的图标不是 lundui（两类同尺度可分）");
+  // 编年「按分类」筛选里应出现「论对」项，且筛后行数与计数相符
+  const lunFilt = await p.evaluate(async () => {
+    const btn = [...document.querySelectorAll("#chron-f-cat button")].find(b => /论对/.test(b.textContent));
+    if (!btn) return { has: false };
+    const label = btn.textContent.replace(/\s+/g, "");
+    btn.click(); await new Promise(r => setTimeout(r, 400));
+    const vis = [...document.querySelectorAll("#chron-list details.chron-row")].filter(d => d.offsetParent !== null);
+    const out = { has: true, label, shown: vis.length, cats: [...new Set(vis.map(d => d.dataset.cat))] };
+    btn.click(); await new Promise(r => setTimeout(r, 300));
+    return out;
+  });
+  OK(lunFilt.has, "编年「按分类」筛选出现「论对」项：" + lunFilt.label);
+  OK(lunFilt.shown === 3 && lunFilt.cats.length === 1 && lunFilt.cats[0] === "论对",
+     "勾「论对」后只剩 " + lunFilt.shown + " 行、且全为论对类");
+  // 时间线一侧：E188 挂子产，主角线上同样出 lundui
+  await p.goto(origin + "/#/p/P_ZICHAN/timeline", { waitUntil: "load" }); await p.waitForTimeout(1300);
+  const tlLun = await p.evaluate(() => {
+    const li = [...document.querySelectorAll("#timeline-list > li")].find(x => /侵蔡/.test(x.innerText));
+    const s = li && li.querySelector(".cat-ico svg");
+    return { found: !!li, isLun: !!(s && /x="3\.8"/.test(s.outerHTML)), title: (s ? (li.querySelector(".cat-ico") || {}).title : null) };
+  });
+  OK(tlLun.found && tlLun.isLun && tlLun.title === "论对",
+     "主角时间线同步实装：子产线 E188（谏侵蔡之喜）出 lundui、title=「" + tlLun.title + "」");
+  await p.screenshot({ path: path.join(OUT, "r26_01_lundui_timeline.png"), fullPage: true });
+
+  // ---------- 14) r26 晋都迁点地图门（L_JIANG / L_XINTIAN 分立）----------
+  /* fix26 立「落点从实不从称」：前585 为界，此前落 L_JIANG（故绛/翼），此后落 L_XINTIAN（新田/侯马）。
+   * 本门三层：① 数据侧审计式反证（迁后仍挂故绛者须为 0 条）；② 投影按 conventions §4 公式现算再与
+   * DOM 锚点实测坐标对账（不手摆、不抄数）；③ 前端可见面逐条走查。 */
+  H("14) r26 晋都迁点：故绛 / 新田 二点分立的地图走查");
+  const MOVED = ["E201", "E219", "E190", "E194", "E210", "E220", "E221"];
+  await p.goto(origin + "/#/p/P_ZICHAN/map", { waitUntil: "load" }); await p.waitForTimeout(1400);
+  const jin = await p.evaluate((MOVED) => {
+    const pr = (pl) => project(pl.lng, pl.lat).map(v => Math.round(v));
+    const xt = PLACES["L_XINTIAN"], jg = PLACES["L_JIANG"];
+    const anc = (id) => { const g = document.querySelector('.anchor[data-place="' + id + '"]'); if (!g) return null;
+      const c = g.querySelector("circle");
+      return { cx: Math.round(+c.getAttribute("cx")), cy: Math.round(+c.getAttribute("cy")),
+               r: +c.getAttribute("r"), fill: c.getAttribute("fill"), aria: g.getAttribute("aria-label") }; };
+    return {
+      // ① 审计式反证：全库「迁都之后仍落故绛」者
+      stragglers: DATA.events.filter(e => e.place_id === "L_JIANG" && e.year_bce > -585).map(e => e.id),
+      movedPlaces: MOVED.map(id => { const e = DATA.events.find(x => x.id === id); return { id, place: e && e.place_id, y: e && e.year_bce }; }),
+      e182: (() => { const e = DATA.events.find(x => x.id === "E182"); return { place: e.place_id, y: e.year_bce }; })(),
+      // ② 投影
+      xtCalc: pr(xt), jgCalc: pr(jg), xtName: xt.ancient_name, jgName: jg.ancient_name,
+      xtAnchor: anc("L_XINTIAN"), jgAnchor: anc("L_JIANG"),
+      /* ③ 子产线：E194 亲至新田、E190 相关新田。
+       * 判据取 aria-label 后缀，**不取 circle 的 r**——地图有自适应视野缩放，会把 r 重写成
+       * 5.5→1.75 一类的实测值，按半径阈值挑「着色锚点」会在换一张地图时就失准。
+       * aria-label 的三态（「（亲至地点）」/「（相关地点…）」/ 无后缀）才是身份的唯一真源。 */
+      colored: [...document.querySelectorAll("#layer-anchors .anchor")]
+        .filter(g => /（亲至地点）|（相关地点/.test(g.getAttribute("aria-label") || ""))
+        .map(g => g.dataset.place + (/亲至/.test(g.getAttribute("aria-label")) ? "·亲至" : "·相关")),
+      status: (document.querySelector("#map-status") || {}).textContent,
+    };
+  }, MOVED);
+  say("  新田 " + jin.xtName + " 投影 " + JSON.stringify(jin.xtCalc) + "；故绛 " + jin.jgName + " 投影 " + JSON.stringify(jin.jgCalc));
+  say("  新田锚点 " + JSON.stringify(jin.xtAnchor));
+  say("  故绛锚点 " + JSON.stringify(jin.jgAnchor));
+  say("  子产地图着色锚点：" + jin.colored.join("、") + " | " + jin.status);
+  OK(jin.stragglers.length === 0,
+     "审计反证：全库「year_bce > −585 而仍落 L_JIANG」者 0 条（残留：" + (jin.stragglers.join("/") || "无") + "）");
+  OK(jin.movedPlaces.every(m => m.place === "L_XINTIAN"),
+     "7 条迁点事件全部落 L_XINTIAN：" + jin.movedPlaces.map(m => m.id + "(" + m.y + ")").join("、"));
+  OK(jin.e182.place === "L_JIANG" && jin.e182.y < -585,
+     "E182（前" + (-jin.e182.y) + "，早于迁都）仍落 L_JIANG，未被误迁");
+  OK(!!jin.xtAnchor && jin.xtAnchor.cx === jin.xtCalc[0] && jin.xtAnchor.cy === jin.xtCalc[1],
+     "新田锚点坐标＝公式现算值 (" + jin.xtCalc.join(",") + ")，非手摆");
+  OK(!!jin.jgAnchor && jin.jgAnchor.cx === jin.jgCalc[0] && jin.jgAnchor.cy === jin.jgCalc[1],
+     "故绛锚点坐标＝公式现算值 (" + jin.jgCalc.join(",") + ")，非手摆");
+  const dPix = Math.round(Math.hypot(jin.xtCalc[0] - jin.jgCalc[0], jin.xtCalc[1] - jin.jgCalc[1]));
+  say("  二点图上间距 " + dPix + "px（viewBox 1200×700 坐标系）");
+  OK(dPix > 0 && !!jin.xtAnchor && !!jin.jgAnchor, "二点同图在场且不重合（间距 " + dPix + "px）");
+  OK(jin.colored.includes("L_XINTIAN·亲至") && !jin.colored.some(t => t.startsWith("L_JIANG")),
+     "子产地图：新田为其亲至落点、故绛不着色（背景空点）——E194 坏馆垣、E190 寓书范宣子皆已落新田");
+  // 新田抽屉：点开须见其古名与今地，且列出该人物于此地之事
+  const drawer = await p.evaluate(async () => {
+    document.querySelector('.anchor[data-place="L_XINTIAN"]').dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await new Promise(r => setTimeout(r, 500));
+    const panel = document.querySelector("#place-panel") || document.querySelector(".place-panel");
+    if (!panel) return null;
+    const t = panel.innerText.replace(/\s+/g, " ");
+    return { head: t.slice(0, 120), hasXintian: /新田/.test(t), hasHouma: /侯马/.test(t),
+             hasEvents: /馆垣|寓书|范宣子/.test(t), len: t.length };
+  });
+  say("  新田抽屉：" + JSON.stringify(drawer));
+  OK(!!drawer && drawer.hasXintian && drawer.hasHouma && drawer.hasEvents,
+     "点新田锚点，抽屉出「新田（绛）／侯马」并列出子产于此之事（面板 " + (drawer ? drawer.len : 0) + " 字）");
+  await p.screenshot({ path: path.join(OUT, "r26_02_zichan_map_xintian.png"), fullPage: true });
+  // 夏姬线对照：E182 仍在故绛
+  await p.goto(origin + "/#/p/P_XIAJI/map", { waitUntil: "load" }); await p.waitForTimeout(1400);
+  const xj = await p.evaluate(() => {
+    const g = document.querySelector('.anchor[data-place="L_JIANG"]');
+    const c = g && g.querySelector("circle");
+    const gx = document.querySelector('.anchor[data-place="L_XINTIAN"]');
+    const cx = gx && gx.querySelector("circle");
+    return { jiangR: c ? +c.getAttribute("r") : null, jiangAria: g ? g.getAttribute("aria-label") : null,
+             xintianR: cx ? +cx.getAttribute("r") : null, status: (document.querySelector("#map-status") || {}).textContent };
+  });
+  say("  夏姬地图：故绛 r=" + xj.jiangR + "「" + xj.jiangAria + "」；新田 r=" + xj.xintianR);
+  OK(xj.jiangR >= 5 && xj.xintianR < 5,
+     "夏姬线 E182 仍落故绛（故绛为其着色落点 r=" + xj.jiangR + "，新田仍是背景空点 r=" + xj.xintianR + "）");
+  /* 二点相邻只差 30px，且着色一侧会长出古名标注——须核「标注不夺邻点的点击」。
+   * 判据取 elementFromPoint 的命中归属，不看截图：视觉上标注的白色描边看着压住了邻点，
+   * 实测标注盒右缘与邻点圆心之间尚余空隙，点谁开谁。两张地图各验一次（着色的那一方互换）。 */
+  for (const [pid, who] of [["P_ZICHAN", "子产（新田着色）"], ["P_XIAJI", "夏姬（故绛着色）"]]) {
+    await p.goto(origin + "/#/p/" + pid + "/map", { waitUntil: "load" }); await p.waitForTimeout(1400);
+    const hit = await p.evaluate(() => {
+      const own = (id) => {
+        const g = document.querySelector('.anchor[data-place="' + id + '"]');
+        const b = g.querySelector("circle").getBoundingClientRect();
+        const t = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2);
+        const a = t ? t.closest(".anchor") : null;
+        return a ? a.dataset.place : null;
+      };
+      return { xt: own("L_XINTIAN"), jg: own("L_JIANG") };
+    });
+    OK(hit.xt === "L_XINTIAN" && hit.jg === "L_JIANG",
+       who + "：新田/故绛各自可点、命中归属正确（点新田开新田、点故绛开故绛，古名标注未夺邻点）");
+  }
+  // 五条无前端主角挂链的迁点事件：其可见面在编年，地点 chip 须已写新田
+  await p.goto(origin + "/#/p/P_ZICHAN/map", { waitUntil: "load" }); await p.waitForTimeout(600);
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1500);
+  const chips = await p.evaluate(async (MOVED) => {
+    const out = [];
+    for (const id of MOVED) {
+      const d = document.querySelector('#chron-list [data-eid="' + id + '"]');
+      if (!d) { out.push({ id, err: "不在表" }); continue; }
+      d.querySelector("summary").click();
+      await new Promise(r => setTimeout(r, 220));
+      const c = [...d.querySelectorAll(".meta-chips .chip")].map(e => e.textContent);
+      out.push({ id, place: (c.find(t => /^地点/.test(t)) || ""), state: d.dataset.state, year: d.dataset.year });
+      d.querySelector("summary").click();
+      await new Promise(r => setTimeout(r, 120));
+    }
+    return out;
+  }, MOVED);
+  chips.forEach(c => say("    " + c.id + " 前" + (-c.year) + " · " + c.place + " · 国色签「" + c.state + "」"));
+  OK(chips.every(c => /新田/.test(c.place || "")), "7 条迁点事件在编年卡内的地点 chip 一律已作「新田（绛）」");
+  OK(chips.every(c => c.state === "晋"), "7 条国色签仍为晋（迁都不改国属，色只答「哪一国」）");
+
+  // ---------- 15) r26 叔向 ego 图：姻亲边与祁大夫新配角 ----------
+  H("15) r26 叔向 ego 图（姻亲边 · 祁大夫）");
+  await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(900);
+  await p.click("#global-search"); await p.fill("#global-search", "叔向"); await p.waitForTimeout(700);
+  const opt = await p.evaluate(() => {
+    const os = [...document.querySelectorAll("[role=listbox] [role=option]")];
+    const t = os.find(o => /叔向/.test(o.innerText));
+    if (t) t.click();
+    return { n: os.length, hit: !!t, text: t ? t.innerText.replace(/\s+/g, " ") : null };
+  });
+  await p.waitForTimeout(1300);
+  const ego = await p.evaluate(() => {
+    const svg = document.querySelector("#rel-canvas svg");
+    const labels = svg ? [...svg.querySelectorAll("text")].map(t => t.textContent.trim()) : [];
+    const rels = DATA.relations.filter(r => r.person_a === "P_SHUXIANG" || r.person_b === "P_SHUXIANG");
+    return {
+      hash: location.hash, mode: relView.mode, center: relView.center,
+      nodes: labels, nEdge: svg ? svg.querySelectorAll("path.rel-edge, line.rel-edge, .edge").length : 0,
+      dataRels: rels.map(r => ({ id: r.id, a: r.person_a, b: r.person_b, t: r.rel_type, l: r.rel_label })),
+      egoText: (document.querySelector("#view-relations") || {}).innerText.replace(/\s+/g, " ").slice(0, 600),
+    };
+  });
+  say("  搜索「叔向」候选 " + opt.n + " 条，命中「" + opt.text + "」");
+  say("  ego：hash=" + ego.hash + " mode=" + ego.mode + " center=" + ego.center);
+  say("  图上节点名：" + ego.nodes.join("、"));
+  say("  库内叔向关系 " + ego.dataRels.length + " 条：" + ego.dataRels.map(r => r.id + " " + r.t + "/" + r.l.slice(0, 8)).join(" | "));
+  OK(ego.center === "P_SHUXIANG" && ego.mode === "ego", "搜索「叔向」落其 ego 图（非主角路由：hash " + ego.hash + "）");
+  const want = ["巫臣", "夏姬", "杨食我", "祁奚", "韩起", "子产", "晏婴"];
+  const miss = want.filter(n => !ego.nodes.some(t => t.includes(n)));
+  OK(miss.length === 0, "七名相关人物皆在图上（缺：" + (miss.join("、") || "无") + "）");
+  OK(ego.nodes.some(t => t.includes("祁奚")), "r25 新配角祁大夫（P_QIXIDAFU，同音撞名取传世称谓判例）已显示");
+  OK(ego.egoText.includes("婿"), "姻亲边可读：R262/R263「婿：娶于申公巫臣氏」已随边呈现");
+  await p.screenshot({ path: path.join(OUT, "r26_03_shuxiang_ego.png"), fullPage: true });
+
+  // ---------- 16) r26 穆姬复查：E081 补挂后的落点数与轨迹可播性 ----------
+  /* 任务书设问：「若达 2 地即脱离降级态」。本节不预设答案，只按 §6/§5.8 既定判据实算再报——
+   * 降级判据是「亲至且可落图（lat/lng 非空）的**地点数** < 2」，与挂链条数无关。 */
+  H("16) r26 穆姬复查：E081 补挂后的亲至落点数与轨迹可播性");
+  await p.goto(origin + "/#/p/P_MUJI/map", { waitUntil: "load" }); await p.waitForTimeout(1400);
+  const mj = await p.evaluate(() => {
+    const links = DATA.event_people.filter(l => l.person_id === "P_MUJI");
+    const rows = links.map(l => {
+      const e = DATA.events.find(x => x.id === l.event_id) || {};
+      const pl = e.place_id ? PLACES[e.place_id] : null;
+      return { eid: l.event_id, presence: l.presence || "(空=视同亲至)", place: e.place_id || null,
+               name: pl ? pl.ancient_name : null, mappable: !!(pl && pl.lat != null && pl.lng != null) };
+    });
+    const visitMappable = [...new Set(rows.filter(r => r.presence !== "相关" && r.mappable).map(r => r.place))];
+    return {
+      rows, visitMappable,
+      playHidden: document.querySelector("#btn-play").hidden,
+      playDisabled: document.querySelector("#btn-play").disabled,
+      degradeShown: !document.querySelector("#play-degrade").hidden,
+      degradeText: (document.querySelector("#play-degrade") || {}).textContent,
+      status: (document.querySelector("#map-status") || {}).textContent,
+      trajSegs: document.querySelectorAll("#layer-anchors polyline.traj").length,
+    };
+  });
+  mj.rows.forEach(r => say("    " + r.eid + " " + r.presence + " → " + (r.place || "无地点") +
+    (r.name ? "（" + r.name + "）" : "") + (r.mappable ? "" : " ·不可落图")));
+  say("  亲至且可落图的**地点数**：" + mj.visitMappable.length + "（" + (mj.visitMappable.join("、") || "—") + "）");
+  say("  状态行：" + mj.status);
+  const twoPlus = mj.visitMappable.length >= 2;
+  OK(mj.rows.some(r => r.eid === "E081"), "E081 补挂已到前端（穆姬挂链共 " + mj.rows.length + " 条）");
+  OK(mj.degradeShown === !twoPlus && mj.playHidden === !twoPlus,
+     "降级态与「亲至落点 ≥2」判据自洽：落点 " + mj.visitMappable.length + " 地 → " +
+     (twoPlus ? "轨迹可播（播放钮在场）" : "维持降级（播放钮隐去、静态说明在场）"));
+  OK(mj.trajSegs === (twoPlus ? 1 : 0), "轨迹折线 " + mj.trajSegs + " 条，与可播性一致");
+  say("  ⇒ 实测结论：穆姬" + (twoPlus ? "已脱离降级态，晋→秦轨迹首次可播。" :
+      "仍在降级态——E081 的 presence 为「相关」且该事目 place_id 为空，两头都不进亲至落点，故落点数仍为 1（雍）。"));
+  await p.screenshot({ path: path.join(OUT, "r26_04_muji_map.png"), fullPage: true });
 
   say("\n控制台告警：" + (warns.length ? warns.join(" | ") : "无"));
   say("页面错误：" + (errs.length ? errs.join(" | ") : "无"));
