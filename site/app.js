@@ -130,7 +130,7 @@ const CAT_ICON = {
   "即位": "jiwei", "战争": "zhanzheng", "会盟": "huimeng", "相会": "xianghui",
   "婚嫁": "hunjia", "生育": "shengyu", "出奔": "chuben", "弑杀": "shisha",
   "薨卒": "hongzu", "丧葬": "sangzang", "外交": "waijiao", "内乱": "neiluan",
-  "灾异": "zaiyi", "礼俗": "lisu", "政制": "zhengzhi", "其他": "qita",
+  "灾异": "zaiyi", "礼俗": "lisu", "政制": "zhengzhi", "论对": "lundui", "其他": "qita",
 };
 const REL_LABEL = { high: "可靠性 高", medium: "可靠性 中", low: "可靠性 低" };
 /* 分享卡文案（copy_r8 终审 N2–N5，r11 起用于分享卡生成器与复制链接） */
