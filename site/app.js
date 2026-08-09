@@ -17,6 +17,7 @@ const PROTAGONISTS = [
   { id: "P_GUANZHONG",   color: "", badge: "badge_guanzhong",   fallback: "管仲" },
   { id: "P_BAOSHUYA",    color: "", badge: "badge_baoshuya",    fallback: "鲍叔牙" },
   { id: "P_QIXI",        color: "", badge: "badge_qixi",        fallback: "齐僖公" },
+  { id: "P_YANYING",     color: "", badge: "badge_yanying",     fallback: "晏婴" },
   { id: "P_LUYIN",       color: "", badge: "badge_luyin",       fallback: "鲁隐公" },
   { id: "P_LUHUAN",      color: "", badge: "badge_luhuan",      fallback: "鲁桓公" },
   { id: "P_LUZHUANG",    color: "", badge: "badge_luzhuang",    fallback: "鲁庄公" },
@@ -33,6 +34,7 @@ const PROTAGONISTS = [
   { id: "P_CHUZHUANG",   color: "", badge: "badge_chuzhuang",   fallback: "楚庄王" },
   { id: "P_XIGUI",       color: "", badge: "badge_xigui",       fallback: "息妫", home: "楚" },
   { id: "P_LIJI",        color: "", badge: "badge_liji",        fallback: "骊姬" },
+  { id: "P_SHUXIANG",    color: "", badge: "badge_shuxiang",    fallback: "叔向" },
   { id: "P_MUJI",        color: "", badge: "badge_muji",        fallback: "穆姬", home: "秦" },
   { id: "P_ZHUANGJIANG", color: "", badge: "badge_zhuangjiang", fallback: "庄姜", home: "卫" },
   { id: "P_XUANJIANG",   color: "", badge: "badge_xuanjiang",   fallback: "宣姜", home: "卫" },
@@ -66,6 +68,32 @@ function resolveProtoColors() {
     if (v) m.color = v;
     else { m.color = "#B4652F"; console.warn("国色变量缺失：" + m.id + " → 国「" + key + "」"); }
   }
+}
+/* 主角名册对账（r26b 新立）——两份名册必须一字不差。
+ * 数据侧的 `people.is_protagonist` 与本文件的 `PROTAGONISTS` 是两份各自维护的名册：
+ * 前者定「谁是主角」，后者定「谁进得去」（徽记、分区、时间线/地图/并观/全景皆挂在它上面）。
+ * r26 出过一次实账：数据侧 29、前端 27（晏婴、叔向缺席），而页脚人数取的是数据侧，
+ * 于是站内对读者报「29 条人物线」，其中两条点不进去——**多许的两条，读者是找不到的**。
+ * 此后由本函数守住两件事：
+ *   ① 页脚人数改取「**实际可进者**」（前端名册 ∩ 数据在库），宁可少报，永不多许；
+ *   ② 两侧不一致即 console.warn 报出双向差集，使缺口在开发期就现形，不必等读者发现。
+ * 回归门 §17 直接调它对账（见 tools/qa/vision_r24a.js），断言从此是对账式、不是快照式——
+ * 写死一个 29 只会在下一次加人时重演本轮：数字对得上，名册却对不上。 */
+function protoRoster() {
+  const inData = DATA.people.filter(p => p.is_protagonist).map(p => p.id);
+  const uiIds = PROTAGONISTS.map(m => m.id);
+  const dataSet = new Set(inData);
+  const roster = {
+    enterable: uiIds.filter(id => PEOPLE[id]),          // 前端有配置且数据在库者＝真能进
+    dataOnly: inData.filter(id => !uiIds.includes(id)), // 数据说是主角、前端进不去
+    uiOnly: uiIds.filter(id => !dataSet.has(id)),       // 前端列了、数据不认
+    inData,
+  };
+  if (roster.dataOnly.length || roster.uiOnly.length) {
+    console.warn("主角名册不一致——数据有而前端无：" + (roster.dataOnly.join("、") || "无") +
+                 "；前端有而数据无：" + (roster.uiOnly.join("、") || "无"));
+  }
+  return roster;
 }
 function familyColor(stateKey) {
   const v = STATE_FAMILY_VAR[stateKey];
@@ -3404,7 +3432,7 @@ const relView = {
   collapsed: new Set(),  // ego 两侧折叠的分组（窄屏默认全折叠）
   collapsedInit: false,
   protoOnly: false,      // 全景「仅主角边」
-  showAll: false,        // 全景「显示全部」：false=只画 27 主角（默认），true=全库 123 人（r24a-2 裁定②b）
+  showAll: false,        // 全景「显示全部」：false=只画主角（默认，现 29），true=全库（现 127）（r24a-2 裁定②b）
   nodes: new Map(), edges: [], focus: null, isolated: new Set(), // 全景态
   detailReg: [],         // 每次绘图重建：边索引→该并线的 rels，供全屏克隆体按 data-detail 重绑抽屉
 };
@@ -3451,7 +3479,7 @@ function relRecenter(pid) {
 function updateRelToolbar() {
   const ego = relView.mode === "ego";
   $("#btn-rel-back").hidden = !(ego && relView.stack.length);
-  /* 「仅主角边」只在「显示全部」时有意义——默认 27 主角环上每条边两端皆主角，
+  /* 「仅主角边」只在「显示全部」时有意义——默认主角环上每条边两端皆主角，
    * 该过滤器恒为空操作，故一并隐去，不给读者一个点了没反应的勾选框（r24a-2）。 */
   $("#rel-filter-label").hidden = ego || !relView.showAll;
   const showAllLabel = $("#rel-showall-label");
@@ -3469,7 +3497,7 @@ function updateRelToolbar() {
     s.className = "crumb-cur";
     /* 关系计数随「显示全部」与「仅主角边」双重过滤动态变化。
      * 口径与绘图一致：两端皆须在**环上**（r24a-2 起环上未必是全库，见 panoPeople），
-     * 旧版只判「两端皆在库中」，27 人默认态下会报出画不出来的边。 */
+     * 旧版只判「两端皆在库中」，主角默认态下会报出画不出来的边。 */
     const shown = new Set(panoPeople().map(p => p.id));
     const nEdges = DATA.relations.filter(r =>
       shown.has(r.person_a) && shown.has(r.person_b) &&
@@ -3895,12 +3923,14 @@ function drawStateHalos(layer, people, CX, CY, R, NS) {
  * 三者与「徽记源文件一律 stroke-width=2」的规约不冲突：改的只是呈现端。 */
 const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";
 /* 全景环上的人物集合（r24a-2 裁定 ②b，即 r24a §4.3 三选项之 C）：
- * **默认只画 27 主角**，勾「显示全部」才回到全库 123 人。
+ * **默认只画主角**（现 29），勾「显示全部」才回到全库（现 127）。
  *
  * 根据（实测，非观感）：环半径 R=252 固定，相邻槽距＝2R·sin(π/n)。
- *   n=123 → 12.87px，**小于主角节点直径 30**，故主角盘面本就相互叠压，
+ *   n=127 → 12.46px，**小于主角节点直径 30**，故主角盘面本就相互叠压，
  *           国色制下同国同色更并作一块色团，同弧徽记必然互相压边（r24a §四）；
- *   n=27  → 58.55px，**大于节点直径 30 且大于徽记边长 22**，同弧徽记两两不相接。
+ *   n=29  → 54.49px（r26b 复核，27 人时为 58.55），**仍大于节点直径 30、大于徽记边长 22**，
+ *           同弧徽记两两不相接——加两人后余量由 28.55 收到 24.49，尚宽裕；
+ *           按此式，槽距跌破节点直径 30 要到 n=53，跌破徽记 22 要到 n=72。
  * 这是 r24a 三条 costed 选项中唯一不改环几何、不改视觉性格即可根治的一条：
  * A（不等角槽）要把 viewBox 由 680 扩到约 800、图整体变大；B（双环错排）把「清爽单环」
  * 改成双环，属观感取向变更；C 只改「默认画谁」，且被改掉的信息量由一个开关原样取回。
@@ -4002,7 +4032,7 @@ function drawPanoGraph() {
     c.setAttribute("fill", node.proto ? node.proto.color : "#FBF7EC");
     c.setAttribute("stroke", node.proto ? "#F4EDDF" : "#7A7166");
     /* 主角节点的绢帛描边由 2 上调至 PANO_RING_W（r24a §9.3）：
-     * 环上 123 人、槽距仅 12.87，主角节点 r=15 故盘面本就相互叠压；旧制靠同族深浅不同
+     * 全库全环时槽距仅 12 余 px，主角节点 r=15 故盘面本就相互叠压；旧制靠同族深浅不同
      * 尚能看出盘缘，国色制下同国同色，一段弧遂并作一块色团（实测对照截图见交付说明 §四）。
      * 绢帛色描边是与填充色无关的分隔线——加宽它即可在同色相邻处重新划出盘缘。 */
     c.setAttribute("stroke-width", node.proto ? PANO_RING_W : 1.4);
@@ -5074,7 +5104,7 @@ async function boot() {
     relView.protoOnly = e.target.checked;
     if (relView.mode === "pano") drawRel();
   });
-  /* 「显示全部」：27 主角环 ⇄ 全库 123 人（r24a-2 裁定 ②b）。
+  /* 「显示全部」：主角环 ⇄ 全库全环（r24a-2 裁定 ②b）。
    * 切换后焦点若已不在环上，drawPanoGraph 末尾的 nodes.has(focus) 判断会自动回落到无焦点态。 */
   $("#rel-show-all").addEventListener("change", (e) => {
     relView.showAll = e.target.checked;
@@ -5159,8 +5189,10 @@ async function boot() {
   // 头部时间双标·进度标（考订前沿）：取 year_range_bce.max 经 yearLabel() 格式化，HTML 内不写死。
   // 「春秋 · 前770—前476」为纪年时段定义（静态），此处只注入随数据推进的「已考订至前XXX」。
   $("#site-frontier").textContent = "已考订至" + yearLabel(m.year_range_bce.max);
-  const nLines = DATA.people.filter(p => p.is_protagonist).length;
-  $("#brand-caption").textContent = "分享给同好——" + nLines + " 条人物线，择一而入。";
+  /* 页脚品牌语的人数：取「实际可进者」而非数据侧主角数，见 protoRoster() 注释。
+   * 两侧一致时二者本就相等（现 29＝29）；不一致时本行只肯报小的那个，多的由 warn 报账。 */
+  const roster = protoRoster();
+  $("#brand-caption").textContent = "分享给同好——" + roster.enterable.length + " 条人物线，择一而入。";
   render();
   // 首访三步引导：仅首次、且落在首页视图（深链入站者不打扰）
   if (!tourSeen() && state.view === "home") startTour();
