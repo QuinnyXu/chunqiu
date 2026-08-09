@@ -25,6 +25,15 @@
 //   §15 叔向 ego 图（姻亲边与祁大夫新配角）；
 //   §16 穆姬复查门——判据写成「亲至且可落图的地点数 ≥2 ⇔ 可播」的**双向自洽**式，
 //       不预设本轮答案，日后穆姬若真补上第二个亲至落点，本门自动翻绿、无需改码。
+//
+// r26b 扩充：
+//   §5  人数断言由**快照式改对账式**——原写死「27」，而 r26 实况是数据 29／前端 27，
+//       写死的那一版照样全绿（它比的是 27 是不是 27）。现改为「环上人数 ⇔ protoRoster()
+//       ⇔ PROTAGONISTS ⇔ 数据 is_protagonist」四方互证，槽距按 2R·sin(π/n) 现算再对 DOM。
+//   §17 晏婴（齐7）／叔向（晋4）上线门：名册对账 ＋ 六处呈现（选人／首页分区／时间线／
+//       地图／并观可选／全景默认环）＋ 两枚新徽记的规约核；徽记撞形实测另在
+//       tools/qa/badge_silhouette_r26b.js（IoU 双尺度，判据取相对现库分布，不拍脑袋定阈值）。
+//   §18 迁点补走查门：r26 §14 因二人未上线而只在编年核过 chip 的 5 条，放回人物地图逐条核。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -74,10 +83,14 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
         "jiezhitui", "qinmu", "muji", "chucheng", "chuzhuang", "xigui", "zhuangjiang", "xuanjiang",
         "songxiang", "xiaji"].filter(k => cs.getPropertyValue("--p-" + k).trim() !== ""),
       states: Object.fromEntries(Object.entries(STATE_FAMILY_VAR).map(([k, v]) => [k, hex(cs.getPropertyValue(v))])),
+      nData: DATA.people.filter(x => x.is_protagonist).length,
+      nEnter: protoRoster().enterable.length,
     };
   });
-  say("  主角数：" + boot.n);
-  OK(boot.n === 27, "PROTAGONISTS 共 27 位（r23b 子产已入册）");
+  say("  主角数：前端 " + boot.n + " · 数据 " + boot.nData + "（可进 " + boot.nEnter + "）");
+  // r26b：原写死 27。改对账——前端名册 ⇔ 数据 is_protagonist ⇔ 实际可进者，三者须齐（见 §7.4）
+  OK(boot.n === boot.nData && boot.n === boot.nEnter,
+     "PROTAGONISTS " + boot.n + " 位 ＝ 数据侧 is_protagonist " + boot.nData + " ＝ 可进 " + boot.nEnter);
   OK(boot.retired.length === 0, "26 个 --p-* 个人色变量已全数退役（残留：" + (boot.retired.join(",") || "无") + "）");
   let colorOk = true;
   for (const m of boot.people) {
@@ -156,8 +169,11 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     n: document.querySelectorAll("#compare-pick .cmp-pick-item").length,
     on: [...document.querySelectorAll("#compare-pick .cmp-pick-item.on")].map(e => e.innerText.trim()),
   }));
-  say("  单人态面板：" + pick1.n + " 项，选中 " + JSON.stringify(pick1.on));
-  OK(pick1.n === 26 && pick1.on.length === 0, "单人态：列其余 26 人、无选中态");
+  const nEnter = await p.evaluate(() => protoRoster().enterable.length);
+  say("  单人态面板：" + pick1.n + " 项，选中 " + JSON.stringify(pick1.on) + "（可进人数 " + nEnter + "）");
+  // r26b：原写死 26。改对账——「其余人数」恒为「可进人数 −1」，加人时自动跟上
+  OK(pick1.n === nEnter - 1 && pick1.on.length === 0,
+     "单人态：列其余 " + pick1.n + " 人（＝可进 " + nEnter + " − 自己）、无选中态");
   await p.screenshot({ path: path.join(OUT, "r24a_05_picker_single.png") });
   // 点齐襄公 → 加入并观
   await p.evaluate(() => { [...document.querySelectorAll("#compare-pick .cmp-pick-item")].find(e => /齐襄公/.test(e.innerText)).click(); });
@@ -442,7 +458,11 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   }
 
   // ---------- 5) §9.3 全景关系图节点徽记可辨性 ----------
-  H("5) §9.3 硬性项：27 人级全景图节点徽记可辨性");
+  /* r26b：本节原写死「27」。写死的数字只在写死的那一天是对的——r26 前端主角停在 27、数据侧
+   * 已 29，本节照样全绿，因为它比的是「27 是不是 27」，不是「前端名册跟数据对不对得上」。
+   * 故本节的人数一律改**对账式**：环上人数 ⇔ protoRoster().enterable ⇔ PROTAGONISTS ⇔ 数据侧
+   * is_protagonist，四者互证；槽距按 2R·sin(π/n) 现算再与 DOM 实测对，不抄旧数。 */
+  H("5) §9.3 硬性项：主角级全景图节点徽记可辨性（人数一律对账，不写死）");
   await p.goto(origin + "/#/relations", { waitUntil: "load" }); await p.waitForTimeout(1600);
   const pano = await p.evaluate(() => {
     // r24a：徽记已移出各节点 <g>，改入顶层 badgeTop（svg 的最后一个 <g>）
@@ -455,15 +475,31 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
              size: svgs[0] ? { w: svgs[0].getAttribute("width"), sw: svgs[0].style.strokeWidth } : null,
              r: c1 ? c1.getAttribute("r") : null, ringW: c1 ? c1.getAttribute("stroke-width") : null,
              slotChord: chord ? +chord.toFixed(2) : null,
-             onTop: !!(svgs[0] && svgs[0].parentNode === document.querySelector("#rel-canvas > svg").lastElementChild) };
+             onTop: !!(svgs[0] && svgs[0].parentNode === document.querySelector("#rel-canvas > svg").lastElementChild),
+             // —— 对账三源：前端名册／数据名册／实际可进者 ——
+             roster: (() => { const r = protoRoster();
+               return { ui: PROTAGONISTS.length, data: r.inData.length, enterable: r.enterable.length,
+                        dataOnly: r.dataOnly, uiOnly: r.uiOnly, dataAll: DATA.people.length }; })(),
+             ringR: 252 };
   });
+  const R = pano.roster;
+  say("  名册对账：前端 PROTAGONISTS " + R.ui + " · 数据 is_protagonist " + R.data +
+      " · 实际可进 " + R.enterable + "；数据有而前端无 [" + (R.dataOnly.join("/") || "空") +
+      "]，前端有而数据无 [" + (R.uiOnly.join("/") || "空") + "]");
+  OK(R.dataOnly.length === 0 && R.uiOnly.length === 0 && R.ui === R.data && R.data === R.enterable,
+     "主角名册两侧一字不差（" + R.data + "＝" + R.ui + "＝" + R.enterable + "）——r26 的「数据 29 / 前端 27」已闭合");
   say("  【A 态·默认】环上共 " + pano.total + " 人，主角节点 " + pano.protoNodes + " 个，徽记注入 " + pano.badges + " 枚");
   say("  节点 r=" + pano.r + "，绢帛分隔环宽=" + pano.ringW + "，相邻槽距(弦长)=" + pano.slotChord + "，徽记 " + JSON.stringify(pano.size));
-  OK(pano.protoNodes === 27 && pano.badges === 27, "27 枚主角节点徽记全部注入");
+  OK(pano.protoNodes === R.enterable && pano.badges === R.enterable,
+     R.enterable + " 枚主角节点徽记全部注入（＝可进人数，非写死值）");
   OK(pano.onTop, "徽记在顶层（叠于全部节点盘面之上）——旧法同弧只有最后一枚徽记露得出");
   OK(+pano.ringW === 3.4 && pano.size.w === "22" && pano.size.sw === "2.6", "呈现端已上调一档：环宽 2→3.4、徽记 20→22、线宽 2→2.6");
-  // r24a-2 裁定②b：默认只画 27 主角，槽距因此由 12.87 升到 58.5+，大于节点直径 30 与徽记边长 22
-  OK(pano.total === 27, "A 态默认只画 27 主角（r24a-2 裁定②b，即 r24a §4.3 选项 C）");
+  // r24a-2 裁定②b：默认只画主角。槽距按 2R·sin(π/n) 现算，与 DOM 实测对账（不抄旧数 58.55）
+  OK(pano.total === R.enterable, "A 态默认只画主角（" + pano.total + " 人，r24a-2 裁定②b，即 r24a §4.3 选项 C）");
+  const chordCalc = +(2 * pano.ringR * Math.sin(Math.PI / pano.total)).toFixed(2);
+  say("  槽距公式现算 2R·sin(π/" + pano.total + ")，R=" + pano.ringR + " → " + chordCalc +
+      "px；DOM 实测 " + pano.slotChord + "px");
+  OK(Math.abs(chordCalc - pano.slotChord) < 0.05, "槽距＝公式现算值（27→29 复核：58.55 → " + chordCalc + "）");
   OK(pano.slotChord > 2 * +pano.r, "A 态槽距 " + pano.slotChord + " > 节点直径 " + (2 * +pano.r) + "——盘面不再叠压");
   OK(pano.slotChord > +pano.size.w, "A 态槽距 " + pano.slotChord + " > 徽记边长 " + pano.size.w + "——同弧徽记不再压边（r24a 遗留的根本矛盾在 A 态解除）");
   const showAllUI = await p.evaluate(() => ({
@@ -475,8 +511,8 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   }));
   say("  A 态工具条：" + JSON.stringify(showAllUI));
   OK(showAllUI.hasBox && showAllUI.showAllVisible, "「显示全部」开关在全景态可见");
-  OK(!showAllUI.protoOnlyVisible, "A 态隐去「仅主角边」——27 主角环上每条边两端皆主角，该过滤器恒为空操作");
-  OK(/27 主角/.test(showAllUI.crumbs), "工具条计数与环上实绘同源（报 27 主角）");
+  OK(!showAllUI.protoOnlyVisible, "A 态隐去「仅主角边」——主角环上每条边两端皆主角，该过滤器恒为空操作");
+  OK(new RegExp(R.enterable + " 主角").test(showAllUI.crumbs), "工具条计数与环上实绘同源（报 " + R.enterable + " 主角）");
   await p.screenshot({ path: path.join(OUT, "r24a_09_pano_full.png"), fullPage: false });
   await p.locator("#rel-canvas").screenshot({ path: path.join(OUT, "r24a2_06_pano_A_27proto.png") });
 
@@ -492,16 +528,18 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
              crumbs: document.querySelector("#rel-crumbs").textContent.trim() };
   });
   say("  【B 态·显示全部】" + JSON.stringify(panoB));
-  OK(panoB.total > 100 && panoB.protoNodes === 27, "B 态回到全库全环（" + panoB.total + " 人），27 主角仍带徽记");
+  OK(panoB.total === R.dataAll,
+     "B 态回到全库全环（" + panoB.total + " 人＝ people 表全量 " + R.dataAll + "，非写死 123）");
+  OK(panoB.protoNodes === R.enterable, "B 态 " + R.enterable + " 位主角仍带徽记");
   OK(panoB.protoOnlyVisible, "B 态「仅主角边」随之出现（此时它才有意义）");
   say("  ⚠ B 态槽距 " + panoB.slotChord + " < 节点直径 " + (2 * +pano.r) + "——主角盘面相互叠压、同弧徽记压边，"
       + "此为 " + panoB.total + " 人同环的既有密度问题（r23b 即如此），非国色制引入；国色制使其显影。"
-      + "r24a-2 的处置不是消灭它，而是把它移出默认态：默认给 27 人环，全库全环改为读者主动索取（见交付说明 §十一）");
+      + "r24a-2 的处置不是消灭它，而是把它移出默认态：默认给主角环（现 " + pano.total + " 人），全库全环改为读者主动索取（见交付说明 §十一）");
   await p.locator("#rel-canvas").screenshot({ path: path.join(OUT, "r24a2_07_pano_B_showall.png") });
   // 往返：取消勾选须回到 A 态（开关式，不留中间态）
   await p.uncheck("#rel-show-all"); await p.waitForTimeout(1200);
   const panoA2 = await p.evaluate(() => document.querySelectorAll("#rel-canvas .rel-node").length);
-  OK(panoA2 === 27, "A⇄B 往返实测：取消勾选回到 27 主角环（实测 " + panoA2 + "）");
+  OK(panoA2 === R.enterable, "A⇄B 往返实测：取消勾选回到主角环（实测 " + panoA2 + " ＝ 可进 " + R.enterable + "）");
   // 全屏「⛶ 放大查看」克隆的是当前 SVG，故须在 A 态下确认克隆体也是 27 人环且节点仍可点
   await p.click("#btn-rel-zoom"); await p.waitForTimeout(900);
   const zoomA = await p.evaluate(() => ({
@@ -510,7 +548,8 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     badges: document.querySelectorAll("#map-overlay-body > svg > g:last-of-type > svg").length,
   }));
   say("  全屏克隆体（A 态）：" + JSON.stringify(zoomA));
-  OK(zoomA.open && zoomA.nodes === 27 && zoomA.badges === 27, "全屏放大查看随 A 态克隆 27 人环、27 枚徽记同步");
+  OK(zoomA.open && zoomA.nodes === R.enterable && zoomA.badges === R.enterable,
+     "全屏放大查看随 A 态克隆 " + zoomA.nodes + " 人环、" + zoomA.badges + " 枚徽记同步（＝可进人数）");
   await p.click("#btn-overlay-close"); await p.waitForTimeout(500);
   // 齐（6 人同色）一段弧的局部放大——同色相邻节点只能靠徽记分辨
   const qiClip = await p.evaluate(() => {
@@ -662,7 +701,9 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   for (const [w, h] of [[1440, 900], [1024, 800], [768, 900], [390, 780]]) {
     await p.setViewportSize({ width: w, height: h });
     // r24a-2：关系全景纳入宽度回归——本批在其工具条新增了「显示全部」勾选框，须验窄屏不撑破
-    for (const [tag, hash] of [["home", "/#/"], ["timeline", "/#/p/P_ZICHAN/timeline"], ["map", "/#/p/P_WENJIANG/map"], ["cmp", "/#compare=P_WENJIANG,P_QIXIANG"], ["relations", "/#/relations"], ["chronicle", "/#/chronicle"]]) {
+    /* r26b 补两条本轮新面：晏婴时间线（10 条，其中数条长标题）与叔向地图（4 处着色锚点，
+     * 状态行带「另有 N 处相关地点」长句），二者是本轮新增内容里最可能在 390px 撑破的两处。 */
+    for (const [tag, hash] of [["home", "/#/"], ["timeline", "/#/p/P_ZICHAN/timeline"], ["map", "/#/p/P_WENJIANG/map"], ["cmp", "/#compare=P_WENJIANG,P_QIXIANG"], ["relations", "/#/relations"], ["chronicle", "/#/chronicle"], ["timeline·晏婴", "/#/p/P_YANYING/timeline"], ["map·叔向", "/#/p/P_SHUXIANG/map"], ["cmp·叔向×晏婴", "/#compare=P_SHUXIANG,P_YANYING"]]) {
       await p.goto(origin + hash, { waitUntil: "load" }); await p.waitForTimeout(700);
       const ov = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
       OK(ov.sw <= ov.cw + 1, w + "px · " + tag + " 无横向溢出（scrollWidth " + ov.sw + " ≤ clientWidth " + ov.cw + "）");
@@ -1241,10 +1282,24 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     };
   });
   say("  搜索「叔向」候选 " + opt.n + " 条，命中「" + opt.text + "」");
-  say("  ego：hash=" + ego.hash + " mode=" + ego.mode + " center=" + ego.center);
+  say("  搜索直达落点：hash=" + ego.hash + " mode=" + ego.mode + " center=" + ego.center);
+  /* r26b 语义变更（非缺陷）：叔向本轮升主角，搜索直达随 §5.6 既定口径由「非主角→ego 图」
+   * 改走「主角→其时间线」。原断言写的是 r26 当时的非主角路由，故此处按新身份重写：
+   * ① 直达须落其**时间线**；② ego 图改由人物子导航「关系」进入，再断言其邻人与姻亲边。 */
+  OK(/#\/p\/P_SHUXIANG\/timeline/.test(ego.hash),
+     "搜索「叔向」直达其时间线（r26b 起为主角，走主角路由；r26 时为配角、落 ego 图）");
+  await p.goto(origin + "/#/p/P_SHUXIANG/relations", { waitUntil: "load" }); await p.waitForTimeout(1500);
+  const ego2 = await p.evaluate(() => {
+    const svg = document.querySelector("#rel-canvas svg");
+    return { hash: location.hash, mode: relView.mode, center: relView.center,
+             nodes: svg ? [...svg.querySelectorAll("text")].map(t => t.textContent.trim()) : [],
+             egoText: (document.querySelector("#view-relations") || {}).innerText.replace(/\s+/g, " ").slice(0, 600) };
+  });
+  Object.assign(ego, ego2);
+  say("  ego（经子导航「关系」）：hash=" + ego.hash + " mode=" + ego.mode + " center=" + ego.center);
   say("  图上节点名：" + ego.nodes.join("、"));
   say("  库内叔向关系 " + ego.dataRels.length + " 条：" + ego.dataRels.map(r => r.id + " " + r.t + "/" + r.l.slice(0, 8)).join(" | "));
-  OK(ego.center === "P_SHUXIANG" && ego.mode === "ego", "搜索「叔向」落其 ego 图（非主角路由：hash " + ego.hash + "）");
+  OK(ego.center === "P_SHUXIANG" && ego.mode === "ego", "叔向 ego 图可达（hash " + ego.hash + "）");
   const want = ["巫臣", "夏姬", "杨食我", "祁奚", "韩起", "子产", "晏婴"];
   const miss = want.filter(n => !ego.nodes.some(t => t.includes(n)));
   OK(miss.length === 0, "七名相关人物皆在图上（缺：" + (miss.join("、") || "无") + "）");
@@ -1289,6 +1344,189 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   say("  ⇒ 实测结论：穆姬" + (twoPlus ? "已脱离降级态，晋→秦轨迹首次可播。" :
       "仍在降级态——E081 的 presence 为「相关」且该事目 place_id 为空，两头都不进亲至落点，故落点数仍为 1（雍）。"));
   await p.screenshot({ path: path.join(OUT, "r26_04_muji_map.png"), fullPage: true });
+
+
+  // ---------- 17) r26b 晏婴 / 叔向上线：名册对账 ＋ 六处呈现 ＋ 两枚新徽记 ----------
+  /* 本门守的是 r26 那笔实账：数据侧主角 29、前端 PROTAGONISTS 27，而页脚按数据报「29 条人物线」。
+   * 缺口不在某一处呈现坏了，而在**两份名册各走各的**，且没有任何一处把它们对起来。
+   * 故本门一律对账式：不问「是不是 29」，只问「六处呈现各自数出来的人，跟名册对不对得上」。 */
+  H("17) r26b 晏婴（齐7）· 叔向（晋4）上线：名册对账与六处呈现");
+  const NEWP = [{ id: "P_YANYING", name: "晏婴", state: "齐", badge: "badge_yanying", nth: 7 },
+                { id: "P_SHUXIANG", name: "叔向", state: "晋", badge: "badge_shuxiang", nth: 4 }];
+  await p.goto(origin + "/#/?home=list", { waitUntil: "load" }); await p.waitForTimeout(1200);
+  const pick = await p.evaluate((NEWP) => {
+    const r = protoRoster();
+    const groups = [...document.querySelectorAll(".state-group")].map(sec => ({
+      state: (sec.querySelector(".state-name") || {}).textContent,
+      names: [...sec.querySelectorAll(".person-grid > li .card-info h3")].map(h => h.firstChild.textContent.trim()),
+      enabled: [...sec.querySelectorAll(".person-grid > li .person-card")].map(b => !b.disabled),
+    }));
+    const cards = groups.reduce((n, g) => n + g.names.length, 0);
+    return {
+      roster: { ui: PROTAGONISTS.length, data: r.inData.length, enterable: r.enterable.length,
+                dataOnly: r.dataOnly, uiOnly: r.uiOnly },
+      groups, cards,
+      caption: document.querySelector("#brand-caption").textContent,
+      each: NEWP.map(n => { const g = groups.find(x => x.state === n.state);
+        return { id: n.id, group: n.state, idx: g ? g.names.indexOf(n.name) + 1 : -1,
+                 of: g ? g.names.length : 0, enabled: g ? g.enabled[g.names.indexOf(n.name)] : false }; }),
+    };
+  }, NEWP);
+  const RO = pick.roster;
+  say("  名册：前端 " + RO.ui + " · 数据 " + RO.data + " · 可进 " + RO.enterable +
+      "；差集 数据独有[" + (RO.dataOnly.join("/") || "空") + "] 前端独有[" + (RO.uiOnly.join("/") || "空") + "]");
+  say("  选人页分组：" + pick.groups.map(g => g.state + g.names.length).join(" · ") + "，卡片合计 " + pick.cards);
+  say("  页脚品牌语：" + pick.caption);
+  OK(RO.dataOnly.length === 0 && RO.uiOnly.length === 0, "① 名册两侧无差集（r26 的「数据 29 / 前端 27」已闭合）");
+  OK(pick.cards === RO.enterable, "② 选人页卡片数 " + pick.cards + " ＝ 可进人数 " + RO.enterable);
+  const capN = +(pick.caption.match(/(\d+) 条人物线/) || [])[1];
+  OK(capN === RO.enterable && capN === RO.data,
+     "③ 页脚口径一致：品牌语报 " + capN + " ＝ 可进 " + RO.enterable + " ＝ 数据侧 " + RO.data + "（29＝29）");
+  pick.each.forEach(e => OK(e.idx === NEWP.find(n => n.id === e.id).nth && e.enabled,
+     "④ " + e.id + " 在「" + e.group + "」组第 " + e.idx + "／" + e.of + " 人，卡片可点"));
+  await p.screenshot({ path: path.join(OUT, "r26b_01_home_list.png"), fullPage: true });
+  // 首页地图分区：徽记簇内须见其人，且各簇彼此不叠（簇宽随人数增长，须核）
+  await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(1500);
+  const cluster = await p.evaluate(() => {
+    const cls = [...document.querySelectorAll(".home-cluster")].map(g => {
+      const cs = [...g.querySelectorAll("circle")].filter(c => c.querySelector("title"));
+      return { names: cs.map(c => c.querySelector("title").textContent),
+               xs: cs.map(c => +c.getAttribute("cx")), y: +cs[0].getAttribute("cy"),
+               r: +cs[0].getAttribute("r") };
+    });
+    return { cls, n: cls.reduce((a, c) => a + c.names.length, 0) };
+  });
+  cluster.cls.forEach(c => say("    簇 y=" + c.y + " × " + c.names.length + " 枚：" + c.names.join("、") +
+    "  x " + (Math.min(...c.xs) - c.r) + "–" + (Math.max(...c.xs) + c.r)));
+  OK(cluster.n === RO.enterable, "⑤ 首页地图徽记簇合计 " + cluster.n + " 枚 ＝ 可进人数");
+  OK(cluster.cls.some(c => c.names.includes("晏婴")) && cluster.cls.some(c => c.names.includes("叔向")),
+     "⑤ 晏婴入齐簇、叔向入晋簇");
+  // 簇间不相压（垂距小于两半径之和时，水平区间不得重叠）
+  const clash = [];
+  for (let i = 0; i < cluster.cls.length; i++) for (let j = i + 1; j < cluster.cls.length; j++) {
+    const A = cluster.cls[i], B = cluster.cls[j];
+    if (Math.abs(A.y - B.y) >= A.r + B.r) continue;
+    const ax = [Math.min(...A.xs) - A.r, Math.max(...A.xs) + A.r];
+    const bx = [Math.min(...B.xs) - B.r, Math.max(...B.xs) + B.r];
+    if (ax[0] < bx[1] && bx[0] < ax[1]) clash.push(A.names[0] + "簇×" + B.names[0] + "簇");
+  }
+  OK(clash.length === 0, "⑤ 九簇两两不相压（" + (clash.join("、") || "无冲突") + "）");
+  OK(cluster.cls.every(c => Math.min(...c.xs) - c.r > 0 && Math.max(...c.xs) + c.r < 1200),
+     "⑤ 各簇皆在底图 viewBox（0–1200）之内");
+  await p.locator("#home-map").screenshot({ path: path.join(OUT, "r26b_02_home_map.png") });
+  // 时间线 / 地图 / 并观可选 ——逐人走一遍
+  for (const n of NEWP) {
+    await p.goto(origin + "/#/p/" + n.id + "/timeline", { waitUntil: "load" }); await p.waitForTimeout(1300);
+    const tl = await p.evaluate((id) => {
+      const own = DATA.event_people.filter(l => l.person_id === id).map(l => l.event_id);
+      const rows = [...document.querySelectorAll("#timeline-list > li details")].map(d => d.dataset.eid);
+      return { navName: (document.querySelector("#pn-name") || {}).textContent,
+               navBadge: !!document.querySelector("#pn-badge svg"),
+               rows, own, missing: own.filter(e => !rows.includes(e)) };
+    }, n.id);
+    say("  " + n.name + " 时间线 " + tl.rows.length + " 条（挂链 " + tl.own.length + "）");
+    OK(tl.navName === n.name && tl.navBadge, "⑥ " + n.name + "：子导航出其名与徽记");
+    OK(tl.missing.length === 0 && tl.rows.length === tl.own.length,
+       "⑥ " + n.name + " 时间线条数 ＝ 其挂链数 " + tl.own.length + "（缺：" + (tl.missing.join("/") || "无") + "）");
+    await p.screenshot({ path: path.join(OUT, "r26b_03_" + n.id + "_timeline.png"), fullPage: true });
+    await p.goto(origin + "/#/p/" + n.id + "/map", { waitUntil: "load" }); await p.waitForTimeout(1500);
+    const mp = await p.evaluate(() => ({
+      colored: [...document.querySelectorAll("#layer-anchors .anchor")]
+        .filter(g => /（亲至地点）|（相关地点/.test(g.getAttribute("aria-label") || ""))
+        .map(g => g.dataset.place + (/亲至/.test(g.getAttribute("aria-label")) ? "·亲至" : "·相关")),
+      traj: document.querySelectorAll("#layer-anchors polyline.traj").length,
+      playHidden: document.querySelector("#btn-play").hidden,
+      status: (document.querySelector("#map-status") || {}).textContent,
+      pickable: (() => { document.querySelector("#btn-compare").click();
+        return [...document.querySelectorAll("#compare-pick .cmp-pick-item")].map(b => b.textContent.replace(/\s+/g, "")); })(),
+    }));
+    say("  " + n.name + " 地图着色锚点：" + mp.colored.join("、"));
+    say("  " + n.name + " 状态行：" + mp.status);
+    OK(mp.colored.length > 0, "⑦ " + n.name + " 地图有着色落点 " + mp.colored.length + " 处");
+    OK(!mp.playHidden && mp.traj === 1, "⑦ " + n.name + " 亲至 ≥2 地，轨迹可播（折线 " + mp.traj + " 条）");
+    OK(mp.pickable.length === RO.enterable - 1,
+       "⑧ " + n.name + " 的并观可选名单 " + mp.pickable.length + " 人 ＝ 可进人数 − 自己");
+    await p.screenshot({ path: path.join(OUT, "r26b_04_" + n.id + "_map.png"), fullPage: true });
+  }
+  // 别人的并观面板里也须选得到这两位（对称性：既能选人，也能被选）
+  await p.goto(origin + "/#/p/P_ZICHAN/map", { waitUntil: "load" }); await p.waitForTimeout(1400);
+  const zcPick = await p.evaluate(() => { document.querySelector("#btn-compare").click();
+    return [...document.querySelectorAll("#compare-pick .cmp-pick-item")].map(b => b.textContent.replace(/\s+/g, "")); });
+  OK(zcPick.some(t => t.includes("晏婴")) && zcPick.some(t => t.includes("叔向")),
+     "⑧ 子产的并观面板里选得到晏婴与叔向（被选一侧同样在场）");
+  // 并观实跑一对：叔向×晏婴（前539 同在新田宴语，E210——本库少见的双主角同场）
+  await p.goto(origin + "/#compare=P_SHUXIANG,P_YANYING", { waitUntil: "load" }); await p.waitForTimeout(1800);
+  const cmpv = await p.evaluate(() => ({
+    meets: [...document.querySelectorAll("#cmp-meets li, .cmp-meet")].map(e => e.textContent.replace(/\s+/g, " ").slice(0, 70)),
+    body: document.body.innerText.replace(/\s+/g, " "),
+  }));
+  say("  并观 叔向×晏婴：交会条目 " + cmpv.meets.length + " 条 → " + cmpv.meets.join(" | "));
+  OK(/叔向/.test(cmpv.body) && /晏婴/.test(cmpv.body), "⑧ 并观视图两人俱在");
+  OK(cmpv.meets.some(t => /新田|绛/.test(t)), "⑧ 交会一览列出新田（E210 论季世，前539 同场）");
+  await p.screenshot({ path: path.join(OUT, "r26b_05_compare.png"), fullPage: true });
+  // 全景默认环：二人在环上且作主角节点（29 槽距的对账已在 §5）
+  await p.goto(origin + "/#/relations", { waitUntil: "load" }); await p.waitForTimeout(1600);
+  const onRing = await p.evaluate((ids) => ids.map(id => ({
+    id, node: !!document.querySelector('#rel-canvas [data-node="' + id + '"]'),
+    proto: !!document.querySelector('#rel-canvas [data-node="' + id + '"].proto'),
+  })), NEWP.map(n => n.id));
+  OK(onRing.every(o => o.node && o.proto), "⑨ 二人皆在全景默认环上且作主角节点：" + JSON.stringify(onRing));
+  // 两枚新徽记：文件在、合规约（撞形实测另见 tools/qa/badge_silhouette_r26b.js）
+  const badgeSrc = await p.evaluate(async (files) => {
+    const out = [];
+    for (const f of files) {
+      const t = await (await fetch("assets/icons/" + f + ".svg")).text();
+      out.push({ f, vb: /viewBox="0 0 48 48"/.test(t), sw: /stroke-width="2"/.test(t),
+                 cc: /stroke="currentColor"/.test(t), ring: /<circle cx="24" cy="24" r="21"/.test(t) });
+    }
+    return out;
+  }, NEWP.map(n => n.badge));
+  badgeSrc.forEach(b => OK(b.vb && b.sw && b.cc && b.ring,
+    "⑩ " + b.f + ".svg 合徽记规约（viewBox 48／stroke-width 2／currentColor／r21 圆框）"));
+
+  // ---------- 18) r26b 迁点补走查：r26 因二人缺席未能在人物地图上走的 5 条 ----------
+  /* r26 §14 走了 7 条迁点里的 E190/E194（子产线）与对照 E182（夏姬线），余 5 条只在编年上核过
+   * chip 文字。本节把它们放回**人物地图**逐条核——地图才是「落点从实不从称」这条裁定的落地面。 */
+  H("18) r26b 迁点补走查：E201 / E219 / E210 / E220 / E221 逐条");
+  const REST = ["E201", "E219", "E210", "E220", "E221"];
+  const walk = await p.evaluate((REST) => REST.map(id => {
+    const e = DATA.events.find(x => x.id === id);
+    const links = DATA.event_people.filter(l => l.event_id === id);
+    const protos = links.filter(l => PROTAGONISTS.some(m => m.id === l.person_id))
+                        .map(l => ({ pid: l.person_id, presence: l.presence || "(空=视同亲至)" }));
+    return { id, year: e.year_bce, place: e.place_id, cat: e.category,
+             title: e.title.slice(0, 22), protos, allPeople: links.map(l => l.person_id) };
+  }), REST);
+  const noHost = [];
+  for (const w of walk) {
+    if (!w.protos.length) { noHost.push(w); continue; }
+    for (const pr of w.protos) {
+      await p.goto(origin + "/#/p/" + pr.pid + "/map", { waitUntil: "load" }); await p.waitForTimeout(1400);
+      const hit = await p.evaluate((eid) => {
+        const g = document.querySelector('.anchor[data-place="L_XINTIAN"]');
+        const aria = g ? g.getAttribute("aria-label") : null;
+        let txt = null;
+        if (g) {
+          g.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+          const panel = document.querySelector("#place-panel") || document.querySelector(".place-panel");
+          txt = panel ? panel.innerText.replace(/\s+/g, " ") : null;
+        }
+        const e = DATA.events.find(x => x.id === eid);
+        return { aria, on: !!g, hasEvent: !!(txt && txt.includes(e.title.slice(0, 6))),
+                 hasName: !!(txt && /新田/.test(txt) && /侯马/.test(txt)) };
+      }, w.id);
+      const wantVisit = pr.presence === "亲至";
+      OK(hit.on && (wantVisit ? /（亲至地点）/.test(hit.aria || "") : true) && hit.hasName,
+         w.id + "（前" + (-w.year) + "·" + w.title + "）落 " + w.place + "，在 " + pr.pid +
+         " 地图：aria「" + (hit.aria || "—") + "」，其 presence=" + pr.presence + "，抽屉出「新田（绛）／侯马」");
+      OK(hit.hasEvent, "  └ 新田抽屉内列出本条事目");
+    }
+  }
+  noHost.forEach(w => say("  ⚠ " + w.id + "（前" + (-w.year) + "·" + w.title + "）**无主角挂链**，" +
+    "所系仅 " + w.allPeople.join("/") + "，皆非主角 —— 人物地图上无从走查，其可见面只在编年（§14 已核其 chip 作「新田（绛）」）"));
+  OK(noHost.length === 1 && noHost[0].id === "E201",
+     "5 条中 4 条已在人物地图逐条核过；E201（魏绛和戎）无主角挂链，其未走查非「二人缺席」所致——见交付说明「验收偏差上报」");
+  await p.screenshot({ path: path.join(OUT, "r26b_06_xintian_walk.png"), fullPage: true });
 
   say("\n控制台告警：" + (warns.length ? warns.join(" | ") : "无"));
   say("页面错误：" + (errs.length ? errs.join(" | ") : "无"));
