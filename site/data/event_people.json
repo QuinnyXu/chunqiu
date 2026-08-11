@@ -3617,5 +3617,285 @@
     "role_in_event": "晋灭虞，执虞公及其大夫井伯以媵之于秦——秦晋媵事之经传明文在此；其人时在秦，不在虞",
     "directness": "indirect",
     "presence": "相关"
+  },
+  {
+    "event_id": "E222",
+    "person_id": "P_JIZHA",
+    "role_in_event": "诸樊除丧将立之，引曹之子臧「能守节」为比而辞：「有國，非吾節也」；诸樊固立之，乃「棄其室而耕」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E223",
+    "person_id": "P_JIZHA",
+    "role_in_event": "来聘于鲁，先戒叔孙穆子「不慎舉，何以堪之」，继请观于周乐，遍评十五国风、二雅三颂及六舞，末曰「觀止矣」；遂历聘齐郑卫晋，于晏平仲、子产、孙文子、叔向各有一语",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E224",
+    "person_id": "P_HELU",
+    "role_in_event": "时为吴公子光，谋于鱄设诸曰「我，王嗣也，吾欲求之」；伏甲于堀室而享王，伪足疾入于堀室",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E224",
+    "person_id": "P_WULIAO",
+    "role_in_event": "因楚丧而使二公子围潜、使季札聘于上国，国内空虚；赴公子光之享，虽被三重之卫而见弑于鱄设诸",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E224",
+    "person_id": "P_ZHUANZHU",
+    "role_in_event": "受公子光之命，寘剑于鱼中以进，抽剑刺王，鈹交于其胸",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E224",
+    "person_id": "P_JIZHA",
+    "role_in_event": "其时奉王僚之命聘于上国、遂聘于晋，传明书其不在吴；公子光谋弑之辞中所虑者正是「季子雖至，不吾廢也」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E225",
+    "person_id": "P_HELU",
+    "role_in_event": "弑王僚而代立为吴王，以鱄设诸之子为卿",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E225",
+    "person_id": "P_JIZHA",
+    "role_in_event": "自上国还，至而曰「立者從之，先人之道也」，復命哭墓、復位而待",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E226",
+    "person_id": "P_HELU",
+    "role_in_event": "问伐楚之谋于伍员，自道「今余將自有之矣」；从其「亟肄以罷之，多方以誤之」之策，楚于是乎始病",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E227",
+    "person_id": "P_HELU",
+    "role_in_event": "传只书「伍員為吳行人以謀楚」而未书用之者，其为阖庐所用可由昭公三十年「闔廬從之」及本年伐楚之事推之，然经传无「阖庐使伍员为行人」之明文，故从严不作在场论",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E228",
+    "person_id": "P_HELU",
+    "role_in_event": "与蔡侯、唐侯伐楚，舍舟于淮汭而自豫章与楚夹汉；柏举之役不许夫概先击而其功卒成，五战及郢，庚辰入郢「以班處宮」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E228",
+    "person_id": "P_FUGAI",
+    "role_in_event": "晨请先击子常之卒，阖庐弗许，乃以「臣義而行，不待命」径以其属五千先击而破楚师；及清发又以「困獸猶鬥」请半济而后击之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E228",
+    "person_id": "P_CAIZHAOHOU",
+    "role_in_event": "经书「蔡侯以吳子及楚人戰于柏舉」，以蔡侯居首——本役以蔡为主唱；其怨起于前507 为令尹子常所留三年",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E228",
+    "person_id": "P_NANGWA",
+    "role_in_event": "为楚令尹而将楚师，弃沈尹戌夹击之谋，济汉列阵自小别至于大别，三战欲奔；柏举一战其卒先溃，遂出奔于郑",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E228",
+    "person_id": "P_CHUZHAO",
+    "role_in_event": "己卯取其妹季芊、畀我以出，涉雎济江入于云中，遇盗，奔郧、奔随，随人辞吴而全之；惟本条落点在柏举，昭王于柏举无在场之文，从严不作在场论",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E229",
+    "person_id": "P_CHUZHAO",
+    "role_in_event": "秦师救楚、吴子既归，「楚子入于郢」，赏鬬辛、王孙由于、申包胥诸人，申包胥逃赏",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E229",
+    "person_id": "P_HELU",
+    "role_in_event": "与自立之夫概战而胜之；吴师五败于秦楚之师，「吳子乃歸」；惟本条落点在郢，阖庐于本年之行止传只书其与夫概战而后归，未书其在郢，从严不作在场论",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E229",
+    "person_id": "P_FUGAI",
+    "role_in_event": "九月先归吴国而自立为王，与阖庐战而败，奔楚为堂谿氏；战地传不书，本条落点在郢，从严不作在场论",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E230",
+    "person_id": "P_HELU",
+    "role_in_event": "伐越，陈于槜李；越以罪人三行自刭乱其师，越子因而伐之，灵姑浮以戈击之，伤将指，取其一屨，还而卒于陉",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E230",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "御吴而陈于槜李，患吴之整，使死士再禽不动，乃使罪人三行属剑于颈而自刭；师属之目，因而伐之，大败吴师",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E241",
+    "person_id": "P_FEIWUJI",
+    "role_in_event": "为太子少师而无宠，欲谮诸王：先以「建可室矣」劝王自取所聘之秦女，继以「大城城父而寘大子焉」远之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E241",
+    "person_id": "P_CHUPING",
+    "role_in_event": "使伍奢为太子师、费无极为少师；用无极之言自取秦女，又说而从其城城父之策",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E241",
+    "person_id": "P_TAIZIJIAN",
+    "role_in_event": "所聘之秦女为其父所取，又受策而出居城父；本条落点在楚廷，其人无在郢之明文",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E241",
+    "person_id": "P_WUSHE",
+    "role_in_event": "本年只见「使伍奢為之師」一语，为追叙其职而非本年之行动",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E242",
+    "person_id": "P_CHUPING",
+    "role_in_event": "信费无极「建與伍奢將以方城之外叛」之谗，执伍奢；使奋扬杀太子而奋扬遣之，召而赦之；以父质召伍奢二子，遂并杀奢与尚",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E242",
+    "person_id": "P_FEIWUJI",
+    "role_in_event": "进谗以成其事：既谗太子与伍奢，复献「盍以免其父召之」之计以致其二子",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E242",
+    "person_id": "P_WUSHE",
+    "role_in_event": "见执，对王曰「君一過多矣，何信於讒」；闻员不来，曰「楚君大夫其旰食乎」，与子尚同见杀",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E242",
+    "person_id": "P_TAIZIJIAN",
+    "role_in_event": "为谗所中，城父司马奋扬先遣之，三月奔宋；本条落点在郢，其人时在城父、继而出奔",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E242",
+    "person_id": "P_WUYUAN",
+    "role_in_event": "王以免父为辞召之而不往，谓「往而令讎不得報」之义由其兄尚代任；其时在外，无在郢之明文",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E243",
+    "person_id": "P_WUYUAN",
+    "role_in_event": "如吴，言伐楚之利于州于；闻公子光沮之，即知「彼將有他志」，乃退而求士，见鱄设诸而荐之，己耕于鄙",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E243",
+    "person_id": "P_HELU",
+    "role_in_event": "时为吴公子光，沮伍员伐楚之请曰「是宗為戮，而欲反其讎，不可從也」——其意不在楚而在王位",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E243",
+    "person_id": "P_ZHUANZHU",
+    "role_in_event": "为伍员所见而荐于公子光；传书其事系于「鄙」（郊野），非吴都，从严不作在场论",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E244",
+    "person_id": "P_SHENBAOXU",
+    "role_in_event": "如秦乞师，以「吳為封豕長蛇」陈利害；秦伯辞以就馆而不受，立依庭墙而哭，日夜不绝声、七日不饮，秦哀公为赋《无衣》，九顿首而坐",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E244",
+    "person_id": "P_WUYUAN",
+    "role_in_event": "传以「初」字追叙其与申包胥之约「我必復楚國」，为本条之所由起；其人时在吴军中，非本时本地之行动",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E244",
+    "person_id": "P_CHUZHAO",
+    "role_in_event": "昭王在随，申包胥乞师正为存其社稷；其人不在秦廷",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E226",
+    "person_id": "P_WUYUAN",
+    "role_in_event": "阖庐问伐楚之谋，对以「楚執政眾而乖，莫適任患」，献「亟肄以罷之，多方以誤之」之策，阖庐从之而楚始病",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E227",
+    "person_id": "P_WUYUAN",
+    "role_in_event": "为吴行人以谋楚——《左传·定公四年》明文，本库以此为伍员任职之系年（《史记》系于阖庐元年，早八年，见 Q349）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E227",
+    "person_id": "P_BOPI",
+    "role_in_event": "伯州犁之孙，楚杀郤宛而伯氏之族出，遂为吴大宰以谋楚；与伍员同年同段并书",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E228",
+    "person_id": "P_WUYUAN",
+    "role_in_event": "《左传·定公四年》详叙柏举与入郢诸节而通篇无其名；其与本役之关联，经传所书者只在同年秋「伍員為吳行人以謀楚」（E227）。掘墓鞭尸之说出《史记》（Q377／Q378），《左传》无之，本库不据以补其在场",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E229",
+    "person_id": "P_SHENBAOXU",
+    "role_in_event": "「申包胥以秦師至」——秦子蒲、子虎帅车五百乘救楚，楚遂复国；昭王赏功而其辞曰「吾為君也，非為身也」，遂逃赏",
+    "directness": "direct",
+    "presence": "亲至"
   }
 ]
