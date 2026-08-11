@@ -32,12 +32,12 @@
     <!-- 头部时间双标：品名标「经纬春秋」＋时间双标（纪年时段静态 + 考订前沿动态，app.js 由 meta.max 注入） -->
     <h1 class="site-title">经纬春秋<small class="site-range"><span class="sr-era">春秋 · 前770—前476</span><span class="sr-frontier" id="site-frontier">已考订至前591</span></small></h1>
   </a>
-  <!-- 全站搜索：一框检索人物/地点/事件/原文；680px 下收纳为图标展开 -->
+  <!-- 全站搜索：一框检索人物/地点/事件/原文/文献；680px 下收纳为图标展开 -->
   <div class="site-search" id="site-search">
     <button type="button" class="search-toggle" id="search-toggle" aria-expanded="false" aria-label="展开搜索">
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.6" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="15" y1="15" x2="20" y2="20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
-    <input type="search" id="global-search" placeholder="搜人物 · 地点 · 事件 · 原文"
+    <input type="search" id="global-search" placeholder="搜人物 · 地点 · 事件 · 原文 · 文献"
            autocomplete="off" role="combobox" aria-expanded="false" aria-haspopup="listbox"
            aria-controls="search-pop" aria-autocomplete="list" aria-label="全站搜索">
     <div class="search-pop" id="search-pop" role="listbox" aria-label="搜索结果" hidden></div>
@@ -214,7 +214,7 @@
       <nav class="rel-crumbs" id="rel-crumbs" aria-label="关系图游走路径"></nav>
       <div class="rel-tools">
         <button type="button" id="btn-rel-back" hidden>← 返回上一个中心</button>
-        <!-- 全景默认只画主角（r24a-2 裁定②b，现 29 人）；勾选后回到全库全环，「仅主角边」随之出现 -->
+        <!-- 全景默认只画主角（r24a-2 裁定②b，人数随入库变动，勿在此写死）；勾选后回全库全环，「仅主角边」随之出现 -->
         <label class="rel-filter" id="rel-showall-label" hidden><input type="checkbox" id="rel-show-all"><span id="rel-showall-text">显示全部</span></label>
         <label class="rel-filter" id="rel-filter-label" hidden><input type="checkbox" id="rel-proto-only">仅主角边</label>
         <button type="button" id="btn-rel-mode" aria-pressed="false">全景</button>
@@ -296,7 +296,7 @@
       <section>
         <h3>数据凡例（我们的规矩）</h3>
         <p><strong>可靠度三级</strong>：事件、地望、关系皆标 high / medium / low——high 可当骨架，medium 宜复核（多为追叙、纪年推算或异说并存），low 只作线索。<strong>亲至与相关</strong>：分"亲至"（史文明记其人身在事发地）与"相关"（事与其相关，而史文无其在场明文，如遣使代行、为其议婚）；判定从严——史无明文即标相关，地图轨迹只连亲至。<strong>「相关」是"史文没说他在"，不是"史文说他不在"</strong>：两者之别正是本库不替史料作断的分寸所在。</p>
-        <p><strong>坐标确定性</strong>：古地今址按"谭其骧《中国历史地图集》通说 → 杨伯峻《春秋左传注》 → 其他历史地理著作"的次第考订，异说并存则坐标降级、注明所据；确址无考者给区域近似并标 low，个别事件径注"不落图"。<strong>后出叙事分层</strong>：《史记》等晚出文献里的戏剧情节（管仲射钩、曹沫劫盟、病榻论三竖），一律另标"后出叙事"层，与《春秋》经传的当代记事分列，不相混。</p>
+        <p><strong>坐标确定性</strong>：古地今址按"谭其骧《中国历史地图集》通说 → 杨伯峻《春秋左传注》 → 其他历史地理著作"的次第考订，异说并存则坐标降级、注明所据；确址无考者给区域近似并标 low，个别事件径注"不落图"。<strong>后出叙事分层</strong>：《史记》等晚出文献里的戏剧情节（管仲射钩、曹沫劫盟、病榻论三竖），一律另标"后出叙事"层，与《春秋》经传的当代记事分列，不相混。<strong>经传无其名者不立人物条</strong>：某人若《春秋》经传与《国语》通篇无其名（如孙武），本库不为之立人物条目，其名只存于事目摘要与来源说明里——<strong>搜得到说明，查不到其人</strong>，这是有意为之，不是数据缺口。</p>
         <p>地图只是示意：列国底色与水系皆艺术化简笔，<strong>非考据疆界</strong>。</p>
       </section>
       <section>
@@ -310,7 +310,7 @@
       </section>
       <section>
         <h3>版本与反馈</h3>
-        <p id="about-version">当前版本 v0.16（第 17 类「论对」事件图标；晋都分作故绛与新田两点；晏婴、叔向两线上线，主角廿九人）。
+        <p id="about-version">当前版本 v0.17（第 10 个国色家族「吴」；阖庐、伍员两线上线，主角卅一人；全站搜索增「文献」一组）。
           <button type="button" class="tour-replay" id="tour-replay">重看引导</button></p>
         <!-- 许可声明（conventions §12·裁定3）：代码 MIT、数据 CC BY 4.0；文件在仓库根，站点部署根为 site/，
              故链接指向仓库内两文件的规范地址（同「开源仓库」外链域） -->
@@ -318,6 +318,7 @@
         <!-- 支持本站·次级入口（r18 Xu 裁定：主入口在首页底部分享行；此处保留一行安静次级入口，同一弹层） -->
         <p class="support-line">若愿支持本站长期考订，可<button type="button" class="support-link-btn" id="support-link">支持本站</button>。</p>
         <ul>
+          <li>v0.17 —— 吴国上线：新增两位主角<strong>阖庐</strong>（吴——专诸寘剑于鱼中而弑王僚、即位、问伐楚之谋于伍员、柏举之战而入郢、槜李伤将指而卒）与<strong>伍员</strong>（楚→吴——父兄见杀于楚而奔吴、荐鱄设诸而耕于鄙、为吴行人以谋楚），主角计卅一，首页地图新立<strong>吴分区</strong>（第 10 个国色家族「吴 · 海滨苍青」，底图补绘江南色块与杭州湾一段海岸）。两枚新徽记——阖庐「鱼中之剑」（传文「寘剑于鱼中」有鱼有剑，剑名「鱼肠」出说部，故取其形不取其名）、伍员「耒」（「乃见鱄设诸焉，而耕于鄙」）。首页徽记簇<strong>超六枚折为两行</strong>（齐组七人即受此惠）。全站搜索新增第五组<strong>「文献」</strong>：可检索来源书目及本库对该源的分层说明——搜「孙武」即知其人<strong>查无此条</strong>——《左传》《国语》通篇无其名，本库不为之立人物行，而《史记·吴太伯世家》的来源说明里把这件事原原本本交代了一遍</li>
           <li>v0.16 —— 新增两位主角：<strong>晏婴</strong>（齐，齐组第七人——居父丧、不与崔庆而歃、辞邶殿之邑、辞更宅而言「踊贵屦贱」、论季世、和与同异、谏禳彗）与<strong>叔向</strong>（晋，晋组第四人——栾氏之难见囚而祁奚请免、弭兵之会为介、与晏婴论季世、诒子产书论刑书、贺贫），选人、首页、时间线、地图、并观、全景六处一并可入，主角计廿九；两枚新徽记——晏婴「幅」（布帛之有幅，取其辞邑之对）、叔向「昧旦」（其所引谗鼎之铭「昧旦丕显」）。新增第 17 类事件图标「论对」（以谏诤、问对、贺辞等记言本身为一事者，如子产谏侵蔡之喜、晏婴论和与同异、叔向贺贫），时间线与编年同步呈现，编年「按分类」亦可单独筛出这一类；晋国都城依系年分作两点——前585 迁都以前落「绛（翼）」，以后落「新田（绛）」，故经传虽仍称「绛」，图上已各归其地（魏绛和戎、子产坏晋馆垣、叔向贺贫等七事随之改落新田）</li>
           <li>v0.15 —— 新增「编年」视图：全库事件按年铺开的大事年表，每行标年份（附鲁君纪年）、事件类别、事发地国色签与标题，同年之内依经传季月次第；点行展开其出处、可靠度与所系人物，人物签一点即回其人物线并定位同一条事件。此前只见于主角时间线的呈现方式，会漏掉未系于任何主角的事件（如齐太史书「崔杼弑其君」、宋之弭兵之会），现已一并可搜可达——全站搜索的事件与原文两组自此落编年并锚定其年。另有按国、按分类两组轻筛选</li>
           <li>v0.14 —— 人物色彩改为「国色制」：一国一色，同国人物同色，个人由徽记（形）分辨；并观双轨改以线型相分（主人物长划线、对照人物珠点线，端点圆／方），灰度下亦可辨；「添加对照人物」改开关式（再点已选者即移出、回单人），「对调」按钮退役；全屏播放控件移至左上角，不再遮挡地点卡片；新增第 27 位主角子产（郑）与第 16 类「政制」事件图标；关系全景图默认只列 27 位主角，勾「显示全部」可见全库；《诗经》引文的分层色由青绿改菉色，与郑国色分开</li>

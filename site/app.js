@@ -40,12 +40,20 @@ const PROTAGONISTS = [
   { id: "P_XUANJIANG",   color: "", badge: "badge_xuanjiang",   fallback: "宣姜", home: "卫" },
   { id: "P_SONGXIANG",   color: "", badge: "badge_songxiang",   fallback: "宋襄公" },
   { id: "P_XIAJI",       color: "", badge: "badge_xiaji",       fallback: "夏姬", home: "陈" },
+  { id: "P_HELU",        color: "", badge: "badge_helu",        fallback: "阖庐" },
+  /* 伍员 state「楚/吴」全链，首国为楚；其人物线主要发生国是吴——六条挂链中三条落吴都
+   * （E243 奔吴、E226 问伐楚之谋、E227 为吴行人），且**全部三处「亲至」落点皆在吴**，
+   * 楚（郢／柏举）与秦（雍）三条一律「相关」。故 home 覆盖为「吴」，同息妫（陈女而线在楚）之例；
+   * 人物卡上仍以流向 chip 标「楚→吴」，出身不因分区归属而被吞掉。 */
+  { id: "P_WUYUAN",      color: "", badge: "badge_wuyuan",      fallback: "伍员", home: "吴" },
 ];
-/* 九国色（styles.css :root 的单一源）。新增国色家族只改这一处，
- * 首页九分区、关系全景阵营底晕、分享卡色带、人物着色四处同步扩展。 */
+/* 国色家族（styles.css :root 的单一源）。新增国色家族只改这一处，
+ * 首页分区、关系全景阵营底晕、分享卡色带、编年国色签、人物着色五处同步扩展。
+ * r27 新立第 10 色「吴」（--state-wu #164F5C，海滨苍青系），判据全矩阵见 design_notes §2.1。 */
 const STATE_FAMILY_VAR = { "齐": "--state-qi", "鲁": "--state-lu", "郑": "--state-zheng",
                            "晋": "--state-jin", "秦": "--state-qin", "楚": "--state-chu",
-                           "卫": "--state-wei", "宋": "--state-song", "陈": "--state-chen" };
+                           "卫": "--state-wei", "宋": "--state-song", "陈": "--state-chen",
+                           "吴": "--state-wu" };
 /* 人物所属国（＝其国色的取值键，亦为关系全景的阵营键）：
  * 主角按「主要发生国」（meta.home 覆盖，否则 state 首国），非主角按 state 首国。
  * 使节点色与其在环上的阵营弧位一致（庄姜/宣姜归卫弧、息妫归楚弧、穆姬归秦弧、
@@ -116,6 +124,7 @@ const STATE_EPITHET = {
   "许": "姜姓四岳之后",
   "秦": "据崤函之固，西霸戎狄",
   "楚": "江汉之滨，南土大国",
+  "吴": "江海之滨，骤兴之国",
 };
 /* 首页地图（r12，docs/design/home_map_notes.md）：徽记簇簇心（底图坐标系）。
  * 属美术布局锚点，非史料落点——史料地点一律走 conventions 投影公式。
@@ -126,10 +135,13 @@ const STATE_EPITHET = {
  * 宋 中心(755.3,317.8) 半径(62.1,41.9)、陈 中心(698.8,380.6) 半径(40.9,30.3)；
  * 两块在 x 693–740 / y 350–360 一带相邻，故徽记分置对角（宋落国名右下、陈落国名右侧），
  * 各自在本块椭圆内（宋 0.34、陈 0.78 归一化半径），两簇心间距 53px＞两徽记直径 27px。 */
+/* r27 吴分区：底图新增 layer-states-southeast 的吴色块（中心 1082,540 半径 80,52，按新投影落笔，
+ * 覆太湖—江南一带），簇心落其块内偏下、避开「吴」国名（1044,528）与东南海岸线。
+ * r27 齐簇改折两行（见下 BADGE_ROW），簇心随之下移 8（168→176），令上行不压放大后的「齐」国名。 */
 const HOME_BADGE_POS = {
-  "齐": [930, 168], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 237],
+  "齐": [930, 176], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 237],
   "秦": [152, 300], "楚": [510, 610], "卫": [692, 214],
-  "宋": [770, 340], "陈": [732, 384],
+  "宋": [770, 340], "陈": [732, 384], "吴": [1086, 556],
 };
 const HOME_PENDING = "人物线整理中";
 /* 轨迹降级（r19b 通用机制）：亲至可落图地点不足两处者，无从连成轨迹，
@@ -153,7 +165,9 @@ function setPlayDegrade(mode, degraded) {
   if (btn) { btn.hidden = degraded; btn.disabled = degraded; }
   if (note) { note.hidden = !degraded; if (degraded) note.textContent = PLAY_DEGRADE_NOTE; }
 }
-const HOME_PENDING_HINT = "先看看有主角的国家——齐、鲁、郑、晋、秦、楚。";
+/* r27：原句把有主角之国逐一列名（「齐、鲁、郑、晋、秦、楚」），自 r19b 卫、r21 宋陈、r27 吴
+ * 陆续上线后它一直在悄悄变旧。改为不点名——文案不再随数据长，也就不会再过时。 */
+const HOME_PENDING_HINT = "先看看图上落有徽记的那几处——那里已有人物线可入。";
 const CAT_ICON = {
   "即位": "jiwei", "战争": "zhanzheng", "会盟": "huimeng", "相会": "xianghui",
   "婚嫁": "hunjia", "生育": "shengyu", "出奔": "chuben", "弑杀": "shisha",
@@ -584,6 +598,30 @@ function ellipseFinalGeom(el) {
     ry: ry * Math.hypot(m.c, m.d),
   };
 }
+/* 徽记簇排布（r27 立「超 6 枚折两行」，design_notes §5.8 v2.3 所记「候后议」项，裁定 7）。
+ *
+ * 何以要折：簇是「单行、间距 gap、居簇心」，行宽 ＝ gap×(n−1)+2R，随主角数线性增长——
+ * 齐组 7 枚时行宽 186px 已越出齐色块在该行的可用宽度（约 167px），最左一枚落到块外海面上；
+ * 8 枚时将达 217px。折两行把增长从「线性」压成「每两人加一格」，是换掉增长源、不是挪一挪位置。
+ *
+ * 两条取舍写明，免得后人当成随手之作：
+ *  ① **阈值取 6**（≤6 仍单行）：现库除齐外最多者郑组 5 枚（行宽 151），折之无益反而多占一行高；
+ *     6 枚行宽 182 尚在多数色块的可用宽度边缘，故门槛定在「超 6」，即第 7 枚起折。
+ *  ② **上行取 floor(n/2)、下行取 ceil(n/2)**——即较宽的一行在下。国名标注一律在簇之上
+ *     （首页地图国名放大至 26px），把窄行放在上方可少压字；两行各自居中于簇心 x。
+ * 行距 rowGap 须 ≥ 2R（27）方不相压，取 29 留 2px。 */
+function clusterSlots(metas, pos, gap, rowGap, fold) {
+  const n = metas.length;
+  const rows = n > fold ? [metas.slice(0, Math.floor(n / 2)), metas.slice(Math.floor(n / 2))]
+                        : [metas];
+  const out = [];
+  rows.forEach((row, ri) => {
+    const cy = pos[1] + (rows.length === 1 ? 0 : (ri - (rows.length - 1) / 2) * rowGap);
+    const x0 = pos[0] - ((row.length - 1) * gap) / 2;
+    row.forEach((meta, i) => out.push({ meta, cx: x0 + i * gap, cy }));
+  });
+  return out;
+}
 function buildHomeMap() {
   const box = $("#home-map");
   box.innerHTML = baseMapText;
@@ -593,8 +631,9 @@ function buildHomeMap() {
   svg.setAttribute("aria-label", "春秋列国示意图：点国入其人物线");
 
   // 海报化：色块饱和提一档、国名放大加深（人物地图用原参数，两处共用同一底图文件）
-  // r13 西扩：东部与西部色块（layer-states / layer-states-west）一并提档
-  svg.querySelectorAll("#layer-states, #layer-states-west").forEach(g => g.setAttribute("fill-opacity", "0.5"));
+  // r13 西扩：东部与西部色块（layer-states / layer-states-west）一并提档；r27 东南（吴）同办
+  svg.querySelectorAll("#layer-states, #layer-states-west, #layer-states-southeast")
+     .forEach(g => g.setAttribute("fill-opacity", "0.5"));
   svg.querySelectorAll("#layer-labels text[data-state]").forEach(t => {
     t.setAttribute("font-size", "26");
     t.setAttribute("fill", "#4E4338");
@@ -605,7 +644,7 @@ function buildHomeMap() {
   // 落于无变换的 hotLayer，两者热区皆与色块对齐（秦/楚亦成键盘可达热区，无主角→「整理中」）。
   const hotLayer = document.createElementNS(NS, "g");
   svg.appendChild(hotLayer);
-  svg.querySelectorAll("#layer-states ellipse[data-state], #layer-states-west ellipse[data-state]").forEach(el => {
+  svg.querySelectorAll("#layer-states ellipse[data-state], #layer-states-west ellipse[data-state], #layer-states-southeast ellipse[data-state]").forEach(el => {
     const st = el.dataset.state;
     const metas = homeGroups.get(st);
     const g = document.createElementNS(NS, "g");
@@ -635,8 +674,8 @@ function buildHomeMap() {
     hotLayer.appendChild(g);
   });
 
-  // 主角徽记簇：主题色圆底＋白线徽记，一行排布于簇心（HOME_BADGE_POS，美术布局锚点）
-  const BADGE_R = 13.5, BADGE_GAP = 31;
+  // 主角徽记簇：主题色圆底＋白线徽记，排布于簇心（HOME_BADGE_POS，美术布局锚点）
+  const BADGE_R = 13.5, BADGE_GAP = 31, BADGE_ROW = 29, BADGE_FOLD = 6;
   const clusterLayer = document.createElementNS(NS, "g");
   clusterLayer.setAttribute("aria-hidden", "true"); // 与热区同义，读屏只走热区
   svg.appendChild(clusterLayer);
@@ -645,11 +684,9 @@ function buildHomeMap() {
     if (!pos) continue;
     const cl = document.createElementNS(NS, "g");
     cl.setAttribute("class", "home-cluster");
-    const x0 = pos[0] - ((metas.length - 1) * BADGE_GAP) / 2;
-    metas.forEach((meta, i) => {
-      const cx = x0 + i * BADGE_GAP;
+    for (const { meta, cx, cy } of clusterSlots(metas, pos, BADGE_GAP, BADGE_ROW, BADGE_FOLD)) {
       const c = document.createElementNS(NS, "circle");
-      c.setAttribute("cx", cx); c.setAttribute("cy", pos[1]); c.setAttribute("r", BADGE_R);
+      c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", BADGE_R);
       c.setAttribute("fill", meta.color);
       c.setAttribute("stroke", "#F4EDDF");
       c.setAttribute("stroke-width", "1.6");
@@ -661,13 +698,13 @@ function buildHomeMap() {
         if (!t) return;
         const doc = new DOMParser().parseFromString(t, "image/svg+xml");
         const b = document.importNode(doc.documentElement, true);
-        b.setAttribute("x", cx - 9); b.setAttribute("y", pos[1] - 9);
+        b.setAttribute("x", cx - 9); b.setAttribute("y", cy - 9);
         b.setAttribute("width", 18); b.setAttribute("height", 18);
         b.style.color = "#FBF7EC";
         b.style.pointerEvents = "none";
         cl.appendChild(b);
       });
-    });
+    }
     cl.addEventListener("click", () => pickHomeState(st));
     clusterLayer.appendChild(cl);
   }
@@ -3291,10 +3328,31 @@ function renderLibList() {
     }
     b.appendChild(title);
     b.appendChild(sub);
+    b.dataset.libId = r.id;               // 身份标记：供搜索落锚按 id 取节点（design_notes §7.1 相一）
     b.addEventListener("click", () => showLibDetail(r, b));
     li.appendChild(b);
     list.appendChild(li);
   }
+  consumeLibSpot(list, rows);
+}
+/* 全站搜索「文献」组的落锚（r27）：展开该条详情、闪一下、滚到可见。
+ * 断言口径守 design_notes §7.3——落点类功能必须断到像素，故此处走 spotScrollInto（双 rAF），
+ * 与时间线/编年两处落锚同一条路径，不另写一份。 */
+function consumeLibSpot(list, rows) {
+  if (!pendingSpot || pendingSpot.view !== "library" || pendingSpot.type !== "source") return;
+  const sid = pendingSpot.sid;
+  const btn = list.querySelector('[data-lib-id="' + sid + '"]');
+  const row = rows.find(r => r.id === sid);
+  if (!btn || !row) return;               // 不在当前页签/被筛掉：留着 pendingSpot 由 render 清
+  pendingSpot = null;
+  const mobile = window.matchMedia("(max-width: 680px)").matches;
+  showLibDetail(row, btn);
+  btn.classList.add("spotlight");
+  setTimeout(() => btn.classList.remove("spotlight"), 2400);
+  /* 窄屏详情在列表之下（单栏纵排），故落锚取详情面板；桌面双栏取列表内的那一行。
+   * showLibDetail 自带的窄屏滚动是单 rAF——那条路径原本只由「读者点击」触发（无 hash 导航，
+   * 不受 §7.3 那一帧之争影响），本处却是导航之后，故此处一律另走双 rAF 的 spotScrollInto。 */
+  spotScrollInto(mobile ? $("#lib-detail") : btn, btn);
 }
 function showLibDetail(r, srcCard) {
   const panel = $("#lib-detail");
@@ -3372,8 +3430,10 @@ const REL_COLORS = {
   "拥立": "#44766B", "敌对": "#35302A", "师友": "#8A6D1F", "其他": "#8A8072",
 };
 /* 全景环形排位序：同国节点连续成弧，有主角之国另铺国色底晕。
- * r21 增「陈」（宋已在列）——宋、陈相邻置末，与首页分区末两位一致 */
-const STATE_ORDER = ["齐", "鲁", "郑", "晋", "周", "卫", "楚", "秦", "曹", "许", "申", "宋", "陈"];
+ * r21 增「陈」（宋已在列）——宋、陈相邻置末，与首页分区末两位一致。
+ * r27 增「吴」「越」置末：吴为本轮新立之国色家族（铺底晕），越暂无主角、只为使其人不落
+ * 「未列之国」的末槽而与吴分离——吴越比邻，环上亦令其相接。未列之国仍按原规则排在最后。 */
+const STATE_ORDER = ["齐", "鲁", "郑", "晋", "周", "卫", "楚", "秦", "曹", "许", "申", "宋", "陈", "吴", "越"];
 const SIDE_TYPES = ["君臣", "拥立", "敌对", "师友", "其他"];
 const isProto = (pid) => PROTAGONISTS.some(m => m.id === pid);
 
@@ -4260,16 +4320,23 @@ function showRelDetailDrawer(rels, pid) {
   openDrawer(relDetailTitle(rels, pid), wrap);
 }
 
-/* ---------- 全站搜索（r11）：一框检索人物/地点/事件/原文，纯前端包含匹配 ----------
+/* ---------- 全站搜索（r11）：一框检索人物/地点/事件/原文/文献，纯前端包含匹配 ----------
  * 匹配口径：小写化＋去空格的包含匹配；字段间以「|」隔断，避免跨字段误连。
  * 直达语义：人物（主角）→时间线，人物（非主角）→其 ego 关系图；地点→地图并高亮；
- * 事件→所属主角时间线定位展开；原文→事件详情内定位到引文块。 */
+ * 事件→编年定位展开；原文→编年卡内定位到引文块；**文献→资料库·来源页并展开该条**。
+ *
+ * 第五组「文献」（r27 补入）——起因是一个可检验的缺口：**孙武**。《左传》《国语》零明文，
+ * 依 conventions §2 T 层通例不立 `people` 行（r27 裁定 2），其名只存于 `E228.summary` 与
+ * `S011.notes`；而全站搜索此前四组里没有一组覆盖 `sources`，于是 `notes` 里那句
+ * 「《孙子》作者不见于经传」搜不到——**本库特意写下的那条分层说明，读者只能靠翻资料库撞见**。
+ * 资料库自己的搜索框（libRows）本就逐字段查、包含 notes，缺的只是全站这一框，故补一组即可。 */
 const searchNorm = (s) => (s || "").toLowerCase().replace(/\s+/g, "");
 const SEARCH_GROUPS = [
   { key: "people", name: "人物" },
   { key: "places", name: "地点" },
   { key: "events", name: "事件" },
   { key: "passages", name: "原文" },
+  { key: "sources", name: "文献" },
 ];
 const SEARCH_LIMIT = 8; // 每组先显 8 条，「更多」展开
 let SEARCH_INDEX = [];
@@ -4356,8 +4423,27 @@ function buildSearchIndex() {
       go: () => goSearchEvent(q.event_id, q.id),
     });
   }
+  /* 文献组：来源行的书名/篇章/性质/**说明**一并入检索文本。
+   * `notes` 是本库对该源之分层与用法的编者说明（如 S011 注明「《孙子》作者不见于经传」），
+   * 是「查无此人而有说明可读」这一路读者动线的唯一落点，故不可漏。 */
+  for (const s of DATA.sources) {
+    SEARCH_INDEX.push({
+      group: "sources",
+      text: searchNorm([s.title, s.work, s.section, s.author, s.category, s.source_type, s.notes]
+        .filter(Boolean).join("|")),
+      label: s.title,
+      sub: [srcTypeOf(s.id), s.section, s.category].filter(Boolean).join(" · "),
+      go: () => goSearchSource(s.id),
+    });
+  }
 }
 
+/* 文献直达：落资料库「来源」页并展开该条（不预填资料库自己的检索框——
+ * 预填会把列表筛成一行，读者反而看不见它在全部文献中的位置）。落锚由 consumeLibSpot 完成。 */
+function goSearchSource(sid) {
+  pendingSpot = { view: "library", type: "source", sid };
+  setHash(null, "library", "sources", "");
+}
 function goSearchPerson(pid) {
   if (isProto(pid) && PEOPLE[pid]) { setHash(pid, "timeline"); return; }
   pendingSpot = { view: "relations", type: "ego", pid };
