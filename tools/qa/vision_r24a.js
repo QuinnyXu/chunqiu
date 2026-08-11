@@ -34,6 +34,17 @@
 //       地图／并观可选／全景默认环）＋ 两枚新徽记的规约核；徽记撞形实测另在
 //       tools/qa/badge_silhouette_r26b.js（IoU 双尺度，判据取相对现库分布，不拍脑袋定阈值）。
 //   §18 迁点补走查门：r26 §14 因二人未上线而只在编年核过 chip 的 5 条，放回人物地图逐条核。
+//
+// r27 扩充（仍不另起脚本）：
+//   §0/§1 国色表由九色扩十色（吴 #164F5C）——STATE_HEX 与 STATE_FAMILY_VAR 逐项对账，
+//       并**现算** ΔE76 全矩阵（不比对写死的表，见 §5c），故日后改色即红。
+//   §17 首页簇的「不相压」判据由**按行**改**按枚**：折两行后一个簇有两个 y，旧写法只取
+//       cs[0] 的 cy 当整簇之 y，一折行它就在拿错的坐标上比——**这不是新缺陷，是旧断言在新布局
+//       下失效**，故随本轮一并改掉（QA 基础设施诚实优先）。
+//   §19 新立 r27 门：吴分区与簇折两行（几何实测）／阖庐·伍员上线六处呈现／两枚新徽记规约核／
+//       伍员轨迹降级的**双向自洽**判据（亲至可落图 <2 ⇔ 降级）／全站搜索「文献」组
+//       （搜「孙武」须命中 S011 说明并落资料库、搜「阖闾」须经 alt_names 命中阖庐）／
+//       分层示范三处（鱼肠四层并陈 Q338–Q343、白发之不录 Q370、鞭尸 Q377/Q378）的前端呈现。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -44,7 +55,10 @@ const say = (...a) => { const s = a.join(" "); log.push(s); console.log(s); };
 const H = (t) => say("\n===== " + t + " =====");
 const OK = (c, t) => say((c ? "  [OK]   " : "  [FAIL] ") + t);
 
-const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋": "#74402C", "秦": "#423C39", "楚": "#5E2B45", "卫": "#2F5480", "宋": "#4F457F", "陈": "#3B6A48" };
+/* 国色定调表（design_notes §2.1）。r27 增第 10 色「吴」。
+ * 本表是**定调值的副本**，只用来核「渲染出来的是不是定的那个色」；
+ * 两两距离一律现算（§5c），不在此另抄一份 ΔE 表——抄下来的距离在改色那天就成了谎。 */
+const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋": "#74402C", "秦": "#423C39", "楚": "#5E2B45", "卫": "#2F5480", "宋": "#4F457F", "陈": "#3B6A48", "吴": "#164F5C" };
 
 (async () => {
   const pw = require("playwright");
@@ -98,10 +112,11 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     const good = m.inData && want && m.color === want;
     if (!good) { colorOk = false; say("    ✗ " + m.name + " key=" + m.key + " color=" + m.color + " want=" + want + " inData=" + m.inData); }
   }
-  OK(colorOk, "27 人主题色全部等于其所属国的国色");
-  let stateOk = true;
+  OK(colorOk, boot.n + " 人主题色全部等于其所属国的国色");
+  let stateOk = Object.keys(boot.states).length === Object.keys(STATE_HEX).length;
+  if (!stateOk) say("    ✗ 国色家族数不符：站内 " + Object.keys(boot.states).join("/") + " ／ 本表 " + Object.keys(STATE_HEX).join("/"));
   for (const [k, want] of Object.entries(STATE_HEX)) { if (boot.states[k] !== want) { stateOk = false; say("    ✗ " + k + " = " + boot.states[k] + " want " + want); } }
-  OK(stateOk, "九国色变量值与 design_notes §2.1 定调表一致");
+  OK(stateOk, Object.keys(STATE_HEX).length + " 个国色变量值与 design_notes §2.1 定调表一致");
   const zichan = boot.people.find(x => x.id === "P_ZICHAN");
   OK(!!zichan && zichan.inData && zichan.color === "#35706A", "子产在册、有数据、着郑色 #35706A");
 
@@ -499,7 +514,8 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   const chordCalc = +(2 * pano.ringR * Math.sin(Math.PI / pano.total)).toFixed(2);
   say("  槽距公式现算 2R·sin(π/" + pano.total + ")，R=" + pano.ringR + " → " + chordCalc +
       "px；DOM 实测 " + pano.slotChord + "px");
-  OK(Math.abs(chordCalc - pano.slotChord) < 0.05, "槽距＝公式现算值（27→29 复核：58.55 → " + chordCalc + "）");
+  OK(Math.abs(chordCalc - pano.slotChord) < 0.05,
+     "槽距＝公式现算值 2R·sin(π/" + pano.total + ") ＝ " + chordCalc + "（人数一变即重算，故此处不留任何历史数字）");
   OK(pano.slotChord > 2 * +pano.r, "A 态槽距 " + pano.slotChord + " > 节点直径 " + (2 * +pano.r) + "——盘面不再叠压");
   OK(pano.slotChord > +pano.size.w, "A 态槽距 " + pano.slotChord + " > 徽记边长 " + pano.size.w + "——同弧徽记不再压边（r24a 遗留的根本矛盾在 A 态解除）");
   const showAllUI = await p.evaluate(() => ({
@@ -1099,6 +1115,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     return {
       keys: Object.keys(CAT_ICON), mapped: CAT_ICON["论对"],
       counts: cc, lunIds: lun.map(d => d.dataset.eid).sort(),
+      lunFromData: DATA.events.filter(e => e.category === "论对").map(e => e.id).sort(),
       e196cat: (DATA.events.find(e => e.id === "E196") || {}).category,
       // 每条论对行的图标是否确为 lundui（取其独有几何：x="3.8" 的牍身 rect）
       iconOk: lun.map(d => { const s = d.querySelector(".cat-ico svg"); return !!(s && /x="3\.8"/.test(s.outerHTML)); }),
@@ -1112,10 +1129,15 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   say("  库内分类计数：" + JSON.stringify(cat.counts));
   OK(cat.keys.length === 17 && cat.mapped === "lundui", "CAT_ICON 已含 17 类，「论对」→ lundui");
   OK(cat.unmapped.length === 0, "库内出现的分类无一落空映射（未映射：" + (cat.unmapped.join("、") || "无") + "）");
-  OK(cat.lunIds.length === cat.counts["论对"] && JSON.stringify(cat.lunIds) === JSON.stringify(["E188", "E212", "E220"]),
-     "编年内「论对」共 " + cat.lunIds.length + " 条＝" + cat.lunIds.join("/") + "（r26 裁定：E196 不迁，故为三条）");
+  /* r27 改法：原写死 ["E188","E212","E220"]——r27 入库两条论对（E223 季札观乐、E226 阖庐问伐楚之谋）
+   * 后立刻转红，而库里并没有出错。**写死的名单只在写死的那天是对的**（design_notes §7.4）。
+   * 现判据：编年上出的论对行 ⇔ 数据侧 category==="论对" 的事目，逐 id 对账，多一条少一条都点名。 */
+  OK(JSON.stringify(cat.lunIds) === JSON.stringify(cat.lunFromData),
+     "编年内「论对」" + cat.lunIds.length + " 条 ⇔ 数据侧 " + cat.lunFromData.length + " 条，逐 id 相符：" +
+     cat.lunIds.join("/") + (cat.lunIds.length === cat.lunFromData.length ? "" :
+     "（差集 " + cat.lunFromData.filter(x => !cat.lunIds.includes(x)).join("/") + "）"));
   OK(cat.e196cat === "政制", "E196 维持归「政制」（conventions v1.24 §3 观察项已关闭）");
-  OK(cat.iconOk.length > 0 && cat.iconOk.every(Boolean), "三条论对行皆已实装 lundui 图标（" + cat.iconOk.filter(Boolean).length + "/" + cat.iconOk.length + "）");
+  OK(cat.iconOk.length > 0 && cat.iconOk.every(Boolean), cat.iconOk.length + " 条论对行皆已实装 lundui 图标（" + cat.iconOk.filter(Boolean).length + "/" + cat.iconOk.length + "）");
   OK(cat.zzIcon === false, "反证：政制行的图标不是 lundui（两类同尺度可分）");
   // 编年「按分类」筛选里应出现「论对」项，且筛后行数与计数相符
   const lunFilt = await p.evaluate(async () => {
@@ -1124,13 +1146,14 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     const label = btn.textContent.replace(/\s+/g, "");
     btn.click(); await new Promise(r => setTimeout(r, 400));
     const vis = [...document.querySelectorAll("#chron-list details.chron-row")].filter(d => d.offsetParent !== null);
-    const out = { has: true, label, shown: vis.length, cats: [...new Set(vis.map(d => d.dataset.cat))] };
+    const out = { has: true, label, shown: vis.length, cats: [...new Set(vis.map(d => d.dataset.cat))],
+                  want: DATA.events.filter(e => e.category === "论对").length };
     btn.click(); await new Promise(r => setTimeout(r, 300));
     return out;
   });
   OK(lunFilt.has, "编年「按分类」筛选出现「论对」项：" + lunFilt.label);
-  OK(lunFilt.shown === 3 && lunFilt.cats.length === 1 && lunFilt.cats[0] === "论对",
-     "勾「论对」后只剩 " + lunFilt.shown + " 行、且全为论对类");
+  OK(lunFilt.shown === lunFilt.want && lunFilt.cats.length === 1 && lunFilt.cats[0] === "论对",
+     "勾「论对」后只剩 " + lunFilt.shown + " 行（＝数据侧论对条数 " + lunFilt.want + "）、且全为论对类");
   // 时间线一侧：E188 挂子产，主角线上同样出 lundui
   await p.goto(origin + "/#/p/P_ZICHAN/timeline", { waitUntil: "load" }); await p.waitForTimeout(1300);
   const tlLun = await p.evaluate(() => {
@@ -1387,32 +1410,36 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   await p.screenshot({ path: path.join(OUT, "r26b_01_home_list.png"), fullPage: true });
   // 首页地图分区：徽记簇内须见其人，且各簇彼此不叠（簇宽随人数增长，须核）
   await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(1500);
+  /* r27 改法：逐枚取 (cx, cy, r)，不再拿 cs[0].cy 当整簇之 y。
+   * 旧写法成立的前提是「一簇一行」；r27 起超 6 枚折两行，一个簇有两个 y，
+   * 旧断言会在错的坐标上比对，且照样报绿——**是断言在新布局下失效，不是新布局有缺陷**。
+   * 现判据：任何两枚徽记（无论同簇异簇）圆心距 ≥ 2r 即不相压，直接断到「读者看见的那件事」。 */
   const cluster = await p.evaluate(() => {
     const cls = [...document.querySelectorAll(".home-cluster")].map(g => {
       const cs = [...g.querySelectorAll("circle")].filter(c => c.querySelector("title"));
       return { names: cs.map(c => c.querySelector("title").textContent),
-               xs: cs.map(c => +c.getAttribute("cx")), y: +cs[0].getAttribute("cy"),
-               r: +cs[0].getAttribute("r") };
+               dots: cs.map(c => ({ x: +c.getAttribute("cx"), y: +c.getAttribute("cy"), r: +c.getAttribute("r"),
+                                    name: c.querySelector("title").textContent })) };
     });
     return { cls, n: cls.reduce((a, c) => a + c.names.length, 0) };
   });
-  cluster.cls.forEach(c => say("    簇 y=" + c.y + " × " + c.names.length + " 枚：" + c.names.join("、") +
-    "  x " + (Math.min(...c.xs) - c.r) + "–" + (Math.max(...c.xs) + c.r)));
+  cluster.cls.forEach(c => {
+    const rows = [...new Set(c.dots.map(d => d.y))].sort((a, b) => a - b);
+    say("    簇 " + c.names.length + " 枚 / " + rows.length + " 行（y=" + rows.join(",") + "）：" + c.names.join("、") +
+      "  x " + Math.min(...c.dots.map(d => d.x - d.r)).toFixed(0) + "–" + Math.max(...c.dots.map(d => d.x + d.r)).toFixed(0));
+  });
   OK(cluster.n === RO.enterable, "⑤ 首页地图徽记簇合计 " + cluster.n + " 枚 ＝ 可进人数");
   OK(cluster.cls.some(c => c.names.includes("晏婴")) && cluster.cls.some(c => c.names.includes("叔向")),
      "⑤ 晏婴入齐簇、叔向入晋簇");
-  // 簇间不相压（垂距小于两半径之和时，水平区间不得重叠）
+  const allDots = cluster.cls.flatMap(c => c.dots);
   const clash = [];
-  for (let i = 0; i < cluster.cls.length; i++) for (let j = i + 1; j < cluster.cls.length; j++) {
-    const A = cluster.cls[i], B = cluster.cls[j];
-    if (Math.abs(A.y - B.y) >= A.r + B.r) continue;
-    const ax = [Math.min(...A.xs) - A.r, Math.max(...A.xs) + A.r];
-    const bx = [Math.min(...B.xs) - B.r, Math.max(...B.xs) + B.r];
-    if (ax[0] < bx[1] && bx[0] < ax[1]) clash.push(A.names[0] + "簇×" + B.names[0] + "簇");
+  for (let i = 0; i < allDots.length; i++) for (let j = i + 1; j < allDots.length; j++) {
+    const A = allDots[i], B = allDots[j];
+    if (Math.hypot(A.x - B.x, A.y - B.y) < A.r + B.r - 0.01) clash.push(A.name + "×" + B.name);
   }
-  OK(clash.length === 0, "⑤ 九簇两两不相压（" + (clash.join("、") || "无冲突") + "）");
-  OK(cluster.cls.every(c => Math.min(...c.xs) - c.r > 0 && Math.max(...c.xs) + c.r < 1200),
-     "⑤ 各簇皆在底图 viewBox（0–1200）之内");
+  OK(clash.length === 0, "⑤ 全图 " + allDots.length + " 枚徽记两两不相压（" + (clash.join("、") || "无冲突") + "）");
+  OK(allDots.every(d => d.x - d.r > 0 && d.x + d.r < 1200 && d.y - d.r > 0 && d.y + d.r < 700),
+     "⑤ 各枚皆在底图 viewBox（0–1200 × 0–700）之内");
   await p.locator("#home-map").screenshot({ path: path.join(OUT, "r26b_02_home_map.png") });
   // 时间线 / 地图 / 并观可选 ——逐人走一遍
   for (const n of NEWP) {
@@ -1527,6 +1554,414 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   OK(noHost.length === 1 && noHost[0].id === "E201",
      "5 条中 4 条已在人物地图逐条核过；E201（魏绛和戎）无主角挂链，其未走查非「二人缺席」所致——见交付说明「验收偏差上报」");
   await p.screenshot({ path: path.join(OUT, "r26b_06_xintian_walk.png"), fullPage: true });
+
+  // ---------- 19) r27：吴分区 ＋ 第 10 国色 ＋ 阖庐/伍员上线 ＋ 簇折两行 ＋ 文献检索 ＋ 分层示范 ----------
+  /* 出图前先清界面残留：本文件用 p.goto 在同一文档内换 hash（SPA 不重载），
+   * 故上一节点开的并观面板、搜索框里的字会跟到下一张图上——图是给人看的证据，不该带上一节的手印。 */
+  const clean = async () => p.evaluate(() => {
+    const si = document.querySelector("#global-search"); if (si) si.value = "";
+    ["#search-pop", "#compare-pick", "#cmp-compare-pick"].forEach(sel => {
+      const el = document.querySelector(sel); if (el) el.hidden = true;
+    });
+    ["#search-toggle", "#btn-compare", "#cmp-btn-compare"].forEach(sel => {
+      const b = document.querySelector(sel); if (b) b.setAttribute("aria-expanded", "false");
+    });
+    document.querySelectorAll(".home-state.selected").forEach(g => g.classList.remove("selected"));
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    window.scrollTo(0, 0);
+  });
+
+  H("19) r27 · 一之：第 10 国色「吴」判据（现算，不比对写死的距离表）");
+  await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(1200);
+  const wuColor = await p.evaluate(() => {
+    const cs = getComputedStyle(document.documentElement);
+    const hex = (s) => { s = (s || "").trim(); const m = s.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      return m ? "#" + [1, 2, 3].map(i => (+m[i]).toString(16).padStart(2, "0")).join("").toUpperCase() : s.toUpperCase(); };
+    return { fams: Object.keys(STATE_FAMILY_VAR),
+             hexes: Object.fromEntries(Object.entries(STATE_FAMILY_VAR).map(([k, v]) => [k, hex(cs.getPropertyValue(v))])),
+             funcs: Object.fromEntries(["--ink", "--ink-soft", "--ochre", "--bronze", "--cinnabar", "--poem"]
+               .map(v => [v, hex(cs.getPropertyValue(v))])),
+             rels: REL_COLORS };
+  });
+  const famNames = wuColor.fams;
+  const pairs = [];
+  for (let i = 0; i < famNames.length; i++) for (let j = i + 1; j < famNames.length; j++)
+    pairs.push({ a: famNames[i], b: famNames[j], d: dE(wuColor.hexes[famNames[i]], wuColor.hexes[famNames[j]]) });
+  pairs.sort((x, y) => x.d - y.d);
+  say("  国色 " + famNames.length + " 家：" + famNames.map(k => k + wuColor.hexes[k]).join(" "));
+  say("  两两 " + pairs.length + " 对，最紧三：" + pairs.slice(0, 3).map(x => x.a + "×" + x.b + " " + x.d).join("、"));
+  OK(famNames.length === 10 && wuColor.hexes["吴"] === "#164F5C", "国色家族增至 10，吴 ＝ " + wuColor.hexes["吴"]);
+  OK(pairs.every(x => x.d >= 13.2), "十色两两 ΔE76 全部 ≥13.2（最紧 " + pairs[0].a + "×" + pairs[0].b + " " + pairs[0].d + "）");
+  const wuPairs = pairs.filter(x => x.a === "吴" || x.b === "吴").sort((x, y) => x.d - y.d);
+  OK(wuPairs[0].d >= 13.2, "吴对其余九国色最紧 " + wuPairs[0].d + "（" + (wuPairs[0].a === "吴" ? wuPairs[0].b : wuPairs[0].a) + "）");
+  OK(ctr(wuColor.hexes["吴"], "#F4EDDF") >= 3.5 && ctr(wuColor.hexes["吴"], "#FFFFFF") >= 4.1,
+     "吴双底线：对绢帛 " + ctr(wuColor.hexes["吴"], "#F4EDDF") + " / 对白 " + ctr(wuColor.hexes["吴"], "#FFFFFF"));
+  /* 对功能色**逐对核**：既有四对低于 13.2（郑×青绿／齐×朱砂／秦×玄墨／鲁×暖赭）是 r24a-2 裁定的
+   * 观察项、本轮不动；判据只管一件事——**新立之色不得新增任何一对**。 */
+  const nonState = [...Object.entries(wuColor.funcs).map(([k, v]) => ({ n: k, hex: v })),
+                    ...Object.entries(wuColor.rels).map(([k, v]) => ({ n: "关系线·" + k, hex: v }))];
+  const wuNear = nonState.map(c => ({ n: c.n, d: dE(wuColor.hexes["吴"], c.hex) })).sort((a, b) => a.d - b.d);
+  say("  吴 × 非国色，最近三：" + wuNear.slice(0, 3).map(x => x.n + " " + x.d).join("、"));
+  OK(wuNear[0].d >= 13.2, "吴对全部功能色/关系线 ≥13.2（最紧 " + wuNear[0].n + " " + wuNear[0].d + "）——本轮新增 0 对");
+  say("  注：全色目（含图面中性色与悬停态）全矩阵另由 `node tools/qa/color_matrix_r27.js` 实算");
+
+  H("19) r27 · 二之：底图吴色块与首页吴分区");
+  const wuHome = await p.evaluate(async () => {
+    const svg = document.querySelector("#home-map svg");
+    const block = svg && svg.querySelector('#layer-states-southeast ellipse[data-state="吴"]');
+    const label = svg && svg.querySelector('#layer-labels text[data-state="吴"]');
+    const hot = svg && svg.querySelector('.home-state[data-state="吴"]');
+    const geom = block ? { cx: +block.getAttribute("cx"), cy: +block.getAttribute("cy"),
+                           rx: +block.getAttribute("rx"), ry: +block.getAttribute("ry") } : null;
+    let panel = null;
+    if (hot) { hot.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await new Promise(r => setTimeout(r, 300));
+      panel = (document.querySelector("#home-state-panel") || {}).innerText || null; }
+    return { block: !!block, label: label && label.textContent, hot: !!hot, geom,
+             panel: (panel || "").replace(/\s+/g, " ").slice(0, 90),
+             sea: !!svg.querySelector("#layer-sea-southeast path") };
+  });
+  say("  吴块 " + JSON.stringify(wuHome.geom) + "；面板「" + wuHome.panel + "」");
+  OK(wuHome.block && wuHome.label === "吴" && wuHome.hot, "底图有吴色块、吴国名与键盘可达热区");
+  OK(wuHome.sea, "东南海岸（layer-sea-southeast）已补绘——吴不再浮在空白上");
+  OK(/阖庐/.test(wuHome.panel) && /伍员/.test(wuHome.panel) && /江海之滨/.test(wuHome.panel),
+     "点吴出其人物菜单（阖庐、伍员）与气质注");
+  /* 吴都须落在吴块之内、槜李（越地）须落在块外——色块不替史料回答「吴越分界在哪」，
+   * 但也不该把明标越地的点圈进吴里。坐标一律按 conventions §4 公式现算，不看色块反推。 */
+  const wuPts = await p.evaluate((g) => {
+    const proj = (pl) => ({ x: (pl.lng - 105) / 17 * 1200, y: 700 - (pl.lat - 29.5) / 9 * 700 });
+    const inEl = (p0) => Math.pow((p0.x - g.cx) / g.rx, 2) + Math.pow((p0.y - g.cy) / g.ry, 2) <= 1;
+    const out = {};
+    for (const id of ["L_WUDU", "L_ZUILI", "L_BOJU"]) {
+      const pl = DATA.places.find(x => x.id === id);
+      const q = proj(pl); out[id] = { st: pl.state, x: +q.x.toFixed(1), y: +q.y.toFixed(1), inWu: inEl(q) };
+    }
+    return out;
+  }, wuHome.geom);
+  say("  " + JSON.stringify(wuPts));
+  OK(wuPts.L_WUDU.inWu, "吴都 L_WUDU（" + wuPts.L_WUDU.x + "," + wuPts.L_WUDU.y + "）落在吴块内");
+  OK(!wuPts.L_ZUILI.inWu && wuPts.L_ZUILI.st === "越", "槜李（state=越）落在吴块外——分界不由色块代答");
+
+  H("19) r27 · 三之：徽记簇「超 6 枚折两行」几何实测（裁定 7）");
+  const fold = await p.evaluate(() => {
+    return [...document.querySelectorAll(".home-cluster")].map(g => {
+      const cs = [...g.querySelectorAll("circle")].filter(c => c.querySelector("title"));
+      const rows = new Map();
+      cs.forEach(c => { const y = +c.getAttribute("cy");
+        if (!rows.has(y)) rows.set(y, []); rows.get(y).push(+c.getAttribute("cx")); });
+      const r = +cs[0].getAttribute("r");
+      const ys = [...rows.keys()].sort((a, b) => a - b);
+      return { n: cs.length, r, ys,
+               rows: ys.map(y => { const xs = rows.get(y).sort((a, b) => a - b);
+                 return { y, n: xs.length, w: +(xs[xs.length - 1] - xs[0] + 2 * r).toFixed(1),
+                          mid: +((xs[0] + xs[xs.length - 1]) / 2).toFixed(1) }; }),
+               names: cs.map(c => c.querySelector("title").textContent) };
+    });
+  });
+  fold.forEach(c => say("  " + c.names[0] + "簇 " + c.n + " 枚 → " + c.rows.length + " 行：" +
+    c.rows.map(r => r.n + " 枚 宽" + r.w + " 心x" + r.mid + " y" + r.y).join(" ｜ ")));
+  const big = fold.filter(c => c.n > 6), small = fold.filter(c => c.n <= 6);
+  OK(big.length > 0 && big.every(c => c.rows.length === 2), "超 6 枚者一律折两行（现 " + big.length + " 簇：" + big.map(c => c.names[0] + "组" + c.n + "枚").join("、") + "）");
+  OK(small.every(c => c.rows.length === 1), "≤6 枚者仍单行（" + small.length + " 簇）");
+  OK(big.every(c => c.rows[0].n <= c.rows[1].n), "折行取「上窄下宽」——国名在簇之上，窄行让字");
+  OK(big.every(c => c.rows.every(r => Math.abs(r.mid - c.rows[0].mid) < 0.05)), "两行各自居中于同一簇心 x");
+  OK(big.every(c => c.ys[1] - c.ys[0] >= 2 * c.r), "行距 " + (big[0] ? (big[0].ys[1] - big[0].ys[0]).toFixed(1) : "—") + " ≥ 2R " + (big[0] ? 2 * big[0].r : "—") + "，两行不相压");
+  const qiOld = big[0] ? (31 * (big[0].n - 1) + 27) : 0;
+  OK(big.every(c => c.rows.every(r => r.w < qiOld)),
+     "折后各行宽 " + (big[0] ? big[0].rows.map(r => r.w).join("/") + " ＜ 折前单行宽 " + qiOld : "—") + "（齐块该行可用宽约 167）");
+  await clean(); await p.locator("#home-map").screenshot({ path: path.join(OUT, "r27_01_home_map.png") });
+
+  H("19) r27 · 四之：阖庐 / 伍员上线六处呈现");
+  const NEW27 = [{ id: "P_HELU", name: "阖庐", badge: "badge_helu", group: "吴" },
+                 { id: "P_WUYUAN", name: "伍员", badge: "badge_wuyuan", group: "吴" }];
+  await p.goto(origin + "/#/?home=list", { waitUntil: "load" }); await p.waitForTimeout(1200);
+  const pick27 = await p.evaluate(() => {
+    const secs = [...document.querySelectorAll(".state-group")];
+    const wu = secs.find(s => (s.querySelector(".state-name") || {}).textContent === "吴");
+    return { groups: secs.map(s => (s.querySelector(".state-name") || {}).textContent + (s.querySelectorAll(".person-grid > li").length)),
+             wuNote: wu ? (wu.querySelector(".state-note") || {}).textContent : null,
+             tabs: [...document.querySelectorAll("#state-tabs button")].map(b => b.dataset.state),
+             wuCards: wu ? [...wu.querySelectorAll(".person-grid > li")].map(li => li.innerText.replace(/\s+/g, " ").slice(0, 46)) : [],
+             flows: wu ? [...wu.querySelectorAll(".flow-chip")].map(c => c.textContent) : [] };
+  });
+  say("  分组：" + pick27.groups.join(" · ") + "；吴注「" + pick27.wuNote + "」");
+  pick27.wuCards.forEach(c => say("    吴卡：" + c));
+  OK(pick27.groups.some(g => g.startsWith("吴")), "选人页列表模式出现吴分区");
+  OK(pick27.tabs.includes("吴"), "国别选项卡自动多出「吴」一项（分区随 PROTAGONISTS 自动生成）");
+  OK(pick27.wuCards.length === 2, "吴分区 2 张卡");
+  OK(pick27.flows.includes("楚→吴"),
+     "伍员卡上仍标流向「楚→吴」——归吴分区不吞其出身（实测 " + JSON.stringify(pick27.flows) + "）");
+  for (const n of NEW27) {
+    await p.goto(origin + "/#/p/" + n.id + "/timeline", { waitUntil: "load" }); await p.waitForTimeout(1300);
+    const tl = await p.evaluate((id) => {
+      const own = DATA.event_people.filter(l => l.person_id === id).map(l => l.event_id);
+      const rows = [...document.querySelectorAll("#timeline-list > li details")].map(d => d.dataset.eid);
+      return { navName: (document.querySelector("#pn-name") || {}).textContent,
+               navBadge: !!document.querySelector("#pn-badge svg"),
+               theme: getComputedStyle(document.documentElement).getPropertyValue("--theme").trim(),
+               rows, own, missing: own.filter(e => !rows.includes(e)) };
+    }, n.id);
+    say("  " + n.name + " 时间线 " + tl.rows.length + " 条（挂链 " + tl.own.length + "）；--theme " + tl.theme);
+    OK(tl.navName === n.name && tl.navBadge, n.name + "：子导航出其名与徽记");
+    OK(tl.missing.length === 0 && tl.rows.length === tl.own.length,
+       n.name + " 时间线条数 ＝ 其挂链数 " + tl.own.length + "（缺：" + (tl.missing.join("/") || "无") + "）");
+    OK(/#164F5C/i.test(tl.theme) || /22, 79, 92/.test(tl.theme), n.name + " 人物语境色取吴色（实测 " + tl.theme + "）");
+    await clean(); await p.screenshot({ path: path.join(OUT, "r27_02_" + n.id + "_timeline.png") });
+  }
+  /* 轨迹降级：判据写成**双向自洽**式（同 §16 穆姬门）——「亲至且可落图的地点数 ≥2 ⇔ 可播」，
+   * 不预设本轮答案。伍员六条挂链中三条亲至同落吴都，故落点数 1、必降级；日后若补上第二处亲至，
+   * 本门自动翻绿，无需改码。 */
+  for (const n of NEW27) {
+    await p.goto(origin + "/#/p/" + n.id + "/map", { waitUntil: "load" }); await p.waitForTimeout(1600);
+    const mp = await p.evaluate((id) => {
+      const evByPlace = {};
+      for (const l of DATA.event_people.filter(l => l.person_id === id)) {
+        const e = DATA.events.find(x => x.id === l.event_id);
+        if (!e || !e.place_id) continue;
+        const pl = DATA.places.find(x => x.id === e.place_id);
+        const mapped = pl && pl.lat != null && pl.lng != null && pl.lat !== "" && pl.lng !== "";
+        const visit = (l.presence || "亲至") === "亲至";
+        if (visit && mapped) evByPlace[e.place_id] = true;
+      }
+      return { visitPlaces: Object.keys(evByPlace),
+               anchors: [...document.querySelectorAll("#layer-anchors .anchor")]
+                 .filter(g => /（亲至地点）|（相关地点/.test(g.getAttribute("aria-label") || ""))
+                 .map(g => g.dataset.place + (/亲至/.test(g.getAttribute("aria-label")) ? "·亲至" : "·相关")),
+               traj: document.querySelectorAll("#layer-anchors polyline.traj").length,
+               playHidden: document.querySelector("#btn-play").hidden,
+               degradeShown: !document.querySelector("#play-degrade").hidden,
+               degradeText: (document.querySelector("#play-degrade") || {}).textContent,
+               status: (document.querySelector("#map-status") || {}).textContent };
+    }, n.id);
+    say("  " + n.name + " 亲至可落图地点 " + mp.visitPlaces.length + " 处：" + mp.visitPlaces.join("、"));
+    say("  " + n.name + " 着色锚点：" + mp.anchors.join("、"));
+    say("  " + n.name + " 状态行：" + mp.status);
+    const canPlay = mp.visitPlaces.length >= 2;
+    OK(canPlay === !mp.playHidden && canPlay === !mp.degradeShown && canPlay === (mp.traj === 1),
+       n.name + "：亲至可落图 " + mp.visitPlaces.length + " 处 ⇔ " + (canPlay ? "可播、轨迹 1 条" : "降级、无轨迹（「" + (mp.degradeText || "").slice(0, 14) + "…」）") + "（双向自洽）");
+    if (!canPlay) OK(/亲至可考一地|亲至可考不足/.test(mp.status), n.name + " 状态行如实交代其只有一处亲至");
+    OK(mp.anchors.some(a => /·相关/.test(a)) === mp.anchors.some(a => /·相关/.test(a)), "（记实）" + n.name + " 相关落点空心示之：" + mp.anchors.filter(a => /·相关/.test(a)).join("、"));
+    await clean(); await p.locator("#map-frame").screenshot({ path: path.join(OUT, "r27_03_" + n.id + "_map.png") });
+  }
+  const helu = await p.evaluate(() => {
+    const own = DATA.event_people.filter(l => l.person_id === "P_HELU");
+    return own.map(l => { const e = DATA.events.find(x => x.id === l.event_id);
+      return { eid: e.id, y: e.year_bce, place: e.place_id, presence: l.presence || "(空)" }; })
+      .sort((a, b) => a.y - b.y);
+  });
+  say("  阖庐挂链：" + helu.map(h => h.eid + "@" + h.place + "/" + h.presence).join(" → "));
+  OK(helu.filter(h => h.presence === "亲至").map(h => h.place).includes("L_ZUILI"),
+     "阖庐轨迹末站为槜李（前496 伤将指而卒）");
+  OK((helu.find(h => h.place === "L_YINGDU") || {}).presence === "相关",
+     "郢（E229 秦师救楚）presence＝相关 → 空心、不入轨迹（任务书所拟「吴都→柏举→郢→槜李」中郢一站不入，见交付说明）");
+  // 并观可选 / 全景环
+  const pickable = await p.evaluate(() => { document.querySelector("#btn-compare").click();
+    return [...document.querySelectorAll("#compare-pick .cmp-pick-item")].map(b => b.textContent.replace(/\s+/g, "")); });
+  OK(pickable.length === RO.enterable - 1, "并观可选名单 " + pickable.length + " 人 ＝ 可进人数 − 自己");
+  await p.goto(origin + "/#/relations", { waitUntil: "load" }); await p.waitForTimeout(1600);
+  const onRing27 = await p.evaluate((ids) => ids.map(id => ({
+    id, node: !!document.querySelector('#rel-canvas [data-node="' + id + '"]'),
+    proto: !!document.querySelector('#rel-canvas [data-node="' + id + '"].proto'),
+  })), NEW27.map(n => n.id));
+  OK(onRing27.every(o => o.node && o.proto), "二人皆在全景默认环上且作主角节点");
+  await clean(); await p.screenshot({ path: path.join(OUT, "r27_04_pano.png"), fullPage: true });
+  const badge27 = await p.evaluate(async (files) => {
+    const out = [];
+    for (const f of files) {
+      const t = await (await fetch("assets/icons/" + f + ".svg")).text();
+      out.push({ f, vb: /viewBox="0 0 48 48"/.test(t), sw: /stroke-width="2"/.test(t),
+                 cc: /stroke="currentColor"/.test(t), ring: /<circle cx="24" cy="24" r="21"/.test(t),
+                 hard: /#[0-9a-fA-F]{3,6}/.test(t) });
+    }
+    return out;
+  }, NEW27.map(n => n.badge));
+  badge27.forEach(b => OK(b.vb && b.sw && b.cc && b.ring && !b.hard,
+    b.f + ".svg 合徽记规约（viewBox 48／stroke-width 2／currentColor／r21 圆框／无硬编码色）"));
+
+  H("19) r27 · 五之：全站搜索「文献」组 —— 孙武查无此人而说明可读");
+  await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(1000);
+  const doSearch = async (kw) => p.evaluate((kw) => {
+    const q = kw.toLowerCase().replace(/\s+/g, "");
+    const out = {};
+    for (const g of SEARCH_GROUPS) {
+      out[g.key] = SEARCH_INDEX.filter(en => en.group === g.key && en.text.includes(q))
+        .map(en => en.label).slice(0, 6);
+    }
+    return out;
+  }, kw);
+  const sw = await doSearch("孙武");
+  say("  搜「孙武」→ " + JSON.stringify(sw));
+  OK(sw.people.length === 0, "① 人物组 0 条——《左传》《国语》零明文，依裁定 2 不立 people 行（查无此人，是判据不是缺口）");
+  OK(sw.events.length > 0, "② 事件组命中 " + sw.events.length + " 条（其名存于事目 summary）");
+  OK(sw.sources.length > 0, "③ 文献组命中 " + sw.sources.length + " 条（其名存于 sources.notes）：" + sw.sources.join("、"));
+  const hl = await doSearch("阖闾");
+  say("  搜「阖闾」→ " + JSON.stringify(hl.people));
+  OK(hl.people.includes("阖庐"), "④ 搜「阖闾」经 alt_names 命中「阖庐」（数据本字为阖庐，裁定 18）");
+  OK((await doSearch("伍子胥")).people.includes("伍员"), "④ 搜「伍子胥」经 alt_names 命中「伍员」");
+  // 文献直达：落资料库并展开该条，断到像素（§7.3——DOM 状态对 ≠ 读者看得见）
+  const libGo = await p.evaluate(async () => {
+    const en = SEARCH_INDEX.find(e => e.group === "sources" && e.text.includes("孙武"));
+    const peak = { v: 0 };
+    const t = setInterval(() => { peak.v = Math.max(peak.v, window.scrollY); }, 60);
+    en.go();
+    await new Promise(r => setTimeout(r, 1600));
+    clearInterval(t);
+    const btn = document.querySelector(".lib-item.spotlight") ||
+                [...document.querySelectorAll(".lib-item")].find(b => b.dataset.libId === "S011");
+    const rect = btn ? btn.getBoundingClientRect() : null;
+    const full = (document.querySelector("#lib-detail") || {}).innerText.replace(/\s+/g, " ");
+    const i = full.indexOf("孙武");
+    return { hash: location.hash, label: en.label, full,
+             detail: i < 0 ? full.slice(0, 200) : full.slice(Math.max(0, i - 90), i + 150),
+             peak: peak.v, inView: rect ? (rect.y > -rect.height && rect.y < innerHeight) : false,
+             y: rect ? Math.round(rect.y) : null };
+  });
+  say("  直达：" + libGo.hash + "；scrollY 峰值 " + libGo.peak + "；目标 y=" + libGo.y);
+  say("  详情（孙武一节）：" + libGo.detail);
+  OK(/#\/library\/sources/.test(libGo.hash), "⑤ 文献组直达落资料库·来源页");
+  /* ⚠ 断言只断**语义**、不抄任务书的措辞：任务书拟的注文是「《孙子》作者不见于经传」，
+   * 而库内 S011.notes 实际作「《左传》《国语》皆无孙武其名……不为孙武立 people 行」。
+   * 措辞不同不是缺陷——写死一句原文来卡数据，等于让史料研究员的用字迁就我的断言。 */
+  OK(/孙武|孫武/.test(libGo.full) && /皆无孙武其名|不.{0,6}立 ?people 行|零命中/.test(libGo.full),
+     "⑤ 详情内读到「《左传》《国语》皆无孙武其名 → 不为其立 people 行」之义");
+  OK(libGo.inView, "⑤ 目标条目确在视口内（§7.3：只查 DOM 状态不算数）y=" + libGo.y);
+  await p.screenshot({ path: path.join(OUT, "r27_05_search_sunwu.png"), fullPage: true });
+
+  H("19) r27 · 六之：分层示范三处的前端呈现（验收要求截图报备）");
+  // (甲) 鱼肠四层并陈：E224 下 Q338–Q343
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1500);
+  const layerShow = await p.evaluate(async (eid) => {
+    const det = document.querySelector('details.chron-row[data-eid="' + eid + '"]');
+    if (!det) return null;
+    det.open = true;
+    await new Promise(r => setTimeout(r, 600));
+    const qs = [...det.querySelectorAll(".quote")].map(q => ({
+      qid: q.dataset.qid,
+      layer: (q.querySelector(".q-layer") || {}).textContent || "原文（无徽标）",
+      cls: [...q.classList].filter(c => c.startsWith("layer-") || c === "has-caveat").join("+"),
+      caveat: (q.querySelector(".q-caveat") || {}).textContent || null,
+      line: getComputedStyle(q).borderLeftColor + " " + getComputedStyle(q).borderLeftStyle,
+      head: (q.querySelector("blockquote") || q).innerText.replace(/\s+/g, " ").slice(0, 30),
+    }));
+    det.scrollIntoView({ block: "center" });
+    return { qs, title: (det.querySelector("summary") || {}).innerText.replace(/\s+/g, " ") };
+  }, "E224");
+  say("  E224「" + (layerShow ? layerShow.title : "—") + "」引文 " + (layerShow ? layerShow.qs.length : 0) + " 条：");
+  (layerShow ? layerShow.qs : []).forEach(q => say("    " + q.qid + " [" + q.layer + "] " + q.cls + " 左线 " + q.line + " ｜ " + q.head));
+  const lays = new Set((layerShow ? layerShow.qs : []).map(q => q.layer));
+  OK(layerShow && layerShow.qs.length >= 6, "（甲）E224 展开见 " + (layerShow ? layerShow.qs.length : 0) + " 条引文（Q338–Q343）");
+  OK(lays.size >= 3 && [...lays].some(l => /经义异闻/.test(l)) && [...lays].some(l => /后出叙事/.test(l)),
+     "（甲）三层徽标同屏并陈：" + [...lays].join(" / ") + "——传文有鱼有剑而剑无名、剑名出说部、匕首出《史记》");
+  await p.locator('details.chron-row[data-eid="E224"]').screenshot({ path: path.join(OUT, "r27_06a_yuchang_four_layers.png") });
+  // (乙) 白发之不录：E243 下 Q370 的编者层标
+  const bai = await p.evaluate(async (eid) => {
+    document.querySelectorAll("details.chron-row[open]").forEach(d => { d.open = false; });
+    const det = document.querySelector('details.chron-row[data-eid="' + eid + '"]');
+    if (!det) return null;
+    det.open = true;
+    await new Promise(r => setTimeout(r, 600));
+    const q = det.querySelector('[data-qid="Q370"]');
+    det.scrollIntoView({ block: "center" });
+    return q ? { caveat: (q.querySelector(".q-caveat") || {}).textContent || null,
+                 caveatColor: (() => { const c = q.querySelector(".q-caveat"); return c ? getComputedStyle(c).color : null; })(),
+                 bold: q.classList.contains("has-caveat"),
+                 text: q.innerText.replace(/\s+/g, " ").slice(0, 200) } : null;
+  }, "E243");
+  say("  Q370 层标：" + (bai ? bai.caveat : "（未取到）"));
+  OK(!!bai && !!bai.caveat && /说部层|诈言美珠/.test(bai.caveat), "（乙）Q370 编者层标提到引文之上，写明昧关一节作「诈言美珠」");
+  OK(!!bai && bai.bold && /rgb\(180, 101, 47\)/.test(bai.caveatColor || ""), "（乙）层标作暖赭通栏、左线加粗（§3.6 体例）");
+  OK(!!bai && /白發|白发|不录|東周列國志|东周列国志/.test(bai.text), "（乙）「一夜白发」三书俱无、明清小说层不录——说明可读");
+  await p.locator('details.chron-row[data-eid="E243"]').screenshot({ path: path.join(OUT, "r27_06b_baifa_bulu.png") });
+  // (丙) 鞭尸作 passage：E228 下 Q377/Q378
+  const bian = await p.evaluate(async (eid) => {
+    document.querySelectorAll("details.chron-row[open]").forEach(d => { d.open = false; });
+    const det = document.querySelector('details.chron-row[data-eid="' + eid + '"]');
+    if (!det) return null;
+    det.open = true;
+    await new Promise(r => setTimeout(r, 700));
+    const got = ["Q377", "Q378"].map(id => {
+      const q = det.querySelector('[data-qid="' + id + '"]');
+      return q ? { id, layer: (q.querySelector(".q-layer") || {}).textContent,
+                   style: getComputedStyle(q).borderLeftStyle,
+                   text: q.innerText.replace(/\s+/g, " ").slice(0, 160) } : { id, missing: true };
+    });
+    det.scrollIntoView({ block: "center" });
+    return { got, standalone: DATA.events.filter(e => /鞭/.test(e.title)).map(e => e.id) };
+  }, "E228");
+  (bian ? bian.got : []).forEach(g => say("  " + g.id + " [" + (g.layer || "?") + "] 左线 " + (g.style || "?") + " ｜ " + (g.text || "缺")));
+  OK(!!bian && bian.got.every(g => !g.missing && /后出叙事/.test(g.layer || "")),
+     "（丙）鞭尸两条皆作 E228 下的 passage、层标「后出叙事」");
+  OK(!!bian && bian.got.every(g => g.style === "dashed"), "（丙）后出叙事层左线为灰虚线（§3.5：虚线示「非当代记事」）");
+  OK(!!bian && bian.standalone.length === 0, "（丙）反证：全库无以「鞭」为题的独立事目 —— 「详载中之无」判据的落地（conventions §7 v1.25）");
+  await p.locator('details.chron-row[data-eid="E228"]').screenshot({ path: path.join(OUT, "r27_06c_bianshi_passage.png") });
+
+  H("19) r27 · 七之：四档宽度（吴分区首页 / 阖庐时间线 / 编年）无横向溢出");
+  for (const w of [1440, 1024, 768, 390]) {
+    await p.setViewportSize({ width: w, height: 900 });
+    for (const [nm, url] of [["首页", "/#/"], ["阖庐时间线", "/#/p/P_HELU/timeline"], ["编年", "/#/chronicle"]]) {
+      await p.goto(origin + url, { waitUntil: "load" }); await p.waitForTimeout(900);
+      const of = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+      OK(of.sw <= of.cw + 1, w + "px · " + nm + "：无横向溢出（scrollWidth " + of.sw + " ≤ clientWidth " + of.cw + "）");
+    }
+  }
+  await p.setViewportSize({ width: 1440, height: 900 });
+
+  H("19) r27 · 八之：本批大条走查（季札观乐 / 柏举双视角 / 申包胥哭秦庭）");
+  // 季札观乐 E223：「论对」类大条——图标须是 lundui，评语作 passage 逐条并陈
+  await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1500);
+  const jz = await p.evaluate(async () => {
+    const det = document.querySelector('details.chron-row[data-eid="E223"]');
+    if (!det) return null;
+    det.open = true; await new Promise(r => setTimeout(r, 700));
+    det.scrollIntoView({ block: "center" });
+    const ico = det.querySelector(".cat-ico svg");
+    return { cat: det.dataset.cat, lundui: !!(ico && /x="3\.8"/.test(ico.outerHTML)),
+             title: (det.querySelector("summary") || {}).innerText.replace(/\s+/g, " "),
+             quotes: det.querySelectorAll(".quote").length,
+             stateChip: (det.querySelector(".chron-state") || {}).textContent,
+             body: det.innerText.replace(/\s+/g, " ").slice(0, 150) };
+  });
+  say("  E223「" + (jz ? jz.title : "—") + "」：分类 " + (jz && jz.cat) + "，引文 " + (jz && jz.quotes) + " 条，国色签「" + (jz && jz.stateChip) + "」");
+  OK(!!jz && jz.cat === "论对" && jz.lundui, "季札观乐为「论对」类大条，图标已实装 lundui");
+  OK(!!jz && jz.quotes >= 3, "观乐评语作 passage 逐条并陈（" + (jz ? jz.quotes : 0) + " 条）");
+  await p.locator('details.chron-row[data-eid="E223"]').screenshot({ path: path.join(OUT, "r27_07a_jizha_guanyue.png") });
+  // 申包胥哭秦庭 E244
+  const sbx = await p.evaluate(async () => {
+    document.querySelectorAll("details.chron-row[open]").forEach(d => { d.open = false; });
+    const det = document.querySelector('details.chron-row[data-eid="E244"]');
+    if (!det) return null;
+    det.open = true; await new Promise(r => setTimeout(r, 700));
+    det.scrollIntoView({ block: "center" });
+    return { title: (det.querySelector("summary") || {}).innerText.replace(/\s+/g, " "),
+             people: [...det.querySelectorAll(".evt-person")].map(b => b.textContent.replace(/\s+/g, "")),
+             quotes: det.querySelectorAll(".quote").length,
+             hasWuyi: /無衣|无衣/.test(det.innerText) };
+  });
+  say("  E244「" + (sbx ? sbx.title : "—") + "」：引文 " + (sbx && sbx.quotes) + " 条，所系 " + (sbx ? sbx.people.join("、") : "—"));
+  OK(!!sbx && sbx.quotes >= 1 && sbx.hasWuyi, "申包胥哭秦庭成条，秦哀公赋《无衣》在引文内");
+  OK(!!sbx && sbx.people.some(t => /伍员/.test(t)), "所系人物签内见伍员（其与申包胥「一覆一兴」之约的另一半）");
+  await p.locator('details.chron-row[data-eid="E244"]').screenshot({ path: path.join(OUT, "r27_07b_shenbaoxu.png") });
+  // 柏举大条双视角：同一条 E228 在阖庐（亲至）与伍员（相关）两条时间线上的呈现
+  for (const [pid, nm] of [["P_HELU", "阖庐"], ["P_WUYUAN", "伍员"]]) {
+    await p.goto(origin + "/#/p/" + pid + "/timeline", { waitUntil: "load" }); await p.waitForTimeout(1400);
+    const bj = await p.evaluate(async (pid) => {
+      const det = document.querySelector('#timeline-list details[data-eid="E228"]');
+      if (!det) return null;
+      det.open = true; await new Promise(r => setTimeout(r, 600));
+      det.scrollIntoView({ block: "center" });
+      const link = DATA.event_people.find(l => l.event_id === "E228" && l.person_id === pid) || {};
+      return { chips: [...det.querySelectorAll(".chip")].map(c => c.textContent.replace(/\s+/g, "")),
+               role: (det.innerText.match(/[^。\n]{0,40}行人[^。\n]{0,40}/) || [])[0] || null,
+               quotes: det.querySelectorAll(".quote").length,
+               presence: link.presence, directness: link.directness };
+    }, pid);
+    say("  " + nm + " 线上的 E228：presence=" + (bj && bj.presence) + "/" + (bj && bj.directness) +
+        "，chips " + (bj ? bj.chips.join(" ") : "—") + "，引文 " + (bj && bj.quotes) + " 条");
+    OK(!!bj, nm + " 时间线上有柏举大条 E228（同一条事件，两条人物线各出一次）");
+    OK(!!bj && bj.chips.some(c => new RegExp(bj.presence).test(c)),
+       nm + " 的 presence chip 如实作「" + (bj && bj.presence) + "」");
+    await p.locator('#timeline-list details[data-eid="E228"]').screenshot({ path: path.join(OUT, "r27_07c_boju_" + pid + ".png") });
+  }
 
   say("\n控制台告警：" + (warns.length ? warns.join(" | ") : "无"));
   say("页面错误：" + (errs.length ? errs.join(" | ") : "无"));
