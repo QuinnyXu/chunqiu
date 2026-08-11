@@ -92,9 +92,10 @@ exit 0，软检警告 0 条。`tools/csv_to_json.py` 已重跑，`site/data/*.js
 
 ## 八、提交与部署
 
-- 提交信息：`data(r27合入): round27a/27b 吴越篇启幕——阖庐/伍子胥入库，31主角＋conventions v1.25`
+- 提交哈希：`d0299d4`（"data(r27合入): round27a/27b 吴越篇启幕——阖庐/伍子胥入库，31主角＋conventions v1.25"）
 - 已 push 至 `origin main`。
-- GitHub Actions 部署结果：见提交后续核验（本节按实际运行结果回填，见下节"已知问题"如有出入）。
+- GitHub Actions（`Deploy site to GitHub Pages`，run `31451349073`）：**completed / success**。
+- 生产环境（`https://quinnyxu.github.io/chunqiu/`）核验：`data/meta.json` 与本地生成物逐字段一致（events 214、people 143、places 81、archaeology 8、sources 162、passages 363、event_people 557、relations 268，年份跨度 前773–前496）；`people.json` 主角数 31、`P_KONGZI.death_year_bce=-479`、`L_WUDU.description` 四说并录、`events.json` 含 `E228` 均已远端复核通过。
 
 ## 九、已知问题 / 交接备注
 
