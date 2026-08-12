@@ -77,9 +77,10 @@ exit 0，软检警告 0 条。`python tools/csv_to_json.py` 已重跑：`events.
 
 - `data/incoming/round27c/CHANGES.md` 已原样归档至 `docs/changes/r27c_zhiben.md`（归档在先）。
 - `data/incoming/round27c/` 目录已清空删除（清空在后，符合 §10.1 归档纪律顺序）。
-- 提交哈希：`<committing>`（见下方推送记录，提交后回填）。
-- 已 push 至 `origin main`。
-- GitHub Actions（`Deploy site to GitHub Pages`）：run id 与结果见下方推送记录回填。
+- 提交哈希：`77eab6d`（"data(r27c合入): 纸本核对成果修正件——柏举/槜李双medium、Q379观乐补齐、conventions v1.26"）。
+- 已 push 至 `origin main`（`f4df75f..77eab6d`）。
+- GitHub Actions（`Deploy site to GitHub Pages`，run `31555798694`）：**completed / success**（本次会话内 `gh run view` 直接取得）。
+- 生产环境（`https://quinnyxu.github.io/chunqiu/`）核验：`data/meta.json` 中 `passages=364`，其余各表计数与年份跨度与本地生成物一致；`data/places.json` 中 `L_BOJU`/`L_ZUILI` 均 `certainty=medium`／`coord_certainty=medium`，`L_YU` 维持 `certainty=medium`／`coord_certainty=low`（未升级）——均已远端复核通过。
 
 ## 七、带参复验
 
