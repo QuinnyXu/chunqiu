@@ -105,5 +105,42 @@ exit 0，软检警告 0 条。`tools/csv_to_json.py` 已重跑，`site/data/*.js
 - **木渎坐标（`ARC008`）仍为约值**：round27b 两度尝试核实简报原文（`kaogu.cssn.cn`、`szmuseum.com`）均因 DNS 不可达未能取得，本轮维持约值不动（不为"完成核实"而改出更不准的点），待后续批次能访问相应简报者复核。
 - **C 段吴越篇后续（C2）预告**：夫差、勾践、卧薪尝胆、属镂之死、黄池与姑苏留待 C2；`P_WUYUAN.notes`、`P_GOUJIAN.notes` 均已预注留白处置。
 
+## 十、Vision r27 视觉件推送与生产复验（追记，2026-08-11）
+
+领队批准后，将 Vision 落在 main 上但未 push 的四笔提交（第 10 国色·吴、首页吴分区、簇折两行、两枚新徽记、搜索「文献」组等）推送至生产，逐项复核如下。
+
+### 10.1 提交核对
+
+四笔提交内容：`3fc76ad`（feat(icons): 两枚新徽记＋撞形与十色判据实测脚本）、`7d96734`（feat(site): 吴国上线——第10国色·首页吴分区·簇折两行·搜索「文献」组）、`02cf374`（test(qa): 回归门新立 §19＋三处快照式断言改对账式）、`adf788a`（docs(design): design_notes 升 v2.4＋交付说明）。
+
+- **数据零改动**：`git diff --stat f089cb1..adf788a -- data site/data` 输出为空；push 前 `git status --porcelain -- data site/data` 亦为空——四笔提交确未触碰 `data/csv/`、`site/data/` 任何一字。
+- **私有目录未混入**：`git diff --name-status f089cb1..adf788a` 全量文件清单核对，均属 `docs/`、`site/`（非 `site/data/`）、`tools/qa/` 三类；`grep` 全量改动文件名未命中 `^private/`、`^team/`、`^\.claude/`、`tools/qa/screenshots/`；`tools/qa/screenshots/` 目录本次仅 `.gitkeep` 在库（无 PNG 混入）；`.gitignore` 本身未被这四笔改动。
+- `python tools/validate.py` 复跑：**OK：全部校验通过**（数据未动，例行复核）。
+
+### 10.2 push 与部署
+
+- `git push origin main` 结果：`f089cb1..adf788a  main -> main`，推送成功；push 后 `HEAD` 与 `origin/main` 同为 `adf788a`（ahead/behind 0/0）。
+- GitHub Actions（`Deploy site to GitHub Pages`）：本次推送触发 run **`31552916881`**，轮询至 **completed / success**（`gh run view 31552916881` 直接取得，非转述）。
+
+### 10.3 生产端复验（逐项列实测证据，未测项如实标注）
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 吴色 `#164F5C` 上线 | ✅ 已实测 | `curl` 生产 `styles.css`：`--state-wu: #164F5C; /* 吴 · 海滨苍青系 …（2 人，r27 新立） */` |
+| 两枚徽记可见 | ✅ 已实测 | `curl -o /dev/null -w "%{http_code}"` 生产 `assets/icons/badge_helu.svg`／`badge_wuyuan.svg`，均 **200** |
+| 底图吴分区两图层 | ✅ 已实测 | `curl` 生产 `assets/map/base_map.svg`，`layer-states-southeast`、`layer-sea-southeast` 各命中 1 处 |
+| og 图 10 枚点 | ✅ 已实测 | 下载生产 `assets/og/og-card.png`（**42510 字节**，与提交 diff 所记新文件字节数一致），用 Read 工具直接查看图像，色带肉眼计数为 **10 个圆点**（原九色＋吴苍青） |
+| 检索「孙武」（人物组0／事件组1／文献组1） | ✅ 已实测，有逐字日志 | 针对生产地址（`QA_BASE_URL=https://quinnyxu.github.io/chunqiu`）跑 `node tools/qa/vision_r24a.js` 至完成，日志实录：`搜「孙武」→ {"people":[],"places":[],"events":["柏举之战与吴入郢"],"passages":[],"sources":["《史记·吴太伯世家》"]}`，脚本自判 `[OK]` 人物组0／事件组1／文献组1 三条 |
+| 检索「阖闾」经 `alt_names` 命中阖庐 | ✅ 已实测，有逐字日志 | 同一生产回归日志：`搜「阖闾」→ ["阖庐"]`，`[OK]` 经 alt_names 命中「阖庐」；同批 `[OK]` 搜「伍子胥」命中「伍员」 |
+| 「超 6 枚折两行」（齐组两行）几何实测 | ⚠️ **仅有汇总层面证据，无法逐字摘录该项断言原文** | 同一生产回归运行以 **「497 项通过，0 项未过」** 收尾（该计数含全部 §19 断言，逻辑上覆盖本项），但受本会话后台输出捕获只保留运行尾部约 100 行所限，§19 三之「徽记簇『超 6 枚折两行』几何实测」这一条的具体断言文本未能保留摘录；之后为取得逐字证据另起一次生产回归，被领队叫停未跑完。**如实标注为"未取得该项的逐条日志原文，仅有汇总计数佐证"，不以此冒充逐项复核。** |
+
+### 10.4 与领队直接核验结果的对照
+
+领队在主会话独立复核所得结论（commit 顺序、`git status --porcelain` 仅见 `data/incoming/round27c/`【Sophia 另一件在跑的纸本备料，与本次推送无关，未纳入本次改动范围】、`styles.css`/两枚徽记 200）与本节 10.1–10.3 一致，无出入。领队复核时 `gh run list` 一度因 `api.github.com` 网络不可达未能取证——此为**领队复核当次**的网络状况；本节 §10.2 所记 run `31552916881` / success 为 **Skipper 本次 push 后即时轮询所得**，两次取证时点不同，结果不矛盾。
+
+### 10.5 结论
+
+四笔提交已确认 push 至 `origin main`（`adf788a`），部署 Actions 成功（run `31552916881`），数据零改动与私有目录隔离均复核通过，`validate.py` 通过。生产端六项复验中五项（国色、两枚徽记、og 图、搜「孙武」、搜「阖闾」）**已实测且有可回溯证据**；「簇折两行」一项**仅有汇总层面的间接佐证（0 未过），未取得该条断言的逐字日志**，如需该项的直接证据，需后续再跑一次针对生产地址的回归并完整保留输出。
+
 ---
 Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
