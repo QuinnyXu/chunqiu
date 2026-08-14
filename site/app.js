@@ -4461,8 +4461,21 @@ function goSearchPerson(pid) {
 }
 function goSearchPlace(plid) {
   const cands = PLACE_PROTOS.get(plid) || [];
+  /* r28 裁定 15：**全库无事目落其上之地**（现库 9 处，含甬东），旧码一路退到名册首位主角——
+   * 读者从首页搜「甬东」，却站到了文姜的地图上，宿主与其地全无干系。
+   * 改在退到名册首位之前先试**该地所属国之主角**：越地落越人、郑地落郑人，一眼知其所以然。
+   * 国名解析复用编年国色签的同一口径（按字符序取首个可识别的国色家族名，故「共/卫」得卫、
+   * 「齐鲁间」得齐），不另立一套。**只插这一项**：有事目之地、以及读者已在某人页内搜索
+   * （personCtx 尚在）两种既有路径的落点一字未变。 */
+  let hostByPlaceState = null;   // 名字避开 buildPersonGroups 内既有的 byState（分组用），二者无关
+  if (!cands.length) {
+    const raw = (PLACES[plid] || {}).state || "";
+    let key = null;
+    for (const ch of raw) { if (STATE_FAMILY_VAR[ch]) { key = ch; break; } }
+    if (key) hostByPlaceState = (PROTAGONISTS.find(m => PEOPLE[m.id] && panoStateKey(PEOPLE[m.id]) === key) || {}).id;
+  }
   const pid = (personCtx && cands.includes(personCtx) ? personCtx : cands[0]) ||
-              personCtx || (PROTAGONISTS.find(m => PEOPLE[m.id]) || {}).id;
+              personCtx || hostByPlaceState || (PROTAGONISTS.find(m => PEOPLE[m.id]) || {}).id;
   if (!pid) return;
   pendingSpot = { view: "map", type: "place", placeId: plid };
   setHash(pid, "map");

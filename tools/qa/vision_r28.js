@@ -232,6 +232,23 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
     return { hasCard: !!card, unloc: /未定位/.test(t), txt: t.replace(/\s+/g, " ") };
   });
   OK(clicked, "点击搜索结果（地点组）");
+  /* ★ r28 裁定 15：无事目落点之地，宿主须取该地所属国之主角，不得退到名册首位。
+   * 判据写成双向自洽式——从 hash 读出实际落到谁，再与「该地 state 首个可识别国色家族名
+   * 所对应的主角」现算比对；日后若越组换人或该地 state 有修订，本门自动跟随。 */
+  const host = await p.evaluate(() => {
+    const m = /#\/p\/([A-Z_]+)\//.exec(location.hash) || [];
+    let expect = null;
+    try {
+      const raw = (PLACES["L_YONGDONG"] || {}).state || "";
+      let key = null;
+      for (const ch of raw) { if (STATE_FAMILY_VAR[ch]) { key = ch; break; } }
+      if (key) expect = (PROTAGONISTS.find(x => PEOPLE[x.id] && panoStateKey(PEOPLE[x.id]) === key) || {}).id;
+    } catch (e) { }
+    return { actual: m[1] || null, expect, first: (() => { try { return (PROTAGONISTS.find(x => PEOPLE[x.id]) || {}).id; } catch (e) { return null; } })() };
+  });
+  say("  甬东卡的宿主：实际 " + host.actual + "；该地所属国之主角 " + host.expect + "；名册首位 " + host.first);
+  OK(host.actual === host.expect && host.actual !== host.first,
+     "宿主取该地所属国之主角（" + host.actual + "），非名册首位（" + host.first + "）——裁定 15 最小改法落地");
   OK(ydCard.hasCard, "甬东地点卡打得开（其地无任何事目落点，故地图上本无锚点）");
   OK(ydCard.unloc, "坐标行显示「未定位」");
   OK(/超出本库投影覆盖范围|东经 122|不落图|不为一点重做底图|留空，非地望无考|坐标留空/.test(ydCard.txt),
