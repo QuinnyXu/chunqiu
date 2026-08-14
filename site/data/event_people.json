@@ -3897,5 +3897,369 @@
     "role_in_event": "「申包胥以秦師至」——秦子蒲、子虎帅车五百乘救楚，楚遂复国；昭王赏功而其辞曰「吾為君也，非為身也」，遂逃赏",
     "directness": "direct",
     "presence": "亲至"
+  },
+  {
+    "event_id": "E245",
+    "person_id": "P_FUCHA",
+    "role_in_event": "报槜李之役而伐越，败越师于夫椒，遂入越；传只书「吳王夫差敗越于夫椒」，与「某人灭某」同为无在场之文者，依 §7 从严不作在场论",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E245",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "为吴所败，以甲楯五千保于会稽；传书其保于会稽而不书其在夫椒之战地，从严不作在场论",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E246",
+    "person_id": "P_FUCHA",
+    "role_in_event": "将许越成，伍员谏而弗听；三月越及吴平。传「吳子將許之，伍員曰……弗聽」，面对之谏，在场明文",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E246",
+    "person_id": "P_WUYUAN",
+    "role_in_event": "谏曰「樹德莫如滋，去疾莫如盡」，历陈少康中兴之事以为喻，谓越「與我同壤，而世為仇讎」，克而弗取则违天长寇；弗听，退而告人曰「越十年生聚，而十年教訓；二十年之外，吳其為沼乎」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E246",
+    "person_id": "P_BOPI",
+    "role_in_event": "越大夫种因之以行成——传只书「因吳大宰嚭以行成」，为行成之介而无其在场之状，从严不作在场论",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E246",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "保于会稽，使大夫种因吴大宰嚭以行成；行成系遣使代行，其人在会稽，不在吴子之侧",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E247",
+    "person_id": "P_FUCHA",
+    "role_in_event": "帅师伐齐，「中軍從王」，艾陵之战「王卒助之，大敗齊師」；战前呼叔孙州仇而赐之甲剑鈹，曰「奉爾君事，敬無廢命」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E247",
+    "person_id": "P_GUOSHU",
+    "role_in_event": "将齐中军战于艾陵，败胥门巢而为吴王卒所乘，齐师败绩，见获而死；鲁公使大史固归其元于齐，寘书于其上",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E248",
+    "person_id": "P_WUYUAN",
+    "role_in_event": "独惧越之朝吴，谏曰「越在我，心腹之疾也……越不為沼，吳其泯矣」；弗听。使于齐，属其子于鲍氏为王孙氏；反役而王赐属镂以死，将死曰「樹吾墓檟，檟可材也。吳其亡乎」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E248",
+    "person_id": "P_FUCHA",
+    "role_in_event": "受越之朝与馈赂而喜，不听伍员之谏，闻其属子于齐而使赐属镂以死；传书「使賜之」，赐死系遣使代行，依 §7「使者代行」条从严不作在场论",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E248",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "率其众以朝于吴，王及列士皆有馈赂，吴人皆喜而子胥独惧——传明书「越子率其眾以朝焉」，此为《左传》所记其入吴之唯一处",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E249",
+    "person_id": "P_FUCHA",
+    "role_in_event": "会单平公、晋定公于黄池；七月辛丑盟而与晋争先，曰「於周室，我為長」；司马寅视其色曰「今吳王有墨」，晋人乃姑待之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E249",
+    "person_id": "P_WANGSUNLUO",
+    "role_in_event": "越入吴之报至，王合大夫而谋，雒先对曰「二者莫利……必會而先之」，复画夜陈慑晋之策；会毕，受命帅徒师焚宋北郛而过（皆见《国语·吴语》，《左传》无其名）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E250",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "六月丙子伐吴，为二隧；乙酉战，丙戌复战，大败吴师而获其大子，丁亥入吴——传明书「越子至」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E250",
+    "person_id": "P_TAIZIYOU",
+    "role_in_event": "与王子地、王孙弥庸、寿于姚自泓上观越师，止弥庸曰「戰而不克，將亡國，請待之」而不能止；丙戌复战，见获",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E250",
+    "person_id": "P_FUCHA",
+    "role_in_event": "其时在黄池之会，传书「吳人告敗于王，王惡其聞也，自剄七人於幕下」——所在为黄池，非吴都（本条落点），从严不作在场论",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E251",
+    "person_id": "P_FUCHA",
+    "role_in_event": "御越师于笠泽，夹水而陈；越三军潜涉当吴中军而鼓之，吴师大乱而败",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E251",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "伐吴，为左右句卒，使夜或左或右鼓噪而进以分吴师，己以三军潜涉当其中军；《国语·吴语》并记其以私卒君子六千人为中军",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E252",
+    "person_id": "P_FUCHA",
+    "role_in_event": "在围城之中受楚隆之告，拜稽首曰「寡人不佞，不能事越，以為大夫憂」，与之一箪珠，使问赵孟曰「句踐將生憂寡人，寡人死之不得矣」——《左传》所记其生前之末一次言语",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E252",
+    "person_id": "P_CHULONG",
+    "role_in_event": "为赵孟之臣，请往践黄池之质：先造于越军请入视之，得许，乃告于吴王，自称「寡君之老無恤，使陪臣隆」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E252",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "越围吴——传只书「越圍吳」，越子亲在围军中之文阙如（楚隆虽先造于越军而不书其见越子），从严不作在场论",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E253",
+    "person_id": "P_FUCHA",
+    "role_in_event": "越灭吴，越人请使居甬东，辞曰「孤老矣，焉能事君」，乃缢；越人以归",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E253",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "灭吴——传书「越滅吳，請使吳王居甬東」，请者为越人，越子亲在之文阙如；《国语·吴语》记同事亦作「因使人告於吳王曰」（使者代行）。依 §7 两条通例从严不作在场论",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E254",
+    "person_id": "P_YUJI",
+    "role_in_event": "观舟，为守舟之阍以刀所弑——阍者，吴伐楚所获之俘也",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E255",
+    "person_id": "P_HELU",
+    "role_in_event": "其时为吴公子光。楚人环堑以守所获之余皇，光请于其众曰「喪先王之乘舟，豈唯光之罪，眾亦有焉」，使长鬣者三人潜伏舟侧，夜以呼应之计乱楚师而取余皇以归",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E256",
+    "person_id": "P_HELU",
+    "role_in_event": "其时为吴公子光。献「七國同役而不同心，帥賤而不能整，無大威命，楚可敗也」之策，请以罪人先犯胡、沈与陈；战时「光帥右」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E256",
+    "person_id": "P_WULIAO",
+    "role_in_event": "从公子光之策，以罪人三千先犯胡、沈与陈；战时「中軍從王」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E257",
+    "person_id": "P_HELU",
+    "role_in_event": "执钟吾之君，遂伐徐，防山以水之；徐子章禹断发携夫人以逆，吴子唁而送之，使其迩臣从之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E265",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "以甲楯五千保于会稽，号令三军求能助谋而退吴者，与之共知越国之政；得文种之对而执其手与之谋，遂使之行成于吴",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E265",
+    "person_id": "P_WENZHONG",
+    "role_in_event": "进对曰「今君王既棲於會稽之上，然後乃求謀臣，無乃後乎」，受命行成于吴，为越请「請句踐女女於王，大夫女女於大夫，士女女於士」以下之辞",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E265",
+    "person_id": "P_FANLI",
+    "role_in_event": "前此两谏勿伐吴而王弗听，「果興師而伐吳，戰於五湖，不勝，棲於會稽」；既栖，王召而问之，对以「持盈者與天，定傾者與人，節事者與地」，献卑辞尊礼之策",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E265",
+    "person_id": "P_FUCHA",
+    "role_in_event": "越所行成之对象；《左传》只书「遂入越」而不书吴子至会稽，「吳王追而圍之」出《史记》（S 层），依 §7 不据后出叙事补其在场",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E266",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "与范蠡入宦于吴，三年而吴人遣之（《国语·越语下》；《史记》则作范蠡与柘稽为质而勾践不与，两说互异）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E266",
+    "person_id": "P_FANLI",
+    "role_in_event": "自陈「四封之外，敵國之制，立斷之事，種亦不如蠡也」，遂从王入宦于吴",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E266",
+    "person_id": "P_WENZHONG",
+    "role_in_event": "受命「守於國」——传文明书其不与行，presence 首用第三值「不在」（r28 裁定 c，史文明书其不在事发地）",
+    "directness": "indirect",
+    "presence": "不在"
+  },
+  {
+    "event_id": "E267",
+    "person_id": "P_GOUJIAN",
+    "role_in_event": "越既灭吴，鲁始遣叔青使越，越使诸鞅报聘；传书两国使者往还而越子亲在之文阙如，依 §7「使者代行」条不作在场论",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E268",
+    "person_id": "P_JIZHA",
+    "role_in_event": "聘于齐，说晏平仲而戒之曰「子速納邑與政。無邑無政，乃免於難」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E268",
+    "person_id": "P_YANYING",
+    "role_in_event": "受季札之戒，因陈桓子以纳政与邑，是以免于栾、高之难——传于其言之下即书其行与其效",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E269",
+    "person_id": "P_JIZHA",
+    "role_in_event": "聘于郑，见子产如旧相识，与之缟带而受其纻衣，戒以「鄭之執政侈，難將至矣，政必及子。子為政，慎之以禮」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E269",
+    "person_id": "P_ZICHAN",
+    "role_in_event": "与季札一见如旧相识，献纻衣以报缟带；受「政必及子」「慎之以禮」之戒，其后果执郑政",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E270",
+    "person_id": "P_JIZHA",
+    "role_in_event": "适卫，说蘧瑗、史狗、史鰌、公子荆、公叔发、公子朝六人，曰「衞多君子，未有患也」；自卫如晋，将宿于戚而闻钟声，讥孙文子「君又在殯，而可以樂乎」，遂去之",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E270",
+    "person_id": "P_QUBOYU",
+    "role_in_event": "季札所说卫六君子之首（「說蘧瑗、史狗、史鰌、公子荊、公叔發、公子朝」）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E271",
+    "person_id": "P_JIZHA",
+    "role_in_event": "适晋，说赵文子、韩宣子、魏献子，曰「晉國其萃於三族乎」；将行而戒叔向「吾子好直，必思自免於難」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E271",
+    "person_id": "P_SHUXIANG",
+    "role_in_event": "受季札临行之戒「吾子勉之！君侈而多良，大夫皆富，政將在家。吾子好直，必思自免於難」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E271",
+    "person_id": "P_HANQI",
+    "role_in_event": "时为韩宣子，与赵文子、魏献子同为季札所说，季札因有「晉國其萃於三族乎」之言",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E272",
+    "person_id": "P_QINGJI",
+    "role_in_event": "骤谏吴子「不改必亡」，弗听；出居于艾，遂适楚；闻越将伐吴，请归平越，归而欲除不忠者以说于越，为吴人所杀",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E272",
+    "person_id": "P_FUCHA",
+    "role_in_event": "所谏之吴子；传书「驟諫吳子……弗聽」而不书其地，杀之者传书「吳人」而非「吳子」，两重从严之下不作在场论、亦不以「吴人」径归之于王",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E245",
+    "person_id": "P_FANLI",
+    "role_in_event": "《国语·越语下》记其前此两谏勿兴师伐吴（「兵者，凶器也；戰者，逆德也」），王弗听而有本役之败；其人于战地之在场传与《国语》皆无文",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E246",
+    "person_id": "P_WENZHONG",
+    "role_in_event": "《左传》书「使大夫種因吳大宰嚭以行成」，《国语·越语上》载其行成之辞——为行成之使者而其在吴子之侧之状不书，从严不作在场论",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E250",
+    "person_id": "P_FANLI",
+    "role_in_event": "《国语·吴语》「越王句踐乃命范蠡、舌庸，率師沿海泝淮以絕吳路」——所率之师在江淮以绝吴归路，不在本条落点（吴都）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E253",
+    "person_id": "P_FANLI",
+    "role_in_event": "《国语·越语下》：吴使王孙雒行成，王欲许之，范蠡两谏而止，复代王应对其使者；「范蠡不報於王，擊鼓興師以隨使者，至於姑蘇之宮，不傷越民，遂滅吳」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E253",
+    "person_id": "P_WANGSUNLUO",
+    "role_in_event": "《国语·越语下》：吴师自溃，吴王帅其贤良以上姑苏，使雒行成于越，与范蠡往复相辞（「子范子，先人有言曰：無助天為虐」），辞而反命；其人面见范蠡于军前，在场明文",
+    "directness": "direct",
+    "presence": "亲至"
   }
 ]
