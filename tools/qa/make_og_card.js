@@ -8,9 +8,10 @@
  * 构图沿用旧版（r15 立）：绢帛底＋青铜双线框＋左侧涡纹徽记＋站名大字＋副题＋下方一行色点。
  * r24a 的实质改动：色带由 15 枚旧个人色签改为国色圆点，与分享卡 §5.7、首页分区、
  * 关系全景阵营底晕同源同序。增长源随「国色家族数」而非「主角数」，故新增主角不需重出此图，
- * 唯新立一个国色家族才需要——r27 新立第 10 色「吴」，故本轮重出（9 → 10 枚点）。
+ * 唯新立一个国色家族才需要——r27 新立第 10 色「吴」（9 → 10 枚点），
+ * r28 新立第 11 色「越」（10 → 11 枚点），两轮各重出一次。
  *
- * 色值必须与 site/styles.css :root 的九个 --state-* 一致；本脚本从 styles.css 实读，不另抄一份，
+ * 色值必须与 site/styles.css :root 的各个 --state-* 一致；本脚本从 styles.css 实读，不另抄一份，
  * 避免日后改色时两处脱节（读不到即报错退出，不静默用兜底色）。
  */
 const fs = require("fs"), path = require("path");
@@ -69,7 +70,7 @@ const html = `<!doctype html><meta charset="utf-8">
         fill="#2E2A24" letter-spacing="12">经纬春秋</text>
   <text class="serif" x="700" y="392" text-anchor="middle" font-size="34"
         fill="#7A7166" letter-spacing="7">左传为经，诸书为纬，牵系有据</text>
-  <!-- 九枚国色圆点（同源同序于 STATE_FAMILY_VAR；增长源＝国色家族数，非主角数） -->
+  <!-- 国色圆点一行（枚数＝国色家族数，同源同序于 STATE_FAMILY_VAR；增长源非主角数） -->
   ${rule}${dots}
 </svg>`;
 

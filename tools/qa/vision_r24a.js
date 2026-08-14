@@ -45,6 +45,13 @@
 //       伍员轨迹降级的**双向自洽**判据（亲至可落图 <2 ⇔ 降级）／全站搜索「文献」组
 //       （搜「孙武」须命中 S011 说明并落资料库、搜「阖闾」须经 alt_names 命中阖庐）／
 //       分层示范三处（鱼肠四层并陈 Q338–Q343、白发之不录 Q370、鞭尸 Q377/Q378）的前端呈现。
+//
+// r28 扩充（仍不另起脚本）：
+//   §20 新立 r28 门：越分区几何（块不入海／簇在块内，皆按椭圆方程现算）／两枚新徽记规约核／
+//       「N 条事件无地望」计数的**双向自洽**判据（显示数 ⇔ 挂链中无坐标者之数，不写死 E246）／
+//       甬东「不入计数但卡片可达」两面并核。
+//   另修两条**过期的快照式断言**（非缺陷，是断言自己过时，同 r26b 之例）：
+//       「国色家族增至 10」→ 与 STATE_HEX 定调表逐项对账；「吴分区 2 张卡」→ 与 PROTAGONISTS 归属数对账。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -55,10 +62,10 @@ const say = (...a) => { const s = a.join(" "); log.push(s); console.log(s); };
 const H = (t) => say("\n===== " + t + " =====");
 const OK = (c, t) => say((c ? "  [OK]   " : "  [FAIL] ") + t);
 
-/* 国色定调表（design_notes §2.1）。r27 增第 10 色「吴」。
+/* 国色定调表（design_notes §2.1）。r27 增第 10 色「吴」，r28 增第 11 色「越」。
  * 本表是**定调值的副本**，只用来核「渲染出来的是不是定的那个色」；
  * 两两距离一律现算（§5c），不在此另抄一份 ΔE 表——抄下来的距离在改色那天就成了谎。 */
-const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋": "#74402C", "秦": "#423C39", "楚": "#5E2B45", "卫": "#2F5480", "宋": "#4F457F", "陈": "#3B6A48", "吴": "#164F5C" };
+const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋": "#74402C", "秦": "#423C39", "楚": "#5E2B45", "卫": "#2F5480", "宋": "#4F457F", "陈": "#3B6A48", "吴": "#164F5C", "越": "#1F3A1E" };
 
 (async () => {
   const pw = require("playwright");
@@ -1404,7 +1411,10 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   OK(pick.cards === RO.enterable, "② 选人页卡片数 " + pick.cards + " ＝ 可进人数 " + RO.enterable);
   const capN = +(pick.caption.match(/(\d+) 条人物线/) || [])[1];
   OK(capN === RO.enterable && capN === RO.data,
-     "③ 页脚口径一致：品牌语报 " + capN + " ＝ 可进 " + RO.enterable + " ＝ 数据侧 " + RO.data + "（29＝29）");
+     /* r28 顺带清账：本句原尾挂一个「（29＝29）」——断言本身早已是对账式（三值互证），
+      * 只有这句**输出文案**把 r26b 当时的快照写死在里面，33 人上线后它便与前半句自相矛盾。
+      * 同 §7.5「文案不该随数据长」，只删这段死数字，断言一字未动。 */
+     "③ 页脚口径一致：品牌语报 " + capN + " ＝ 可进 " + RO.enterable + " ＝ 数据侧 " + RO.data);
   pick.each.forEach(e => OK(e.idx === NEWP.find(n => n.id === e.id).nth && e.enabled,
      "④ " + e.id + " 在「" + e.group + "」组第 " + e.idx + "／" + e.of + " 人，卡片可点"));
   await p.screenshot({ path: path.join(OUT, "r26b_01_home_list.png"), fullPage: true });
@@ -1590,7 +1600,17 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   pairs.sort((x, y) => x.d - y.d);
   say("  国色 " + famNames.length + " 家：" + famNames.map(k => k + wuColor.hexes[k]).join(" "));
   say("  两两 " + pairs.length + " 对，最紧三：" + pairs.slice(0, 3).map(x => x.a + "×" + x.b + " " + x.d).join("、"));
-  OK(famNames.length === 10 && wuColor.hexes["吴"] === "#164F5C", "国色家族增至 10，吴 ＝ " + wuColor.hexes["吴"]);
+  /* r28 改对账式：原写死「famNames.length === 10」，一到第 11 国就红——而它红的不是缺陷，
+   * 是它自己过期了（同 r26b 把人数断言由快照式改对账式之例，§7.5 的同族一相）。
+   * 现改为「渲染出的国色家族 ⇔ STATE_HEX 定调表」逐项互证：多一国、少一国、色值不符，三者皆红。 */
+  const famSet = new Set(famNames), hexSet = new Set(Object.keys(STATE_HEX));
+  const missing = [...hexSet].filter(k => !famSet.has(k)), extra = [...famSet].filter(k => !hexSet.has(k));
+  const wrong = famNames.filter(k => STATE_HEX[k] && wuColor.hexes[k] !== STATE_HEX[k]);
+  OK(missing.length === 0 && extra.length === 0 && wrong.length === 0,
+     "国色家族与 §2.1 定调表逐项对账（现 " + famNames.length + " 家）" +
+     (missing.length ? "；定调表有而站上无：" + missing.join("/") : "") +
+     (extra.length ? "；站上有而定调表无：" + extra.join("/") : "") +
+     (wrong.length ? "；色值不符：" + wrong.map(k => k + " " + wuColor.hexes[k] + "≠" + STATE_HEX[k]).join("、") : ""));
   OK(pairs.every(x => x.d >= 13.2), "十色两两 ΔE76 全部 ≥13.2（最紧 " + pairs[0].a + "×" + pairs[0].b + " " + pairs[0].d + "）");
   const wuPairs = pairs.filter(x => x.a === "吴" || x.b === "吴").sort((x, y) => x.d - y.d);
   OK(wuPairs[0].d >= 13.2, "吴对其余九国色最紧 " + wuPairs[0].d + "（" + (wuPairs[0].a === "吴" ? wuPairs[0].b : wuPairs[0].a) + "）");
@@ -1688,7 +1708,17 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   pick27.wuCards.forEach(c => say("    吴卡：" + c));
   OK(pick27.groups.some(g => g.startsWith("吴")), "选人页列表模式出现吴分区");
   OK(pick27.tabs.includes("吴"), "国别选项卡自动多出「吴」一项（分区随 PROTAGONISTS 自动生成）");
-  OK(pick27.wuCards.length === 2, "吴分区 2 张卡");
+  /* r28 改对账式：原写死「吴 2 张卡」，r28 夫差入吴组即红——同上，是断言过期而非缺陷。
+   * 现改为「该分区卡数 ⇔ PROTAGONISTS 中归属该国者之数」，日后吴组增减自动跟随。 */
+  const wuExpect = await p.evaluate(() => {
+    /* panoStateKey 的口径：meta.home 覆盖优先，否则 people.state 首国 */
+    return PROTAGONISTS.filter(m => {
+      const per = PEOPLE[m.id];
+      return (m.home || (per && (per.state || "").split("/")[0])) === "吴";
+    }).length;
+  });
+  OK(pick27.wuCards.length === wuExpect,
+     "吴分区卡数（" + pick27.wuCards.length + "）＝ PROTAGONISTS 中归吴者之数（" + wuExpect + "）");
   OK(pick27.flows.includes("楚→吴"),
      "伍员卡上仍标流向「楚→吴」——归吴分区不吞其出身（实测 " + JSON.stringify(pick27.flows) + "）");
   for (const n of NEW27) {
@@ -1962,6 +1992,106 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
        nm + " 的 presence chip 如实作「" + (bj && bj.presence) + "」");
     await p.locator('#timeline-list details[data-eid="E228"]').screenshot({ path: path.join(OUT, "r27_07c_boju_" + pid + ".png") });
   }
+
+  // ---------- 20) r28：第 11 国色「越」＋ 越分区 ＋ 夫差/勾践上线 ＋ 无地望计数 ＋ 甬东可达 ----------
+  /* 本节只放**须永久守住**的断言；本轮的出图与逐项详查在 tools/qa/vision_r28.js。
+   * 三条写法一律取「双向自洽／对账」式，不写死本轮答案——数据一变即自动跟随。 */
+  H("20) r28 · 一之：越分区几何（色块／国名／簇在块内／块不入海）");
+  await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(1200);
+  const yueGeo = await p.evaluate(() => {
+    const blk = document.querySelector('#layer-states-southeast ellipse[data-state="越"]');
+    const lbl = document.querySelector('#layer-labels text[data-state="越"]');
+    const badges = [...document.querySelectorAll("#home-map circle")]
+      .filter(c => Math.abs(+c.getAttribute("r") - 13.5) < 0.01)
+      .map(c => ({ cx: +c.getAttribute("cx"), cy: +c.getAttribute("cy"),
+                   who: (c.parentNode && c.parentNode.textContent || "").slice(0, 12) }));
+    return {
+      blk: blk ? { cx: +blk.getAttribute("cx"), cy: +blk.getAttribute("cy"), rx: +blk.getAttribute("rx"), ry: +blk.getAttribute("ry") } : null,
+      hasLbl: !!lbl, badges,
+      protoN: (() => { try { return PROTAGONISTS.length; } catch (e) { return -1; } })(),
+      yueN: (() => { try { return PROTAGONISTS.filter(m => { const q = PEOPLE[m.id]; return (m.home || (q && (q.state || "").split("/")[0])) === "越"; }).length; } catch (e) { return -1; } })(),
+    };
+  });
+  OK(!!yueGeo.blk && yueGeo.hasLbl, "越色块与「越」国名俱在" + (yueGeo.blk ? `（${yueGeo.blk.cx},${yueGeo.blk.cy} r ${yueGeo.blk.rx}×${yueGeo.blk.ry}）` : ""));
+  OK(yueGeo.badges.length === yueGeo.protoN, "首页徽记圆数（" + yueGeo.badges.length + "）＝ PROTAGONISTS（" + yueGeo.protoN + "）");
+  if (yueGeo.blk) {
+    const B = yueGeo.blk, R = 13.5;
+    const yueB = yueGeo.badges.filter(c => Math.pow((c.cx - B.cx) / (B.rx + R), 2) + Math.pow((c.cy - B.cy) / (B.ry + R), 2) <= 1);
+    OK(yueB.length === yueGeo.yueN, "越分区徽记数（" + yueB.length + "）＝ PROTAGONISTS 中归越者之数（" + yueGeo.yueN + "）");
+    let worst = 0;
+    for (const c of yueB) for (const [dx, dy] of [[R, R], [R, -R], [-R, R], [-R, -R]])
+      worst = Math.max(worst, Math.pow((c.cx + dx - B.cx) / B.rx, 2) + Math.pow((c.cy + dy - B.cy) / B.ry, 2));
+    OK(worst < 1, "越徽记（含 R=13.5）整枚在块内，最远角归一化 " + worst.toFixed(3) + " < 1");
+    /* 块不入海：右缘须在 r27 所绘杭州湾南岸线之西（岸线取样点即 base_map.svg 路径节点） */
+    const coast = [[1127, 630], [1136, 636], [1145, 646], [1154, 655], [1164, 663], [1173, 669]];
+    const bad = coast.filter(([cx, cy]) => {
+      const dy = cy - B.cy;
+      if (Math.abs(dy) >= B.ry) return false;
+      return B.cx + B.rx * Math.sqrt(1 - Math.pow(dy / B.ry, 2)) > cx;
+    });
+    OK(bad.length === 0, "越色块不入海（逐岸线取样点核块右缘，" + coast.length + " 点全过）");
+  }
+
+  H("20) r28 · 二之：夫差／勾践两枚徽记的规约核");
+  for (const [f, nm] of [["badge_fucha.svg", "夫差·庭中之表"], ["badge_goujian.svg", "勾践·甲楯"]]) {
+    const t = fs.readFileSync(path.join(SITE_DIR, "assets", "icons", f), "utf8");
+    OK(/viewBox="0 0 48 48"/.test(t) && /stroke="currentColor"/.test(t) &&
+       /stroke-width="2"/.test(t) && /<circle cx="24" cy="24" r="21"\/>/.test(t) && !/fill="#/.test(t),
+       nm + "：48×48 圆框线描 currentColor、无写死填充色（§2.5 规约）");
+  }
+
+  H("20) r28 · 三之：「N 条事件无地望」计数的双向自洽");
+  /* 判据不写死「1 条」「E246」，改为：显示的计数 ⇔ 该人挂链中「无 place 或该 place 无坐标」者之数。
+   * 于是 E246 若日后补上落点，本门自动跟随；甬东若日后有事目落其上，也自动进入计数。 */
+  for (const [pid, nm] of [["P_FUCHA", "夫差"], ["P_GOUJIAN", "勾践"]]) {
+    await p.goto(origin + "/#/p/" + pid + "/map", { waitUntil: "load" }); await p.waitForTimeout(1200);
+    const r = await p.evaluate((pid) => {
+      const shown = (document.querySelector("#map-nogeo-summary") || {}).textContent || "";
+      const list = [...document.querySelectorAll("#map-nogeo-list li")].map(e => e.textContent.trim());
+      let expect = -1, titles = [];
+      try {
+        const rows = DATA.event_people.filter(l => l.person_id === pid);
+        const es = rows.map(l => EVENTS[l.event_id]).filter(Boolean);
+        const bad = es.filter(e => { const pl = e.place_id ? PLACES[e.place_id] : null; return !pl || pl.lat == null; });
+        expect = bad.length; titles = bad.map(e => e.title);
+      } catch (err) { }
+      return { shown, list, expect, titles };
+    }, pid);
+    const n = parseInt((r.shown.match(/^(\d+)/) || [])[1], 10);
+    OK(n === r.expect && r.list.length === r.expect,
+       nm + "「" + r.shown.trim() + "」⇔ 其挂链中无坐标者 " + r.expect + " 条（明细 " + r.list.length + " 行）");
+    if (r.titles.length) say("    实指：" + r.titles.join("；"));
+  }
+
+  H("20) r28 · 四之：甬东——不入无地望计数，但地点卡可达");
+  const ydGate = await p.evaluate(() => {
+    let hasRow = false, evtN = -1;
+    try {
+      const pl = PLACES["L_YONGDONG"];
+      hasRow = !!pl && pl.lat == null;
+      evtN = DATA.events.filter(e => e.place_id === "L_YONGDONG").length;
+    } catch (e) { }
+    return { hasRow, evtN };
+  });
+  OK(ydGate.hasRow, "甬东地点行在库且坐标留空");
+  OK(ydGate.evtN === 0, "全库落于甬东的事目 " + ydGate.evtN + " 条 ⇒ 其不入任何人之无地望计数（裁定 4）");
+  await p.goto(origin + "/#/", { waitUntil: "load" }); await p.waitForTimeout(900);
+  await p.fill("#global-search", "甬东"); await p.waitForTimeout(700);
+  const ydClick = await p.evaluate(() => {
+    const el = [...document.querySelectorAll("#search-pop [role='option'], #search-pop li")]
+      .find(e => /甬东/.test(e.innerText) && /舟山|越/.test(e.innerText));
+    if (!el) return false; (el.querySelector("button") || el).click(); return true;
+  });
+  await p.waitForTimeout(1400);
+  const ydOpen = await p.evaluate(() => {
+    const c = [...document.querySelectorAll("aside, .panel, .drawer, dialog, [role='dialog']")]
+      .filter(e => !e.hidden && /甬东/.test(e.innerText || ""))
+      .sort((a, b) => (a.innerText || "").length - (b.innerText || "").length)[0];
+    const t = (c && c.innerText) || "";
+    return { ok: !!c, unloc: /未定位/.test(t), why: /超出本库投影覆盖范围|坐标留空|不落图/.test(t) };
+  });
+  OK(ydClick && ydOpen.ok && ydOpen.unloc && ydOpen.why,
+     "甬东经全站搜索可达：卡片打得开、坐标行「未定位」、留空之由可读（其地无锚点，故此路是唯一通路）");
 
   say("\n控制台告警：" + (warns.length ? warns.join(" | ") : "无"));
   say("页面错误：" + (errs.length ? errs.join(" | ") : "无"));
