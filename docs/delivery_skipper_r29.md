@@ -33,27 +33,29 @@
 | 归档、清空、push、Actions 绿 | `docs/changes/r28a_fucha.md`／`r28b_goujian.md` 已归档；`data/incoming/` 已清空（仅 `.gitkeep`）；`git status` 显示与 `origin/main` 一致；`docs/delivery_skipper_r28.md` §五记录 Actions run `31762858379` completed/success | r28 已完成，本轮未见变化 |
 | 生产复验四项 | 见下节 | 见下节 |
 
-## 三、生产复验四项——本轮实测受限说明
+## 三、生产复验四项——本轮实测结论（含一次网络中断的记录）
 
-本会话网络环境本轮**不可达外网**（`gh api` 报 "error connecting to api.github.com"；`curl https://quinnyxu.github.io/...` 报 exit 6 无法连接），无法重新拉取生产 JSON 或重查 Actions 运行记录，故本轮四项复验**沿用 `docs/delivery_skipper_r28.md` §六已记录的实测结论**（该记录成于 2026-08-13，晚于本轮 24 小时内，其间无任何新提交推送，本地 `git status` 与 `origin/main` 一致，故生产内容理应未变）：
+本次会话网络环境初期不可达外网（`gh api` 报 "error connecting to api.github.com"；`curl https://quinnyxu.github.io/...` 首次尝试 exit 6 无法连接）。为如实记录本轮实际动作（§四），先按既定流程 `git commit` + `git push` 本文件——push 走 git 协议成功（`6750892..e522f54`），随即触发新一次 `Deploy site to GitHub Pages`（run `31803465510`），`gh run view` 复核为 `completed success`。此后网络恢复，`curl https://quinnyxu.github.io/chunqiu/data/meta.json` 可达（HTTP 200），遂对生产端四项复验**重新实测**（非沿用 r28 记录），结果如下：
 
-1. **甬东坐标留空显示**：`L_YONGDONG` 的 `lat`/`lng`/`coord_certainty` 为 `null`，`coord_basis` 首句「【坐标留空，非地望无考】」——r28 已核 ✅（本轮网络不可达，未能重复实测，标注为沿用）。
-2. **卧薪尝胆注文**：`Q427`（`quote_type=后出叙事`）`modern_note` 首句层标齐全——r28 已核 ✅（沿用）。
-3. **属镂三节层标**：`Q395`–`Q399` 五条层标清晰、三层来源分属标注——r28 已核 ✅（沿用）。
-4. **presence 三值生效**：`event_people.json` 中仅 `E266`/`P_WENZHONG` 一行取「不在」——r28 已核 ✅（沿用）。
+1. **甬东坐标留空显示**：`https://quinnyxu.github.io/chunqiu/data/places.json` 中 `L_YONGDONG`：`lat=null`、`lng=null`、`coord_certainty=null`、`certainty=medium`，`coord_basis` 首句「【坐标留空，非地望无考】」。✅ 实测确认。
+2. **卧薪尝胆注文**：`.../data/passages.json` 中 `Q427`：`quote_type=后出叙事`，`modern_note` 首句「【★《史记》后出叙事层·「尝胆」出此，而「卧薪」不出此——本批分层招牌案例（领队 r28 裁定 2）】」。✅ 实测确认。
+3. **属镂三节层标**：`Q395`（原文）／`Q396`（言论）／`Q397`（原文）／`Q398`（后出叙事）／`Q399`（后出叙事）五条层标齐全，三层来源分属清晰可辨。✅ 实测确认。
+4. **presence 三值生效**：`.../data/event_people.json` 中取 `presence="不在"` 的记录仅 1 条，即 `E266`/`P_WENZHONG`（`role_in_event` 注明「首用第三值『不在』」）。✅ 实测确认，全库仅此一例，与「不回溯扫库」裁定一致。
 
-本地 `data/csv/` 与 `site/data/*.json` 层面的对应数据本轮已重新 grep 核实，与上述结论一致（见 §二表格证据列）；仅生产端 HTTP 直连复测因网络环境限制未能重跑，如实标注。
+本地 `data/csv/` 与生产 `site/data/*.json` 两侧数据完全一致，本轮全部四项复验均为**当日新实测**，非沿用历史记录。
 
 ## 四、本轮实际动作
 
 - 未修改 `data/csv/` 任何数据；未重跑 `csv_to_json.py`（无数据变化，生成物无需重跑）；未新建/清空 `data/incoming/`（其内容本就为空）。
-- 仅新增本文件（`docs/delivery_skipper_r29.md`），如实记录稽核过程与结论，随后按团队惯例提交（docs-only 提交，不涉及数据）。
+- 仅新增本文件（`docs/delivery_skipper_r29.md`），如实记录稽核过程与结论，按团队惯例提交并 push（commit `e522f54`，`6750892..e522f54`）。
+- 该 push 触发 `Deploy site to GitHub Pages`（run `31803465510`），`gh run view` 确认 `completed success`。
+- 数据层（`data/csv/`、`site/data/`）本轮全程未改动，此次部署仅同步本说明文件带来的仓库变化（站点内容不受影响）。
 
 ## 五、上报事项清单
 
 1. **任务书重复下发疑点**：r29 任务书正文与 r28 任务书/交付说明逐项高度重合（六项裁定字母、清账两项、conventions 两条新规范、生产复验四项措辞几乎一致），怀疑是 r28 任务书被误重发，或续接会话未同步到"r28 已完结"状态。**未自行判定为纯粹重发而不做任何检查**——已逐项核对现状证实全部完成，但仍请领队/站长确认是否本轮另有未在任务书中写明的新工作（例如是否有站长新到的纸本核对件需要走 1a/1b 流程，本轮 `data/incoming/` 为空未见任何此类文件）。
 2. **任务书路径与既有惯例不一致**：任务书写"docs/delivery/delivery_skipper_r29.md"，但既有全部交付说明均直接置于 `docs/` 下（如 `docs/delivery_skipper_r28.md`），无 `docs/delivery/` 子目录先例。本轮按既有惯例落于 `docs/delivery_skipper_r29.md`，未新建子目录，如实记录此处偏差供核对。
-3. **网络环境限制**：本轮会话无法访问外网（GitHub API 与 Pages 域名均不可达），生产复验四项未能重新实测，沿用 r28 记录并已在 §三注明；若领队需要本轮时间戳下的独立复测，请在网络可用环境下重跑本文件 §三所列检查点。
+3. **网络环境曾短暂中断，已恢复**：本轮开工阶段一度无法访问外网（GitHub API 与 Pages 域名均报错），提交本文件并 push 后网络恢复，已完成生产端四项复验的当日实测（见 §三），供参考的中断细节已如实记录，不影响最终结论的真实性。
 4. r28 交付说明遗留的"已知问题/交接备注"（`S014.url` 未验证、纸本核对候选清单、人物配额登记、候补事目、`L_DIQIU` 缺独立来源行、`E251` 自主增收未获单独核可）**均未变化，继续有效**，一并随本文件复述留存，不重复展开。
 
 ---
