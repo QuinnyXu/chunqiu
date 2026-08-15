@@ -98,7 +98,15 @@ exit 0，无新增/清除警告，与合入前主表基线一致。
 
 ## 七、提交与生产复验
 
-（提交哈希、Actions 运行号、生产带参复验结果见下方追记 / 本次会话末尾提交后补充。）
+- **提交哈希**：`9722dae`（`d4ba22f..9722dae`，`git push origin main`）。
+- **Actions 运行号**：`31912640996`（`Deploy site to GitHub Pages`，push 触发，`completed / success`）。
+- **生产带参复验（实测，`curl -sS "...?_=r30check"` 带缓存破坏参数）**：
+  - `meta.json.generated_at = 2026-08-15T22:35:25+00:00`，与本地 `csv_to_json.py` 重生成时间戳一致，确认部署产物即本次提交内容；九表计数 `places=91`／`passages=424`／`sources=173` 与预期一致。
+  - `places.json`：`L_BOJU`／`L_ZUILI`／`L_WUDU`／`L_YU` 四行 `coord_basis` 中「〔页码待补〕」（含书名号完整形态）计数逐行核对，全库合计 **1**，且落在 `L_YU.coord_basis` 唯一一处，与验收口径吻合；`L_BOJU` 含「1534」「页 29–30」、`L_ZUILI` 含「1593」「页 29–30」、`L_WUDU` 含「页 29–30」，均已生效。
+  - `passages.json`／`sources.json`：占位「〔页码待补〕」合计 **0**（Q347、Q379 占位已清空）。
+  - `Q379.quote_original` 仍含「大之至也，其周之舊乎」（末句未动）；`Q379.modern_note` 含「1163」与「已定案」字样，首字符为「《」（与本地不变量复验一致，非本轮改动）；`quote_type` 仍为「原文」。
+  - `Z101.notes` 含「已定案」字样，`Z101.url` 仍为 `https://ctext.org/chun-qiu-zuo-zhuan/xiang-gong-er-shi-jiu-nian/zh`，未动。
+  - **结论：生产环境与本次合入内容完全一致，实测通过，非揣测结论。**
 
 ---
 
