@@ -72,13 +72,37 @@ grep -c 页码待补 site/data/*.json    → 全部为 0
 
 ## 六、提交哈希与 Actions 运行号
 
-见下方推送后回填（本节先占位，推送完成后即更新本文件）。
+- 提交哈希：`1a8845d`（`feat(skipper r31): 合入 Sophia r31 反转件……`，push 至 `origin/main`，`42a644f..1a8845d`）
+- GitHub Actions（Deploy site to GitHub Pages）：运行号 `31915229829`，`status=completed`，`conclusion=success`
 
 ---
 
 ## 七、生产带参复验实测结论
 
-见下方推送后回填。
+Actions 部署完成后，实测拉取 `https://chunqiu.timechorus.com/data/*.json`（10 个生成文件全量），结果如下：
+
+| 文件 | 实测字节数 | `页码待补` 计数 |
+|---|---|---|
+| `places.json` | 98,490 | **0** |
+| `passages.json` | 404,519 | **0** |
+| `sources.json` | 103,534 | **0** |
+| `events.json` | 241,270 | **0** |
+| `people.json` | 190,944 | **0** |
+| `relations.json` | 85,761 | **0** |
+| `event_people.json` | 117,565 | **0** |
+| `archaeology.json` | 7,522 | **0** |
+| `background.json` | 4,526 | **0** |
+| `meta.json` | 316 | **0** |
+
+字段级实测（拉取生产 `places.json`／`passages.json`／`sources.json` 逐行核对，非推断）：
+
+- `L_YU`：`lat=34.5`／`lng=115.02`／`certainty=medium`／`coord_certainty=medium` —— 与预期一致。
+- `L_SHOUZHI`：`lat=34.43`／`lng=115.1`／`certainty=low`／`coord_certainty=low` —— 维持不升，与预期一致。
+- `Q344.modern_note`：含「已定案（r31）」「定案从「復」」字样 —— 已生效。
+- `Z102.notes`：含「已定案（r31）」字样 —— 已生效。
+- `Q344.quote_original`：生产版本与本地 `site/data/passages.json` 逐字比对**完全一致**，且含「復命哭墓」——正文未被本轮改动污染。
+
+**结论：本轮生产带参复验四项（占位归零、L_YU 坐标与两级 certainty、Q344/Z102 定案文案、quote_original 未动）均为当日实测结果，非「应当如此」的推断。**
 
 ---
 
