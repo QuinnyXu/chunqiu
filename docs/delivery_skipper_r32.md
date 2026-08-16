@@ -73,17 +73,29 @@ Sophia 备料环境与本次 Skipper 会话内 `WebFetch` 工具均报 `zh.wikis
 - `docs/changes/r32_xinian.md` 已建立，与 `data/incoming/fix31_xinian/CHANGES.md` 逐字比对**完全一致**（原样归档，未重排未摘要）。
 - `data/incoming/fix31_xinian/` 已清空删除，`data/incoming/` 目录仅余 `.gitkeep` 占位。
 
-## 八、生产带参复验（三条断言）
+## 八、生产带参复验（三条断言，追记，2026-08-16）
 
-**待推送后实测**，见本文档追记版本 / `docs/changes` 或独立追记 commit。
+提交推送后 GitHub Actions 部署运行成功（见 §九），随后直连生产 `https://chunqiu.timechorus.com/data/*.json` 实测（`curl`，非依赖前端渲染截图），三条断言结论如下：
 
-## 九、提交与部署
+1. **息妫页两支记载同台**——生产 `passages.json` 中 `Q161`（`quote_type=原文`）与 `Q442`（`quote_type=出土文献`）的 `event_id` 均为 `E146`；`site/app.js` 第 921 行事件详情渲染逻辑为 `DATA.passages.filter(p => p.event_id === evt.id)`，按 `event_id` 分组逐条渲染引文区块，故两条引文必在同一事目（`E146`「莘之役」）详情页内并列渲染。**断言成立。**
+2. **层标可辨**——`Q442.modern_note` 以 `【出土文献层，与《左传》系统并陈不裁、二说不合一；不作史实骨架用，亦不据以改易经传骨架】` 开头（编者层标，`.q-caveat` 渲染）；`app.js` 第 929–934 行逻辑「`quote_type` 非空且非"原文"即追加 `.q-layer` 徽标、文本取 `quote_type` 原值」对 `Q442`（`quote_type=出土文献`）成立，徽标文本即显示"出土文献"；`Q161`（`quote_type=原文`）依同一逻辑**不生成徽标**。故 `Q442` 徽标之"有"与 `Q161` 徽标之"无"构成页面上的直接视觉区分。**断言成立**，但留一处上报项（见下）。
+3. **`Q161` 双向互指**——生产 `Q161.modern_note` 含 `J001` 与 `Q442` 两处指称（"另按：清华简《系年》第五章于此作『蔡哀侯妻之』……见 `J001` 及其 `passage`（`Q442`）"）；`Q442.modern_note` 含"与《左传·庄公十年》（本事目 `Q161`）逐节对读"一句，明写 `Q161` 之号。两侧互指均在生产数据中实测存在。**断言成立。**
 
-**待补**（推送后追记提交哈希与 Actions 运行号）。
+**其余不变量实测**：生产 `meta.json` — `sources=174`／`passages=425`／`events=235`／`people=153`（`places`/`relations`/`event_people`/`background`/`archaeology` 未在本轮改动范围内，未见于本次校验但合入前后行数比对已在 §五 核对）；`year_range_bce` 为 `[-773, -472]`（不变）；`E146`／`E147.reliability` 均为 `high`；`J001.url` 内容与页名见 §六。`Q161.quote_original` 与合入前逐字全等（见 §二表，本轮 diff 仅命中 `modern_note` 一栏）。`〔页码待补〕` 全库仍为 0（生产 JSON 复核同上）。
+
+**上报项（不阻塞，供 Vision 参考）**：`Q442` 的 `.q-layer` 徽标目前**无专属配色**——`QLAYER_CLASS`（`app.js` 第 881 行起）尚未收录「出土文献」档，故该徽标沿用 `.quote` 基类默认样式（边框 `currentColor`、朱色左线与经传骨架 `原文` 同色），与既有「言论/评论」（淡墨）、「后出叙事」（灰虚线）、「诗歌」（菉色）、「经义异闻」（乌梅紫）五档专属色系不一致。断言 2 的"视觉可区分"以"有徽标 vs 无徽标"这一最低阈值成立，但风格上未比照既有五档配色体例。此项属前端视觉范畴，非本轮 Skipper 任务书范围，登记供下一轮 Vision 任务参考，不影响本次数据交付。
+
+## 九、提交与部署（追记）
+
+- 提交哈希：`51f91366ca5fcb00f05e3a142c87ea5a0ea3fa70`（`51f9136`）
+- 提交信息首行：`feat(skipper r32 出土文献层): J 前缀落地——护栏同步＋conventions 升 v1.30＋fix31_xinian 合入`
+- 推送：`git push origin main` 成功，`787443d..51f9136 main -> main`
+- GitHub Actions 运行：`Deploy site to GitHub Pages`，run id `31919857345`，https://github.com/QuinnyXu/chunqiu/actions/runs/31919857345 ，`status=completed`，`conclusion=success`
+- 生产直连复验：`https://chunqiu.timechorus.com/data/*.json` 均 200，内容与本地合入结果逐项核对一致（见 §八）
 
 ## 十、异常
 
-无。合入过程与 Sophia 备料模拟结论完全一致（护栏改动结果、行数变化、软检警告数、`〔页码待补〕` 归零均实测吻合）；唯一偏差是 `J001.url` 网络可达性——`WebFetch` 工具报不可达，但 `curl` 直连证实页面本身可达，已在上表如实登记复核结论。
+无阻断性异常。合入过程与 Sophia 备料模拟结论完全一致（护栏改动结果、行数变化、软检警告数、`〔页码待补〕` 归零均实测吻合）。两处非阻断性记录：
 
----
-（本文档为初版，推送与生产复验完成后将另发一份追记，补齐三条带参复验断言实测结论、提交哈希、Actions 运行号，体例同 `docs/delivery_skipper_r28.md` 之 r28 追记先例。）
+1. `J001.url` 网络可达性——`WebFetch` 工具与 `gh` CLI 在本会话环境下均报域名/API 解析失败，但改用 `curl` 直连均证实可达（`zh.wikisource.org` HTTP 200、`api.github.com` HTTP 200）；判断为特定工具的网络路径限制，非目标站点本身不可达。已回告：`J001` 页名为简体「**系年**」，非「繫年」。
+2. `Q442` 引文徽标暂无专属配色（见 §八上报项），已登记供 Vision 参考，不影响本轮数据交付的完整性与三条带参断言的实测通过。
