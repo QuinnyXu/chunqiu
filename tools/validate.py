@@ -55,6 +55,7 @@ SOFT_CHECK_TIERS = {
     "言论": False,      # 暂缓——留待后续批次核订、逐档开启
     "后出叙事": False,  # 暂缓
     "评论": True,       # v1.21 开启（r23 fix23，4 条缺口已随件清零，见 conventions.md §7）
+    "出土文献": True,   # v 升下一号开启（r32，裁定6——新档天生零历史缺口，随立即开、开档即净）
     # "原文" 不列入本表：结构式判据已在上方直接豁免，不受此开关影响
 }
 
@@ -70,9 +71,10 @@ ID_PATTERNS = {
     "places": re.compile(r"^L_[A-Z]+$"),
     "relations": re.compile(r"^R\d{3}$"),
     # Z=左传 S=史记 G=国语 A=考古；P=诗经、B=现代研究为旧库沿用前缀；Y=公羊传、L=穀梁传（v1.9 启用）；
-    # T=先秦诸子及秦汉说部层（v1.10 启用，分层纪律见 conventions.md §2）
+    # T=先秦诸子及秦汉说部层（v1.10 启用，分层纪律见 conventions.md §2）；
+    # J=出土文献层（v 升下一号启用，r32 裁定——战国竹书为首，清华简/上博简/安大简等同层，独立见证层与 Z 平行不设高下）
     # 注：sources 的 L### 与 places 的 L_XXX 正则相异（前者 L+三位数字、后者 L+下划线+字母），命名空间不冲突
-    "sources": re.compile(r"^[ZSGAPBYLT]\d{3}$"),
+    "sources": re.compile(r"^[ZSGAPBYLTJ]\d{3}$"),
     "passages": re.compile(r"^Q\d{3}[A-Z]?$"),
     "background": re.compile(r"^BKG\d{3}$"),
     "archaeology": re.compile(r"^ARC\d{3}$"),
