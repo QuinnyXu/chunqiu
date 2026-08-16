@@ -374,6 +374,7 @@ JS  模式输出： .a { background: url(http:                                  
 |---|---|
 | 提交哈希 | **`412253f`**（`325ab7f..412253f`，3 files changed，382 插入 / 24 删除） |
 | Actions 运行号 | **31960963885** —— Deploy site to GitHub Pages，**success**（27s；含 `Validate data (guard)` ✓ 与 `Post-deploy self-check（meta.json generated_at 比对）` ✓） |
+| 追记提交 | **`6e4b669`**（本文件回填三门实测／哈希／运行号／生产五项，并上报 §二④ 疑点），Actions **31961435221** —— **success** |
 
 ### 生产实测（`https://chunqiu.timechorus.com`，部署后当日）
 
