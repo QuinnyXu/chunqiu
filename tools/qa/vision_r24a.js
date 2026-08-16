@@ -52,6 +52,10 @@
 //       甬东「不入计数但卡片可达」两面并核。
 //   另修两条**过期的快照式断言**（非缺陷，是断言自己过时，同 r26b 之例）：
 //       「国色家族增至 10」→ 与 STATE_HEX 定调表逐项对账；「吴分区 2 张卡」→ 与 PROTAGONISTS 归属数对账。
+// r34 扩充（仍不另起脚本）：
+//   §21 新立「关于页版本一致性」门——「当前版本」行 ⇔ changelog 列表首项，两处写死的同一个数由本门对账。
+//       DOM 对读，前端一行不改（站长裁定方案 ①）；病类见 design_notes §7.5、病例为 v0.18 漏改版本行，
+//       俱写在该节注释里。构造式断言，咬合力由注入反证证明（§7.2）。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -2092,6 +2096,58 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   });
   OK(ydClick && ydOpen.ok && ydOpen.unloc && ydOpen.why,
      "甬东经全站搜索可达：卡片打得开、坐标行「未定位」、留空之由可读（其地无锚点，故此路是唯一通路）");
+
+  // ---------- 21) r34：关于页版本一致性——「当前版本」行 ⇔ changelog 列表首项 ----------
+  /* 【为何有这一条 · 防的病类】
+   *   同一个版本号在 site/index.html 里被**写死了两份**——上方 <p id="about-version"> 的「当前版本 vX.YZ」，
+   *   与其下 changelog <ul> 的第一个 <li>——两份各自独立，谁也不引用谁，只靠发版的人记得同时改。
+   *   这正是 design_notes §7.5「文案不该随数据长 —— 『写死的数字』在界面文字里的同族一相」所收的病：
+   *   **把一份会变的事实抄成第二份，而没有人负责对账**。§7.5 举的是「随数据长的列举」（首页无主角之国
+   *   的国名清单），本条是同族的另一相——两处互抄的同一个数。
+   * 【病例】v0.18 那一轮只在 changelog 顶上添了一条 <li>、漏改了上方的「当前版本」行，关于页从此
+   *   自己跟自己打架（版本行 v0.17 / 列表首项 v0.18），矛盾一直潜伏到 r32 走查才被撞见；r33 修的是
+   *   **结果**（版本行改到 v0.19），成因原封未动——两处仍是各自独立的静态文本。r34 站长裁定取方案 ①：
+   *   **界面保持静态、一行不改**（不改为运行时从列表首项拼装，那与本站静态优先的取向有摩擦），
+   *   改由总门在每次复跑时 DOM 对读兜住。故本节是**构造式断言**（§7.2），落地时并无活 bug 可捉，
+   *   其咬合力由「临时改一处版本号即转红」的注入反证证明——见 delivery_vision_r34。
+   * 【失败时往哪看】报错直接打出两处各自读到的号与其定位：版本行在 site/index.html 的
+   *   <p id="about-version">；列表首项在同一 <section> 内那个 changelog <ul> 的第 1 个 <li>
+   *   （该 <ul> 无 id，前端不改，故按「首项以 vN.N 起首」的形态认它）。两号不等时，改哪一处取决于
+   *   本轮 changelog 实写的内容——通例是先读列表首项那条写了什么，再回改版本行的号与括注。
+   *   若报的是「定位失败」而非「号不一致」，那是关于页 DOM 结构变了（id 改名／列表挪出该 section），
+   *   此时该改的是本节的取节点方式，不是数据。 */
+  H("21) r34 · 关于页版本一致性：「当前版本」行 ⇔ changelog 列表首项");
+  await p.goto(origin + "/#/about", { waitUntil: "load" }); await p.waitForTimeout(900);
+  const verSync = await p.evaluate(() => {
+    const view = document.querySelector("#view-about");
+    const line = document.querySelector("#about-version");
+    const sec = line ? line.closest("section") : null;
+    const uls = sec ? [...sec.querySelectorAll("ul")] : [];
+    const ul = uls.find(u => u.firstElementChild && /^\s*v\d+\.\d+/.test(u.firstElementChild.textContent || ""));
+    const li = ul ? ul.firstElementChild : null;
+    const lineTxt = line ? (line.textContent || "").replace(/\s+/g, " ").trim() : "";
+    const liTxt = li ? (li.textContent || "").replace(/\s+/g, " ").trim() : "";
+    return {
+      shown: !!(view && !view.hidden),
+      lineFound: !!line, liFound: !!li, ulSeen: uls.length, liCount: ul ? ul.children.length : -1,
+      lineVer: (lineTxt.match(/当前版本\s*(v\d+\.\d+)/) || [])[1] || null,
+      liVer: (liTxt.match(/^\s*(v\d+\.\d+)/) || [])[1] || null,
+      lineTxt: lineTxt.slice(0, 34), liTxt: liTxt.slice(0, 34),
+    };
+  });
+  const verWhere = "版本行〔#about-version〕读到 " + verSync.lineVer + "：「" + verSync.lineTxt + "…」"
+    + " ｜ 列表首项〔#about-version 所在 <section> 内 changelog <ul>（其下 " + verSync.liCount + " 个 <li>，末条为「更早」非版本条）的第 1 个 <li>〕读到 "
+    + verSync.liVer + "：「" + verSync.liTxt + "…」";
+  /* ① 先断定位——两处都必须真读到号。缺了这一项，日后 id 改名或列表挪走时两边同为 null，
+   *    「null === null」会让下面那条一路常绿，断言就成了摆设（§7.4 快照式通病的另一形态）。 */
+  OK(verSync.shown && verSync.lineFound && verSync.liFound && !!verSync.lineVer && !!verSync.liVer,
+     "关于页已渲染且两处版本号均定位到（该 section 内见 " + verSync.ulSeen + " 个 <ul>）——" + verWhere);
+  /* ② 正题：两处写死的同一个数必须相等。 */
+  OK(!!verSync.lineVer && verSync.lineVer === verSync.liVer,
+     verSync.lineVer && verSync.lineVer === verSync.liVer
+       ? "「当前版本」行与 changelog 首项同为 " + verSync.lineVer + "（两处各自写死，本门负责对账）"
+       : "站内版本号自相矛盾——" + verWhere + " ｜ 处置：以本轮 changelog 首项实写的内容为准回改版本行"
+         + "（病类见 design_notes §7.5；病例为 v0.18 那轮只加条目漏改版本行）");
 
   say("\n控制台告警：" + (warns.length ? warns.join(" | ") : "无"));
   say("页面错误：" + (errs.length ? errs.join(" | ") : "无"));
