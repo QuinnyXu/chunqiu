@@ -614,7 +614,7 @@ function ellipseFinalGeom(el) {
  * 8 枚时将达 217px。折两行把增长从「线性」压成「每两人加一格」，是换掉增长源、不是挪一挪位置。
  *
  * 两条取舍写明，免得后人当成随手之作：
- *  ① **阈值取 6**（≤6 仍单行）：现库除齐外最多者郑组 5 枚（行宽 151），折之无益反而多占一行高；
+ *  ① **阈值取 6**（≤6 仍单行）：r27 定阈时除齐外最多者为郑组 5 枚（行宽 151），折之无益反而多占一行高；
  *     6 枚行宽 182 尚在多数色块的可用宽度边缘，故门槛定在「超 6」，即第 7 枚起折。
  *  ② **上行取 floor(n/2)、下行取 ceil(n/2)**——即较宽的一行在下。国名标注一律在簇之上
  *     （首页地图国名放大至 26px），把窄行放在上方可少压字；两行各自居中于簇心 x。
@@ -1207,7 +1207,7 @@ const chronFiltered = () => chronView.states.size > 0 || chronView.cats.size > 0
 
 function renderChronicle() {
   const list = $("#chron-list");
-  // 九国色一次读入，避免每行各调一次 getComputedStyle（190 行 × 一次强制取样没有必要）
+  // 国色一次读入，避免每行各调一次 getComputedStyle（编年铺的是全库事件，逐行强制取样没有必要）
   const pal = Object.fromEntries(Object.keys(STATE_FAMILY_VAR).map(k => [k, familyColor(k)]));
   /* 搜索直达优先于筛选：落锚是导航动作，筛选是浏览态。若不清筛选，
    * 搜来的事件可能恰好被当前筛选挡在表外，读者只会看到一张空表。 */
@@ -1302,7 +1302,7 @@ function chronRow(r, prevYear) {
   sum.appendChild(hint);
   det.appendChild(sum);
 
-  /* 详情按需构建：190 行若全量预建卡体（含 280 条引文与近 500 枚人物签），
+  /* 详情按需构建：编年铺的是全库事件，若全量预建卡体（连同其下引文与人物签——二者合计数倍于行数），
    * 首屏要白白造出读者九成不会展开的 DOM。展开即建、幂等可重入（见 chronEnsureBody）。 */
   det.addEventListener("toggle", () => { if (det.open) chronEnsureBody(det); });
   li.appendChild(det);
@@ -2371,7 +2371,7 @@ function toggleSinglePlay(traj, anchors, theme) {
 /* B3 免责样板句（fixtures §附注·前端引用；一字不差）—常驻交会侧栏顶部、交会弹卡内亦重复 */
 const BINGUAN_DISCLAIMER = "同城未必同时，不能仅据同年同地断定相遇。";
 
-/* 两人是否皆为主角（并观仅在十五主角间可用） */
+/* 两人是否皆为主角（并观仅在主角之间可用） */
 function bothProto(a, b) {
   return a && b && a !== b &&
     PROTAGONISTS.some(m => m.id === a) && PROTAGONISTS.some(m => m.id === b);
@@ -3440,7 +3440,7 @@ function showLibDetail(r, srcCard) {
 }
 
 /* ---------- 屏5 关系图谱：默认「以人为中心」ego 视图，可沿关系网游走；
- * 40 人全景保留为次级入口（分组环形布局），加「仅主角边」过滤。零依赖。 ---------- */
+ * 全景保留为次级入口（分组环形布局），加「仅主角边」过滤。零依赖。 ---------- */
 const REL_COLORS = {
   "亲属-直系": "#A9622B", "亲属-同辈": "#C79E7E", "婚姻": "#BC4433", "君臣": "#56707E",
   "拥立": "#44766B", "敌对": "#35302A", "师友": "#8A6D1F", "其他": "#8A8072",
@@ -3958,7 +3958,7 @@ function egoNodeEl(id, pos, isEgo) {
   return g;
 }
 
-/* 国别底晕（r14，裁定1·4）：为六主角国各铺一段极淡国色环弧，强化阵营分区。
+/* 国别底晕（r14，裁定1·4）：为有主角之国各铺一段极淡国色环弧，强化阵营分区。
  * 节点按 STATE_ORDER 首国连续排布，故同国节点占一段连续角；取该段首末节点角±半槽为弧幅，
  * 画环形扇（内 R-46、外 R+28），fill-opacity 0.10 只作底晕、不抢节点与连线。 */
 function drawStateHalos(layer, people, CX, CY, R, NS) {
@@ -4000,13 +4000,13 @@ function drawStateHalos(layer, people, CX, CY, R, NS) {
  * 三者与「徽记源文件一律 stroke-width=2」的规约不冲突：改的只是呈现端。 */
 const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";
 /* 全景环上的人物集合（r24a-2 裁定 ②b，即 r24a §4.3 三选项之 C）：
- * **默认只画主角**（现 29），勾「显示全部」才回到全库（现 127）。
+ * **默认只画主角**，勾「显示全部」才回到全库。
  *
  * 根据（实测，非观感）：环半径 R=252 固定，相邻槽距＝2R·sin(π/n)。
  *   n=127 → 12.46px，**小于主角节点直径 30**，故主角盘面本就相互叠压，
  *           国色制下同国同色更并作一块色团，同弧徽记必然互相压边（r24a §四）；
- *   n=29  → 54.49px（r26b 复核，27 人时为 58.55），**仍大于节点直径 30、大于徽记边长 22**，
- *           同弧徽记两两不相接——加两人后余量由 28.55 收到 24.49，尚宽裕；
+ *   n 取现行主角数 → 槽距**仍大于节点直径 30、大于徽记边长 22**，
+ *           同弧徽记两两不相接——余量随人数递减，代入上式现算即得，此处不记死数；
  *           按此式，槽距跌破节点直径 30 要到 n=53，跌破徽记 22 要到 n=72。
  * 这是 r24a 三条 costed 选项中唯一不改环几何、不改视觉性格即可根治的一条：
  * A（不等角槽）要把 viewBox 由 680 扩到约 800、图整体变大；B（双环错排）把「清爽单环」
@@ -4053,7 +4053,7 @@ function drawPanoGraph() {
     });
   });
 
-  // 国别底晕（裁定1·4）：六主角国各占一段环弧，极淡国色扇形铺底，使齐鲁郑晋秦楚阵营一眼可辨。
+  // 国别底晕（裁定1·4）：有主角之国各占一段环弧，极淡国色扇形铺底，使各国阵营一眼可辨。
   // 节点已按 STATE_ORDER 连续排布，同国节点成弧；仅为有主角之国着色，配角国不铺（避免喧闹）。
   drawStateHalos(haloLayer, people, CX, CY, R, NS);
 
@@ -4126,7 +4126,7 @@ function drawPanoGraph() {
         b.style.pointerEvents = "none";
         /* 徽记入独立顶层：旧法把徽记塞进各自节点的 <g>，而 <g> 按环序依次追加，
          * 于是后一节点的盘面正好盖住前一节点的徽记——同弧六人只有最后一枚徽记露得出来。
-         * 提到 badgeTop 层后，27 枚徽记一律叠在所有盘面之上。 */
+         * 提到 badgeTop 层后，环上徽记一律叠在所有盘面之上。 */
         badgeTop.appendChild(b);
         node.badgeEl = b;
         if (relView.focus) b.style.opacity = node.el && node.el.style.opacity || "";
@@ -4468,7 +4468,7 @@ function goSearchPerson(pid) {
 }
 function goSearchPlace(plid) {
   const cands = PLACE_PROTOS.get(plid) || [];
-  /* r28 裁定 15：**全库无事目落其上之地**（现库 9 处，含甬东），旧码一路退到名册首位主角——
+  /* r28 裁定 15：**全库无事目落其上之地**（如甬东），旧码一路退到名册首位主角——
    * 读者从首页搜「甬东」，却站到了文姜的地图上，宿主与其地全无干系。
    * 改在退到名册首位之前先试**该地所属国之主角**：越地落越人、郑地落郑人，一眼知其所以然。
    * 国名解析复用编年国色签的同一口径（按字符序取首个可识别的国色家族名，故「共/卫」得卫、
@@ -4809,7 +4809,7 @@ function drawShareCard() {
    * 按国色家族计数后，增长源由「主角数」变为「国色家族数」：新增主角不再加宽，唯新立国色家族才 +1 枚，
    * 而家族数增长远慢于主角数（一国可容数位主角，添人多半不添族；实数以 STATE_FAMILY_VAR 为准）。
    * 按 dotGap=44 现算，家族数一行宽＝44×(族数−1)+20，现行族数下远小于内框净宽 992px，余量充裕。
-   * 色序与色值同源 STATE_FAMILY_VAR / familyColor()——与首页九分区、关系全景阵营底晕共用同一份，不另写。 */
+   * 色序与色值同源 STATE_FAMILY_VAR / familyColor()——与首页分区、关系全景阵营底晕共用同一份，不另写。 */
   const fams = Object.keys(STATE_FAMILY_VAR);
   const dotR = 10, dotGap = 44;
   let tx = W / 2 - ((fams.length - 1) * dotGap) / 2;
