@@ -134,4 +134,15 @@
 
 ## 八、提交、部署与生产复验（追记）
 
-*（待提交后回填）*
+- **提交哈希**：`5650c05`（`test(vision r34): 总门新增关于页版本一致性断言——「当前版本」行 ⇔ changelog 首项`），2 files changed、193 insertions、**0 deletions**；推送 `c99f49d..5650c05 main -> main`。
+- **Actions 运行号**：**31955410780**（Deploy site to GitHub Pages，`main` / push，2026-08-16T15:21:36Z）——**completed / success**（含 `Validate data (guard)` 与 `Post-deploy self-check` 两步全绿）。
+
+**生产不受影响的确认方式（三条，逐条实测，非「应该不受影响」的推断）**：
+
+| # | 确认方式 | 实测 |
+|---|---|---|
+| ① | **本次提交是否触及前端**：`git show --name-only 5650c05 \| grep -c "^site/"` | **0** —— 部署上去的 `site/` 与 r33 逐字节同一份；改动只在 `tools/qa/` 与 `docs/` |
+| ② | **生产关于页实读**（Playwright 读渲染后 DOM，带 `?v=<时间戳>` 绕开 CDN／浏览器缓存，用的是与总门 §21 **同一段判据**） | 版本行 `v0.19`、列表首项 `v0.19`、**一致 true**；`<ul>` 下 18 个 `<li>`、`PROTAGONISTS` 33 —— 与 r33 生产复验所记完全一致 |
+| ③ | **生产走查门复跑**：`node tools/qa/vision_r32.js https://chunqiu.timechorus.com --bust` | **29 项，失败 0 项** |
+
+**环境记实一条**（同 r33 §五之二所记、亦同 conventions v1.30 `J001.url` 一案的口径，照录）：本轮首次以 Chromium 访问生产域名时报 `ERR_NAME_NOT_RESOLVED`，而同一时刻 `nslookup` 正常返回其 Cloudflare 地址（`172.67.174.133`、`104.21.80.55` 等）、`curl https://api.github.com` 亦得 200——判明是**本会话沙箱／浏览器解析链路的限制，非站点或域名问题**；改用总门既有的 `--host-resolver-rules` 机制（`QA_HOST_RESOLVER="MAP chunqiu.timechorus.com 172.67.174.133"`）后上表 ②③ 两项即全部实测取得。**「网络不可达」只写成特定工具/环境的限制，不写成对象本身不可达。**
