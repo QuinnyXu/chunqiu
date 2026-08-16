@@ -114,13 +114,15 @@
 
 ## 六 · 提交与部署（**动作完成后实测回填，未预填**）
 
-本节各项在动作实际完成后据实回填，不预填——此即 r37 §十.0 自曝并建议立条者，站长已裁交 Skipper 写入 conventions 交付体例，本件即照此办。
+本节各项在动作实际完成后据实回填，不预填——此即 r37 §十.0 自曝并建议立条者。该条已由 Skipper 于本轮并行件落地（`f822e63`，**conventions v1.31**「提交哈希与运行号一律实测回填，不得预填」），**本件是该通例写入后的首件实施**：表中三项均待推送与 Actions 跑完后才落笔。
+
+**一笔须记的并行事实**：推送时发现远端 tip 已前进至 `7faaaef`——即 Skipper 同轮并行件（`docs/conventions.md` ＋ `docs/delivery_skipper_r38.md`）先落。两件**文件集不相交**（我只动 `design_notes.md`，它只动 `conventions.md`），故本提交干净地叠在其上，**无冲突、无合并提交**，任务书所定的防撞车分工实测有效。两件共用 r38 轮次号、各写各的交付文档（`delivery_skipper_r38.md` ／ `delivery_vision_r38.md`）。
 
 | 项 | 值 |
 | --- | --- |
-| 提交哈希 | **待回填** |
-| Actions 运行号 | **待回填** |
-| `git show --name-only <hash> \| grep -c "^site/"` | **待回填**（预期 0） |
+| 提交哈希 | **`5071543`**（`docs(vision r38): design_notes 升 v2.9……`，2 files changed, 138 insertions(+), 2 deletions(-)） |
+| Actions 运行号 | **`31977957344`**，`headSha=50715438…`，**conclusion=success** ✓ |
+| `git show --name-only --format="" 5071543 \| grep -c "^site/"` | **0** ✓（该提交只含 `docs/delivery_vision_r38.md` 与 `docs/design/design_notes.md` 两个文件） |
 | 生产复验 | **不适用**——未触及 `site/`，以上一行计数为 0 佐证生产未变（同 r34 办法） |
 
 ---
