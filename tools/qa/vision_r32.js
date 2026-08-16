@@ -17,6 +17,10 @@
 const { chromium } = require("playwright");
 
 const BASE = process.argv[2] || "http://127.0.0.1:8791";
+/* 生产复验须带参绕开 CDN/浏览器缓存——否则「过了」可能只是过了一份旧副本。
+ * --bust 生成一次性串，附在每个 index.html/styles.css 请求上（hash 之前，故不影响路由）。 */
+const BUST = process.argv.includes("--bust") ? "?v=" + Date.now() : "";
+const IDX = "/index.html" + BUST;
 let fails = 0, checks = 0;
 function ok(cond, label, detail) {
   checks++;
@@ -109,14 +113,14 @@ async function dismissTour(page) {
 /* 先在首页把引导关掉再进人物页：「跳过」按站点设计会**回到首页**（v0.11 起如此），
  * 在人物页上关它等于被弹回首页，后续等待必然超时。故顺序是 首页→关引导→进人物页。 */
 async function enter(page) {
-  await page.goto(BASE + "/index.html", { waitUntil: "load" });
+  await page.goto(BASE + IDX, { waitUntil: "load" });
   await page.waitForTimeout(500);
   await dismissTour(page);
 }
 
 async function openPersonEvent(page, personId, eventId) {
   await enter(page);
-  await page.goto(BASE + "/index.html#/p/" + personId + "/timeline", { waitUntil: "load" });
+  await page.goto(BASE + IDX + "#/p/" + personId + "/timeline", { waitUntil: "load" });
   await page.waitForSelector(".event", { timeout: 15000 });
   await page.waitForTimeout(300);
   const opened = await page.evaluate((eid) => {
@@ -137,7 +141,7 @@ async function openPersonEvent(page, personId, eventId) {
 
   /* ---- 先取 CSS 变量的权威值，全门断言一律与它对读，不与硬编码字面量对读 ---- */
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-  await page.goto(BASE + "/index.html", { waitUntil: "load" });
+  await page.goto(BASE + IDX, { waitUntil: "load" });
   const EXCAV = parseRGB(await page.evaluate(() => {
     const v = getComputedStyle(document.documentElement).getPropertyValue("--excav").trim();
     const d = document.createElement("div"); d.style.color = v; document.body.appendChild(d);
@@ -230,7 +234,7 @@ async function openPersonEvent(page, personId, eventId) {
   console.log("\n【四】编年视图内六档跨条目并置（真实页面里凑齐各档只能在此）");
   const cpage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await enter(cpage);
-  await cpage.goto(BASE + "/index.html#/chronicle", { waitUntil: "load" });
+  await cpage.goto(BASE + IDX + "#/chronicle", { waitUntil: "load" });
   await cpage.waitForSelector(".chron-row", { timeout: 15000 });
   /* 编年卡体是**按 toggle 事件幂等构建**的（app.js §7 体例二：DOM 可弃、用时重建），
    * 与时间线的即时构建不同——程序化置 open=true 后须让出一帧，引文才进 DOM。
@@ -288,7 +292,7 @@ async function openPersonEvent(page, personId, eventId) {
 
   console.log("\n【六】单点管理对账：站内该层色只经 --excav 一处");
   const p2 = await browser.newPage();
-  await p2.goto(BASE + "/styles.css", { waitUntil: "load" });
+  await p2.goto(BASE + "/styles.css" + BUST, { waitUntil: "load" });
   const css = await p2.evaluate(() => document.body.innerText);
   const literals = (css.match(/#544614/gi) || []).length;
   const rgbaLit = (css.match(/rgba\(\s*84\s*,\s*70\s*,\s*20/gi) || []).length;
