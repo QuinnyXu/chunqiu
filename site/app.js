@@ -5,7 +5,7 @@
 /* ---------- 设计配置（见 docs/design/design_notes.md） ---------- */
 /* 顺序即选人页分区内顺序；分组按 people.state 首国自动生成，新国加入只增分区。
  * home：分区归属覆盖项（武姜 state「申/郑」，人物线全在郑，归郑分区，卡上仍标流向） */
-/* 主题色 color 不在此写死：国色制（r24a 裁定）以 styles.css :root 的 --state-<国> 九个变量为单一源，
+/* 主题色 color 不在此写死：国色制（r24a 裁定）以 styles.css :root 的 --state-<国> 各变量为单一源，
  * resolveProtoColors() 于启动时按人物所属国读入填充 meta.color
  * （「国色定色、徽记定人、纹理定轨」，见 design_notes v2.0 §2.0）。
  * 个人色 --p-<id> 已于 r24a 全数退役——新增主角不需要取色，只需一枚徽记（badge）。
@@ -41,7 +41,7 @@ const PROTAGONISTS = [
   { id: "P_SONGXIANG",   color: "", badge: "badge_songxiang",   fallback: "宋襄公" },
   { id: "P_XIAJI",       color: "", badge: "badge_xiaji",       fallback: "夏姬", home: "陈" },
   { id: "P_HELU",        color: "", badge: "badge_helu",        fallback: "阖庐" },
-  /* 伍员 state「楚/吴」全链，首国为楚；其人物线主要发生国是吴——六条挂链中三条落吴都
+  /* 伍员 state「楚/吴」全链，首国为楚；其人物线主要发生国是吴——r27 定 home 时六条挂链中三条落吴都
    * （E243 奔吴、E226 问伐楚之谋、E227 为吴行人），且**全部三处「亲至」落点皆在吴**，
    * 楚（郢／柏举）与秦（雍）三条一律「相关」。故 home 覆盖为「吴」，同息妫（陈女而线在楚）之例；
    * 人物卡上仍以流向 chip 标「楚→吴」，出身不因分区归属而被吞掉。 */
@@ -85,8 +85,8 @@ function resolveProtoColors() {
 /* 主角名册对账（r26b 新立）——两份名册必须一字不差。
  * 数据侧的 `people.is_protagonist` 与本文件的 `PROTAGONISTS` 是两份各自维护的名册：
  * 前者定「谁是主角」，后者定「谁进得去」（徽记、分区、时间线/地图/并观/全景皆挂在它上面）。
- * r26 出过一次实账：数据侧多、前端少（晏婴、叔向缺席），而页脚人数取的是数据侧，
- * 于是站内对读者报的人物线条数按数据侧算，其中两条点不进去——**多许的两条，读者是找不到的**。
+ * r26 出过一次实账：数据侧 29、前端 27（晏婴、叔向缺席），而页脚人数取的是数据侧，
+ * 于是当时站内对读者报「29 条人物线」，其中两条点不进去——**多许的两条，读者是找不到的**。
  * 此后由本函数守住两件事：
  *   ① 页脚人数改取「**实际可进者**」（前端名册 ∩ 数据在库），宁可少报，永不多许；
  *   ② 两侧不一致即 console.warn 报出双向差集，使缺口在开发期就现形，不必等读者发现。
@@ -3509,7 +3509,7 @@ const relView = {
   collapsed: new Set(),  // ego 两侧折叠的分组（窄屏默认全折叠）
   collapsedInit: false,
   protoOnly: false,      // 全景「仅主角边」
-  showAll: false,        // 全景「显示全部」：false=只画主角（默认，现 29），true=全库（现 127）（r24a-2 裁定②b）
+  showAll: false,        // 全景「显示全部」：false=只画主角（默认），true=全库（r24a-2 裁定②b）
   nodes: new Map(), edges: [], focus: null, isolated: new Set(), // 全景态
   detailReg: [],         // 每次绘图重建：边索引→该并线的 rels，供全屏克隆体按 data-detail 重绑抽屉
 };
@@ -3969,7 +3969,7 @@ function drawStateHalos(layer, people, CX, CY, R, NS) {
   const spans = new Map(); // stateKey → [minIdx, maxIdx]
   people.forEach((p, i) => {
     const st = panoStateKey(p);
-    if (!STATE_FAMILY_VAR[st]) return; // 仅有主角国（七家族）铺底晕
+    if (!STATE_FAMILY_VAR[st]) return; // 仅有主角之国铺底晕
     const s = spans.get(st);
     if (!s) spans.set(st, [i, i]);
     else { s[0] = Math.min(s[0], i); s[1] = Math.max(s[1], i); }
@@ -5307,7 +5307,7 @@ async function boot() {
   // 「春秋 · 前770—前476」为纪年时段定义（静态），此处只注入随数据推进的「已考订至前XXX」。
   $("#site-frontier").textContent = "已考订至" + yearLabel(m.year_range_bce.max);
   /* 页脚品牌语的人数：取「实际可进者」而非数据侧主角数，见 protoRoster() 注释。
-   * 两侧一致时二者本就相等（现 29＝29）；不一致时本行只肯报小的那个，多的由 warn 报账。 */
+   * 两侧一致时二者本就相等；不一致时本行只肯报小的那个，多的由 warn 报账。 */
   const roster = protoRoster();
   $("#brand-caption").textContent = "分享给同好——" + roster.enterable.length + " 条人物线，择一而入。";
   render();
