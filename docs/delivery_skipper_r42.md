@@ -114,9 +114,25 @@
 
 ---
 
-## 六、生产带参复验（追记，见提交后实测）
+## 六、生产带参复验（追记，2026-08-17）
 
-> 本节将在推送、GitHub Actions 部署成功后，直连生产环境重跑 §四 两条断言、补记于此（依 conventions §7 v1.31「提交哈希与 Actions 运行号一律实测回填，不得预填」同一原则，生产复验同样不预填）。
+提交 `8c5dfeb` 推送后 GitHub Actions 运行 `32031718673`（`Deploy site to GitHub Pages`）`status=completed`、`conclusion=success`（耗时 1m41s）。随后直连生产 `https://chunqiu.timechorus.com` 带参（`?v=<timestamp>` 绕开缓存）重跑 §四 两条断言，**数据层用 `curl` 直连 `data/*.json`、渲染层用 Playwright 无头浏览器实测真实 DOM**，结论如下：
+
+### 断言 1：骊姬页 J 层并陈可见——生产复验
+
+- **数据层**（`curl` 直连生产 `passages.json`）：`E076`／`E079`／`E080`／`E082`／`E083`／`E084`／`E085`／`E086`／`E094` 九条骨架事目，逐条核实同时含 `quote_type=出土文献` 与非出土文献层（`原文`／`后出叙事`）引文，**9/9 通过**（与本地结果逐字一致）。
+- **渲染层**（Playwright 实测生产站 `https://chunqiu.timechorus.com`）：展开 `E082` 事件卡，DOM 中 `.q-layer` 徽标同台渲染「**后出叙事**」与「**出土文献**」两枚，`layer-chutu` 命中 1 次，引文区块 3 条同台并列。**与本地实测完全一致，断言成立。**
+
+### 断言 2：商密新事目在编年可达——生产复验
+
+- **数据层**：生产 `events.json` 中 `E273` 各栏（`title`／`place_id=null`／`year_bce=-635`／`source_ids=Z049;J002`／`reliability=high`／`category=战争`／`importance=2`／`sort_key=15`）与本地合入结果**逐字全同**。
+- **渲染层**：生产站 `#/chronicle` 路由下 `<details data-eid="E273">` 行存在，点击 `<summary>` 后 `details.open=true`，卡体正文含标题「秦晋伐鄀」。**可达、可点入均生产实测成立。**
+
+### 其余不变量（生产直连实测）
+
+`meta.json`：`sources=175`／`passages=436`／`events=236`／`event_people=612`／`people=153`／`places=91`／`year_range_bce=[-773,-472]`，与本地合入结果**逐项一致**。`sources.json` 含 `J002`（`curl` 布尔核对为真）。`Q443`–`Q453` 十一条 `event_id`／`source_id`／`quote_type` 生产实测与本地**逐字全同**。
+
+---
 
 ---
 
@@ -145,6 +161,10 @@
 
 ---
 
-## 十、提交与部署（追记）
+## 十、提交与部署（追记，2026-08-17）
 
-> 待推送后实测回填，见下方追记提交。本节暂留空，不预填提交哈希与 Actions 运行号（conventions §7 v1.31）。
+- 提交哈希：`8c5dfeb1156acf8c3c00e84e5e7d833af52a334c`（`8c5dfeb`）
+- 提交信息首行：`feat(skipper r40 系年第六章): J002 落库——骊姬之乱至晋文入晋并陈组＋补立 E273（秦晋伐鄀商密）＋conventions 升 v1.33 六条＋隶定栏自限`
+- 推送：`git push origin main` 成功，`40b127a..8c5dfeb main -> main`
+- GitHub Actions 运行：`Deploy site to GitHub Pages`，run id `32031718673`，https://github.com/QuinnyXu/chunqiu/actions/runs/32031718673 ，`status=completed`，`conclusion=success`，耗时 1m41s
+- 生产直连复验：`https://chunqiu.timechorus.com/data/*.json` 均 200，内容与本地合入结果逐项核对一致；两条带参断言渲染层复验（Playwright 实测生产站真实 DOM）均通过（见 §六）
