@@ -4261,5 +4261,26 @@
     "role_in_event": "《国语·越语下》：吴师自溃，吴王帅其贤良以上姑苏，使雒行成于越，与范蠡往复相辞（「子范子，先人有言曰：無助天為虐」），辞而反命；其人面见范蠡于军前，在场明文",
     "directness": "direct",
     "presence": "亲至"
+  },
+  {
+    "event_id": "E273",
+    "person_id": "P_QINMU",
+    "role_in_event": "秦晋伐鄀围商密、囚申息二公以归之秦方（遣师·传书国不书君）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E273",
+    "person_id": "P_JINWEN",
+    "role_in_event": "秦晋伐鄀之晋方（遣师·传书国不书君）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E273",
+    "person_id": "P_ZIYU",
+    "role_in_event": "楚令尹追秦师弗及、遂围陈纳顿子",
+    "directness": "direct",
+    "presence": "相关"
   }
 ]
