@@ -101,9 +101,14 @@
 
 ## 回填（push 与 Actions 之后据实填写，不预填）
 
-- 提交哈希：`(待回填)`
-- Actions 运行号与结论：`(待回填)`
-- 生产带参复验 URL 与结果：`(待回填)`
+- **提交哈希**：`5ea4eb978e52edbf74dd369b477da8ea2925bd40`（`git log -1 --format=%H` 实测；`git push origin main` 实测 `b8dd4f3..5ea4eb9  main -> main`）
+- **Actions 运行号与结论**：`33317249529`（`gh run list` 实测），`Deploy site to GitHub Pages` workflow，`gh run view 33317249529` 实测 `status: completed, conclusion: success`
+- **生产带参复验**（node `https` 直连，`?v=5ea4eb9-<timestamp>` 防 CDN 缓存，`BASE=https://chunqiu.timechorus.com/data/`）：
+
+  - `meta.json` 实测 `tables`：`{"archaeology":8,"background":11,"event_people":612,"events":236,"passages":436,"people":153,"places":91,"relations":282,"sources":177}` —— 与九表预期逐项相符。
+  - **断言①（许田）**：`places.json` 中 `L_XUTIAN` 坐标 `33.96/113.94`、`certainty`/`coord_certainty` 均 `low`、`coord_basis` 含「已关闭」与「编号回补」——**PASS**（5/5 子断言全过）。
+  - **断言②（嬖）**：`passages.json` 中 `Q443.modern_note` 含「左传·庄公二十八年」与「追加裁定 24」——**PASS**（3/3 子断言全过）。
+  - **共 8/8 PASS，0 FAIL。**
 
 ---
 
