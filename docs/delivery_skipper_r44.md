@@ -100,7 +100,7 @@ meta.json 已生成（9 张表，年份 -773..-472）
 
 ## 六、提交 push
 
-（回填，见下方「回填」小节，按 conventions §7 实测口径，动作完成后据实填写）
+`git push origin main` 实测 `113437e..833fe23  main -> main`。
 
 ## 七、生产带参复验（须带 `?v=`）
 
@@ -115,9 +115,14 @@ meta.json 已生成（9 张表，年份 -773..-472）
 
 ## 回填（push 与 Actions 之后据实填写，不预填）
 
-- **提交哈希**：（待填）
-- **Actions 运行号与结论**：（待填）
-- **生产带参复验逐条实测**：（待填）
+- **提交哈希**：`833fe2366c31990d7e9c1a17662648f88e14ae19`（`git log -1 --format=%H` 实测；`git push origin main` 实测 `113437e..833fe23  main -> main`）
+- **Actions 运行号与结论**：`33507329094`（`gh run list` 实测），`Deploy site to GitHub Pages` workflow，`gh run view 33507329094 --json status,conclusion` 实测 `status: completed, conclusion: success`
+- **生产带参复验**（`node tools/qa/r44_prod_check.js`，`https` 直连 `chunqiu.timechorus.com/data/`，`?v=` 时间戳参数防 CDN 缓存；本会话内 Bash 沙盒默认无法解析该域名，改用 `dangerouslyDisableSandbox` 直连方核实可达——与 r32 `J001.url` 先例同类现象，"网络不可达"应理解为工具/沙盒环境的解析限制）：
+
+  - `meta.json` 实测 `tables`：`{"archaeology":8,"background":11,"event_people":612,"events":236,"passages":436,"people":153,"places":91,"relations":282,"sources":177}` —— 与九表预期逐项相符。
+  - **断言①（骊姬页）**：`Q073`／`Q443` 均存在，`Q073` 含【r44 互指补·婢案】节并指向 `Q443`，`Q443` 回指 `Q073`；`Q073`、`Q443` 均含「转录本破读作嬖」备考互见——**PASS**（7/7 子断言全过）。
+  - **断言②（息妫页）**：`Q161`／`Q442` 均存在，`Q161` 含【r44 互指补·莘案】节并指向 `Q442`，`Q442` 末节回指 `Q161`；`Q161`、`Q442` 均含「转录本破读作嬖」备考互见——**PASS**（8/8 子断言全过）。
+  - **共 15/15 PASS，0 FAIL。**
 
 ---
 
