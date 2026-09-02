@@ -4282,5 +4282,19 @@
     "role_in_event": "楚令尹追秦师弗及、遂围陈纳顿子",
     "directness": "direct",
     "presence": "相关"
+  },
+  {
+    "event_id": "E274",
+    "person_id": "P_KONGZI",
+    "role_in_event": "为鲁公相（「孔丘相」），却莱人之兵、争载书之辞、止不果之享",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E274",
+    "person_id": "P_QIJING",
+    "role_in_event": "齐方之君，会鲁公于夹谷，从犁弥之谋而复遽辟之，归郓、讙、龟阴之田",
+    "directness": "direct",
+    "presence": "亲至"
   }
 ]
