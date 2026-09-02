@@ -55,6 +55,17 @@ const V = Date.now();
   assert("Q161 含「转录本破读作嬖」备考互见", q161.modern_note.includes("转录本破读作嬖"));
   assert("Q442 含「转录本破读作嬖」备考互见", q442.modern_note.includes("转录本破读作嬖"));
 
+  console.log("\n== 断言 3：Q442 释文形貌落定（r44d 支①，含简上之「＝」）==");
+  assert("Q442.quote_original 已录整理本释文括注式（郶（蔡））", q442.quote_original.includes("郶（蔡）"));
+  assert("Q442.quote_original 含「賽＝（息）侯」", q442.quote_original.includes("賽＝（息）侯"));
+  assert("Q442.quote_original 含「是賽＝爲＝（息媯）」", q442.quote_original.includes("是賽＝爲＝（息媯）"));
+  assert("Q442.quote_original 三「＝」全录", (q442.quote_original.match(/＝/g) || []).length === 3);
+  assert("Q442.quote_original 旧首句已不存（娶→取甲档回改已落）", !q442.quote_original.includes("蔡哀侯娶妻"));
+  assert("Q442.quote_original 不含「娶」", !q442.quote_original.includes("娶"));
+  assert("Q442.quote_original 不录注释号〔二〕", !q442.quote_original.includes("〔二〕"));
+  assert("Q442.quote_original 「訓（順）」未动（丙档旧判仍立）", q442.quote_original.includes("訓（順）"));
+  assert("Q442.modern_note 含 r44d 支①执行节", q442.modern_note.includes("【★r44d 支①执行·就地注记"));
+
   console.log(`\n== 共 ${pass}/${pass + fail} PASS，${fail} FAIL ==`);
   process.exit(fail ? 1 : 0);
 })().catch((e) => {
