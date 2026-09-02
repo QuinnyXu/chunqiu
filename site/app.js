@@ -903,6 +903,83 @@ function splitCaveat(note) {
   return m ? { caveat: m[1], rest: note.slice(m[0].length) } : { caveat: "", rest: note || "" };
 }
 
+/* ---------- 通行字视图（r46，站长「显示分层甲案」）----------
+ * 立意：`quote_original` 照录整理本释文之形（含全角括注与重文符「＝」，conventions v1.40 §7），
+ * 底账一字不动；可读性由显示层解决——读者默认见通行字（「是息媯」），
+ * 释文原貌（「是賽＝爲＝（息媯）」）经悬停或点按随时可见、可选、可复制。
+ * 「显示是显示的事，不回头改底账」——本模块只读 quote_original，绝不写回、不改数据。
+ *
+ * 一、限域判据取**编者层标**（领队 ⚑C 之裁）：层标（modern_note 首段【…】）含
+ *     「丙档·照录括注式」者方施转换。不取 `quote_type === "出土文献"`——
+ *     那是「材料属哪一层」，不是「本行的括注是不是整理本回改」。二者在现网恰好只差一行，
+ *     而那一行正是反例：Q167（S004《史记·晋世家》，quote_type=后出叙事）之
+ *     「殺悼子（卓子）」是**本库所加的异名注**，非丙档括注式；规则若按 quote_type 或全库通施，
+ *     实测压成「又殺悼卓子」——一处真实的文本损坏。层标判据更准，且随体例自动生效：
+ *     此后凡 Sophia 依丙档体例落层标之行，无须改前端即入转换域。
+ *
+ * 二、转换式取 Sophia fix44d 四条探针**实测可行**之条（见 docs/changes/r45b_q442_zhi1.md §8）。
+ *     任务书初拟之「一字＋括注取括号内」于「是賽＝爲＝（息媯）」不成立——该处是
+ *     **二隶定字各带一「＝」、共对一个双字括注**（X＝Z＝（YY）），字面之式施之得
+ *     「是**賽＝爲＝**息媯」，游离的「＝」留在通行字视图里，比不转换更糟。
+ *     故把「隶定字＋＝」当作**可重复之前缀单元**一并吃掉；末尾 `[㐀-鿿]?` 之所以可选，
+ *     正为兼容「賽＝（息）」这类**无裸隶定字**之形；若写成必选，会误吃括注前的一个正文字。
+ *
+ * 三、**裸「＝」（简上有符而整理本未出括注）现网无一例**，本式将原样留下该符——
+ *     依 Sophia「不预写规则、待首例实到再定」之议，此处不预设隐去或改样，只在此记其为已知之界。 */
+const DIPLO_SCOPE_MARK = "丙档·照录括注式";
+const DIPLO_UNIT_RE = /(?:[㐀-鿿]＝)*[㐀-鿿]?（([^）]+)）/g;
+/* 切成「素文 / 可换段」之序列：可换段同时持两形，通行字与释文原貌都在 DOM 里，
+ * 靠 CSS display 二选一——故切到哪一形，选中复制到的就是哪一形（display:none 不入选区），
+ * 原貌不是 title 提示那种「看得见取不到」的东西。 */
+function diploParts(text) {
+  const parts = [];
+  let last = 0, m;
+  DIPLO_UNIT_RE.lastIndex = 0;
+  while ((m = DIPLO_UNIT_RE.exec(text)) !== null) {
+    if (m[0] === "") { DIPLO_UNIT_RE.lastIndex++; continue; }  // 防空匹配空转
+    if (m.index > last) parts.push({ plain: text.slice(last, m.index) });
+    parts.push({ diplo: m[0], modern: m[1] });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push({ plain: text.slice(last) });
+  return parts;
+}
+/* 引文正文节点。不在转换域、或在域而无一处可换者，照旧一条纯文本，DOM 与旧版全等。 */
+function quoteTextNode(q, caveat) {
+  const p = document.createElement("p");
+  p.className = "q-text";
+  const inScope = caveat.indexOf(DIPLO_SCOPE_MARK) >= 0;
+  const parts = inScope ? diploParts(q.quote_original) : null;
+  if (!parts || !parts.some(x => x.diplo)) {
+    p.textContent = q.quote_original;
+    return { p, swappable: false };
+  }
+  for (const x of parts) {
+    if (x.plain !== undefined) { p.appendChild(document.createTextNode(x.plain)); continue; }
+    const seg = document.createElement("span");
+    seg.className = "q-seg";
+    /* 此段只是**视觉与鼠标**的便道：虚点下划线示其经整理本回改，悬停就地见原貌，
+     * title 再给一层原生浮字。不给 tabindex、不给 role——
+     * 一句引文有四处可换段，若各自占一个 Tab 位，键盘读者要按四次才能越过一句话，
+     * 得不偿失。初版曾给它挂 aria-label，后撤掉：ARIA 规范里 aria-label 施于无 role 的
+     * 通用元素本就不保证被暴露，而本轮**未实测过读屏器对它的处置**——
+     * 一条自己没量过的无障碍承诺，不如不许（走查 §11 量的是切换钮，不是它）。
+     * 「原貌始终可达」这条硬承诺由下方切换钮独担——它是真按钮，键盘、触屏、
+     * 读屏三路皆通，按下即整段换形且可选可复制。 */
+    seg.title = "释文原貌：" + x.diplo;
+    const mo = document.createElement("span");
+    mo.className = "q-modern";
+    mo.textContent = x.modern;
+    const di = document.createElement("span");
+    di.className = "q-diplo";
+    di.textContent = x.diplo;
+    seg.appendChild(mo);
+    seg.appendChild(di);
+    p.appendChild(seg);
+  }
+  return { p, swappable: true };
+}
+
 /* ---------- 事件卡组件（时间线与编年共用，r25 抽出） ----------
  * 同一事件在两处呈现必须完全同形：meta chips、summary、引文（层徽标＋编者层标＋出处脚注）
  * 一律走这三个函数，不得各写一份——两份实现必然分叉，分叉之后「哪个才是规格」就没人答得上来。
@@ -947,8 +1024,34 @@ function eventQuotesFrag(evt) {
       cv.textContent = caveat;
       bq.appendChild(cv);
     }
-    const qp = document.createElement("p");
-    qp.textContent = q.quote_original;
+    /* 引文正文：在转换域者默认呈通行字，可换段带虚点下划线示「此处经整理本回改」；
+     * 鼠标悬停单段即就地见其释文原貌（外加一层 title 浮字）；触屏、键盘、读屏三路
+     * 一律走整段切换钮——它也是「原貌可选可复制」这条承诺的唯一落点。
+     * 不在域者一字不改、DOM 与旧版全等——本改动对全库其余 438 行引文是零影响。 */
+    const { p: qp, swappable } = quoteTextNode(q, caveat);
+    if (swappable) {
+      /* 切换钮置于正文之前、右对齐：控件紧邻其所控之物，读者一眼知这行字有两副面孔。
+       * aria-pressed 而非 aria-expanded——这是「换一副面孔」的开关，不是展开更多内容。 */
+      const bar = document.createElement("div");
+      bar.className = "q-viewbar";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "q-diplo-toggle";
+      btn.setAttribute("aria-pressed", "false");
+      btn.textContent = "释文原貌";
+      /* 可读之名写死在 aria-label 上，不随按钮字面变——按钮字面是「切过去看什么」，
+       * 无障碍名要答的却是「这个开关管什么」，二者混用会让读屏者在两个状态里听见
+       * 两个像是不同控件的名字。按下与否交给 aria-pressed 报，那才是它的活。 */
+      btn.setAttribute("aria-label", "释文原貌视图（整理本括注式，含重文符「＝」）");
+      btn.title = "切换释文原貌（整理本括注式，含重文符「＝」）；切到原貌后可直接选中复制";
+      btn.addEventListener("click", () => {
+        const on = bq.classList.toggle("show-diplo");
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        btn.textContent = on ? "通行字" : "释文原貌";
+      });
+      bar.appendChild(btn);
+      bq.appendChild(bar);
+    }
     bq.appendChild(qp);
     const ft = document.createElement("footer");
     const src = SOURCES[q.source_id];

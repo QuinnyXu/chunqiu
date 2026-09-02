@@ -804,6 +804,53 @@ section[hidden] { display: none; }
  * 初版曾把左线一并改暖赭，实测（r21 自验截图）发现那会抹掉《株林》诗歌层的层色左线（当时为青绿），
  * 使 §3.5 分层体系在恰恰最需要分层的条目上失效；层标条自带暖赭边框与淡底已足够醒目，不必再夺层色。 */
 .quote.has-caveat { border-left-width: 5px; }
+/* ---------- 通行字视图（r46，站长「显示分层甲案」）----------
+ * 数据侧 `quote_original` 照录整理本释文之形（含全角括注与重文符「＝」）；此处只管显示：
+ * 默认呈通行字，经整理本回改之处以**虚点下划线**（层色窖土褐）留痕——不声张，但读者看得见
+ * 「这几个字动过」，不至于把编辑过的文本误当作简上原样。
+ * 两条通往原貌之路：悬停（或键盘聚焦）单段就地换形；点「释文原貌」钮整段换形并保持。
+ * 两形都在 DOM 里、只以 display 二选一，故当下所见之形即选中所得之形——原貌可读亦可复制，
+ * 不是 title 提示那种「看得见取不到」的东西。 */
+.q-viewbar { display: flex; justify-content: flex-end; margin: 0 0 0.3rem; }
+.q-diplo-toggle {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  padding: 0.24rem 0.66rem;
+  color: var(--excav);
+  background: transparent;
+  border: 1px solid var(--excav);
+  border-radius: 999px;
+  cursor: pointer;
+}
+/* 悬停与「已按下」一律靠**描边转实心**，不另调淡底——出土文献层色在全站只许出现在
+ * `--excav` 定义处一处（vision_r32 §6 单点管理对账即守此），此处若为按钮再写两个
+ * rgba 字面量，就把那条对账破了。初版正是这么写的，走查实测「出现 3 次」当场红，遂改此式。
+ * （连注释里都不重抄一遍那个色值：§6 是按**文本出现次数**数的，抄进注释一样算破。） */
+.q-diplo-toggle:hover,
+.q-diplo-toggle[aria-pressed="true"] { color: var(--silk-panel); background: var(--excav); }
+.q-diplo-toggle:focus-visible { outline: 2px solid var(--excav); outline-offset: 2px; }
+/* 可换段：整段不许在中途断行——「賽＝（息）」若被拆成「賽＝（」「息）」，
+ * 重文符与其所系之字分家，读者见到的是一个碎掉的符号而非一处校读。
+ * UAX#14 保得住「（息）」不拆（括号前后不断），保不住「賽」与「＝」之间（全角等号为 ID 类，
+ * 与汉字之间可断）——实测 360px 下确会断在此处，故此处显式 nowrap 兜住。
+ * 现网最长可换段为「賽＝爲＝（息媯）」8 字，320px 窄屏实测不溢出。 */
+.q-seg {
+  white-space: nowrap;
+  text-decoration: underline dotted var(--excav);
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+  cursor: help;
+}
+/* 只留 :hover。初版还写了 :focus-within，但可换段里没有一个可聚焦之物，
+ * 那条规则永不触发——留着像是给了键盘一条路，其实没有，故删；
+ * 键盘与读屏走切换钮，那条路是真的。 */
+.q-seg > .q-diplo { display: none; }
+.q-seg:hover > .q-modern { display: none; }
+.q-seg:hover > .q-diplo { display: inline; }
+.quote.show-diplo .q-seg > .q-modern { display: none; }
+.quote.show-diplo .q-seg > .q-diplo { display: inline; }
 /* ---------- 屏3 地图 ---------- */
 .map-layout { display: flex; gap: 1rem; align-items: flex-start; }
 .map-main { flex: 1 1 auto; min-width: 0; }

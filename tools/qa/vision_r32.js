@@ -75,7 +75,12 @@ const PROBE = `(qid) => {
     const bs = getComputedStyle(badge);
     // elementFromPoint 用的是**视口坐标**：徽标若滚出视口则恒返回 null，
     // 那是取样点没落在屏上，不是徽标被压住。故先把徽标本身滚进视口再取点。
-    badge.scrollIntoView({ block: "center" });
+    // r46 修：站点 html{scroll-behavior:smooth}，默认 behavior 之滚动是**动画**，
+    // 同一 tick 读 getBoundingClientRect 读到的是动画中途之位（实测 top≈-318px，
+    // 于是 elementFromPoint 恒返回 null，本条断言遂随页高偶然时红时绿——
+    // 改前基线连跑四遍亦是四红，可见旧日之「绿」是撞上的，不是站点真变了）。
+    // behavior:"instant" 显式压过 CSS，滚动即时落定，取样才量得准。
+    badge.scrollIntoView({ block: "center", behavior: "instant" });
     const br = badge.getBoundingClientRect();
     out.badge = {
       text: badge.textContent, color: bs.color, borderColor: bs.borderTopColor,
