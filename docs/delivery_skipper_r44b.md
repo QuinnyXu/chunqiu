@@ -57,3 +57,9 @@ exit 0，无告警。本轮未动 `data/csv/`，此结果确认质量门未破�
 ---
 
 ## 回填（push 与 Actions 之后据实填写，不预填）
+
+- **提交哈希**：`6539446800c6e20e0e3cd22229788f9c5b471e91`（`git log -1 --format=%H` 实测）
+- **push 结果**：`git push origin main` 实测 `91a93a3..6539446  main -> main`
+- **Actions 运行号与结论**：`33583281091`（`gh run list` 实测），`Deploy site to GitHub Pages` workflow，`gh run watch 33583281091 --exit-status` 实测全部任务（`Set up job`／`Checkout`／`Validate data (guard)`／`Setup Pages`／`Upload site/ artifact`／`Deploy to GitHub Pages`／`Post-deploy self-check`／`Post Checkout`／`Complete job`）全绿，exit 0
+
+本轮不涉数据变更，故不设生产带参复验项。
