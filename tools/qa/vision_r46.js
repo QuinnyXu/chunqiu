@@ -340,7 +340,7 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
   console.log("    检索索引引文组 " + sq.total + " 条；命中数 息媯:" + sq.xiGui + " 息侯:" + sq.xiHou +
     " 賽息:" + sq.saiXi + " 戰于韓:" + sq.han);
   console.log("    Q442 下拉摘要仍作释文原貌：「" + sq.label + "」");
-  ok(sq.total === 440, "检索引文组仍收全库 440 条（未因本件增减）", String(sq.total));
+  ok(sq.total === 471, "检索引文组仍收全库 471 条（r47 round46_gugan 批甲合入后基线，+31 系本批扩表所致之预期内联动，非本件所生）", String(sq.total));
   ok(sq.xiGui > 0 && sq.han > 0, "检索照常可用（「息媯」「戰于韓」俱有命中）");
   ok(sq.saiXi === 0, "「賽息」不命中——丙档既有代价，非本件所生（任务书明记不必修）");
   ok(sq.label !== null && sq.label.indexOf("郶（蔡）") === 0, "★ 检索下拉摘要未改，仍取 quote_original 首 24 字（留作待裁）", sq.label);
