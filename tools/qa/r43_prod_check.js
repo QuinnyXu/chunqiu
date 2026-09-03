@@ -64,11 +64,11 @@ const V = Date.now();
   assert("E084.summary 含简 34", e084.summary.includes("简 34"));
   assert("J002.notes 含简 34", j002.notes.includes("简 34"));
 
-  console.log("\n== 附加：全库不变量（r47 round46_gugan 批甲合入后基线，本批扩表所致之预期内联动，非本次改动所致）==");
-  assert("sources=192", meta.tables.sources === 192);
-  assert("places=95", meta.tables.places === 95);
-  assert("passages=471", meta.tables.passages === 471);
-  assert("events=256", meta.tables.events === 256);
+  console.log("\n== 附加：全库不变量（r48 round46_jiliang 季梁点将件合入后基线，本批扩表所致之预期内联动，非本次改动所致）==");
+  assert("sources=193", meta.tables.sources === 193);
+  assert("places=96", meta.tables.places === 96);
+  assert("passages=477", meta.tables.passages === 477);
+  assert("events=258", meta.tables.events === 258);
   assert("B002 存在", !!S["B002"]);
   assert("B003 存在", !!S["B003"]);
   assert("B002 不在任何 source_ids 中", !events.some(e => (e.source_ids || "").split(";").includes("B002")) && !places.some(p => (p.source_ids || "").split(";").includes("B002")));
