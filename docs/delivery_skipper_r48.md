@@ -140,11 +140,13 @@ OK：全部校验通过
 
 | 项 | 值 |
 |---|---|
-| 提交哈希 | `b5f1299d0a17e979b59b3ba3d34c1986b97c94e6` |
+| 提交哈希（数据） | `b5f1299d0a17e979b59b3ba3d34c1986b97c94e6` |
 | 提交信息标题 | `feat(skipper r48 合入): round46_jiliang 季梁点将件——随线两目落库+⚑A/⚑F站长二裁` |
-| push | `ebfccdd..b5f1299 main -> main`，成功 |
-| Actions 运行号 | `33759254023`（"Deploy site to GitHub Pages"，push 触发） |
-| Actions 结论 | **success**（`gh run watch --exit-status` 实测） |
+| push（数据） | `ebfccdd..b5f1299 main -> main`，成功 |
+| Actions 运行号（数据） | `33759254023`（"Deploy site to GitHub Pages"，push 触发） |
+| Actions 结论（数据） | **success**（`gh run watch --exit-status` 实测） |
+| 提交哈希（本交付文档） | `1d73b77edef8f3f647fd25092772df97c81e1316`（回填） |
+| Actions 运行号（本交付文档） | `33759768574`，**success**（回填） |
 
 ---
 
