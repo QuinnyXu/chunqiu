@@ -131,3 +131,46 @@
 3. **前置条件已入档**：卫组或鲁组日后再增「纵向闭合廓形」为主形之枚，先重跑 `tools/qa/badge_silhouette_r49.js`。
 4. **两枝名册分岔**：`engine-split`（`f84ee56`，`timechorus-engine v0.1.0` 之源）内 `site/engine/views/person_nav.js` 仍为 33 席，本件按令**一字未动**，何时并、怎么并候领队排。
 5. **§2.1「人数」列此前逐轮漏同步**已校齐并记明漏记之由（§四），若领队认为此项应另件处理，可就地回退该列四格——色值诸列本就未动，回退不牵连。
+
+## 十、Skipper 收官推送与生产复验（2026-09-09，站长口令已下、领队核讫）
+
+依 `team/round49_prompts.md`〔r49 收官记（2026-09-09，领队核讫）〕末段口令，本节由 Skipper 执行并追记，**非引用 Vision §三之本地实证**——生产侧独立复证一次。
+
+### ㈠ 推送
+
+领队核过之四提交（`efc5cb4`／`5e3659e`／`345ac4f`／`14ee203`，即本文档 §一至 §四所记之升位件、两次哈希回填、注释头勘正）原样推送，未夹带、未 rebase、未 amend：
+
+```
+c2020ad..14ee203  main -> main
+```
+
+`engine-split` 分支（停 `4dff898`）**照裁不并、不推、一字不动**。
+
+### ㈡ Actions
+
+`34304677043`（`Deploy site to GitHub Pages`，触发提交 `14ee203`），`conclusion: success`。
+
+### ㈢ 生产带参复验（Skipper 独立复证，非采信 Vision 本地结果）
+
+| 脚本／方式 | 结果 | 备注 |
+|---|---|---|
+| `tools/qa/r43_prod_check.js` | **21 PASS / 0 FAIL** | 全库不变量四值 `sources=195 / places=97 / passages=506 / events=265` 全部命中，本轮未动数据表，无异常 |
+| `tools/qa/vision_r46.js` `https://chunqiu.timechorus.com` | **82 PASS / 0 FAIL** | 涉 roster 之生产可跑者，全通；`§9` 检索引文组仍收 506 条，与不变量一致 |
+| Skipper 自写生产页实证脚本（Playwright，未入库，跑毕即删） | **9 PASS / 0 FAIL** | 见下 |
+
+自写脚本核验四项（§三所列同款判据，生产域名独立跑一遍）：
+
+- `protoRoster()` 告警：**console warning 0 条**（`dataOnly`／`uiOnly` 均空，`enterable=34`）
+- 选人页：**34 张人物卡，34 张皆可点入**
+- 首页鲁簇：**5 枚**（`homeGroups.get("鲁").length` 与 DOM 徽记圆直接子元素计数双双为 5）
+- 页脚品牌语：`分享给同好——34 条人物线，择一而入。`
+
+**如实记一笔脚本自身的弯路**：首版用 `clusters[idx].querySelectorAll("circle")`（不限层级）核鲁簇徽记圆数，得 23——排查后系徽记 SVG（`fetchSVG` 注入的胡簋等图形）内部本就含子级 `<circle>`，被同一选择器一并计入；改用 `:scope > circle` 只数簇群直接子元素后核实为 5，与 `metaCounts` 逐一对应（`7,5,5,4,2,3,2,1,1,3,1` 合 34）。**是我自己复验脚本的写法问题，不是站点问题**，未误判为站点异常，照实记明不找补。
+
+复验用 Node 直连生产域名时加 `--dns-result-order=ipv4first`（`r43_prod_check.js` 之 `https.get` 需要；`vision_r46.js` 走 Playwright/Chromium 自身网络栈，未受此影响；自写脚本同样用 Playwright，同样未受此影响，仅为统一命令行而一并加此参数）。
+
+### ㈣ 结论
+
+四项与预期（本文档 §三 Vision 本地实证）逐一相符，**接线属实**：34 席已在生产环境完整落地，名册两侧无差集，无副作用。未发现差异，无需上报。
+
+**本节自身提交哈希**（回填）：`(占位，待提交后回填)`
