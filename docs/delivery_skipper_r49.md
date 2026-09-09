@@ -150,3 +150,48 @@ Sophia 备料原判 `E300`／`P_KONGZI` presence 为「亲至」（观、取二�
 ### 追记（提交哈希回填说明）
 
 提交哈希按上表实测回填，非预填（照 `docs/conventions.md` §7「交付体例·实测口径」通例：动作完成后方回填，动作未发生前不预填）。回填分两层，与 `docs/delivery_skipper_r48.md` 处置同例：① 合入本体提交（`7eb4bb0...`）完成后，其哈希实测回填入本文件，此即本节上表第一行，该回填动作本身构成第二次提交（`d3dd7e2`）；② 依 §7 v1.32「回填链截断于追记提交」通例，`d3dd7e2` 即本轮之「追记提交」，其自身哈希已如实记入上表第二行，链条至此完备——本轮未推送，故无「确认部署成功之收尾提交」一环，此环留待站长口令后的推送轮次另行处置。
+
+---
+
+## 追记二 · r49 尾程㈠㈡（2026-09-09，依领队裁定二）
+
+任务书：`team/round49_prompts.md`「领队裁定二 · r49 尾程五裁（2026-09-09）」§一（main 推送：准）、§二.4（立规二条）。㈢㈣（`vision_r46.js` 修改、v0.1.0 定档）记于 `engine-split` 枝上的 `docs/delivery_skipper_r49_engine.md`，不在本文件。
+
+### ㈠ 推合入件本体 + Actions 追记 + 生产带参复验补账
+
+**推送**：站长口令所指之 3 个提交（`7eb4bb0`／`d3dd7e2`／`ce5d6b6`）原样推送，未夹带：
+
+```
+ba02a9c..ce5d6b6  main -> main
+```
+
+**Actions**：`34298283875`（`Deploy site to GitHub Pages`，触发提交 `ce5d6b6`），全绿：`Validate data (guard)` → `Deploy to GitHub Pages` → `Post-deploy self-check` 全过，用时 12s。
+
+**生产带参复验（本轮欠账补齐，两道此前挂空账的 QA 门）**：
+
+| 脚本 | 结果 | 备注 |
+|---|---|---|
+| `tools/qa/r43_prod_check.js` | **21 PASS / 0 FAIL**，含四值 `sources=195 / places=97 / passages=506 / events=265` 全部命中 | 纯 Node `https.get`，自带 `Date.now()` 缓存戳，无需额外传参 |
+| `tools/qa/vision_r46.js` `https://chunqiu.timechorus.com` | **82 PASS / 0 FAIL**，`:343` 检索引文组断言实测 `506` 命中 | Playwright 直连生产域名，未加任何 host-resolver 参数 |
+
+**技术小记（如实记账，非阻塞）**：本机 Node 的 `https.get` 对 `chunqiu.timechorus.com` 首次报 `getaddrinfo ENOTFOUND`，而同一环境下 `curl`／`nslookup` 均正常解析（IPv4/IPv6 皆有回应）——判断是 Node 自身 DNS 解析顺序（c-ares 默认先查 AAAA）在本沙箱网络下的已知类型问题，与生产站点本身无关；加 `--dns-result-order=ipv4first` 后 `r43_prod_check.js` 一次通过。`vision_r46.js` 走的是 Playwright/Chromium 自身网络栈（非 Node `dns` 模块），未受此问题影响，未加任何参数即直连成功。
+
+### ㈡ CLAUDE.md 红线 4 附则二条落笔
+
+依裁定二.4，条文原样落于 `CLAUDE.md` 红线 4 之下（提交 `63e743e`，单独一次提交、未与 ㈠ 三个提交混同）：
+
+> ① 他人未跟踪产物一律不 `rm`——移入带日期之 `_to_delete/` 并于交付文档留清单；
+> ② 会话落盘之在制品须留来源标记（标记文件记会话、日期、目的），无标记者视同他人产出。
+
+已推送：`ce5d6b6..63e743e main -> main`；Actions `34298484042` 全绿。
+
+裁定二.3（九项辅助产物删除一案，判「记过留案，补记原文即案卷，不设追补义务」）**不另作检讨、不找补**——`docs/delivery_skipper_r49_engine.md` 中此前的补记原样留存，本次未动一字。
+
+### 本追记涉及提交一览
+
+| 提交 | 说明 | 推送 |
+|---|---|---|
+| `7eb4bb0`／`d3dd7e2`／`ce5d6b6` | 合入件本体（既有，非本轮新造） | 已推 |
+| `63e743e` | `docs(claude.md)`：红线4附则二条 | 已推 |
+
+`engine-split` 分支本轮未推送、未合并 `main`（㈢㈣ 详见该分支上 `docs/delivery_skipper_r49_engine.md` 追记）。主工作区两个 Vision 在制品未跟踪项（`docs/design/badge_kongzi_r49/`、`tools/qa/badge_silhouette_r49.js`）全程未动、未提交。
