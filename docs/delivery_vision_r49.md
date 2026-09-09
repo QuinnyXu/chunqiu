@@ -119,7 +119,7 @@
 1. `python tools/validate.py`（改动后）：**`OK：全部校验通过`**。
 2. 本轮**未动 `data/csv/` 与 `site/data/`**，故未跑 `csv_to_json.py`（无生成物需重生）。
 3. 改动面（`git status`）：**改 3 件**——`site/app.js`（+6 行：1 行名册＋5 行注释）、`docs/design/design_notes.md`、`tools/qa/vision_r28.js`；**新增 2 件**——`site/assets/icons/badge_kongzi.svg`、`tools/qa/badge_silhouette_r49.js`。**删 1 件**——草案位 `docs/design/badge_kongzi_r49/`（移空）。
-4. **已提交，未推送**——`main` 本地 ahead，候站长口令再 `push`。
+4. **已提交，未推送**——本件提交 `efc5cb4`（本文档自身之哈希由随后一条追记回填）；`main` 本地 ahead，候站长口令再 `push`。
 5. `team/` 与 `tools/qa/screenshots/*.png` 皆 `.gitignore` 项，未入公开仓库。
 
 ## 九、上报事项
