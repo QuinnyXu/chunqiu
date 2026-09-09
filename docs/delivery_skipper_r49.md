@@ -195,3 +195,5 @@ ba02a9c..ce5d6b6  main -> main
 | `63e743e` | `docs(claude.md)`：红线4附则二条 | 已推 |
 
 `engine-split` 分支本轮未推送、未合并 `main`（㈢㈣ 详见该分支上 `docs/delivery_skipper_r49_engine.md` 追记）。主工作区两个 Vision 在制品未跟踪项（`docs/design/badge_kongzi_r49/`、`tools/qa/badge_silhouette_r49.js`）全程未动、未提交。
+
+**本追记自身提交哈希**（回填）：`3827467`（`docs(delivery): r49 尾程㈠㈡追记……`），已推送 `63e743e..3827467`，Actions `34298588144` 成功。
