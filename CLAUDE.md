@@ -26,6 +26,9 @@
 2. 数据流单向：data/csv/ →（tools/csv_to_json.py）→ site/data/（生成物勿手改）。
 3. 备料-合入分离：Sophia 增量入 data/incoming/，由 Skipper 依 CHANGES.md 合入。
 4. 不删除他人产出；private/、team/、.claude/、wenjiang_research/ 等 .gitignore 条目永不入公开仓库。
+   **附则二条**（2026-09-09 领队裁定二·九项辅助产物删除案立规，见 team/round49_prompts.md :113）：
+   ① 他人未跟踪产物一律不 `rm`——移入带日期之 `_to_delete/` 并于交付文档留清单；
+   ② 会话落盘之在制品须留来源标记（标记文件记会话、日期、目的），无标记者视同他人产出。
 5. 史料无出处不入库；写作向内容不入公开数据（validate 有 novel* 护栏）。
 6. 站点零运行时依赖（例外清单见 conventions：og 图、CF Analytics beacon、打赏链接）。
 
