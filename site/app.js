@@ -22,6 +22,12 @@ const PROTAGONISTS = [
   { id: "P_LUHUAN",      color: "", badge: "badge_luhuan",      fallback: "鲁桓公" },
   { id: "P_LUZHUANG",    color: "", badge: "badge_luzhuang",    fallback: "鲁庄公" },
   { id: "P_CAOGUI",      color: "", badge: "badge_caogui",      fallback: "曹刿" },
+  /* 孔子为鲁色家族第 5 位、全库第 34 位主角（r49 裁定三：胡簋定稿过裁，随本件升位）。
+   * 其 state 只「鲁」一国，不需 home 覆盖；全景环序由 panoPeople() 的 id 排序自然落 i=8
+   * （齐弧 7 人在前，鲁弧内 P_CAOGUI ＜ P_KONGZI ＜ P_LUHUAN），左曹刿、右鲁桓公，
+   * 即 r49 任务 1 实测所记之位——不另手排。徽记＝胡簋（badge_kongzi），取《左传·哀公十一年》
+   * 「胡簋之事．則嘗學之矣．甲兵之事．未之聞也」，只取簋之通形、不据杜注断瑚琏（design_notes v2.11）。 */
+  { id: "P_KONGZI",      color: "", badge: "badge_kongzi",      fallback: "孔子" },
   { id: "P_ZHENGZHUANG", color: "", badge: "badge_zhengzhuang", fallback: "郑庄公" },
   { id: "P_ZHENGZHAO",   color: "", badge: "badge_zhengzhao",   fallback: "郑昭公" },
   { id: "P_WUJIANG",     color: "", badge: "badge_wujiang",     fallback: "武姜", home: "郑" },

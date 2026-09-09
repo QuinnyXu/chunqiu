@@ -1,13 +1,13 @@
 "use strict";
-/* 经纬春秋 · r28 Vision 走查（吴越终章：越分区／33 人／夫差·勾践两枚徽记／属镂三节层标）
+/* 经纬春秋 · r28 Vision 走查（吴越终章：越分区／34 人／夫差·勾践两枚徽记／属镂三节层标）
  *
  * 本脚本是 r28 的**专项走查与出图**门，回归总门仍是 tools/qa/vision_r24a.js（§20 已并入 r28 断言）。
  * 分工同 r27：总门管「既有各节不因本轮而红」，本脚本管「本轮新增之物是否真的到位」并出截图。
  *
  * 节次：
  *   §1  越分区（第 11 分区）几何：色块／国名／簇心在块内／块不入海／与吴簇不相犯
- *   §2  33 人全流程：名册四方对账 ＋ 六处呈现（选人／首页／时间线／地图／并观可选／全景默认环）
- *   §3  全景 33 槽距实测（2R·sin(π/33) 现算再对 DOM）
+ *   §2  34 人全流程：名册四方对账 ＋ 六处呈现（选人／首页／时间线／地图／并观可选／全景默认环）
+ *   §3  全景 34 槽距实测（2R·sin(π/34) 现算再对 DOM）
  *   §4  夫差／勾践人物地图：轨迹、「N 条事件无地望」计数**实指哪条**
  *   §5  甬东走**地点侧**：地点行在、坐标「未定位」、说明可读；且**不入**任何无地望计数
  *   §6  属镂条（E248）三节层标——终章大考的前端呈现
@@ -18,6 +18,12 @@
  *   §11 四档宽度（1440／1024／768／390）
  *
  * 跑法：node tools/qa/vision_r28.js
+ *
+ * 〔r49 任务 7 升位·计数联动〕孔子（P_KONGZI）上线后主角 33→34，本脚本 8 处计数与其说明文字逐处由
+ * 33 改为 34：数据侧主角数、选人页卡数、可点入卡数、页脚品牌语正则、全景默认环槽数五处断言，
+ * 两处出图名（r28_03_pick_34.png／r28_05_pano_34.png），及三处节题与头注。
+ * **改的是被测规模，判据、阈值、比对口径一字未动**——槽距仍照 2R·sin(π/n) 现算再对 DOM，门槛仍是
+ * 「＞节点直径 30」「＞徽记边长 22」。此系扩表所致之预期内联动，非断言松动（r49 归档 §12 之 2 体例）。
  */
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
@@ -109,8 +115,8 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
     });
   }
 
-  /* ================= §2 33 人全流程 ================= */
-  H("§2 33 人全流程（名册对账 ＋ 六处呈现）");
+  /* ================= §2 34 人全流程 ================= */
+  H("§2 34 人全流程（名册对账 ＋ 六处呈现）");
   const roster = await p.evaluate(async () => {
     const d = await (await fetch("data/people.json")).json();
     const arr = Array.isArray(d) ? d : (d.items || Object.values(d));
@@ -129,16 +135,16 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
     };
   });
   say("  数据侧 is_protagonist=1 共 " + roster.dataPro.length + " 人");
-  OK(roster.dataPro.length === 33, "数据侧主角 33 人");
-  OK(pick.n === 33, "选人页 33 张人物卡（实测 " + pick.n + "）");
-  OK(pick.enabled === 33, "33 张卡皆可点入（实测可点 " + pick.enabled + "）");
+  OK(roster.dataPro.length === 34, "数据侧主角 34 人");
+  OK(pick.n === 34, "选人页 34 张人物卡（实测 " + pick.n + "）");
+  OK(pick.enabled === 34, "34 张卡皆可点入（实测可点 " + pick.enabled + "）");
   OK(pick.has.fucha && pick.has.goujian, "选人页含夫差、勾践");
   say("  选人页分组：" + pick.groups.join(" / "));
   say("  勾践卡：" + pick.yueCard.replace(/\s+/g, " ").slice(0, 110));
-  await p.screenshot({ path: path.join(OUT, "r28_03_pick_33.png"), fullPage: true });
+  await p.screenshot({ path: path.join(OUT, "r28_03_pick_34.png"), fullPage: true });
   const brand = await p.evaluate(() => (document.querySelector("#brand-caption") || {}).textContent || "");
   say("  页脚品牌语：" + brand);
-  OK(/33\s*条人物线/.test(brand), "页脚品牌语报 33 条人物线（取实际可进者）");
+  OK(/34\s*条人物线/.test(brand), "页脚品牌语报 34 条人物线（取实际可进者）");
 
   for (const [pid, nm] of [["P_FUCHA", "夫差"], ["P_GOUJIAN", "勾践"]]) {
     await p.goto(origin + "/#/p/" + pid + "/timeline", { waitUntil: "load" }); await p.waitForTimeout(1100);
@@ -153,8 +159,8 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
     await p.screenshot({ path: path.join(OUT, "r28_04_timeline_" + pid + ".png"), fullPage: true });
   }
 
-  /* ================= §3 全景 33 槽距 ================= */
-  H("§3 关系全景 33 槽距");
+  /* ================= §3 全景 34 槽距 ================= */
+  H("§3 关系全景 34 槽距");
   await p.goto(origin + "/#/relations", { waitUntil: "load" }); await p.waitForTimeout(1800);
   await p.evaluate(() => { const b = document.querySelector("#btn-rel-mode"); if (b && b.getAttribute("aria-pressed") !== "true") b.click(); });
   await p.waitForTimeout(1700);
@@ -165,7 +171,7 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
              badges: document.querySelectorAll("#rel-canvas svg").length };
   });
   say("  全景默认环节点数：" + pano.n);
-  OK(pano.n === 33, "全景默认环 33 槽（33 主角）");
+  OK(pano.n === 34, "全景默认环 34 槽（34 主角）");
   if (pano.pts.length > 2) {
     const cx = pano.pts.reduce((s, q) => s + q.x, 0) / pano.pts.length;
     const cy = pano.pts.reduce((s, q) => s + q.y, 0) / pano.pts.length;
@@ -179,7 +185,7 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
     OK(slot > 30, `槽距 ${slot.toFixed(2)} ＞ 节点直径 30`);
     OK(slot > 22, `槽距 ${slot.toFixed(2)} ＞ 徽记边长 22`);
   }
-  await p.locator("#rel-canvas").screenshot({ path: path.join(OUT, "r28_05_pano_33.png") }).catch(() => {});
+  await p.locator("#rel-canvas").screenshot({ path: path.join(OUT, "r28_05_pano_34.png") }).catch(() => {});
 
   /* ================= §4 夫差／勾践地图与无地望计数 ================= */
   H("§4 夫差／勾践人物地图：轨迹与「N 条事件无地望」实指");

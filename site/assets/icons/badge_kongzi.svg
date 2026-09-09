@@ -1,0 +1,15 @@
+<!--
+  孔子·胡簋 徽记定稿（第 34 主角）——**候站长过裁，未接线、未提交**
+  来源：Claude Code 会话 session_01P2ZM8cLiBuS7Bu1vFMyHzL（Vision）
+  日期：2026-09-08 绘并三档实测；2026-09-09 依领队裁定二·五补档并加本注释头
+  目的：r49 任务 5 定稿。取《左传·哀公十一年》「胡簋之事．則嘗學之矣．甲兵之事．未之聞也」；
+        只取簋之通形，不据杜注断瑚琏（docs/kaoding_kongzi.md §三.3、§7）。
+  依据：docs/design/design_notes.md v2.10 站长二裁三条——形取深腹·小耳·高圈足一路；
+        腹带明确不取；不向心内收。三档（24/22/18）复测见 team/round49_prompts.md 附录·任务 5 报告。
+  复跑：cd tools/qa && node badge_silhouette_r49.js
+  状态：2026-09-08 绘时为「候裁、未接线」；2026-09-09 经领队裁定三（team/round49_prompts.md
+        「领队裁定三 · 任务 5 定稿过裁」）**过裁**，随 r49 任务 7 升位件入库并接线
+        （site/app.js PROTAGONISTS 第 34 席 P_KONGZI）。前置条件一条随裁定三.1 入 design_notes
+        徽记条：卫组或鲁组日后再增以纵向闭合廓形为主形之枚，先重跑 r49 定稿复测表。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="24" cy="24" r="21"/><path d="M13 15 H35"/><path d="M14.6 15 C14.6 24.6 18.4 29.4 24 29.4 C29.6 29.4 33.4 24.6 33.4 15"/><path d="M13 16.3 C9 17.2 8.9 22.6 13.5 22.4"/><path d="M35 16.3 C39 17.2 39.1 22.6 34.5 22.4"/><path d="M19.9 28.4 C19.9 32.6 19.2 34.6 18.4 36.4"/><path d="M28.1 28.4 C28.1 32.6 28.8 34.6 29.6 36.4"/><path d="M17.6 36.4 H30.4"/></svg>
