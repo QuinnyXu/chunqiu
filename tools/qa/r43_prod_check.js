@@ -64,9 +64,9 @@ const V = Date.now();
   assert("E084.summary 含简 34", e084.summary.includes("简 34"));
   assert("J002.notes 含简 34", j002.notes.includes("简 34"));
 
-  console.log("\n== 附加：全库不变量（r49 round49_kongzi 孔子线批乙合入后基线，本批扩表所致之预期内联动，非本次改动所致）==");
+  console.log("\n== 附加：全库不变量（r50 round50_diwang 地望回填件合入后基线，places 97→104 系本批扩表所致之预期内联动，非本次改动所致）==");
   assert("sources=195", meta.tables.sources === 195);
-  assert("places=97", meta.tables.places === 97);
+  assert("places=104", meta.tables.places === 104);
   assert("passages=506", meta.tables.passages === 506);
   assert("events=265", meta.tables.events === 265);
   assert("B002 存在", !!S["B002"]);
