@@ -129,4 +129,8 @@ cd tools/qa && node regress20.js
 |---|---|
 | `0a57f8a` | `feat(skipper r50 合入)`：数据合入＋conventions／`sources.B003` 修正＋`site/data/` 重生成＋`tools/qa/r43_prod_check.js` 不变量更新＋归档＋清空（本文件所述合入本体） |
 
-（本交付文档自身之提交哈希，依 §7 v1.32「回填链截断于追记提交」通例，将于其提交完成后另行追记回填，不预填。）
+| `b2d8523005bc6376f8ec9a9a10e0f34063abde61` | `docs(delivery): r50 收官——合入执行、推送、Actions与生产带参复验记账`（本文件自身，回填） |
+
+**推送与 Actions（本文件自身一并推送）**：`0a57f8a..b2d8523 main -> main`；Actions `35486368984`（`Deploy site to GitHub Pages`，触发提交 `b2d8523`），**completed / success**，用时 23s。
+
+依 §7 v1.32「回填链截断于追记提交」通例，本节即本轮之追记提交，链条至此完备：合入本体（`0a57f8a`）→ 交付文档初稿（`b2d8523`，含本节回填）。本次回填动作本身未再触发新的数据/代码改动，故不另立第三次提交。
