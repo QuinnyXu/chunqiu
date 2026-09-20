@@ -158,3 +158,46 @@ Vision ⚑H 件新增两纯函数、改两落点，位于合入后仓库现状�
 | `59587ca` | `docs(delivery): r51 收官——合入执行、九表实读行数、validate 与 QA 结果记账`（本文件自身，回填） |
 
 回填链截断于本追记提交（§7 v1.32）：本追记提交自身之哈希不再入表，如需核对，`git log --oneline -1` 即可自证。**本轮仍未推送**，`main` 现停在 `59587ca`（本追记提交），与 `origin/main`（`bf4242c`）尚有二个提交之差，俟站长口令下达后推送并另行追记生产复验结果。
+
+---
+
+## 十、追记（2026-09-20，站长已批准推送——推送执行与生产复验记账）
+
+**收官勘正提交回填**：本轮另有一枚站长批准推送前所办之收官勘正提交，此前未入本文件，随本次追记一并回填——
+
+| 提交 | 说明 |
+|---|---|
+| `70561da` | `docs(skipper r51 收官勘正)`：据 `team/round51_prompts.md` 裁二十五、裁二十六(b)——conventions §7 ⚑H 止血条四处就地勘正加注＋新增⑤款自锚（数值用领队勘注十四所回写之实测值，经独立复算逐位相符）＋文件头 v1.44 段末追加短注（版本号维持 v1.44 不升）；本文件（`docs/delivery_skipper_r51.md`）§三验证记录表末追记 `vision_r51.js`「97 项全过」之时序依赖（原句未改）。`data/`、`site/`、`tools/qa/` 一字未碰。 |
+
+**★ `site/data/meta.json` 异常之更正**（领队 2026-09-20 复核查明，记勘注十五，非追责）：上条推送前追记曾误报该文件之改动「会话开始前已存在」；领队实测 `site/data/` 十文件 mtime 俱落在收官勘正件运行期间（`git status` 复核合入件时实得空），系本人当时运行环境内某一步（`tools/csv_to_json.py`／`oneoff_qr.py` 之属）意外重生成所致，**其害为零**——九表重生成后逐字节相同，`tables` 九数未变，差者惟 `generated_at` 一行，`data/csv/` 未被触碰。领队已于推送前 `git checkout -- site/data/meta.json` 还原至 `5f87d39` 正式重生成之本（`generated_at` 复为 `2026-09-20T18:44:50+00:00`），本人推送前自核 `git status` 已见工作区干净，`python tools/validate.py` 实测 `OK：全部校验通过`、exit 0。
+
+**推送**：
+```
+git push origin main
+To https://github.com/QuinnyXu/chunqiu.git
+   bf4242c..70561da  main -> main
+```
+一并推送四提交：`5f87d39`／`59587ca`／`47d51a4`／`70561da`。`origin/main` 现与本地 `main` 同为 `70561da`。
+
+**Actions 复核**（`gh run list` 实测）：
+
+| 运行号 | 工作流 | 触发提交 | 结论 | 耗时 |
+|---|---|---|---|---|
+| `35532481846` | Deploy site to GitHub Pages | `70561da`（push） | **success** | 16s |
+
+**带参复验**（`curl "https://chunqiu.timechorus.com/data/meta.json?v=<随机>"` 实测）：
+
+```json
+{
+  "generated_at": "2026-09-20T18:44:50+00:00",
+  "tables": {
+    "archaeology": 8, "background": 11, "event_people": 694, "events": 265,
+    "passages": 509, "people": 174, "places": 104, "relations": 309, "sources": 195
+  },
+  "year_range_bce": { "min": -773, "max": -472 }
+}
+```
+
+线上 `generated_at` 与九表行数与仓库已提交之本（`5f87d39`／`70561da` 一致，`checkout` 还原后同一时点）**逐位相符**，无差异，未触发「停下上报」。
+
+**回填链截断于本追记提交**（§7 v1.32）：本追记提交自身之哈希不再入表，如需核对，`git log --oneline -1` 即可自证。**本轮收官**：合入、conventions 勘正、推送、生产复验、Actions 核验俱已完成。
