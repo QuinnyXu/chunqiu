@@ -5,13 +5,18 @@
  *   ② 全库 509 条注文经它渲染之后，**把 <strong> 两侧的 `**` 补回去必须逐字还原成原串**（r51 round51_peijue 批丙合入后基线，506→509，+3 系本批扩表所致之预期内联动，非本件所生）
  *      ——这是「不吞字」唯一可机械证伪的说法，故取它作全库断言，不取抽样目测；
  *   ③ 不含成对星号之卡，**DOM 与旧版全等**（零影响之证）。这一条不与「我觉得没动它」对读，
- *      而是**真把 git HEAD 的 app.js/styles.css 另起一个源端一并跑起来**，两版逐卡对读 outerHTML。
+ *      而是**真把 ⚑H 合入前那一版的 app.js/styles.css 另起一个源端一并跑起来**，两版逐卡对读 outerHTML。
  *
  * §三之所以要两个源端：本改动落在 eventQuotesFrag 内部，若只在新版里自证，
  * 「旧版长什么样」就成了脑补。二源对读把它变成实测：旧版 outerHTML 里若出现 <strong>，
  * 或无星号之卡两版不逐位相同，本门即红——测错对象要看得出来，不能跑绿了事。
  *
- * 另：本门**不动仓库任何文件**，旧版取自 `git show HEAD:site/...`（只读），不切分支、不 stash。
+ * 另：本门**不动仓库任何文件**，旧版取自 `git show <OLD_REF>:site/...`（只读），不切分支、不 stash。
+ * ★ `OLD_REF` 锚定固定哈希 `bf4242c`（⚑H 合入前之 `main`），**不取 `HEAD`**：
+ *   ⚑H 已随 `5f87d39` 提交，`HEAD` 之 app.js 自此即含 `mdBoldFrag`，「旧版」遂等于新版，
+ *   两版对读之前提当场消失、本门必红 3 项（2026-09-20 勘注十三、裁二十六）。
+ *   故旧版源端须钉在那一版上，且于起手取源端处（:123–133）打印所取哈希与「旧版 app.js 内 mdBoldFrag 出现 0 次」
+ *   之正面证据——锚定若再失效，是**看得出来**，不是静默跑绿。
  *
  * 用法：node tools/qa/vision_r51.js [--shots]
  *   --shots  另存截图入 tools/qa/screenshots/（Q442 一卡 ＋ 143 个落点之逐屏走查底片）
@@ -32,7 +37,7 @@ function ok(cond, label, detail) {
 }
 
 /* ---------- 双源端静态服务器 ----------
- * override 里的路径从内存（git HEAD 之本）供出，其余一律落回真实 site/——
+ * override 里的路径从内存（锚定之旧版 OLD_REF 之本）供出，其余一律落回真实 site/——
  * 故「旧版」页面用的是同一份 site/data/，两版之差只剩 app.js 与 styles.css 本身。 */
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
 function srv(root, override) {
@@ -51,7 +56,11 @@ function srv(root, override) {
     s.on("error", rej); s.listen(0, "127.0.0.1", () => res(s));
   });
 }
-const gitShow = (p) => execFileSync("git", ["show", "HEAD:" + p], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
+/* 旧版源端之锚：`bf4242c` 系 ⚑H（注文 markdown 星号）合入前之 `main`，即「丙案落地之前一版」。
+ * 【不得改回 HEAD】⚑H 随 `5f87d39` 落地后，HEAD 之 app.js 即含 mdBoldFrag，旧版会等于新版，
+ * 两版对读之前提消失，本门必红 3 项（勘注十三、裁二十六，2026-09-20）。 */
+const OLD_REF = "bf4242c";
+const gitShow = (p) => execFileSync("git", ["show", OLD_REF + ":" + p], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
 
 /* ---------- PNG 解码与墨量（只为「加粗可辨」出一个数，不看截图反推） ---------- */
 function decodePNG(buf) {
@@ -109,13 +118,24 @@ const COLLECT = `() => {
   const pw = require("playwright");
   console.log("=== r51 走查门：⚑H 丙案 · 注文 markdown 星号（passages.modern_note）===\n");
 
-  // 旧版源端：app.js / styles.css 取 git HEAD，其余落回真实 site/
+  // 旧版源端：app.js / styles.css 取锚定之 OLD_REF（⚑H 合入前之 main），其余落回真实 site/
   const oldApp = gitShow("site/app.js"), oldCss = gitShow("site/styles.css");
+
+  /* ★ 锚定有效之正面证据（非「跑绿了」之自陈）：旧版 app.js 内 mdBoldFrag 须一次不出现。
+   *   若出现，说明所锚之版已含新码、两版对读之前提不成立——当场抛错停门，不许带病往下跑。 */
+  const OLD_REF_FULL = execFileSync("git", ["rev-parse", OLD_REF], { cwd: ROOT }).toString().trim();
+  const oldFragCnt = (String(oldApp).match(/mdBoldFrag/g) || []).length;
+  console.log("  旧版源端锚定 " + OLD_REF + "（" + OLD_REF_FULL + "）：其 app.js 内 mdBoldFrag 出现 " + oldFragCnt + " 次"
+    + (oldFragCnt === 0 ? "，对读之前提成立" : ""));
+  if (oldFragCnt !== 0) {
+    throw new Error("锚定失效：旧版源端 " + OLD_REF + " 之 app.js 已含 mdBoldFrag " + oldFragCnt
+      + " 处，「旧版」等于新版，两版对读无意义——请核 OLD_REF（应为 ⚑H 合入前之 main）。");
+  }
   const sNew = await srv(SITE, null);
   const sOld = await srv(SITE, { "/app.js": oldApp, "/styles.css": oldCss });
   const NEW = "http://127.0.0.1:" + sNew.address().port;
   const OLD = "http://127.0.0.1:" + sOld.address().port;
-  console.log("  新版源端 " + NEW + "   旧版源端（git HEAD 之 app.js/styles.css）" + OLD + "\n");
+  console.log("  新版源端 " + NEW + "   旧版源端（" + OLD_REF + " 之 app.js/styles.css）" + OLD + "\n");
 
   const browser = await pw.chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 }, deviceScaleFactor: 4 });
@@ -247,7 +267,7 @@ const COLLECT = `() => {
   ok(r3.cavRows + r3.restRows === 146 && r3.cavPairs + r3.restPairs === 1221, "本轮范围合计 146 落点 1221 处（任务书 §六原记 143 落点 1217 处，+3／+4 系批丙合入后之预期内联动，见上条）", (r3.cavRows + r3.restRows) + " / " + (r3.cavPairs + r3.restPairs));
 
   /* ================= §四 新旧两版逐卡对读 ================= */
-  console.log("\n【四】新旧两版逐卡对读（旧版＝git HEAD 之 app.js/styles.css，同一份 site/data/）");
+  console.log("\n【四】新旧两版逐卡对读（旧版＝" + OLD_REF + " 之 app.js/styles.css，同一份 site/data/）");
   const pageOld = await ctx.newPage();
   pageOld.on("pageerror", e => errs.push("旧版:" + e.message));
   await pageOld.goto(OLD + "/#/chronicle", { waitUntil: "load" });
