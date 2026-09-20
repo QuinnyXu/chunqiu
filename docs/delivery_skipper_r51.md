@@ -69,6 +69,11 @@
 | `node vision_r51.js`（改数并处置四处顺带发现后复跑） | **97 项全过，0 红，exit 0** |
 | `node vision_r24a.js`（非本轮回归义务，顺带复核既有 ⚑J 状态） | **[FAIL] 1 条**：「无地望事件 11 条一律中性签（实测中性 12）」，与任务书裁二十勘正值一致，**未触碰其断言** |
 
+**追记（2026-09-20，推送前办，据 `team/round51_prompts.md` §一之三（庚）裁二十六(b)、勘注十三）**：上表 `node vision_r51.js` 一行「**97 项全过，0 红，exit 0**」**原句不改写**——其在 2026-09-20 所跑之时点（`HEAD=bf4242c`，即本轮合入提交 `5f87d39` 之前）为真，照留不抹平。惟该结论**自 `5f87d39` 落地之刻起即不可复现**，记明其时序依赖如下三事：
+① 上表该行系 2026-09-20 于 `HEAD=bf4242c` 时点之实测，其时该门「两版对读」（旧版 `git show HEAD:site/...` 取得之源端 vs. 合入后新版）之前提成立——彼时 `HEAD` 尚不含 `mdBoldFrag()`。
+② `tools/qa/vision_r51.js` :54 以 `git show HEAD:site/...` 取「旧版源端」；⚑H 件随本轮 `5f87d39` 提交后，`HEAD` 之 `site/app.js` 即已含 `mdBoldFrag()`——「旧版」遂等于新版，两版对读之前提消失，该门此后复跑必红 3 项。**实证**（2026-09-20 领队静态实测，本次交付随附复核）：`git show HEAD:site/app.js | grep -c mdBoldFrag` 得 **5**；`git show bf4242c:site/app.js | grep -c mdBoldFrag` 得 **0**。
+③ 此系**前提失效，非数据缺陷，亦非本轮新生之缺陷**——不动 `site/`、不动 `data/`，与本轮合入本体无涉。锚定之改（取固定哈希 `bf4242c` 代 `HEAD`）已由领队裁二十六定案，**归 Vision 另发微件，推送后办**，本件（Skipper）`tools/qa/` 一字未碰。
+
 合入手法逐步核对（与三件 `CHANGES.md` §8「交 Skipper 的合入要点」逐条对照）：append 均以 `csv.DictWriter(fieldnames=主表表头, lineterminator="\n")` 追加于表尾，主表原有字节不动；整行替换（`P_CHUWEN`／`L_HUAN`／`Z018`／`Z125`）均以「按 `id` 匹配、命中数核对、其余行原样写回」之法执行，与 `sim_chuwu.py`／`sim_fix51.py` 内部合并模拟同一手法（`shutil.copy` 基线＋`DictWriter` 覆写），非另创合并逻辑。
 
 ---
