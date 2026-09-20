@@ -366,3 +366,25 @@ function mdBoldFrag(text)    // 返回新的 DocumentFragment；纯函数，不�
 | `:138`／`:270` **控制台输出** | 「旧版源端（**git HEAD** 之 app.js/styles.css）」 | 由 `OLD_REF` 变量拼出 | **日后复跑者眼见之正是这两行**，留旧词即当面误导；改用变量后，锚值再变而文自随，不会二次脱节 |
 
 理由：本件所治之病即「文与实不符」，若只改 `:14` 而留此四处旧词，病只治了一半。四处俱为注释与日志字串，改之不动任何判据、不影响 97 项断言（实测仍 97/0/exit 0）。**若领队判为逾界，回退极易**：照 11.5 之法，或单独 `git diff` 择取撤回该四处。谨报，候裁。
+
+---
+
+## 十二、追记（2026-09-20，推送后）：`9b33cd7` 之推送、Actions 与生产带参复验
+
+> 本节系站长批准推送后所补，**§〇–§十一原文一字未改**。所记俱系**实测回填**（§7 v1.31：不得预填）。
+
+| 项 | 实测 |
+|---|---|
+| 推送提交 | **`9b33cd7`**（全 `9b33cd7dd6ce7f6dc8995c3082357fbf00f2287e`），范围只 `tools/qa/vision_r51.js`＋本文档两文件 |
+| 推送前远端 | `git ls-remote origin main` = `21ff25262177a5fe…`（自核，不凭派件之数） |
+| 推送结果 | `21ff252..9b33cd7  main -> main`；推后 `git ls-remote origin main` = **`9b33cd7dd6ce7f6d…`** |
+| Actions | 运行号 **`35533621825`**（Deploy site to GitHub Pages，push，`headSha` = `9b33cd7d…`），结论 **success**，19:50:39Z→19:50:56Z |
+
+**生产带参复验**（`https://chunqiu.timechorus.com/data/meta.json?v=83615018`，HTTP 200）：
+
+- `generated_at` = **`2026-09-20T18:44:50+00:00`——与 r51 主线那次推送**逐位相同、**未变**。
+- **★ 何以「不变」正是本件之预期**：本件只碰 `tools/qa/`，**站点产物一字未动**（`site/`／`site/data/` 未碰、`csv_to_json.py` 未跑），故 Pages 重新部署的是同一份产物，`generated_at` 自当不动。**若此值竟变了，即属意外**（说明有什么重跑了 `csv_to_json.py` 或产物被动过），依本轮勘注十五之训**须停下上报、不自行处置、不重跑掩之**——本次未发生。
+- 九表行数与仓库逐位相符：`people` **174**／`event_people` **694**／`passages` **509**／`relations` **309**／`events` **265**／`places` **104**／`sources` **195**／`archaeology` **8**／`background` **11**；`diff` 生产件与仓库 `site/data/meta.json` **无输出**（逐位相同）。仓库该文件末次提交仍为 `5f87d39`，本件未触。
+- **另一条「不触 `site/`」之佐证**：`https://chunqiu.timechorus.com/app.js?v=<随机>` 取回之线上 `app.js` 内 `mdBoldFrag` 计 **5** 处（⚑H 在线跑着），且与仓库 `site/app.js` **逐位相同**。
+
+**回填链截断于本追记提交**（§7 v1.32）：本追记提交自身之哈希不再另起提交回填，其触发之收尾 Actions 运行号口头报领队、不入本表。
