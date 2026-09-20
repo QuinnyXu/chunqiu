@@ -18,6 +18,14 @@
  */
 "use strict";
 const { chromium } = require("playwright");
+/* r51 顺带修正：下文两处截图原写相对路径 "tools/qa/screenshots/…"，那只有在**仓库根**
+ * 运行时才落对地方；而本库惯用的跑法是 `cd tools/qa && node vision_r46.js`（见 r51 任务书 §四.6），
+ * 那时它会另造一层 tools/qa/tools/qa/screenshots/ 把图丢进去——图照存、门照绿，只是存错了地方，
+ * 故此前无人察觉。改为锚在脚本自身位置，跑法无论从哪个目录起都落同一处。
+ * 可回退：删去 SHOT_DIR 与 shot()，两处改回原字面量即复原；本改不触任何断言。 */
+const path = require("path");
+const SHOT_DIR = path.join(__dirname, "screenshots");
+const shot = (name) => path.join(SHOT_DIR, name);
 const BASE = process.argv[2] || "http://127.0.0.1:8791";
 const BUST = "?v=" + Date.now();
 
@@ -265,10 +273,10 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
   await page.waitForTimeout(300);
   await page.locator("blockquote[data-qid='Q442']").scrollIntoViewIfNeeded();
   await page.waitForTimeout(200);
-  await page.screenshot({ path: "tools/qa/screenshots/r46_q442_390_modern.png", clip: await page.locator("blockquote[data-qid='Q442']").boundingBox() });
+  await page.screenshot({ path: shot("r46_q442_390_modern.png"), clip: await page.locator("blockquote[data-qid='Q442']").boundingBox() });
   await page.locator("blockquote[data-qid='Q442'] .q-diplo-toggle").click();
   await page.waitForTimeout(250);
-  await page.screenshot({ path: "tools/qa/screenshots/r46_q442_390_diplo.png", clip: await page.locator("blockquote[data-qid='Q442']").boundingBox() });
+  await page.screenshot({ path: shot("r46_q442_390_diplo.png"), clip: await page.locator("blockquote[data-qid='Q442']").boundingBox() });
   await page.locator("blockquote[data-qid='Q442'] .q-diplo-toggle").click();
   console.log("    截图：tools/qa/screenshots/r46_q442_390_{modern,diplo}.png");
 
@@ -340,7 +348,7 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
   console.log("    检索索引引文组 " + sq.total + " 条；命中数 息媯:" + sq.xiGui + " 息侯:" + sq.xiHou +
     " 賽息:" + sq.saiXi + " 戰于韓:" + sq.han);
   console.log("    Q442 下拉摘要仍作释文原貌：「" + sq.label + "」");
-  ok(sq.total === 506, "检索引文组仍收全库 506 条（r49 round49_kongzi 孔子线批乙合入后基线，+29 系本批扩表所致之预期内联动，非本件所生）", String(sq.total));
+  ok(sq.total === 509, "检索引文组仍收全库 509 条（r51 round51_peijue 批丙合入后基线，+3 系本批扩表所致之预期内联动，非本件所生）", String(sq.total));
   ok(sq.xiGui > 0 && sq.han > 0, "检索照常可用（「息媯」「戰于韓」俱有命中）");
   ok(sq.saiXi === 0, "「賽息」不命中——丙档既有代价，非本件所生（任务书明记不必修）");
   ok(sq.label !== null && sq.label.indexOf("郶（蔡）") === 0, "★ 检索下拉摘要未改，仍取 quote_original 首 24 字（留作待裁）", sq.label);

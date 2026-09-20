@@ -909,6 +909,66 @@ function splitCaveat(note) {
   return m ? { caveat: m[1], rest: note.slice(m[0].length) } : { caveat: "", rest: note || "" };
 }
 
+/* ---------- 注文之 markdown 粗体（r51 ⚑H 丙案，站长裁二／领队裁五）----------
+ * 病症：`passages.modern_note` 里编者所写的强调一律是 markdown 的 `**…**`——
+ * 那是团队读 CSV、读归档件时的记法。页面拿 textContent 原样吐出，读者遂见满屏裸星号。
+ * 三条路里取「显示层担之」：**数据一字不动**（那 2798 处星号里有 1234 处落在根本不实渲的栏
+ * ——`places`/`sources`/`event_people`——删之即损编者原意之强调，见裁六），
+ * 页面只在**渲染的一刻**把成对星号读成粗体。
+ *
+ * ★ 零 XSS 面是本法之要，故记其所以：
+ *   本函数**从不拼 HTML 字符串、从不碰 innerHTML/insertAdjacentHTML/outerHTML**。
+ *   数据里的每一个字符都只经两条道出场——`document.createTextNode(s)` 与
+ *   `strong.textContent = s`——这两者按 DOM 规范都是**不解析标记**的：喂进去
+ *   `<script>alert(1)</script>` 或 `" onerror="x`，出来的仍是这些字面字符。
+ *   本函数所造之元素只有一种、且写死在代码里：`document.createElement("strong")`，
+ *   不设任何属性、不由数据决定标签名。故**数据无论写成什么样都不可能成为标记**，
+ *   注入面为零——这一条比「粗体好看」重要得多，是取本法而不取 innerHTML＋正则的唯一理由。
+ *   （同族之训见 r44d：`quote_original` 之赋值不经 innerHTML、不经正则；本件一字不改其道。）
+ *   亦不引第三方 markdown 库——红线六：站点零运行时依赖。
+ *
+ * ★ 只认「恰好两个星号」的极大游程，别的星号一律原样照出：
+ *   判据不取「找到下一个 `**`」，而取**星号游程之长度**——长度恰为 2 者才算分隔符，
+ *   1 个（`{{*|…}}` 之类，现库 Q504 即此例）、3 个（`***`）、4 个（`****`）一律是普通文字。
+ *   若不这样，`***abc***` 会被读成「粗体 `*abc`」——吃掉两个星号、吞进一个，
+ *   而编者写 `***` 时十之八九不是要粗体。落单的那一个 `**`（分隔符总数为奇数时的末一个）
+ *   也退回文字。**不吞字、不吃星号**：全库复扫以「把 `<strong>` 两侧的 `**` 补回去
+ *   必须逐字还原成原串」为断言（tools/qa/vision_r51.js §二），这是本条的护栏。
+ *
+ * ★ 纯函数、无副作用：只读入一个字符串，返回一个新的 DocumentFragment，不读 DATA、不写 DOM。
+ *   无分隔符时返回的是**恰好一个文本节点**，与旧版 `el.textContent = s` 的 DOM 全等
+ *   ——全库 1000 余行无星号之注文，改动对其为零影响（同上脚本 §三以新旧两版逐卡对读为证）。
+ *
+ * 本轮施于 `passages.modern_note` 两个落点（层标 `p.q-caveat` 与页脚 `ft` 之 rest 段，同卡两半，
+ * 故必须同施，否则一张卡上半截粗体下半截裸星号）。`events.summary`／`people.notes`
+ * 本轮一字不动，登记 r51 §七：函数已定，日后扩施只加调用点。 */
+const MD_STAR_RUN = /\*+/g;
+/* 成对分隔符之下标（必为偶数个）；落单者不入，留在文本里原样照出 */
+function mdBoldMarks(s) {
+  const marks = [];
+  MD_STAR_RUN.lastIndex = 0;   // 正则带 g 且为模块级常量，每次入口先归零，免跨调用串台
+  let m;
+  while ((m = MD_STAR_RUN.exec(s))) if (m[0].length === 2) marks.push(m.index);
+  if (marks.length % 2) marks.pop();
+  return marks;
+}
+function mdBoldFrag(text) {
+  const s = text == null ? "" : String(text);
+  const frag = document.createDocumentFragment();
+  const marks = mdBoldMarks(s);
+  let cur = 0;
+  for (let k = 0; k < marks.length; k += 2) {
+    const open = marks[k], close = marks[k + 1];
+    if (open > cur) frag.appendChild(document.createTextNode(s.slice(cur, open)));
+    const strong = document.createElement("strong");
+    strong.textContent = s.slice(open + 2, close);   // 只装文本，永不装标记
+    frag.appendChild(strong);
+    cur = close + 2;
+  }
+  if (cur < s.length) frag.appendChild(document.createTextNode(s.slice(cur)));
+  return frag;
+}
+
 /* ---------- 通行字视图（r46，站长「显示分层甲案」）----------
  * 立意：`quote_original` 照录整理本释文之形（含全角括注与重文符「＝」，conventions v1.40 §7），
  * 底账一字不动；可读性由显示层解决——读者默认见通行字（「是息媯」），
@@ -1027,7 +1087,11 @@ function eventQuotesFrag(evt) {
       const cv = document.createElement("p");
       cv.className = "q-caveat";
       cv.setAttribute("role", "note");
-      cv.textContent = caveat;
+      /* r51 ⚑H：注文里的 `**…**` 在此成粗体（mdBoldFrag，不经 innerHTML）。
+       * 判域所用的 `caveat` 原串**一字不动**——通行字视图的限域判据
+       * （quoteTextNode 内 caveat.indexOf(DIPLO_SCOPE_MARK)）读的仍是它，
+       * 本改只改「这串字怎么落到屏上」，不改「这串字是什么」。 */
+      cv.appendChild(mdBoldFrag(caveat));
       bq.appendChild(cv);
     }
     /* 引文正文：在转换域者默认呈通行字，可换段带虚点下划线示「此处经整理本回改」；
@@ -1062,7 +1126,17 @@ function eventQuotesFrag(evt) {
     const ft = document.createElement("footer");
     const src = SOURCES[q.source_id];
     // 类型已进徽标、层标已前置，脚注不再重复
-    ft.textContent = "—— " + (src ? src.title : q.source_id) + (rest ? " · " + rest : "");
+    /* r51 ⚑H：只有 `rest`（modern_note 去层标之余段）走 mdBoldFrag——
+     * 源题与「—— 」「 · 」两个分隔符照旧是写死的文字，不入 markdown 之域：
+     * 书名号里若哪天出现星号，那是书名的一部分，不是编者的强调。
+     * 无成对星号者走旧路一句赋值，文本节点仍是**一个**，DOM 与旧版全等（零影响之证见 QA §三）。 */
+    const head = "—— " + (src ? src.title : q.source_id) + (rest ? " · " : "");
+    if (rest && mdBoldMarks(rest).length) {
+      ft.appendChild(document.createTextNode(head));
+      ft.appendChild(mdBoldFrag(rest));
+    } else {
+      ft.textContent = head + rest;
+    }
     bq.appendChild(ft);
     frag.appendChild(bq);
   }
