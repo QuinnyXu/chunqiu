@@ -969,6 +969,67 @@ function mdBoldFrag(text) {
   return frag;
 }
 
+/* ---------- 役签之分：短语入胶囊、论证入卡内（r52 裁五甲／裁六②）----------
+ * 病症（站长 2026-09-20 报，孔子页）：时间线卡右上之 `.role-chip` 横向撑出容器。
+ * 实读之后是三样东西叠在一起，故此处只治其二，另一样是数据体例、不归前端：
+ *
+ *   甲·**CSS 无溢出处置**——`.event .role-chip` 自立条之日起即 `white-space: nowrap`
+ *      且无 `max-width`，那是**为短值而设**的胶囊。此系**潜伏之缺陷、非孔子之值所生**：
+ *      2026-09-20 实测 1440px 下叔向（站长所举之正例，9 行、最长 52 字）虽不溢出，
+ *      **375px 下 9 行溢出其 8**——即百余字之值亦撑出容器，只是此前无人写到那么长。
+ *      故甲之改**不取任何字数上界**（改法见 styles.css `.event .role-chip` 条注）。
+ *   乙·**字段用法之漂移**（数据本轮一字不动，裁六①）——`event_people.role_in_event`
+ *      全表 694 行**中位 13 字**，而孔子 25 行**中位 168、最长 428**，`E295`／`P_CHUWU` 更达 **486**。
+ *      本栏顾名思义答「其人于本事中任何角色」，是**索引性之短语**；而 presence 之判据是**论证**，
+ *      二者体量与用途俱不同类，混居一栏遂令短语之容器撑爆。裁六②：**改由显示层分之**。
+ *
+ * ★ 分之判据取「首句」，**与裁六③所命编者当写者同一条**——
+ *   裁六③立此后新写之口径：「其首句须可独立成短语（约四十字内），论证续于其后」。
+ *   本函数所取者正是那一句。故**体例与显示是同一条判据**：凡合体例者，其胶囊即全见、一字不裁；
+ *   不合者，胶囊见其首句、全文在卡内。二者不会分道，日后也不必再对一次表。
+ *
+ * ★ 门槛 60 字之所以是 60：须**高于叔向之最长值 52**。叔向是站长所举之正例、亦是本件验收之标尺
+ *   （口径三「改后叔向诸行须与今日逐像素相同」）——门槛若低于 52，叔向即被分，零影响之证当场失守。
+ *   60 是高于 52 之整数中最近者。现库实测：694 行中 **591 行不分**（其值原样入胶囊，
+ *   DOM 与旧版**逐位全等**）、**103 行分**。
+ *
+ * ★ 分者之**全文落卡内**，不作首尾拼接：胶囊是「摘」，卡内是「全文」——
+ *   若卡内只放余段，读者要自己把两截缝起来才能读通一句话，那是把排版之便转嫁给读者。
+ *   故卡内一节（`p.evt-role-note`，`eventBodyNode` 内，只人物视图出）载**整串原值**，一字不少。
+ *
+ * ★ 截点不得落在成对星号之内（丙之扩施随本函数同施，见下）：
+ *   若截在 `**…**` 当中，`mdBoldFrag()` 会把那个落单的 `**` 原样照出，读者遂见裸星号——
+ *   正是本轮要治的那个病。故截点若落在某对星号之内，退至该对之起始星号之前。
+ *   现库实测：103 个头一处裸星号也无。
+ *
+ * ★ 丙·⚑H 扩施（conventions v1.44 §7 ⚑H 止血条③款所登记之八栏之一，
+ *   `event_people.role_in_event` **51 行 118 处**）：胶囊与卡内两处**俱经 `mdBoldFrag()`**，
+ *   照④款所命「落显示层之栏，其渲染须经 `mdBoldFrag()` 一路，不得各处另写解析」。
+ *   无成对星号之值经该函数返回**恰好一个文本节点**，与旧版 `el.textContent = s` 之 DOM 全等。 */
+const ROLE_CHIP_MAX = 60;                 // 逾此字数方分；须高于叔向最长值 52，理由见上
+const ROLE_SENT_RE = /[。；！？]/g;        // 句读：只认这四个，逗顿不算句
+function roleParts(raw) {
+  const s = raw == null ? "" : String(raw);
+  if (s.length <= ROLE_CHIP_MAX) return { head: s, full: s, clipped: false };
+  /* 首句：门槛之内第一个句读之前。门槛之内无句读者（首句本身即逾限）硬截至门槛。 */
+  let cut = ROLE_CHIP_MAX;
+  ROLE_SENT_RE.lastIndex = 0;             // 正则带 g 且为模块级常量，每次入口先归零
+  let m;
+  while ((m = ROLE_SENT_RE.exec(s))) {
+    if (m.index >= ROLE_CHIP_MAX) break;
+    if (m.index > 0) { cut = m.index; break; }
+  }
+  /* 截点避开成对星号之内（否则落单之 `**` 会被原样照出，即本轮所治之病） */
+  const marks = mdBoldMarks(s);
+  for (let k = 0; k < marks.length; k += 2) {
+    if (marks[k] < cut && cut < marks[k + 1] + 2) { cut = marks[k]; break; }
+  }
+  const head = s.slice(0, cut).replace(/[\s。，、；：—…·]+$/, "");
+  /* 退化之防：截点退到 0（值首即一段逾限之粗体）时不出空胶囊，改载门槛之内之文。
+   * 现库无此例，立此为界不为今日。 */
+  return { head: (head || s.slice(0, ROLE_CHIP_MAX)) + "…", full: s, clipped: true };
+}
+
 /* ---------- 通行字视图（r46，站长「显示分层甲案」）----------
  * 立意：`quote_original` 照录整理本释文之形（含全角括注与重文符「＝」，conventions v1.40 §7），
  * 底账一字不动；可读性由显示层解决——读者默认见通行字（「是息媯」），
@@ -1150,6 +1211,23 @@ function eventBodyNode(evt, opts) {
   sm.textContent = evt.summary || "";
   sm.style.margin = "0";
   body.appendChild(sm);
+  /* 役之全文（r52 裁六②）：胶囊载首句者，其整串原值落此，一字不少。
+   * 只人物视图出（`opts.personal`）——编年视图之卡本无 `evt.role`（`personEvents()` 方挂此栏），
+   * 且编年已有「所系人物」一路交代事系何人，不在此重出。
+   * 位次：事之摘要之后、所系人物之前——先读「此事为何」，再读「其人于此事任何角色、何以如此判」。 */
+  if (opts && opts.personal && evt.role) {
+    const rp = roleParts(evt.role);
+    if (rp.clipped) {
+      const rn = document.createElement("p");
+      rn.className = "evt-role-note";
+      const lab = document.createElement("span");
+      lab.className = "evt-role-label";
+      lab.textContent = "所任之役";
+      rn.appendChild(lab);
+      rn.appendChild(mdBoldFrag(rp.full));
+      body.appendChild(rn);
+    }
+  }
   if (opts && opts.people) body.appendChild(eventPeopleNode(evt));
   body.appendChild(eventQuotesFrag(evt));
   return body;
@@ -1256,9 +1334,14 @@ function renderTimeline() {
     sum.appendChild(title);
 
     if (evt.role) {
+      /* r52：胶囊只载首句（逾 60 字者），全文落卡内 `p.evt-role-note`——
+       * 判据与切法见 `roleParts()`；`**…**` 于此成粗体（⚑H 扩施，③④款）。
+       * 不分者（591/694，含叔向全 9 行）走同一条路而 `clipped === false`，
+       * `mdBoldFrag()` 对无星号之串返回**恰好一个文本节点**，DOM 与旧版 `textContent` 全等。 */
+      const rp = roleParts(evt.role);
       const role = document.createElement("span");
-      role.className = "role-chip";
-      role.textContent = evt.role + (evt.presence === "相关" ? " · 相关" : "");
+      role.className = "role-chip" + (rp.clipped ? " is-clipped" : "");
+      role.appendChild(mdBoldFrag(rp.head + (evt.presence === "相关" ? " · 相关" : "")));
       sum.appendChild(role);
     }
     // 可点暗示：右下角常驻「原文 ▾ / 详情 ▾」，展开转「收起 ▴」（文案由 CSS 依 has-quote/open 切换）

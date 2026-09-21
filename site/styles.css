@@ -696,15 +696,58 @@ section[hidden] { display: none; }
 .event .when small { display: block; color: var(--ink-soft); font-size: 0.72rem; }
 .event .evt-title { font-family: var(--serif); font-size: 1rem; }
 .event.major .evt-title { font-weight: 700; }
+/* 役签胶囊（r52 裁五甲：溢出处置）——
+ * 旧式 `white-space: nowrap` 且无 `max-width`，是**为短值而设**的胶囊：
+ * nowrap 令其 min-content ＝ max-content，flex 项之自动最小尺寸遂等于整串之宽，
+ * 缩不下去，于是**撑出容器**。2026-09-20 实测（Chromium，`site/data` 现网数据）：
+ * 1440px 下孔子 25 行溢出其 18（最甚者 E302 逾卡右缘 2785px）；
+ * 而站长所举之正例叔向（9 行、最长 52 字）**375px 下亦溢出其 8**（最甚 305.6px）——
+ * 故此系**潜伏之缺陷、非孔子之值所生**，改法不得以任何字数为其上界。
+ * 三行治之，**一行一事**：
+ *   ① `white-space: normal` —— 撤 nowrap。汉字本可逐字断行，撤之后 min-content 归于一字之宽，
+ *      flex 项遂缩得下去；**且不改任何「本就放得下」之值之排版**——同串之 max-content 宽与 nowrap 时相同，
+ *      故叔向诸行在 1440px 下逐像素不变（实测见 `tools/qa/vision_r52.js` §三）。
+ *   ② `overflow-wrap: anywhere` —— 为串内无处可断者（`` `Q492` `` 一类拉丁记号）留退路，
+ *      并令 min-content 确实压到一字，不留「一个长词撑破」之口子。
+ *   ③ `max-width: 100%` —— 自成一行时（flex 换行后独占一行）之硬闸。
+ *      依 CSS Flexbox §4.5，确定之 max-main-size 会把自动最小尺寸一并钳住，
+ *      故有此一行，**任意长度之值皆不逾容器**——这是「不以字数为上界」之所在。
+ * ★ 不取 `text-overflow: ellipsis`：截字之事已在 DOM 层由 `roleParts()` 依**句读**办妥
+ *   （首句入胶囊、全文入卡内），CSS 再截一次只会把已经裁好的短语又截一刀，且截在何处不可预期。
+ * ★ 不设 `line-height`：设之即改单行胶囊之盒高，叔向零影响之证当场失守。 */
 .event .role-chip {
   margin-left: auto;
+  max-width: 100%;
   font-size: 0.72rem;
   color: var(--ink-soft);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 0 0.55rem;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
+/* ⚑H 扩施于本栏之粗体：取值同 §3.6.1 之 600（可得之最轻一档），不另设色、不改字幅 */
+.event .role-chip strong { font-weight: 600; }
+/* 役之全文（r52 裁六②）：胶囊载首句者，整串原值落此。
+ * 体例照「编者之语」一路——暖赭小标 ＋ 淡墨正文 ＋ 左细线，与引文卡之朱线（史料层）分明；
+ * 本节所载是**本库编者对其役与 presence 之论证**，不是史料本身，故不得用史料层之色。 */
+.event-body .evt-role-note {
+  margin: 0.6rem 0 0;
+  padding: 0.4rem 0.7rem;
+  border-left: 2px solid var(--line);
+  background: rgba(46, 42, 36, 0.025);
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+}
+.event-body .evt-role-label {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--ochre);
+  margin-bottom: 0.15rem;
+}
+.event-body .evt-role-note strong { font-weight: 600; }
 .event-body {
   border-top: 1px dashed var(--line);
   padding: 0.75rem 1rem 0.9rem;
