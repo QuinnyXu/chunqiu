@@ -379,6 +379,20 @@ Vision 已升 **v2.13**（文件头实读），本件**一字未碰**（任务�
 
 ## 追十一、提交哈希与 Actions（实测回填）
 
-- **合入提交**：`<待回填>`
-- **推送**：未执行（待口令）
-- **Actions 运行号**：未产生（未推送）
+**本轮合入分两提交，照任务书 §四之合入次序（① Vision 件 → ② 索引件）**，俱已实测：
+
+| 提交 | 哈希 | 所含 |
+|---|---|---|
+| 其一·Vision 件 | `3b5f38a` | `site/app.js`、`site/styles.css`、`docs/design/design_notes.md`、`tools/qa/vision_r52.js`、`docs/delivery_vision_r52.md`（**一字未改其内容**） |
+| 其二·索引件＋规范 | `7f6a841` | `tools/build_kaodui_index.py`、`docs/kaodui_index.md`、`docs/conventions.md`（升 v1.45）、`docs/delivery_skipper_r52.md`、`site/data/meta.json` |
+| 其三·本节回填 | `<自锚，见 git log>` | 本节哈希之回填（照 r51 之例，自身哈希不可预填） |
+
+- **推送**：**未执行**（本件不含推送口令，任务书 §四、领队加注七.3）。
+- **Actions 运行号**：未产生（未推送）。得口令推 `main` 后，须 `gh run list` 核其号、并带参复验 `meta.json?v=<随机>`，届时另追记。
+
+## 追十二、一事上报·陈旧 `git index.lock`（非本件所致，已移置留痕）
+
+首次 `git commit` 报 `Unable to create .git/index.lock: File exists`。实查：该锁 **0 字节**、修改时间 **2026-09-20 20:01**（首次提交时为 21:12，已逾七十分钟），`Get-Process git` **无进程**——系他会话崩溃所遗之陈旧锁，**非本件所致**。
+
+**处置照红线四附则①之精神**：**不 `rm`**，移入本会话暂存区并留其名与日期——
+`…/scratchpad/stale_index.lock_20260920_2001`。移后 `git status` 与两次提交俱正常。**领队若需复核其来历，该文件仍在。**
