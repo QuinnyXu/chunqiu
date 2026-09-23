@@ -93,12 +93,20 @@ docs/              conventions.md（项目约定，改数据/代码前必读）�
 
 ## 许可
 
-本仓库采用**双许可**：
+本仓库之许可分**三类**（MIT／CC BY 4.0／保留一切权利），按范围列之：
 
-- **代码**（`tools/`、`site/` 下除 `site/data/` 外的所有文件）—— [MIT License](LICENSE)
+- **代码**（`tools/`、`site/` 下除 `site/data/` 外的所有文件；**本站标识除外**）—— [MIT License](LICENSE)
 - **数据**（`data/csv/`、`site/data/*.json`）—— [CC BY 4.0](DATA_LICENSE.md)（署名建议格式："经纬春秋 · chunqiu.timechorus.com"）
+- **`docs/` 分三层**：① `docs/kaodui_index.md`（自 `data/csv/` 机械生成的派生物）与 `docs/conventions.md`、`docs/design/design_notes.md`（数据凡例与规范）—— [CC BY 4.0](DATA_LICENSE.md)，同数据；② `docs/changes/*_sim.py`（归档的自查脚本，性属代码）—— [MIT License](LICENSE)，同代码；③ `docs/kaodui_*.md`、`docs/changes/*.md`、`docs/delivery_*.md`（考订与编辑成果之文字）与 `docs/design/logo_r15/`（本站标识的设计稿）—— 不适用上述任一许可，保留一切权利，另议。逐条详表见 [DATA_LICENSE.md](DATA_LICENSE.md) §适用范围。
 
 两份许可的适用范围与详细条款分别见对应文件；`private/`、`team/`、`.claude/` 等内部协作目录不公开发布，不适用任何公开许可。
+
+### 标识保留
+
+- 项目名「经纬春秋」、域名 `chunqiu.timechorus.com`，以及本站徽记（`site/assets/icons/favicon.svg`）与徽记和站名合成的分享图（`site/assets/og/og-card.png`），是本项目的**标识**。
+- 代码的 MIT 与数据的 CC BY 所许者是**著作权**，**不及于标识之用**。
+- 不得以本项目之名、域名或标识自居为本项目，或以使人误认的方式使用。
+- 依 CC BY 4.0 的署名要求而提及本项目名称者，不在此限。
 
 ## 致谢与主要参考
 
