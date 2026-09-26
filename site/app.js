@@ -835,7 +835,11 @@ function personCardLi(meta) {
   info.appendChild(yrs);
   const p = document.createElement("p");
   if (ready && person.short_bio) p.textContent = person.short_bio;
-  else if (ready) p.textContent = person.notes || "";
+  /* r53 ⚑H 扩施 `people.notes`（②款七栏之一，290 对星号／497 对反引号）：
+   * 此处是本栏**唯一之实渲落点**——且只在 `short_bio` 阙如时出（有小传者不渲注文）。
+   * `short_bio` 一路**一字不碰**：该栏二记法俱零处（2026-09-25 全库实测），
+   * 走 markdown 一路只会凭空给它开一条解析之门，无所治而有所险。 */
+  else if (ready) p.appendChild(mdInlineFrag(person.notes || ""));
   else {
     const s = document.createElement("span");
     s.className = "pending";
@@ -969,6 +973,104 @@ function mdBoldFrag(text) {
   return frag;
 }
 
+/* ---------- 注文之 markdown 二记法：粗体 ＋ code span（r53 ⚑H 扩施，裁四十一／裁四十八）----------
+ * 病症之另一半：本库注文栏之 markdown 记法**不止星号一种**。2026-09-25 自 `data/csv/*.csv`
+ * 全表全栏实测（口径同 conventions §7 ⚑H ⑤款：成对计、去重行）：
+ *   星号 `**…**` —— 十栏 **3045 对／406 行次**；反引号 `` `…` `` —— **同一个十栏 2602 对／352 行次**。
+ * ★ 「同一个十栏」非约数而是实测：「有星而无反引号之栏」零个、「有反引号而无星之栏」零个
+ *   （裁四十一），二者同栏、同成因——编者以 markdown 记法读写 CSV。故治其一不治其二，
+ *   只会把「满屏裸星号」换成「满屏裸反引号」，读者所见一分未改善。
+ *
+ * ★ 本库反引号所包者**多是库内之名**（`Q516`／`P_KONGZI`／`CHANGES.md` 之属）：
+ *   2602 对内容长度中位 **5 字**、最长 39 字（`data/incoming/round49_kongzi/CHANGES.md`）。
+ *   故其渲法不宜只去其符而已——去符之后 `Q516` 混入正文，读者无从知其为库内之编号（裁四十八④）。
+ *   渲为何物（`<code>` 之类名与样式）系设计之决，本轮拟二案上报、候裁；**此处只管建节点**。
+ *
+ * ★ 二记法相遇之读法：**照 CommonMark，反引号优先**（裁四十八①）。
+ *   即 code span 之内之星号**不解析、原样照出**。实测全库相遇 243 处：粗体内含 code span 242 处、
+ *   code span 内含粗体 **1 处**（`people.notes` 之 `` `is_protagonist=**0**` ``，
+ *   其所展示者正是字段之值，字面照出才合其意）、**交叉 0 处**。
+ *   ★ 交叉 0 是「顺序扫描之纯函数足用、不必引第三方 markdown 库」之依据（红线六）——
+ *     若有交叉，顺序扫描之解析器即不能用，那是另一件事。本函数并以构造保证交叉不可能出现：
+ *     落于 code span 之内之星号游程一律不作分隔符，故粗体区间与 code span 区间只能嵌套或相离。
+ *
+ * ★ 零 XSS 面之律一字不改（同 `mdBoldFrag`）：从不拼 HTML 字符串、从不碰
+ *   `innerHTML`／`insertAdjacentHTML`／`outerHTML`；数据之每一字符只经 `createTextNode(s)`
+ *   与 `el.textContent = s` 两条道出场，二者按 DOM 规范皆不解析标记；所造之元素只有两种、
+ *   且写死在代码里（`createElement("strong")`／`createElement("code")`，标签名不由数据决定，
+ *   `code` 之 `className` 亦是写死之常量）。故数据无论写成什么样都不可能成为标记。
+ *
+ * ★ 纯函数、无副作用：只读入一个字符串，返回一个新的 `DocumentFragment`，不读 `DATA`、不写 DOM。
+ *   **无任一记法时返回恰好一个文本节点**，与旧版 `el.textContent = s` 之 DOM 全等；空串返回空片段，
+ *   亦与 `el.textContent = ""` 全等——这是「零影响」之机械保证，不是「我觉得没动它」。
+ *
+ * ★ `mdBoldMarks`／`mdBoldFrag` 二者**一字未动**：前者仍是星号之判据（`roleParts` 与两门共用），
+ *   后者生产落点已不再调用，然 `tools/qa/vision_r51.js`／`vision_r52.js` 以之为**单元判据**直调，
+ *   删之即令二门崩而非红——崩与红之别，是「测不出」与「测出来了」之别。本轮不动 `tools/qa/` 他本，
+ *   故留之，并于此记其何以留。 */
+const MD_CODE_MARK = "`";
+/* 类名写死为常量，不由数据决定（零 XSS 面之一环）；样式候裁，见 styles.css 同名一条。 */
+const MD_CODE_CLASS = "md-name";
+/* 反引号之成对下标（顺序两两成对，照裁四十八之求法）；落单者不入，留在文本里原样照出。
+ * ★ 不作游程配对（CommonMark 之 N 枚开 N 枚闭）之由：2026-09-25 全库实测反引号游程长度
+ *   **一律为 1**（5204 枚尽是单枚，无一处 `` `` `` 之属），故顺序成对与 CommonMark 在本库逐处等价；
+ *   且本库反引号之用途是包库内之名，不存在「内容里要带反引号」之需。若他日实到游程 ≥2，
+ *   此处须改判据——故把这一条实测写在此，不留与后人再猜一遍。 */
+function mdCodeMarks(s) {
+  const marks = [];
+  for (let i = 0; i < s.length; i++) if (s[i] === MD_CODE_MARK) marks.push(i);
+  if (marks.length % 2) marks.pop();
+  return marks;
+}
+/* 二记法之分隔符下标，一并求之。**反引号先求、星号后求**，正是「反引号优先」之落点：
+ * 落于某 code span 区间之内之星号游程，不入 `stars`。 */
+function mdInlineMarks(s) {
+  const code = mdCodeMarks(s);
+  const inCode = (i) => {
+    for (let k = 0; k < code.length; k += 2) if (i > code[k] && i < code[k + 1]) return true;
+    return false;
+  };
+  const stars = [];
+  MD_STAR_RUN.lastIndex = 0;   // 正则带 g 且为模块级常量，每次入口先归零，免跨调用串台
+  let m;
+  while ((m = MD_STAR_RUN.exec(s))) if (m[0].length === 2 && !inCode(m.index)) stars.push(m.index);
+  if (stars.length % 2) stars.pop();
+  return { stars, code };
+}
+/* 把 s 之 [from, to) 一段按 code span 切出节点挂上 target；span 之外一律文本节点。
+ * 只取**整个落在该段之内**之 span——跨段者不可能有：段界取自粗体分隔符，而落于 span 之内之星号
+ * 已不作分隔符（反引号优先），故段界切不进 span。 */
+function mdEmitCode(target, s, from, to, code) {
+  let cur = from;
+  for (let k = 0; k < code.length; k += 2) {
+    const open = code[k], close = code[k + 1];
+    if (open < cur || close >= to) continue;
+    if (open > cur) target.appendChild(document.createTextNode(s.slice(cur, open)));
+    const el = document.createElement("code");
+    el.className = MD_CODE_CLASS;
+    el.textContent = s.slice(open + 1, close);   // 只装文本，永不装标记
+    target.appendChild(el);
+    cur = close + 1;
+  }
+  if (cur < to) target.appendChild(document.createTextNode(s.slice(cur, to)));
+}
+function mdInlineFrag(text) {
+  const s = text == null ? "" : String(text);
+  const frag = document.createDocumentFragment();
+  const { stars, code } = mdInlineMarks(s);
+  let cur = 0;
+  for (let k = 0; k < stars.length; k += 2) {
+    const open = stars[k], close = stars[k + 1];
+    if (open > cur) mdEmitCode(frag, s, cur, open, code);
+    const strong = document.createElement("strong");
+    mdEmitCode(strong, s, open + 2, close, code);    // 粗体之内仍可含 code span（实测 242 处）
+    frag.appendChild(strong);
+    cur = close + 2;
+  }
+  if (cur < s.length) mdEmitCode(frag, s, cur, s.length, code);
+  return frag;
+}
+
 /* ---------- 役签之分：短语入胶囊、论证入卡内（r52 裁五甲／裁六②）----------
  * 病症（站长 2026-09-20 报，孔子页）：时间线卡右上之 `.role-chip` 横向撑出容器。
  * 实读之后是三样东西叠在一起，故此处只治其二，另一样是数据体例、不归前端：
@@ -1019,10 +1121,24 @@ function roleParts(raw) {
     if (m.index >= ROLE_CHIP_MAX) break;
     if (m.index > 0) { cut = m.index; break; }
   }
-  /* 截点避开成对星号之内（否则落单之 `**` 会被原样照出，即本轮所治之病） */
-  const marks = mdBoldMarks(s);
-  for (let k = 0; k < marks.length; k += 2) {
-    if (marks[k] < cut && cut < marks[k + 1] + 2) { cut = marks[k]; break; }
+  /* 截点避开成对星号之内（否则落单之 `**` 会被原样照出，即本轮所治之病）。
+   * 〔r53 扩：**反引号同理同治**——截点若落进某 code span 之内，其落单之 `` ` `` 同样会被原样照出，
+   *   读者遂见裸反引号，与裸星号是同一个病、同一款所禁（conventions §7 ⚑H ④款）。
+   *   二类区间可相嵌（实测粗体内含 code span 242 处），故退至稳定点：每退一次 `cut` 必严格减小，
+   *   故必终止；上限 64 圈系防御之界，非业务之数。
+   *   ★ **今日一行不受其影响**——2026-09-25 实测 103 个分者之截点无一落入 code span 之内
+   *     （且旧法首句含奇数反引号者 0 行），故本扩是**为后来所设之闸**，同「退化之防」之例；
+   *     `roleParts()` 694 行之出与 r52 逐字全等，见 `tools/qa/vision_r53.js` §四。 */
+  const marks = mdInlineMarks(s);
+  for (let guard = 0; guard < 64; guard++) {
+    let moved = false;
+    for (let k = 0; k < marks.stars.length; k += 2) {
+      if (marks.stars[k] < cut && cut < marks.stars[k + 1] + 2) { cut = marks.stars[k]; moved = true; break; }
+    }
+    if (!moved) for (let k = 0; k < marks.code.length; k += 2) {
+      if (marks.code[k] < cut && cut <= marks.code[k + 1]) { cut = marks.code[k]; moved = true; break; }
+    }
+    if (!moved) break;
   }
   const head = s.slice(0, cut).replace(/[\s。，、；：—…·]+$/, "");
   /* 退化之防：截点退到 0（值首即一段逾限之粗体）时不出空胶囊，改载门槛之内之文。
@@ -1151,8 +1267,10 @@ function eventQuotesFrag(evt) {
       /* r51 ⚑H：注文里的 `**…**` 在此成粗体（mdBoldFrag，不经 innerHTML）。
        * 判域所用的 `caveat` 原串**一字不动**——通行字视图的限域判据
        * （quoteTextNode 内 caveat.indexOf(DIPLO_SCOPE_MARK)）读的仍是它，
-       * 本改只改「这串字怎么落到屏上」，不改「这串字是什么」。 */
-      cv.appendChild(mdBoldFrag(caveat));
+       * 本改只改「这串字怎么落到屏上」，不改「这串字是什么」。
+       * 〔r53 扩：改走 `mdInlineFrag`，反引号同施（裁四十一②「两种记法一并治」）。
+       *   限域判据仍读 `caveat` **原串**，与 r51 之理由同一条，一字未动。〕 */
+      cv.appendChild(mdInlineFrag(caveat));
       bq.appendChild(cv);
     }
     /* 引文正文：在转换域者默认呈通行字，可换段带虚点下划线示「此处经整理本回改」；
@@ -1190,11 +1308,15 @@ function eventQuotesFrag(evt) {
     /* r51 ⚑H：只有 `rest`（modern_note 去层标之余段）走 mdBoldFrag——
      * 源题与「—— 」「 · 」两个分隔符照旧是写死的文字，不入 markdown 之域：
      * 书名号里若哪天出现星号，那是书名的一部分，不是编者的强调。
-     * 无成对星号者走旧路一句赋值，文本节点仍是**一个**，DOM 与旧版全等（零影响之证见 QA §三）。 */
+     * 无成对星号者走旧路一句赋值，文本节点仍是**一个**，DOM 与旧版全等（零影响之证见 QA §三）。
+     * 〔r53 扩：判据由「有成对星号」扩为「**有二记法之任一**」（`mdInlineMarks`），渲走 `mdInlineFrag`。
+     *   源题与两个分隔符仍是写死之文字，不入 markdown 之域——反引号亦然：书名号里若哪天出现
+     *   反引号，那是书名的一部分。二记法俱无者仍走旧路一句赋值，**文本节点仍是一个**。〕 */
     const head = "—— " + (src ? src.title : q.source_id) + (rest ? " · " : "");
-    if (rest && mdBoldMarks(rest).length) {
+    const restMarks = rest ? mdInlineMarks(rest) : null;
+    if (restMarks && (restMarks.stars.length || restMarks.code.length)) {
       ft.appendChild(document.createTextNode(head));
-      ft.appendChild(mdBoldFrag(rest));
+      ft.appendChild(mdInlineFrag(rest));
     } else {
       ft.textContent = head + rest;
     }
@@ -1208,7 +1330,10 @@ function eventBodyNode(evt, opts) {
   body.className = "event-body";
   body.appendChild(eventChipsNode(evt, opts));
   const sm = document.createElement("p");
-  sm.textContent = evt.summary || "";
+  /* r53 ⚑H 扩施 `events.summary`（②款七栏之一，172 对星号／222 对反引号；裁二十九）：
+   * 本栏共**三个落点**，此其一（事目卡摘要，人物时间线与编年两视图共用）；
+   * 其二其三在 `cmpShowMeetings()`（并观交会弹卡），原走 `innerHTML`，已照 ④款改掉。 */
+  sm.appendChild(mdInlineFrag(evt.summary || ""));
   sm.style.margin = "0";
   body.appendChild(sm);
   /* 役之全文（r52 裁六②）：胶囊载首句者，其整串原值落此，一字不少。
@@ -1224,7 +1349,7 @@ function eventBodyNode(evt, opts) {
       lab.className = "evt-role-label";
       lab.textContent = "所任之役";
       rn.appendChild(lab);
-      rn.appendChild(mdBoldFrag(rp.full));
+      rn.appendChild(mdInlineFrag(rp.full));   /* r53 扩：二记法一并治 */
       body.appendChild(rn);
     }
   }
@@ -1337,11 +1462,14 @@ function renderTimeline() {
       /* r52：胶囊只载首句（逾 60 字者），全文落卡内 `p.evt-role-note`——
        * 判据与切法见 `roleParts()`；`**…**` 于此成粗体（⚑H 扩施，③④款）。
        * 不分者（591/694，含叔向全 9 行）走同一条路而 `clipped === false`，
-       * `mdBoldFrag()` 对无星号之串返回**恰好一个文本节点**，DOM 与旧版 `textContent` 全等。 */
+       * `mdBoldFrag()` 对无星号之串返回**恰好一个文本节点**，DOM 与旧版 `textContent` 全等。
+       * 〔r53 扩：改走 `mdInlineFrag`，反引号同施；「二记法俱无者返回恰好一个文本节点」之保证不变。
+       *   ★ `" · 相关"` 是写死之文字、不含记法，接在 `rp.head` 之后不改其解析——
+       *     `rp.head` 之末尾不可能留下未闭之记号（截点已避二类区间，见 `roleParts()`）。〕 */
       const rp = roleParts(evt.role);
       const role = document.createElement("span");
       role.className = "role-chip" + (rp.clipped ? " is-clipped" : "");
-      role.appendChild(mdBoldFrag(rp.head + (evt.presence === "相关" ? " · 相关" : "")));
+      role.appendChild(mdInlineFrag(rp.head + (evt.presence === "相关" ? " · 相关" : "")));
       sum.appendChild(role);
     }
     // 可点暗示：右下角常驻「原文 ▾ / 详情 ▾」，展开转「收起 ▴」（文案由 CSS 依 has-quote/open 切换）
@@ -2013,10 +2141,15 @@ function closeDrawer() {
 }
 function buildPlaceContent(pl, evts) {
   const dl = document.createElement("dl");
+  /* r53 ⚑H 扩施：本助手所渲之栏内含 `places.coord_basis`（628／550）与 `places.description`（116／173），
+   * 故 `dd` 之文改经 `mdInlineFrag()` 一路（④款「不得各处另写解析」）。
+   * ★ 其余三行（今地、地望确定性、坐标）之值**二记法俱零处**，经同一函数返回恰好一个文本节点，
+   *   DOM 与旧版 `d.textContent = dd` 全等——故此处不必分流，一路即可，零影响有机械之证。
+   * ★ `dt`（栏名）仍走 `textContent`：那是写死在代码里的界面文字，不是数据，不入 markdown 之域。 */
   const row = (dt, dd) => {
     if (!dd) return;
     const t = document.createElement("dt"); t.textContent = dt;
-    const d = document.createElement("dd"); d.textContent = dd;
+    const d = document.createElement("dd"); d.appendChild(mdInlineFrag(dd));
     dl.appendChild(t); dl.appendChild(d);
   };
   row("今地", pl.modern_location);
@@ -3338,6 +3471,26 @@ function cmpMeetingRow(m) {
   return li;
 }
 
+/* 交会弹卡内一侧之事目行（r53 立，取代原先两句 `innerHTML` 拼接）。
+ * 其形与旧串逐节点对应：色点 `<i>`、人名 `<b>`、`" · "`、事目题、`<br>`、摘要 `<span>`。
+ * 摘要一路经 `mdInlineFrag()`（⚑H ②款 `events.summary` 之第二第三落点）；
+ * 其余三样（色、人名、事目题）走 `textContent`／`style` 赋值，一律不解析标记。 */
+function cmpMeetEvNode(color, name, evt) {
+  const p = document.createElement("p");
+  p.className = "cmp-meet-detail-ev";
+  const dot = document.createElement("i");
+  dot.style.background = color;
+  p.appendChild(dot);
+  const b = document.createElement("b");
+  b.textContent = name;
+  p.appendChild(b);
+  p.appendChild(document.createTextNode(" · " + evt.title));
+  p.appendChild(document.createElement("br"));
+  const sp = document.createElement("span");
+  sp.appendChild(mdInlineFrag(evt.summary || ""));
+  p.appendChild(sp);
+  return p;
+}
 /* 交会弹卡（点地图交会点或侧栏行）：定位地图到该地，展开两侧事件摘要，重复 B3 免责句 */
 function cmpShowMeetings(placeId, list) {
   const pl = PLACES[placeId];
@@ -3363,16 +3516,18 @@ function cmpShowMeetings(placeId, list) {
     const badge = m.level === "a" ? "同场（同一记载）" : (m.chain ? "同年同地 · 相邻记载" : "同年同地 · 可能相遇");
     h.textContent = yearLabel(m.year) + " · " + badge;
     box.appendChild(h);
-    const evA = document.createElement("p");
-    evA.className = "cmp-meet-detail-ev";
-    evA.innerHTML = '<i style="background:' + cmp.colorA + '"></i><b>' + personName(cmp.A) + "</b> · " +
-      m.ea.title + "<br><span>" + (m.ea.summary || "") + "</span>";
-    box.appendChild(evA);
-    const evB = document.createElement("p");
-    evB.className = "cmp-meet-detail-ev";
-    evB.innerHTML = '<i style="background:' + cmp.colorB + '"></i><b>' + personName(cmp.B) + "</b> · " +
-      m.eb.title + "<br><span>" + (m.eb.summary || "") + "</span>";
-    box.appendChild(evB);
+    /* ★ r53：此二行原走 `innerHTML` 字符串拼接——**⚑H ④款明禁**（「落显示层之栏，其渲染须经
+     *   一路，不得各处另写解析」），且 `evt.summary`／`personName()`／`evt.title` 三样数据
+     *   俱被拼进 HTML 串里，与 `mdBoldFrag` 立条时所记「零 XSS 面」之律正相反。
+     *   改为逐节点建之（`cmpMeetEvNode`），三事一并得：①④款所命之一路解析落地；
+     *   ②`events.summary` 之二记法在此实渲；③注入面归零——数据不再有任何一条道进入标记。
+     * ★ DOM 之形一字不改：仍是 `<i style="background:…">` ＋ `<b>名</b>` ＋ `" · "` ＋ 事目题
+     *   ＋ `<br>` ＋ `<span>摘要</span>`，故 `styles.css` 之 `.cmp-meet-detail-ev` 一族选择器无须动。
+     *   `<i>` 之底色仍由 `style.background` 设——那是**代码算出之国色**（`cmp.colorA/B` 出
+     *   `resolveProtoColors()`），非数据之字；改走 `style.background = …` 之赋值，
+     *   比拼进 `style="…"` 串里安全（属性值不再由字符串拼接而成）。 */
+    box.appendChild(cmpMeetEvNode(cmp.colorA, personName(cmp.A), m.ea));
+    box.appendChild(cmpMeetEvNode(cmp.colorB, personName(cmp.B), m.eb));
     if (m.level === "b" && m.tol) {
       const t = document.createElement("p");
       t.className = "cmp-meet-detail-tol";
@@ -3656,10 +3811,20 @@ function showLibDetail(r, srcCard) {
   }
   const h3 = document.createElement("h3");
   const dl = document.createElement("dl");
+  /* r53 ⚑H 扩施：本助手（资料库详情）所渲之栏内含 `sources.notes`（426／315）与
+   * `archaeology.summary`（6／2），故 `dd` 之文改经 `mdInlineFrag()` 一路（④款）。
+   * ★ 其余十三行之值（类别、证据、确定性、来源、时期、位置、篇章、性质、类型、相关国、
+   *   `background.summary` 等）**二记法俱零处**，经同一函数返回恰好一个文本节点，DOM 与旧版全等。
+   * ★ 由代码拼出之值（`srcNames()` 之书名串、「（前缀 X）」之属）亦然：其中之全角括号与分号
+   *   不是 markdown 记号，不受影响。
+   * ⚠ **一处界须记明，不遮掩**：此路与 r51 引文页脚之处置**不同**——彼处源题被排在 markdown 域之外
+   *   （「书名号里的星号是书名之一部分」），此处 `row("来源", srcNames(...))` 之书名串却**在域内**。
+   *   今日无差（`sources.title` 二记法俱零处，2026-09-25 实测），故不为此另立分流；
+   *   他日若书名内实到记号，此处须与页脚同办——**登记其为已知之界，非已治之事**。 */
   const row = (dt, dd) => {
     if (!dd) return;
     const t = document.createElement("dt"); t.textContent = dt;
-    const d = document.createElement("dd"); d.textContent = dd;
+    const d = document.createElement("dd"); d.appendChild(mdInlineFrag(dd));
     dl.appendChild(t); dl.appendChild(d);
   };
   const srcNames = (ids) => (ids || "").split(";").map(s => s.trim()).filter(Boolean)
@@ -4517,7 +4682,11 @@ function relDetailBody(rels, pid) {
     if (rel.source_note) {
       const note = document.createElement("span");
       note.className = "rel-note";
-      note.textContent = rel.source_note;
+      /* r53 ⚑H 扩施 `relations.source_note`（②款七栏之一，65 对星号／47 对反引号）：
+       * 此处是本栏**唯一之文本流落点**（内嵌右卡与全屏抽屉共用本函数，故两处同施）；
+       * 另有三处落在 SVG `<title>` 元素内（`pairTip()` 与 ego 节点提示），
+       * 那是 tooltip、装不了元素节点，**本件不治**，已列于 `docs/delivery_vision_r53.md` §三之 title 清单。 */
+      note.appendChild(mdInlineFrag(rel.source_note));
       meta.appendChild(note);
     }
     li.appendChild(meta);
