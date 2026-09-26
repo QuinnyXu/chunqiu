@@ -644,3 +644,113 @@
 - **本件所动之文件全列（并行面复核用）**：`docs/conventions.md`（**+11 行新文，＋版本行一处续写；非版本行之删 0**）、`docs/delivery_skipper_r53.md`（本追记，只增不改）。★ **`data/`、`site/`、`tools/`、`DATA_LICENSE.md`、`README.md` 一行未动。**
 - **工作区现有三人之物**（`git status --porcelain` 实读，**14 项**，与领队前置之数同）：我之 `docs/conventions.md`＋`tools/qa/` 四删一增＋`docs/delivery_skipper_r53.md`；Vision 之 `site/app.js`／`site/styles.css`／`docs/design/design_notes.md`／`docs/delivery_vision_r53.md`／`tools/qa/vision_r53.js`；Sophia 之 `data/incoming/r53_kongzi_role/`；并 r53-2 之 `docs/delivery_skipper_r52.md`。
 - 本件**不含任何数据合入**；合入之序照裁五十九。
+
+---
+
+## 十、r53 推送之实测（追记 · 2026-09-26；件之所据：`team/round53_prompts.md` **§九、r53 推送**）
+
+> ★ **本节系推送之后所追记，非预填**（照 §7「交付体例·实测口径」r38 立之通例）。本机落笔时刻 **2026-09-26 12:08 -0400**（记账之日照裁十四取本机时区）。
+> ★ **§九 之来历，照其节首之注并书**：该节系**领队** 2026-09-26 据站长所发之派件块**立于任务书内**（其块引「任务书 §九」而本文件内原无此节），其正文〇至五系站长原字一字未改，领队之加注七条**另列于节末、派件前已在文内**（非补记）。
+
+### 〇、所读之节与其末次勘注之日（r53 新体例第 5 条）
+
+| 所读之节 | 末次勘注之日 | 自核之法 |
+|---|---|---|
+| `team/round53_prompts.md` **§九、r53 推送**（含节末「领队加注」七条） | **2026-09-26**（节内署日实测：`2026-09-26` **4 处**、`2026-09-25` **1 处**〔即 `.git/index.lock` 所遗之日〕；末次勘注系「领队加注」自署 **2026-09-26 12:01 -0400**） | 节界取 `## 九、r53 推送` 之行至其末之 `---` 前（任务书行 598–661，下一节题 `## 领队之二` 在 663）；节之 sha256 = `e2f83cee58facda31aebace411b92fc7550286a837d4b19b96039c2764352b62`（UTF-8、含行末），**落笔前后各读一过，两读相同** |
+| `team/round53_prompts.md` **§八、r53 收官之裁与 Co站长复核**（裁六十九，含甲乙丙三目） | **2026-09-26**（节题自署） | 全节读毕，以知「推前二嘱」与「口令归站长」之实 |
+| `team/round53_prompts.md` 卷首**新体例六条** | **r52 议定**（无另署之日） | 逐条读毕；本节即照其第 2 条（不凭派件之复述）与第 5 条（书所读之节与末次勘注之日）而作 |
+| `docs/conventions.md` 版本行（v1.46）与 §7「交付体例·实测口径」 | **2026-09-26**（r53-9 之落笔，即本轮） | 读其现行文本以定本节之体例；★ **本节未改 `conventions` 一字** |
+
+★ **一事并记**：任务书行 598 之 §九 系领队于 **12:02:25 -0400** 入文（文件 mtime 实读），我于 **12:03 -0400** 起读——**其文已在，非我落笔后补入**。合「先入文、后发件」。
+
+### 一、〇节「先清陈旧锁」——**落笔之时无物可清，不编一份四事之记**
+
+| 项 | 实测 |
+|---|---|
+| 命 | §九〇节命先清 `.git/index.lock`（据其文：0 字节、2026-09-25 21:25 EDT 所遗、系 Co站长之 shell 所留），照裁四十五记四事（路径｜字节数｜时间戳｜当时有无 git 进程）后删；**进程仍在者不删** |
+| 我之实读（**2026-09-26 12:03 -0400**） | `ls -la .git/index.lock` → **`No such file or directory`**；`tasklist` 过滤 `git` → **无 git 进程** |
+| 领队之实读（**同日 12:01 -0400**，见领队加注 1） | 同——`No such file or directory`、无 git 进程 |
+| 处置 | ★ **照领队加注 1 之②：如实书「派件之时其在（据 §八丙之嘱与 §九〇节之文），落笔之时已不在」**。**四事（路径｜字节｜时戳｜有无进程）无从记**——★ **不因「本该有」而编一份四事之记**。 |
+| 副证 | 五个 `git commit` **无一撞锁**（俱一次而成，见下表），此即「锁已不在」之行为之证 |
+
+★ **此正是本轮所立之律之用：账记其实，不记其应然。**
+
+### 二、一节「提交之分法」——**照议之五提交，分法未改**
+
+| # | 提交哈希 | 题 | 文件（实测 `--stat`） |
+|---|---|---|---|
+| 一 | `27717c3` | `feat(r53 Vision 件): ⚑H 扩施七栏 ＋ 反引号一路取案乙（r53-3、r53-6）` | `site/app.js`（+196 −27）／`site/styles.css`（+53 −0）／`docs/design/design_notes.md`（+189 −2）／`tools/qa/vision_r53.js`（新 782 行）＝ **4 文件 +1220 −29** |
+| 二 | `86d418d` | `refactor(r53-5): 四本 QA 归并为 tools/qa/prod_data_invariants.js——门不动` | 新 `prod_data_invariants.js`（789 行）＋删 `r43_prod_check.js`／`r43_prod_render_check.js`／`r44_prod_check.js`／`r45_prod_check.js` ＝ **5 文件 +789 −289** |
+| 三 | `74b1114` | `docs(conventions): 升 v1.46——r53 九事就地加注，旧数旧文一字不删（r53-7、r53-9）` | `docs/conventions.md`（**+40 −1**；其 −1 即版本行一处续写，**非版本行之删 0**） |
+| 四 | `8c78b03` | `docs(delivery): skipper r52 追十二之就地加注（r53-2）` | `docs/delivery_skipper_r52.md`（**+17 −0**） |
+| 五 | `12c0557` | `docs(delivery): r53 交付文档二本——skipper 与 vision` | `docs/delivery_skipper_r53.md`（646 行）／`docs/delivery_vision_r53.md`（565 行）＝ **2 文件 +1211 −0** |
+
+★ **分法与 §九 一节所议逐项相同，故无「书其由」之事**（其条许我自定分法，我取其议）。
+★ **`data/incoming/r53_kongzi_role/` 未提交**——照裁五十九（Sophia 备料俟 Vision 落定、合入之日重跑一过）。
+
+### 三、★ **一节之末命「书其据上报」——我自核之果与领队加注 6 之据不同，据实勘正**
+
+领队加注 6 代查而书：「**前例曾提交 `data/incoming/` 之备料**（如 `round51_peijue`／`round50_diwang` 诸批，**其合入之件内 `data/incoming/` 与 `data/csv/` 同批入库**）……**惟其俱是「合入之件」，备料与合入同批**。」
+★ **一节之末并命「执行者仍请自核一过」。我自核之，其实与此不同**——
+
+| 项 | 领队加注 6 之述 | 我之实测（求法随书） |
+|---|---|---|
+| 所举之二批 | `round51_peijue`／`round50_diwang` | ★ **全史无其物**——`git log --oneline --all -- 'data/incoming/round50_diwang*' 'data/incoming/round51_peijue*'` **零命中**；`git log --pretty=format: --name-only --diff-filter=A -- 'data/incoming/*'` 去重后所列之 31 路径内**无此二名**。**此二批从未入库。** |
+| 真有之前例 | —— | `relations`（`ba4e65a`）／`round5`（`5ce8853`）／`round7`（`220a826`）／`fix7`（`b79ddd8`）／`round9`（`e7a126d`），**共 5 批**（求法：`git log --oneline --diff-filter=A -- 'data/incoming/*'`） |
+| 其形 | 「备料与合入同批」 | ★ **反是**——其五批俱系**备料单独一提交**，且**提交信息内自书「本轮不合入」／「本轮待合入」**（`5ce8853`「Sophia，本轮不合入」、`220a826`「本轮不合入」、`b79ddd8`「本轮待合入」、`e7a126d`「本轮待合入」）；合入乃**另一提交**（`relations`→`c7ecb58`、`round5`→`c132489`、`round9`→`33e2ac9`），**且于合入之提交内将其备料之文件删去**（求法：`git log --oneline --diff-filter=D -- 'data/incoming/round5/*'` 得 `c132489`，`round9` 同得 `33e2ac9`） |
+| 今存跟踪 | —— | `git ls-files data/incoming` 只 **`data/incoming/.gitkeep`** 一项 |
+
+★ **故前例之实是：备料确曾单独提交（未合入即入库），其后于合入之提交内删去。** 与领队所述之「同批」相反。
+★ **然一节之命本身不因此变**：其文明书「**若前例曾提交 incoming 之备料，书其据上报，本轮仍不提交**」——**前例既确曾提交，正落此款，我照其命「书其据上报、本轮仍不提交」**，未自行改办。
+★ **只记不判**：前例之式（备料未合入即入库）与今之式（备料留工作区、俟合入之日同批）**何者当为常法**，属体例之事，**呈领队与站长裁**；裁五十九于本轮之办法已明，我守之。
+
+### 四、二节「推前三核」——**俱符方推**
+
+| # | 所命 | 所期 | 实测（五提交之后、推送之前） |
+|---|---|---|---|
+| 1 | `git ls-remote origin main` 仍 `ce708df` | 同哈希 | ✓ `ce708df6765570d93634e4293b2dbd54add84e7a` ／ `refs/heads/main` |
+| 2 | `git status --porcelain` 只余 `data/incoming/r53_kongzi_role/` | 恰 1 项 | ✓ **恰 1 项**：`?? data/incoming/r53_kongzi_role/` |
+| 3 | `git diff --stat ce708df HEAD -- data/` | **0 行** | ✓ **0 行**（求法：其输出之行数计得 `0`）。★ 照领队加注 4 之读法：**本轮十件无一动数据**，其非 0 即是越界——**今为 0，未越界** |
+
+★ **并加一核（我自加，非所命）**：`python tools/validate.py` → **`OK：全部校验通过`、exit 0**，**推前推后各跑一过，二次俱同**（红线一：质量门任何合入前必过）。
+★ **前置之核（推前，与领队加注 3 逐项对得上）**：`HEAD ce708df` ＝ `git ls-remote origin main`；工作区 **14 项**（`M`×5：`docs/conventions.md`／`docs/delivery_skipper_r52.md`／`docs/design/design_notes.md`／`site/app.js`／`site/styles.css`；`D`×4：旧四本 QA；`??`×5：`data/incoming/r53_kongzi_role/`／`docs/delivery_skipper_r53.md`／`docs/delivery_vision_r53.md`／`tools/qa/prod_data_invariants.js`／`tools/qa/vision_r53.js`）。
+
+### 五、三节「推送与回填」——**实测，不预填**
+
+| 项 | 实测 |
+|---|---|
+| 推送时刻（本机时区，照裁十四） | 起 **2026-09-26 12:06:59 -0400**，讫 **12:07:01 -0400**（`date` 前后各一读） |
+| 推送之果 | `To https://github.com/QuinnyXu/chunqiu.git` ／ `ce708df..12c0557  main -> main`，**exit 0** |
+| 远端哈希（推后实读） | `git ls-remote origin main` → **`12c0557050ed968196a7364b5cb6eb7b469e37f2`**，与本地 `HEAD` **同** |
+| Actions run（**第一次**） | **id `36254304809`**，workflow `Deploy site to GitHub Pages`，event `push`，头 `docs(delivery): r53 交付文档二本——skipper 与 vision`；`createdAt 2026-09-26T16:07:03Z` → `updatedAt 2026-09-26T16:07:22Z`（**19 秒**）；**status `completed` / conclusion `success`** |
+| Actions run（**第二次**） | ★ **系本追记之提交所触**——**其 id 与其果，俟本节提交并推送后于本节之末回填，本表不预填** |
+| Actions 之告（非病） | 一条 annotation：`The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026`（runner-images#14748）。**只记，本轮不动 workflow** |
+
+### 六、四节「生产复验（带参破缓存）」——**二门俱过，未遇 ENOTFOUND**
+
+| 门 | 跑法 | 所期 | 实测 |
+|---|---|---|---|
+| `tools/qa/prod_data_invariants.js` | `env -u QA_BASE_URL node tools/qa/prod_data_invariants.js` | **91 过 / 0 红** | ✓ **`=== 91 过 / 0 红（共 91 判）===`**，exit 0 |
+| `tools/qa/prod_render_invariants.js` | `env -u QA_BASE_URL node tools/qa/prod_render_invariants.js` | **48 项、FAIL 0** | ✓ **`=== 合计 48 项，FAIL 0 ===`**，exit 0 |
+
+★ **「不带 `QA_BASE_URL`」之实**：我以 `env -u QA_BASE_URL` **显式抽去**该变量（不倚赖其本不在），故二门俱走其默认之 `PROD`（`prod_data_invariants.js:78`、`prod_render_invariants.js:70` 俱 `const PROD = "https://chunqiu.timechorus.com"`；取基址之处在 `:504`／`:378`，`QA_BASE_URL` 空即取 `PROD`）。
+★ **带参破缓存之实**（读其码而书，非凭其门头之自述）：二门俱于起手算一 `BUST`（`Date.now()` 连一随机串；`:79`／`:72`），文档之 URL 带 `?v=<BUST>`（`prod_data_invariants.js:706`、`prod_render_invariants.js:418`），数据之 URL 亦逐个带参（`:543` `meta.json?v=`、`:548` 各表 `?v=`）；渲染门并**逐个子资源改写其 URL 加参**（其门头 `:58` 所述）。
+★ **未遇 `getaddrinfo ENOTFOUND`**——**二门俱一次而成，无重跑**。故领队加注 5 所重申之「遇 ENOTFOUND 重跑一次并记其事」**本轮无从用**；★ **门内未加一行重试之码**（裁五十七之分寸守住，门头 `:56`–`:63` 之「有意为之，勿补」未动）。
+★ **数据门内二条「勘」之印记照留**（非病，系 r45→r50 之改判史）：`L_JIAGU.coord_certainty` 由「期空」改锁 `low`、`modern_location` 由「含『未定』」改锁「莱芜」——**其原所期之文照留于输出内**，合「判定史留原貌」。
+★ **渲染门之反证一路仍活**：七层俱「注入对照当场红、撤去注入复归在位」，**证其所量者系真渲染之果，非门之自说**。
+
+### 七、已知限度（如实）
+
+1. **Actions 之第二次系本追记所触，其果我须推后方能读**；若其非 `success`，**我停下上报，不自行重推**。
+2. **生产复验之二门跑于第一次部署完成之后**（`updatedAt 16:07:22Z`，我跑于其后），故其所量者系 `12c0557` 之本；★ **本追记只动 `docs/`，不改 `site/` 与 `data/`**，故二门之果**不当因之而变**——但**我不预断第二次部署后之果**，若站长欲其证，可于第二次 run 成功后再跑一过（其法同上）。
+3. **`.git/index.lock` 之「派件之时其在」我未亲见**——其据系 §八丙之嘱与 §九〇节之文（俱书 2026-09-25 21:25 EDT、0 字节、Co站长之 shell 所留）。★ **我所亲见者只「12:03 -0400 其已不在」**；**二者之别本节已分书，未混为一谈。**
+4. **§三之勘正我只核「其批是否入过库」与「其形是否同批」二事**，未核领队何以记得 `round50`／`round51` 之名（或系与 `team/` 内之未跟踪备料相混——`team/` 不入公开仓库，其内之物不在 `git log` 内）。★ **此一猜我不写入断言，只列于此为限度。**
+5. **本轮未合入任何数据**，`data/csv/` 一字未动（`git diff --stat ce708df HEAD -- data/` 得 0 行）；Sophia r53-8 之备料仍留工作区未跟踪，**其合入照裁五十九另议**。
+
+### 八、上报事项（不代裁）
+
+1. ★ **领队加注 6 之据有误，已据实勘正**（见 §三）——所举 `round50_diwang`／`round51_peijue` 二批**全史未入库**；真前例五批之形**与所述相反**（备料单独提交、其后于合入之提交内删去）。★ **其命（本轮仍不提交）我照办未变**；**惟「备料之提交之常法」当由站长定其体例**：是取前例之式（备料单独入库、合入时删）抑取今之式（备料留工作区、俟合入同批，裁五十九）。★ **此正是「派件之事实须实读」之一例**——领队代查之据，执行者自核而勘之，账上留其错误史。
+2. **Actions 之第二次未回填**（§五之表已明标）——本节推送之后当即于本节之末补。
+3. **`_to_delete_20260925_qa_merge/`（裁六十，可清、不急）本轮未清**——其在 `team/` 下，`team/` 不入公开仓库，**与本轮推送无涉**；★ 只记其仍在，俟领队排期。
+4. **交接备注**：远端 `main` 今为 **`12c0557`**（推后实读），部署 run `36254304809` **success**。`docs/delivery_skipper_r53.md` 末次勘注之日 **2026-09-26**（本节即其末）。★ **下一执行者若再动本文件，须自本节之后另起，不得并入其内**（照 §八之 7 所立之则）。
+5. **r54 之候排诸项**（照 §八乙之表并 §九之外诸裁，我只转录不增减）：`b.title` 之治（裁五十三）、`.innerHTML` 余 3 处（裁五十四）、穿井获羊补录（裁六十二）、择字之粗之全库专求（裁六十三，俟谓词对齐）、Sophia 备料之合入（裁五十九）、`title` 一路未治之第三款填数（裁六十九③）。
