@@ -1196,3 +1196,11 @@ r54-3 §1.1 之 2 所拟者为 `DATA.kaodui.records.length`——**即一个带 
    - 取生产之物时**遇三次网络抖断**（`curl (28) Failed to connect`／`(6) Could not resolve host`／`prod_freshness` 一跑 `取物超时 25000ms`）。照 `prod_freshness` 门头「本门无重试（承裁五十七）：若系一次网络抖断，请**复跑**，勿补重试」——**我复跑，未向任何门补一行重试**。其后二跑俱 `http=200`，故判为本机网络之抖，非生产之病。★ **记此，免后人见此门偶红而疑生产**。
    - `git add` 时 git 报 **CRLF 将normalize为 LF** 之告三处：`tools/stamp_assets.py`、`tools/qa/asset_stamp_gate.py`、`docs/delivery_skipper_r54.md`。★ **与资产之戳无干**：`site/app.js`／`styles.css` 系 `.gitattributes` 之 `eol=lf`，**二者俱未报此告**，其字节未动，故哈希未动（推后门跑 exit 0 即其证）。
 4. **本节之后尚有一提交**（本节自身之追记），其后远端 `HEAD` 将再进一——**二数分书**：该提交所含 **1 项**（`docs/delivery_skipper_r54.md`），其时工作区他人之物 **0 项**。
+
+## 七、Actions 第二次之回填（本节自身之提交所触；2026-09-30 20:28 -0400）
+
+- 第六节之 4 所预之提交已落：**`47f28af`**（`docs(delivery): skipper r54 推送追记…`），推送 `3726776..47f28af`。
+- 其所触之 **Actions 运行号 `36796326271`**（起于 `2026-10-01T00:28:06Z`，历 17s）→ **`success`**。
+- ★ **此跑不改生产之内容一字，其据**：`git show --name-only 47f28af` 得**唯一一路** `docs/delivery_skipper_r54.md`，**属 `site/` 者 0 个**。
+- **复验生产**（求法 `curl -sS https://chunqiu.timechorus.com/`；所期二参不变）→ 实测 `href="styles.css?v=7f00e1a7"`、`src="app.js?v=6f08c920"` → **与第四节第 1、2 项逐字符相同，未因第二次部署而离**。
+- ★ **其链止于何处**（承 r53 之例）：本节所记之 `success` 与「生产未变」二事俱已实测；**而「读者浏览器内之旧本」仍无门可量**——此界未动，不得以此二跑充之。
