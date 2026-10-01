@@ -1,0 +1,1537 @@
+/* 经纬春秋 · r54-1／r54-4 走查门：首访之径——编年之显、导览之记与其形、首页之言
+ * （任务书 `team/round54_prompts.md` §一、Task for Vision · r54-1、领队之一〇／一／四；
+ *   r54-4 部分：§三 裁七十一至七十四、Task for Vision · r54-4、领队之四〇／一／三）
+ *
+ * ★★ 【r54-7 并入，2026-09-29】本门今**一本三轮**：新增 §八（考据索引之读者页，`#/kaodui`）。
+ *   并于 §三 **二次反转三条断言**（句三之链、引言之链数、`KAODUI_ENTRY` 之值）——
+ *   **其原条之文与其立意俱照录于该处之注，不默然改**（照 r54-4b 之例）。
+ *   ★ §八 之按类反证**不取旧版取注入之变体**，其由写在 §八 之首注：`OLD_REF` 根本无此页，
+ *     其红恒真而不指向任何一条断言之能——**「测出红」与「测出它该测的那个红」是两件事**。
+ *
+ * ★ 本门一本两轮：§一–§六 系 r54-1 之门（其中 §六 为「供裁之量」，非断言），
+ *   §七 系 r54-4 之门——r54-1 只量不落者（编年之径、导览之形），r54-4 照裁落之，
+ *   故 §七 量的是**站上真形**（一字不注入），而 §六 之模拟照留不删：
+ *   **裁之所据与落之所成，要能在同一本里对读。**
+ *   r54-4 于 §三 改了一条断言（原「引言内链数=0」→ 今分问「句三内 0」与「引言全块恰 1」），
+ *   其由就地写在该条之注——原条若照留，甲之落会把它撞红，而红之处并非病所在。
+ *
+ * ★ **r54-4b（站长 2026-09-26 裁「丁可落」）于本门改二处，二处俱留其痕，不默然改**：
+ *   ① §七之四【丁·〇】之**期望值反转**——r54-4 时断「钮仍无数」（其立正为使「未落」可复验），
+ *      今断「钮带数且其数＝独立复算」；原条之文与其立意照录于该处之注。
+ *   ② `measureNav` 之二态由「现状／**注入**丁」改为「带数／**去其数**」——丁既落，再注入即是
+ *      在丁之上再注一个丁；**基准由模拟改为现量之真态**（清 `#nav-chron-count` 之文即复原无数之钮）。
+ *
+ * 本门要回答六个问题，一个都不许用「我改完看着对」来答：
+ *   ① **本件之前提**——编年页之筛选条与其自述之数，须与任务书〇节所期逐项相符（13 目／17 类／265／24）；
+ *      ★ 且其数须是**跑时自算**：本门另从 `site/data/*.json` 独立复算一遍（不读页面之文），两路须相等；
+ *      并以源码实读断 `index.html`／新增之 `renderHomeLede` 内**未写死**这几个数。
+ *   ② **导览之记已治**——七种离场之式（跳过／Esc／走完／中途重载／径自不理／旧值 "1"／存储不可用）
+ *      逐式量其键值与「下次是否复弹」。★ 其判据不是「键非 null」，而是**下次不复覆于地图之上**。
+ *   ③ **首页之言已立**——三句俱在、句二四数与 `meta.tables` 逐个相等、句三**今日无链**（其页未立）；
+ *      并断 `KAODUI_ENTRY` 之位确在源码之内（「留其位」之机械证据，非口说）。
+ *   ④ **按类反证逐条对位**（r52 裁二十四）——②③ 之每一条新断言，各配一个**同法施于旧版**之量，
+ *      须当场红；**不得以整批见红充每条能量**。★ 其中有几条新旧同绿（如旧值 "1" 之兼容），
+ *      本门**照实标为「非本轮之新能」，不冒充反证**——测不出红而硬说测出红，是量具作假。
+ *   ⑤ **零影响**——未涉之页（编年／资料库／关于／关系全景／人物时间线·地图）其 DOM 与旧版**逐位全等**。
+ *   ⑥ **二案之量**（供裁，非断言）——「编年之径」四案、「导览之形」三案，逐案实测其量；
+ *      任务书一节 3、二节 2 明命「停下上报、不自行落定」，故本节**只量不改站**，其改一行也不落。
+ *
+ * ★ 旧版源端锚定固定哈希 `OLD_REF`（见下），**不取 `HEAD`**（照 r51 裁二十六、r52、r53 之例）：
+ *   本件合入后 `HEAD` 即含本轮之改，「旧版」会等于新版，§四之反证必转绿而 §五必绿——两头都错，且是静默的错。
+ *   故钉死哈希，并于起手处打印「旧版 app.js 内 renderHomeLede 出现 0 次／旧版 index.html 内无 home-lede」
+ *   之**正面证据**；锚定若失效，当场抛错停门，不许带病往下跑。
+ *
+ * ★ 本门**不动仓库任何文件**：旧版取自 `git show <OLD_REF>:site/...`（只读），不切分支、不 stash、不写 git index。
+ * ★ 本门**不碰 `tools/qa/` 之他本**。
+ *
+ * 用法：node tools/qa/vision_r54.js
+ */
+"use strict";
+const http = require("http"), fs = require("fs"), path = require("path");
+const { execFileSync } = require("child_process");
+
+const ROOT = path.resolve(__dirname, "..", "..");
+const SITE = path.join(ROOT, "site");
+
+let fails = 0, checks = 0;
+function ok(cond, label, detail) {
+  checks++; if (!cond) fails++;
+  console.log("  " + (cond ? "✓" : "✗") + " " + label + (detail ? "  —— " + detail : ""));
+}
+function head(s) { console.log("\n" + s); }
+
+/* ---------- 双源端静态服务器（同 r51／r52／r53 之式） ---------- */
+const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
+function srv(root, override) {
+  return new Promise((res, rej) => {
+    const s = http.createServer((rq, rs) => {
+      let u = decodeURIComponent(rq.url.split("?")[0].split("#")[0]);
+      if (u === "/") u = "/index.html";
+      const ct = MIME[path.extname(u).toLowerCase()] || "application/octet-stream";
+      if (override && Object.prototype.hasOwnProperty.call(override, u)) {
+        rs.writeHead(200, { "Content-Type": ct }); rs.end(override[u]); return;
+      }
+      const fp = path.join(root, u);
+      if (!fp.startsWith(root)) { rs.writeHead(403); rs.end(); return; }
+      fs.readFile(fp, (e, d) => { if (e) { rs.writeHead(404); rs.end(); return; } rs.writeHead(200, { "Content-Type": ct }); rs.end(d); });
+    });
+    s.on("error", rej); s.listen(0, "127.0.0.1", () => res(s));
+  });
+}
+/* 旧版源端之锚：`9c646f8` 系 r53 收官之 `main`（2026-09-26 实读 `git log --oneline -1` 与
+ * `git status --porcelain` 恰一项未跟踪之 `data/incoming/r53_kongzi_role/`），即**本件改动之前一版**。
+ * 【不得改回 HEAD】理由见门头。 */
+const OLD_REF = "9c646f8";
+const gitShow = (p) => execFileSync("git", ["show", OLD_REF + ":" + p], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
+
+const TOUR_KEY = "chunqiu_tour_v1";
+const W_WIDE = 1440, H_WIDE = 900, W_NARROW = 375, H_NARROW = 780;
+
+/* ---------- 独立复算：不读页面之文，直接自 site/data/*.json 算出「265／24」 ----------
+ * 这一路是 ① 之骨：若只读页面自述之数再与任务书对，量的是「页面说了什么」，
+ * 不是「数是否自数据来」。两路相等才算数。 */
+function recomputeFromData() {
+  const J = (n) => JSON.parse(fs.readFileSync(path.join(SITE, "data", n + ".json"), "utf8"));
+  const events = J("events"), links = J("event_people"), people = J("people"), meta = J("meta");
+  const proto = new Set(people.filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
+  const linked = new Set(links.filter(l => proto.has(l.person_id)).map(l => l.event_id));
+  const orphan = events.filter(e => !linked.has(e.id)).length;
+  return { total: events.length, orphan, meta };
+}
+
+async function pageOf(br, base, opts) {
+  const o = opts || {};
+  const ctx = await br.newContext({ viewport: { width: o.w || W_WIDE, height: o.h || H_WIDE } });
+  if (o.blockStorage) {
+    await ctx.addInitScript(() => {
+      Object.defineProperty(window, "localStorage", { get() { throw new Error("storage blocked"); } });
+    });
+  }
+  /* ★ clearOnInit：**每次导航之页脚本跑前**清掉导览之记。
+   * 不可改用「先 goto 再 removeItem」——那一 goto 本身已让导览起手并落记（本轮之治所使然），
+   * 之后再删键、再 goto，键之有无遂系于两步之先后，量出来的「导览在显」会随机为假。
+   * 此坑系本门实测撞上（§六之二首跑「导览在显=false」四条），记此免后人再踩。 */
+  if (o.clearOnInit) {
+    await ctx.addInitScript(() => { try { localStorage.removeItem("chunqiu_tour_v1"); } catch {} });
+  }
+  const pg = await ctx.newPage();
+  /* ★ 「零 pageerror」之谓词（本门之基准，照 r53 裁六十六「自验之数须书明其基准」）：
+   *   errs 只收 **pageerror**（页内未捕获之抛错），另收一路 console error 于 cerrs 并**剔去
+   *   Cloudflare Analytics beacon 之 CORS 噪音**——该 beacon 系 conventions 红线六之特批例外，
+   *   自 127.0.0.1 源必被 CORS 挡下，与本轮之改毫无关系；若把它算进「零 pageerror」，
+   *   则本门自立之日即恒红，正是 r52「间歇红之门终将被当成噪音关掉」之训。
+   *   ★ 剔除之式写死为「其 URL 含 cloudflareinsights」一条，不做泛化白名单——别的噪音照旧报。 */
+  const errs = [], cerrs = [];
+  pg.on("pageerror", e => errs.push(String(e)));
+  pg.on("console", m => {
+    if (m.type() !== "error") return;
+    const t = m.text();
+    if (/cloudflareinsights|cdn-cgi\/rum/.test(t)) return;
+    if (/Failed to load resource/.test(t) && /cloudflareinsights|cdn-cgi\/rum/.test(String(m.location && m.location().url || ""))) return;
+    cerrs.push("console:" + t);
+  });
+  if (o.seed !== undefined) {   // 先落地同源，才写得进 localStorage
+    await pg.goto(base, { waitUntil: "domcontentloaded" });
+    await pg.evaluate((v) => { try { if (v === null) localStorage.removeItem("chunqiu_tour_v1"); else localStorage.setItem("chunqiu_tour_v1", v); } catch {} }, o.seed);
+  }
+  await pg.goto(base + (o.hash || ""), { waitUntil: "networkidle" });
+  await pg.waitForTimeout(o.settle == null ? 700 : o.settle);
+  return { ctx, pg, errs, cerrs };
+}
+
+/* ---------- ② 之量法：一式离场，量其键与「下次是否复弹」 ----------
+ * ★ 同一个函数施于新旧两版（§二用新版源端、§四用旧版源端），量法一字不变——
+ *   量具两版共用，才谈得上「对位反证」。 */
+async function measureTour(br, base, how) {
+  const seed = how === "legacy-1" ? "1" : how === "garbage" ? "{oops" : undefined;
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { seed, blockStorage: how === "blocked" });
+  const shown0 = await pg.evaluate(() => !document.getElementById("tour").hidden);
+  if (how === "skip") await pg.click("#tour-skip").catch(() => {});
+  if (how === "esc") await pg.keyboard.press("Escape");
+  if (how === "finish") { for (let i = 0; i < 3; i++) { await pg.click("#tour-next").catch(() => {}); await pg.waitForTimeout(700); } }
+  // "abandon"／"legacy-1"／"garbage"／"blocked"：什么也不做
+  await pg.waitForTimeout(400);
+  const key = await pg.evaluate(() => { try { return localStorage.getItem("chunqiu_tour_v1"); } catch { return "<throws>"; } });
+  await pg.reload({ waitUntil: "networkidle" });
+  await pg.waitForTimeout(800);
+  const reshown = await pg.evaluate(() => !document.getElementById("tour").hidden);
+  const entry = await pg.evaluate(() => {
+    const b = document.getElementById("home-tour-entry");
+    if (!b) return null;
+    return { text: b.textContent.trim(), resume: b.dataset.resume, visible: b.offsetWidth > 0 && b.offsetHeight > 0 };
+  });
+  await ctx.close();
+  return { shown0, key, reshown, entry, errs, cerrs };
+}
+
+/* ---------- ③ 之量法：首页引言 ----------
+ * ★ r54-4 扩：并量第四句（编年之径一链，裁七十一取甲）之链、其文所报之二数、其盒与其径；
+ *   并把「句三之无链」与「引言之链数」分开量——r54-1 时引言内一个链也没有，
+ *   r54-4 之后**恰有一个**（甲之链），而句三（#home-lede-why）仍须**一个也没有**。
+ *   若仍只量「引言内链数＝0」，甲之落即会把这条断言撞红，而撞红之处并非病所在。 */
+async function measureLede(br, base, w, h) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { seed: "1", w, h });
+  const r = await pg.evaluate(() => {
+    /* ★ 主导航之三读（丁之量）**先于「引言在否」之早退**——r54-4b 首跑撞此一坑，记之：
+     *   原式把 nav 之读放在 `if (!L) return` 之后，故旧源端（无引言）根本**没量到 nav**，
+     *   其值为 `undefined` 而非量出来的 `null`；而 §七之五 之反证以 `=== null` 为红之据，遂误报两红。
+     *   ★ 其病不在那两条之谓词，在**量具没量到**：`undefined` 与「量了，是空的」是两件事，
+     *     以前者充后者即是拿「没量」当「量出无」——与 design_notes §7.9 同族。故改在此处，不改其谓词。 */
+    const navChron0 = [...document.querySelectorAll(".main-nav button")].find(b => b.dataset.view === "chronicle");
+    const nav = {
+      navChronText: navChron0 ? navChron0.textContent.trim() : null,
+      navChronAria: navChron0 ? navChron0.getAttribute("aria-label") : null,
+      navNum: (() => { const s = document.getElementById("nav-chron-count"); return s ? s.textContent.trim() : null; })(),
+      navBtnFound: !!navChron0,
+    };
+    const L = document.getElementById("home-lede");
+    if (!L) return { exists: false, ...nav };
+    const rect = L.getBoundingClientRect();
+    const map = document.getElementById("home-map");
+    const mr = map ? map.getBoundingClientRect() : null;
+    const ps = [...L.querySelectorAll("p")].map(p => p.textContent.trim());
+    const why = document.getElementById("home-lede-why");
+    const a = L.querySelector(".hl-chron");
+    const ab = a ? a.getBoundingClientRect() : null;
+    const mt = a ? (a.textContent.match(/全库\s*(\d+)\s*条/) || [])[1] : null;
+    const mo = a ? (a.textContent.match(/其中\s*(\d+)\s*条只此一处可见/) || [])[1] : null;
+    return {
+      exists: true, ps, ...nav,
+      nLinks: L.querySelectorAll("a").length,
+      nInLine: L.querySelectorAll(".hl-kaodui").length,
+      whyText: why ? why.textContent.trim() : null,
+      whyLinks: why ? why.querySelectorAll("a").length : null,
+      /* r54-7 增：句三之链（考据索引）——其页既立，此链今**当有**，见 §三之注。 */
+      kaodui: (() => {
+        const k = L.querySelector(".hl-kaodui");
+        if (!k) return null;
+        const n = (k.textContent.match(/·\s*(\d+)\s*条/) || [])[1];
+        return { href: k.getAttribute("href"), text: k.textContent.trim(), n: n == null ? null : Number(n) };
+      })(),
+      chron: a ? {
+        href: a.getAttribute("href"), text: a.textContent.trim(),
+        total: mt == null ? null : Number(mt), orphan: mo == null ? null : Number(mo),
+        box: { x: Math.round(ab.x), y: Math.round(ab.y), w: Math.round(ab.width), h: Math.round(ab.height) },
+        inFold: ab.top >= 0 && ab.bottom <= innerHeight,
+        scrollNeeded: Math.max(0, Math.round(ab.bottom - innerHeight)),
+      } : null,
+      box: { y: Math.round(rect.y), h: Math.round(rect.height) },
+      inFold: rect.top < innerHeight && rect.bottom > 0,
+      mapTop: mr ? Math.round(mr.top) : null,
+      mapFullyInFold: mr ? (mr.bottom <= innerHeight && mr.top >= 0) : null,
+      docOverflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      vh: innerHeight,
+    };
+  });
+  await ctx.close();
+  return { ...r, errs, cerrs };
+}
+
+/* ---------- r54-4 之量法（一）：甲之链**点得进去**（不只是「在」） ---------- */
+async function measureChronHop(br, base, w, h) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { seed: "1", w, h });
+  await pg.click(".hl-chron");
+  await pg.waitForTimeout(900);
+  const r = await pg.evaluate(() => ({
+    hash: location.hash,
+    shown: !document.getElementById("view-chronicle").hidden,
+    rows: Number(document.getElementById("chron-list").dataset.rows),
+    intro: document.getElementById("chron-intro").textContent,
+  }));
+  await ctx.close();
+  return { ...r, errs, cerrs };
+}
+
+/* ---------- r54-4 之量法（二）：导览之形已落——走真导览，不注入一字 CSS ----------
+ * ★ 与 §六之二（供裁之量）之别在此：那里以行内样式**模拟**三案，此处量的是**站上真形**。
+ *   故此函数不写 pop 之任何样式，并**顺手断其 style 属性为空**——若日后有人把位又写回 JS，此条即红。 */
+async function measureTourReal(br, base, w, h) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { clearOnInit: true, w, h, settle: 1200 });
+  const steps = [];
+  const READ = () => {
+    const rect = (el) => { const b = el.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; };
+    const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) *
+                            Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+    const pop = document.getElementById("tour-pop"), hole = document.getElementById("tour-hole");
+    const P = rect(pop), H = rect(hole);
+    const mapEl = document.querySelector("#home-map svg");
+    const M = mapEl ? rect(mapEl) : null;
+    return {
+      step: document.getElementById("tour-step").textContent.trim(),
+      shown: !document.getElementById("tour").hidden,
+      pop: { x: Math.round(P.x), y: Math.round(P.y), w: Math.round(P.w), h: Math.round(P.h) },
+      hole: { x: Math.round(H.x), y: Math.round(H.y), w: Math.round(H.w), h: Math.round(H.h) },
+      holePct: H.w * H.h ? Math.round(1000 * inter(H, P) / (H.w * H.h)) / 10 : null,
+      mapArea: M ? Math.round(M.w * M.h) : null,
+      mapOvl: M ? Math.round(inter(M, P)) : null,
+      mapPct: M && M.w * M.h ? Math.round(1000 * inter(M, P) / (M.w * M.h)) / 10 : null,
+      popInView: P.y >= 0 && P.y + P.h <= innerHeight && P.x >= 0 && P.x + P.w <= innerWidth,
+      inlineStyle: pop.getAttribute("style") || "",
+      focusId: document.activeElement ? document.activeElement.id : null,
+      vw: innerWidth, vh: innerHeight,
+    };
+  };
+  for (let i = 0; i < 3; i++) {
+    steps.push(await pg.evaluate(new Function("return (" + READ.toString() + ")()")));
+    if (i < 2) { await pg.click("#tour-next").catch(() => {}); await pg.waitForTimeout(950); }
+  }
+  await ctx.close();
+  return { steps, errs, cerrs };
+}
+
+/* ---------- r54-4 之量法（三·补）：Δ地图顶之三个基准，俱现量，不抄旧文 ----------
+ * 「Δ」无基准即是空话（r53 裁六十六）。本门量三态之地图顶：
+ *   ① 旧版（`OLD_REF`，无引言）——自旧源端量；
+ *   ② 本件之前（引言三句）——自**新**源端量，惟量前把第四句之 <p> 摘掉（其余一字不动）；
+ *   ③ 今（引言四句）——自新源端直量。
+ * ★ ② 之所以能现量，是因为第四句独占一个 <p>：摘之即复原「三句之引言」之版式。 */
+async function measureMapTop(br, base, w, h, dropChron) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { seed: "1", w, h });
+  const r = await pg.evaluate((drop) => {
+    if (drop) { const p = document.getElementById("home-lede-chron"); if (p) p.remove(); }
+    const m = document.getElementById("home-map").getBoundingClientRect();
+    const L = document.getElementById("home-lede");
+    return {
+      mapTop: Math.round(m.top),
+      mapFullyInFold: m.bottom <= innerHeight && m.top >= 0,
+      ledeH: L ? Math.round(L.getBoundingClientRect().height) : null,
+      nP: L ? L.querySelectorAll("p").length : 0,
+    };
+  }, dropChron);
+  await ctx.close();
+  return { ...r, errs, cerrs };
+}
+
+/* ---------- r54-4 之量法（三）：主导航之行——丁之代价（裁七十一之末） ----------
+ * ★ flex 行数**不能只比 top**：诸项高不同而 align-items:center，同一行内 top 各异
+ *   （实测 375px 下一行三项 top 为 128／131／132）。故以「纵向区间是否与前行相交」归行。
+ * ★ **本函数于 r54-4b 换了其二态，其改之痕记此**（站长 2026-09-26 裁「丁可落」）：
+ *   - **r54-4 时丁未落**，二态为「站上现状」与「**注入**丁」——注入只为量其代价，`site/` 一字未动；
+ *   - **r54-4b 丁已落**，二态改为「站上现状（带数）」与「**去其数**」——**基准由注入之模拟改为现量之真态**
+ *     （清空 `#nav-chron-count` 之文即复原「无数之钮」，与摘第四句之 `<p>` 同法）。
+ *   ★ 换之由：丁既落，再「注入丁」即是**在丁之上再注一个丁**——**标签与所量之物不符即是假账**
+ *     （与 r54-4 §六之基准漂移同族，见 design_notes §7.9）。 */
+async function measureNav(br, base, w, h) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { seed: "1", w, h });
+  const NAVM = () => {
+    const nav = document.querySelector(".main-nav");
+    const items = [...nav.children];
+    const nb = nav.getBoundingClientRect();
+    const boxes = items.map(e => { const r = e.getBoundingClientRect(); return { t: r.top, b: r.bottom }; }).sort((a, b) => a.t - b.t);
+    let lines = 0, cur = -1;
+    for (const bx of boxes) { if (bx.t >= cur) { lines++; cur = bx.b; } else { cur = Math.max(cur, bx.b); } }
+    const btn = items.find(e => e.dataset && e.dataset.view === "chronicle");
+    const bb = btn.getBoundingClientRect();
+    const cs = getComputedStyle(btn);
+    const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+    const innerH = bb.height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) * 2;
+    return {
+      navH: Math.round(nb.height), lines,
+      navOverflowX: nav.scrollWidth > nav.clientWidth,
+      docOverflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      docScrollW: document.documentElement.scrollWidth, docClientW: document.documentElement.clientWidth,
+      chron: { x: Math.round(bb.x), y: Math.round(bb.y), w: Math.round(bb.width), h: Math.round(bb.height) },
+      chronText: btn.textContent.trim(),
+      chronTextLines: Math.round(innerH / lh * 10) / 10,
+      headerH: Math.round(document.querySelector(".site-header").getBoundingClientRect().height),
+      mapTop: Math.round(document.getElementById("home-map").getBoundingClientRect().top),
+    };
+  };
+  /* ① 站上真态（丁已落，钮带数） */
+  const ding = await pg.evaluate(new Function("return (" + NAVM.toString() + ")()"));
+  /* ② 去其数之态（基准）——只清 `#nav-chron-count` 之文，其余一字不动。
+   *    若此元素不在（旧源端即如此），则二态本是同一态，其差自然为 0，下之断言以 `hasNum` 分判。 */
+  const hasNum = await pg.evaluate(() => {
+    const sp = document.getElementById("nav-chron-count");
+    if (!sp) return false;
+    sp.textContent = "";
+    return true;
+  });
+  const bare = await pg.evaluate(new Function("return (" + NAVM.toString() + ")()"));
+  await ctx.close();
+  return { ding, bare, hasNum, errs, cerrs };
+}
+
+/* ---------- ⑥ 之量法：一案之注入 → 量其位、其径、其所推之地图顶 ----------
+ * ★ 只在无头页内注入，**不改 site/ 任何一字**（任务书一节 3「停下上报、不自行落定」）。 */
+async function measureEntryCase(br, base, w, h, caseId, nums) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { seed: "1", w, h });
+  const r = await pg.evaluate(({ cid, n }) => {
+    /* ★ r54-4 之后必先摘去站上已落之第四句（甲），否则所量者是「甲之上再加一案」——
+     *   四案之「现状」本指**无甲之态**，不摘即把甲之代价算进每一案，而 base 之 Δ 亦不再为 0。
+     *   摘之即复原 r54-1 裁前之版式（第四句独占一个 <p>，见 index.html 之注）。 */
+    const dropped = document.getElementById("home-lede-chron");
+    if (dropped) dropped.remove();
+    const mk = (txt) => { const b = document.createElement("button"); b.type = "button"; b.id = "probe-entry"; b.textContent = txt; return b; };
+    const lede = document.getElementById("home-lede");
+    const label = "编年 · 全库 " + n.total + " 条按年铺开，其中 " + n.orphan + " 条只此一处可见 →";
+    const hero = document.getElementById("home-hero");
+    let el = null;
+    if (cid === "base") { el = [...document.querySelectorAll(".main-nav button")].find(b => b.dataset.view === "chronicle"); }
+    if (cid === "jia") {                       // 甲·引言第四行之一链
+      el = mk(label); el.className = "hl-chron"; const p = document.createElement("p");
+      p.className = "hl-why"; p.appendChild(el); lede.appendChild(p);
+    }
+    if (cid === "yi") {                        // 乙·引言与地图之间一张入口卡
+      const card = document.createElement("div");
+      card.style.cssText = "border:1px solid #DCD2BC;border-left:3px solid #B4652F;border-radius:3px;background:#FBF7EC;padding:0.7rem 0.9rem;margin:0 0 1.1rem;";
+      const t = document.createElement("p"); t.style.cssText = "margin:0 0 0.35rem;font-size:1.02rem;";
+      t.textContent = "编年 · 大事年表";
+      const d = document.createElement("p"); d.style.cssText = "margin:0 0 0.5rem;font-size:0.85rem;color:#7A7166;";
+      d.textContent = "全库 " + n.total + " 条事件按年铺开，按国与按类可筛；其中 " + n.orphan + " 条未系于任何主角，只此一处可见。";
+      el = mk("入编年 →"); card.appendChild(t); card.appendChild(d); card.appendChild(el);
+      hero.parentNode.insertBefore(card, hero);
+    }
+    if (cid === "bing") {                      // 丙·首页 .home-extra 之一钮（同现有诸入口之式）
+      el = mk(label); el.className = "library-entry";
+      const ex = document.querySelector(".home-extra"); ex.insertBefore(el, ex.firstChild);
+    }
+    if (cid === "ding") {                       // 丁·主导航「编年」钮带数（零新增高度）
+      el = [...document.querySelectorAll(".main-nav button")].find(b => b.dataset.view === "chronicle");
+      el.textContent = "编年 " + n.total;
+    }
+    const b = el.getBoundingClientRect();
+    const map = document.getElementById("home-map").getBoundingClientRect();
+    return {
+      entryBox: { x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.width), h: Math.round(b.height) },
+      inFold: b.top >= 0 && b.bottom <= innerHeight,
+      scrollNeeded: Math.max(0, Math.round(b.bottom - innerHeight)),
+      mapTop: Math.round(map.top),
+      mapFullyInFold: map.bottom <= innerHeight && map.top >= 0,
+      text: (el.textContent || "").trim(),
+      vh: innerHeight,
+    };
+  }, { cid: caseId, n: nums });
+  await ctx.close();
+  return { ...r, errs, cerrs };
+}
+
+/* ---------- ⑥ 之量法：导览之形——浮卡遮地图之比 ---------- */
+async function measureTourShape(br, base, w, h, shape) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { clearOnInit: true, w, h, settle: 1100 });
+  const r = await pg.evaluate((sh) => {
+    const pop = document.getElementById("tour-pop");
+    if (sh === "xia") {          // 甲·下置贴边条：全宽、贴视口底
+      pop.style.cssText += ";left:0 !important;right:0 !important;top:auto !important;bottom:0 !important;width:auto !important;max-width:none;border-radius:0;";
+    }
+    if (sh === "ce") {           // 乙·侧置：贴视口右缘、垂直居中（窄屏退为下置）
+      if (innerWidth > 680) pop.style.cssText += ";left:auto !important;right:8px !important;top:50% !important;transform:translateY(-50%) !important;";
+      else pop.style.cssText += ";left:0 !important;right:0 !important;top:auto !important;bottom:0 !important;width:auto !important;";
+    }
+    if (sh === "bi") {           // 丙·避让：择地图盒之外最空一侧落卡（此处以「地图盒下缘之下」为例）
+      const m = document.getElementById("home-map").getBoundingClientRect();
+      const ph = pop.offsetHeight;
+      const below = innerHeight - m.bottom, above = m.top;
+      const top = below >= ph + 12 ? m.bottom + 8 : (above >= ph + 12 ? Math.max(4, m.top - ph - 8) : innerHeight - ph - 4);
+      pop.style.cssText += ";top:" + Math.round(top) + "px !important;left:8px !important;right:auto !important;transform:none !important;";
+    }
+    const rect = (el) => { const b = el.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; };
+    const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) *
+                            Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+    const mapEl = document.querySelector("#home-map svg") || document.getElementById("home-map");
+    const M = rect(mapEl), P = rect(pop);
+    const popVisible = P.w > 0 && P.h > 0 && P.y < innerHeight && P.y + P.h > 0 && P.x < innerWidth && P.x + P.w > 0;
+    return { mapArea: M.w * M.h, ovl: inter(M, P), pct: M.w * M.h ? 100 * inter(M, P) / (M.w * M.h) : null,
+             popBox: { x: Math.round(P.x), y: Math.round(P.y), w: Math.round(P.w), h: Math.round(P.h) }, popVisible,
+             tourShown: !document.getElementById("tour").hidden };
+  }, shape);
+  await ctx.close();
+  return { ...r, errs, cerrs };
+}
+
+/* ---------- ⑤ 之量法：一页之 DOM 快照 ----------
+ * ★ 两处归一，各有实测之由，**不是为了跑绿而抹掉差异**：
+ *   ① `data-render-ms` 是逐次计时（编年自记其渲染毫秒），两跑必不同，与本轮之改无关。
+ *   ② 关系全景之**徽记顶层**（`drawPanoGraph` 末所附之最后一个 `<g>`，见 app.js `badgeTop`）：
+ *      其子元素由 `fetchSVG(...).then()` **异步竞速追加**，故其**次序在同一版内即不可复现**。
+ *      ★ 此系本门自行实测所得，非假定：另起一探针，**同一（新）版连跑六次**取 `#view-relations`
+ *        之 outerHTML，跑 2–6 与跑 1 **全不相等**，首异处正在该层之 `<image>`／徽记根元素之 x／y；
+ *        把该层子元素按 outerHTML 排序之后，同六跑**逐位全等**。
+ *      故本门只把该层之**次序**归一（排序后以一属性记其多重集），其内容一字不改——
+ *      次序若真有差，排序后之多重集必不等，仍会见红。
+ *      ★ 附带发现（登记、本件不治，越界）：该层之叠序因此在生产上亦随每次绘制而变，
+ *        徽记相叠处之上下关系不稳定。见 docs/delivery_vision_r54.md §顺带所见。 */
+const SNAP = `(sel) => {
+  const el = document.querySelector(sel);
+  if (!el) return "<MISSING " + sel + ">";
+  const c = el.cloneNode(true);
+  c.querySelectorAll("[data-render-ms]").forEach(n => n.removeAttribute("data-render-ms"));
+  const svg = c.querySelector("svg");
+  if (svg) {
+    const gs = [...svg.children].filter(n => n.tagName === "g");
+    const top = gs[gs.length - 1];
+    if (top && top.children.length) {
+      const kids = [...top.children].map(n => n.outerHTML).sort();
+      top.textContent = "";
+      top.setAttribute("data-badgelayer-sorted", kids.join(""));
+    }
+  }
+  return c.outerHTML;
+}`;
+async function snapshot(br, base, hash, sel, w, h) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { seed: "1", hash, w, h, settle: 900 });
+  const s = await pg.evaluate(new Function("return " + SNAP)(), sel);
+  await ctx.close();
+  return { s, errs, cerrs };
+}
+
+/* ---------- r54-7 之量法（一）：考据索引之页 ----------
+ * ★ 本函数**一字不注入**，量的是站上真形；其所读之数一律自 DOM 取，再与门内自
+ *   `site/data/*.json` 独立复算之数相比（同 §一之骨：只读页面自述即是量「页面说了什么」）。
+ * ★ 懒载（裁九十四）故须等其料到：以 `#kd-body[data-items]` 之现身为准，不以定时充之。 */
+async function measureKaodui(br, base, w, h) {
+  /* ★ **不传 `seed`**，其由是本门自撞之一坑，记此免后人再踩（同 `clearOnInit` 之注）：
+   *   `pageOf` 传 `seed` 时先 `goto(base)`、写 `localStorage`、再 `goto(base + hash)`；
+   *   **而二址只差一个 hash，是同文档之导航——不重载**。故首载之 `boot()` 是在 `#/` 上跑的，
+   *   `state.view === "home"` 且其时键尚未写入，**导览遂起手并覆于页上**；其后改 hash 只走 `render()`，
+   *   导览之蒙层照旧在。其果：读 DOM 无碍（故 §八之二 诸条仍绿），**而真点之验被蒙层挡住**
+   *   （playwright 报 `#tour intercepts pointer events`，30 秒超时抛错）。
+   *   ★ 治法是**径入 `#/kaodui`**：`boot()` 时 `state.view` 已是 `kaodui`，
+   *   `if (!tourSeen() && state.view === "home") startTour()` 自不成立——**不必写那把钥匙**。 */
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { hash: "#/kaodui", w, h, settle: 300 });
+  await pg.waitForFunction(() => {
+    const b = document.getElementById("kd-body");
+    return !!(b && b.dataset.items);
+  }, null, { timeout: 15000 }).catch(() => {});
+  await pg.waitForTimeout(400);
+  const r = await pg.evaluate(() => {
+    const b = document.getElementById("kd-body");
+    const T = (el) => (el ? el.textContent.trim() : "");
+    const introText = T(document.getElementById("kd-intro"));
+    const num = (re) => { const m = introText.match(re); return m ? Number(m[1]) : null; };
+    /* 逐组读其名与其目数（组标之文形如「<档名>」＋「<N> 目」二 span） */
+    const gts = [...document.querySelectorAll(".kd-group")].map(g => ({
+      name: T(g.querySelector(".kd-gt-name")),
+      n: Number((T(g.querySelector(".kd-gt-n")).match(/(\d+)/) || [])[1]),
+      rows: g.querySelectorAll(".kd-row").length,
+    }));
+    const find = (nm) => gts.find(g => g.name === nm) || null;
+    /* 否定之记号：只数**摘要上**者（卡内之状态列另有其记，二者不可混数） */
+    const negSums = [...document.querySelectorAll(".kd-row > summary .kd-neg")];
+    const negRows = new Set(), negGroups = new Set();
+    for (const s of negSums) {
+      const d = s.closest(".kd-row");
+      negRows.add(d.dataset.key); negGroups.add(d.dataset.group);
+    }
+    /* ★ 「同一行一档否定、一档不否定」之逐目对位：以 data-key 归行，
+     *   期其 `data-neg="true"` 之目数 ＝ 该行 status 内 negated 之数（页外另有其源之验）。 */
+    const byKey = new Map();
+    for (const d of document.querySelectorAll(".kd-row")) {
+      if (!byKey.has(d.dataset.key)) byKey.set(d.dataset.key, []);
+      byKey.get(d.dataset.key).push(d);
+    }
+    let mixed = 0, mixedBad = 0;
+    for (const [, ds] of byKey) {
+      const yes = ds.filter(d => d.dataset.neg === "true").length;
+      if (yes > 0 && yes < ds.length) {
+        mixed++;
+        for (const d of ds) {
+          const has = !!d.querySelector(":scope > summary .kd-neg");
+          if (has !== (d.dataset.neg === "true")) mixedBad++;
+        }
+      }
+    }
+    const sums = [...document.querySelectorAll(".kd-row > summary")].map(s => s.getBoundingClientRect().height);
+    const fan = document.getElementById("kd-fanli");
+    const fr = fan ? fan.getBoundingClientRect() : null;
+    return {
+      shown: !document.getElementById("view-kaodui").hidden,
+      items: Number(b.dataset.items), groups: Number(b.dataset.groups), renderMs: b.dataset.renderMs,
+      rows: document.querySelectorAll(".kd-row").length,
+      introText,
+      intro: { rows: num(/全库 (\d+) 行/), flat: num(/摊平得 (\d+) 条档之引/), none: num(/另有 (\d+) 行/) },
+      statusText: T(document.getElementById("kd-status")),
+      gts, noneGroup: find("未提取到核对状态"), markedGroup: find("未标核对状态"),
+      noneNote: T(document.querySelector(".kd-group-none .kd-gnote")),
+      negInSummary: negSums.length, negRowsTouched: negRows.size, negGroupsTouched: negGroups.size,
+      negMixedRows: mixed, negMixedBad: mixedBad, negMixedOk: mixedBad === 0,
+      negShorts: negSums.map(s => s.textContent.trim()),
+      fanli: [...document.querySelectorAll("#kd-fanli .kd-fl")].filter(s => !s.classList.contains("kd-fl-neg"))
+        .map(s => ({ title: T(s.querySelector(".kd-fl-t")), body: T(s.querySelector(".kd-fl-b")) })),
+      negFull: T(document.querySelector(".kd-fl-neg .kd-fl-t")),
+      negNote: T(document.querySelector(".kd-fl-neg .kd-fl-b")),
+      limits: T(document.querySelector(".kd-limits")),
+      minSummaryH: sums.length ? Math.round(Math.min(...sums)) : null,
+      fanliInFold: fr ? fr.top < innerHeight : null,
+      docOverflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      docScrollW: document.documentElement.scrollWidth, docClientW: document.documentElement.clientWidth,
+      chipsStatus: [...document.querySelectorAll("#kd-f-status .kd-chip")].map(x => x.textContent.trim()),
+      chipsTable: [...document.querySelectorAll("#kd-f-table .kd-chip")].map(x => x.textContent.trim()),
+    };
+  });
+  /* ---- 第二过：**逐目展开**而后量其链与其卡 ----
+   * ★ 何以须先展开：回库之链系「展开即建」（`kdEnsureBody`，同编年 `chronEnsureBody` 之例）——
+   *   **未展开之目页上一条链也没有**。本门首跑正因未展开而报「有链之目 0／687」，
+   *   **其红是真红，且红在量具**：量的是「此刻 DOM 里有几条」，而所要断者是「每一目**能不能**给出一条」。
+   *   ★ 故此处把 687 目一并展开再量——**「逐目」之名与所量之物自此相符**（design_notes §7.9 之族）。
+   * ★ `details.open = true` 之 `toggle` 是**异步**派发（故首跑连「展开一目量其卡」亦得 `null`），
+   *   须待其一拍；此处以「卡之数已等于目之数」为准，不以定时充之。 */
+  await pg.evaluate(() => { document.querySelectorAll(".kd-row").forEach(d => { d.open = true; }); });
+  await pg.waitForFunction(() => {
+    const n = document.querySelectorAll(".kd-row").length;
+    return n === 0 || document.querySelectorAll(".kd-body-card").length === n;
+  }, null, { timeout: 30000 }).catch(() => {});
+  const r2 = await pg.evaluate(() => {
+    /* ★ `isProto`／`PEOPLE`／`PLACES`／`SOURCES`／`EVENTS`／`DATA` 系 app.js 之顶层绑定，
+     *   同一 realm 内可读——此处读之，**不另造一份判据**（两份名册必有一天对不上，§7.4）。 */
+    const rowsById = (typeof DATA !== "undefined" && DATA.kaodui) ? DATA.kaodui : [];
+    const byRowKey = new Map(rowsById.map(x => [x.key, x]));
+    const EXP = { places: "在地图上定位 →", sources: "在资料库中打开 →",
+                  passages: "回其事件并定位此条引文 →", events: "回其事件 →" };
+    let total = 0, missing = 0, badLabel = 0, unresolved = 0, badLabelFirst = "", unresolvedFirst = "";
+    let cardOverflow = false, overflowFirst = "";
+    for (const d of document.querySelectorAll(".kd-row")) {
+      const card = d.querySelector(".kd-body-card");
+      if (card && card.scrollWidth > card.clientWidth + 1 && !overflowFirst) {
+        cardOverflow = true; overflowFirst = d.dataset.key + "（" + card.scrollWidth + ">" + card.clientWidth + "）";
+      }
+      const btn = d.querySelector(".kd-back-btn");
+      if (!btn) { missing++; continue; }
+      total++;
+      const rec = byRowKey.get(d.dataset.key);
+      const t = d.dataset.table, id = rec ? rec.row_id : null;
+      let want, okTarget;
+      if (t === "people") {
+        const proto = (typeof isProto === "function") && isProto(id) && !!PEOPLE[id];
+        want = proto ? "回其人物线 →" : "回其关系图 →";
+        okTarget = !!PEOPLE[id];
+      } else {
+        want = EXP[t];
+        okTarget = t === "places" ? !!PLACES[id]
+                 : t === "sources" ? !!SOURCES[id]
+                 : t === "passages" ? !!(rec && rec.event_id && EVENTS[rec.event_id])
+                 : !!EVENTS[id];
+      }
+      if (btn.textContent.trim() !== want) { badLabel++; if (!badLabelFirst) badLabelFirst = d.dataset.key + "：期「" + want + "」实「" + btn.textContent.trim() + "」"; }
+      if (!okTarget) { unresolved++; if (!unresolvedFirst) unresolvedFirst = d.dataset.key; }
+    }
+    /* ★ 并断**无一条链之文作「打开该地望页」**（件之 4 之反面；页首之文另断于 §八之三） */
+    const badWord = [...document.querySelectorAll(".kd-back-btn")].filter(x => /地望页/.test(x.textContent)).length;
+    return {
+      links: { total, missing, badLabel, unresolved, badLabelFirst, unresolvedFirst, badWord },
+      cardOverflow, overflowFirst,
+      docOverflowXOpen: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      cards: document.querySelectorAll(".kd-body-card").length,
+    };
+  });
+  await ctx.close();
+  return { ...r, ...r2, errs, cerrs };
+}
+
+/* ---------- r54-7 之量法（三）：筛选之一往一返（二组 chips ＋ 清除钮） ----------
+ * ★ 立此一量之由，照实书：**「清除筛选」之钮我落笔时漏接了监听**（`#kd-clear` 有其形而无其事），
+ *   自查时撞上。**一个点了没反应的钮，比没有这个钮更坏**——它许了一件办不到的事。
+ *   故不止补其码，并立此量钉之，另配一类反证（庚·清除之钮失聪）。
+ * ★ 其判据取**往返**，不取单程：只断「点 chip 之后少了」不足以证清除有效；
+ *   只断「点清除之后是 687」亦不足——未筛之时本就是 687。**二者相接才是一条能红的断言。** */
+async function measureKaoduiFilter(br, base) {
+  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { hash: "#/kaodui", w: W_WIDE, h: H_WIDE, settle: 300 });
+  await pg.waitForFunction(() => {
+    const b = document.getElementById("kd-body");
+    return !!(b && b.dataset.items);
+  }, null, { timeout: 15000 }).catch(() => {});
+  await pg.waitForTimeout(300);
+  const read = () => pg.evaluate(() => {
+    const b = document.getElementById("kd-body");
+    const clr = document.getElementById("kd-clear");
+    return {
+      items: Number(b.dataset.items), rows: document.querySelectorAll(".kd-row").length,
+      groups: Number(b.dataset.groups), status: document.getElementById("kd-status").textContent.trim(),
+      clearHidden: clr.hidden,
+      pressed: [...document.querySelectorAll(".kd-chip")].filter(x => x.getAttribute("aria-pressed") === "true")
+        .map(x => x.dataset.key),
+    };
+  });
+  const base0 = await read();
+  /* ① 按状态取一枚（「本轮无从核」，全库 35 目） */
+  await pg.click('#kd-f-status .kd-chip[data-key="本轮无从核"]');
+  await pg.waitForTimeout(400);
+  const one = await read();
+  /* ② 再按表取一枚（「places」）——组间取**交集** */
+  await pg.click('#kd-f-table .kd-chip[data-key="places"]');
+  await pg.waitForTimeout(400);
+  const two = await read();
+  /* ③ 点「清除筛选」——二组一并归零 */
+  await pg.click("#kd-clear");
+  await pg.waitForTimeout(400);
+  const back = await read();
+  /* ④ 取一个必筛空之组合（「未提取到核对状态」× 其内无之表），验空表自己会说话 */
+  await pg.click('#kd-f-status .kd-chip[data-key="电子本逐字核对·否定性结果"]');
+  await pg.waitForTimeout(300);
+  await pg.click('#kd-f-table .kd-chip[data-key="people"]');
+  await pg.waitForTimeout(400);
+  const empty = await pg.evaluate(() => ({
+    rows: document.querySelectorAll(".kd-row").length,
+    emptyLine: (document.querySelector("#kd-body .chron-empty") || {}).textContent || "",
+    status: document.getElementById("kd-status").textContent.trim(),
+  }));
+  /* ⑤ 筛选**不入 hash**（分享出去一律是全表） */
+  const hash = await pg.evaluate(() => location.hash);
+  await ctx.close();
+  return { base0, one, two, back, empty, hash, errs, cerrs };
+}
+
+/* ---------- r54-7 之量法（二）：回库之链**真点**一过 ----------
+ * ★ 与机械之验之分工：机械之验读**数据**（其所指之物在库内否），真点之验读**码之果**
+ *   （点下去究竟落在哪一屏）。类戊之反证（people 一路换回 `setHash`）只有真点之验测得出。
+ * ★ 「落」之据不取 hash 一项：另读其屏是否真显、其屏内是否真有落点之痕（展开之条／落锚之年／
+ *   定位之地），免「hash 变了而屏上什么也没发生」被算作落。 */
+const KD_CLICKS = [
+  { key: "places.L_HUAN.coord_basis@21", why: "地望首条 → 某人页之地图（非地望页）", hash: "#/p/P_WENJIANG/map", view: "map", spot: "L_HUAN" },
+  { key: "places.L_HUAN.coord_basis@514", why: "地望·带否定之记者（同一行之另一目）", hash: "#/p/P_WENJIANG/map", view: "map", spot: "L_HUAN" },
+  { key: "sources.Z018.notes@0", why: "文献首条 → 资料库「来源文献」", hash: "#/library/sources", view: "library", spot: "Z018" },
+  { key: "passages.Q073.modern_note@0", why: "引文首条 → 编年（经 event_id，此表独有）", hash: "#/chronicle", view: "chronicle", spot: "E076" },
+  { key: "events.E076.summary@0", why: "事件首条 → 编年", hash: "#/chronicle", view: "chronicle", spot: "E076" },
+  { key: "people.P_KONGZI.notes@0", why: "人物·主角 → 其人物线", hash: "#/p/P_KONGZI/timeline", view: "timeline", spot: "P_KONGZI" },
+  { key: "people.P_ZIGONG.notes@152", why: "人物·**非主角** → 其 ego 关系图（契所列之 setHash 于此断链，已上报）", hash: "#/relations", view: "relations", spot: "P_ZIGONG" },
+];
+async function kdClick(br, base, key, spotId) {
+  const { ctx, pg } = await pageOf(br, base, { hash: "#/kaodui", w: W_WIDE, h: H_WIDE, settle: 300 });  // 不传 seed，其由见 measureKaodui 之注
+  await pg.waitForFunction(() => {
+    const b = document.getElementById("kd-body");
+    return !!(b && b.dataset.items);
+  }, null, { timeout: 15000 }).catch(() => {});
+  await pg.waitForTimeout(300);
+  const sel = '.kd-row[data-key="' + key + '"]';
+  await pg.evaluate((s) => { const d = document.querySelector(s); if (d) { d.open = true; d.scrollIntoView(); } }, sel);
+  await pg.waitForTimeout(250);
+  const found = await pg.evaluate((s) => !!document.querySelector(s + " .kd-back-btn"), sel);
+  if (!found) { await ctx.close(); return { hash: "<无此目>", view: "<无此目>", landed: false, evidence: "页上无 " + key }; }
+  await pg.click(sel + " .kd-back-btn", { timeout: 20000 });
+  await pg.waitForTimeout(1100);
+  /* ★ 「落」之据**不取 hash 一项，亦不止于「那一屏显了」**——另求其屏内**此条之痕**：
+   *   地望＝该地之锚已选中（`.anchor.selected[data-place]`，`markSelectedAnchor` 之果）；
+   *   文献＝该条在列且详情之题已出；编年＝**该事件**之 `details[open]`；
+   *   人物线＝其人之卡已铺且子导航书其名；关系＝其图已绘。
+   *   ★ 不如此，则「hash 变了而屏上什么也没发生」会被算作落——正是 design_notes §7.3 之训
+   *     （「DOM 状态对 ≠ 读者看得见」）。 */
+  const r = await pg.evaluate((spot) => {
+    const views = ["home", "timeline", "map", "library", "relations", "about", "chronicle", "kaodui", "compare"];
+    const view = views.find(v => { const e = document.getElementById("view-" + v); return e && !e.hidden; }) || "<无>";
+    let ev = "", spotted = null;
+    if (view === "chronicle") {
+      const d = document.querySelector('#chron-list details[data-eid="' + spot + '"]');
+      spotted = !!(d && d.open);
+      ev = "编年展开之条 " + document.querySelectorAll("#chron-list details[open]").length +
+        "、落锚之年 " + document.querySelectorAll("#chron-list details.year-anchor").length +
+        "、其事件(" + spot + ")已展开=" + spotted;
+    } else if (view === "library") {
+      const btn = document.querySelector('[data-lib-id="' + spot + '"]');
+      const h = document.querySelector("#lib-detail h3");
+      spotted = !!btn && !!h && h.textContent.trim().length > 0;
+      ev = "页签=" + ((document.querySelector(".lib-tabs button[aria-selected='true']") || {}).textContent || "?") +
+        "、其条(" + spot + ")在列=" + !!btn + "、详情之题=" + (h ? JSON.stringify(h.textContent.trim()) : "<无>");
+    } else if (view === "map") {
+      const a = document.querySelector('.anchor.selected[data-place="' + spot + '"]');
+      spotted = !!a;
+      ev = "地图之锚 " + document.querySelectorAll("#view-map .anchor").length +
+        "、其地(" + spot + ")之锚已选中=" + spotted;
+    } else if (view === "timeline") {
+      const nm = (document.getElementById("pn-name") || {}).textContent || "";
+      spotted = document.querySelectorAll("#view-timeline .event").length > 0 && nm.length > 0;
+      ev = "时间线之卡 " + document.querySelectorAll("#view-timeline .event").length + "、子导航之名=" + JSON.stringify(nm);
+    } else if (view === "relations") {
+      spotted = document.querySelectorAll("#view-relations svg *").length > 0;
+      ev = "关系图之元素 " + document.querySelectorAll("#view-relations svg *").length;
+    } else if (view === "home") {
+      spotted = false; ev = "落回首页选人屏（**断链之相**）";
+    }
+    return { hash: location.hash, view, evidence: ev, spotted };
+  }, spotId);
+  await ctx.close();
+  return { ...r, landed: r.view !== "home" && r.view !== "<无>" };
+}
+
+(async () => {
+  const { chromium } = require(path.join(__dirname, "node_modules", "playwright"));
+
+  /* ===== 锚定之正面证据（不合则当场停门） ===== */
+  head("§〇 旧版源端之锚（OLD_REF = " + OLD_REF + "）");
+  const oldApp = gitShow("site/app.js").toString("utf8");
+  const oldHtml = gitShow("site/index.html").toString("utf8");
+  const oldCss = gitShow("site/styles.css").toString("utf8");
+  const newApp = fs.readFileSync(path.join(SITE, "app.js"), "utf8");
+  const newHtml = fs.readFileSync(path.join(SITE, "index.html"), "utf8");
+  const cnt = (s, t) => s.split(t).length - 1;
+  const anchor = [
+    ["旧版 app.js 内 renderHomeLede 出现 0 次", cnt(oldApp, "renderHomeLede") === 0, String(cnt(oldApp, "renderHomeLede"))],
+    ["旧版 app.js 内 tourRead 出现 0 次", cnt(oldApp, "tourRead") === 0, String(cnt(oldApp, "tourRead"))],
+    ["旧版 index.html 内 home-lede 出现 0 次", cnt(oldHtml, "home-lede") === 0, String(cnt(oldHtml, "home-lede"))],
+    ["旧版 index.html 内 home-tour-entry 出现 0 次", cnt(oldHtml, "home-tour-entry") === 0, String(cnt(oldHtml, "home-tour-entry"))],
+    ["新版 app.js 内 renderHomeLede ≥1 次", cnt(newApp, "renderHomeLede") >= 1, String(cnt(newApp, "renderHomeLede"))],
+    ["新版 index.html 内 home-lede ≥1 次", cnt(newHtml, "home-lede") >= 1, String(cnt(newHtml, "home-lede"))],
+  ];
+  for (const [l, c, d] of anchor) console.log("  " + (c ? "✓" : "✗") + " " + l + "  —— 实测 " + d);
+  if (anchor.some(a => !a[1])) throw new Error("锚定失效：OLD_REF 已不是「本件之前一版」，停门。勿改回 HEAD，见门头。");
+
+  const srvNew = await srv(SITE);
+  const srvOld = await srv(SITE, { "/app.js": oldApp, "/index.html": oldHtml, "/styles.css": oldCss });
+  const baseNew = "http://127.0.0.1:" + srvNew.address().port + "/";
+  const baseOld = "http://127.0.0.1:" + srvOld.address().port + "/";
+  const br = await chromium.launch();
+
+  /* ===== §一 本件之前提（任务书〇节三条，逐条附求法｜所期｜读法） ===== */
+  head("§一 本件之前提——编年之筛选条与其自述之数（〇节；所期不取任务书之数，另路复算）");
+  const rc = recomputeFromData();
+  {
+    const { ctx, pg, errs, cerrs } = await pageOf(br, baseNew, { seed: "1", hash: "#/chronicle", settle: 1200 });
+    const r = await pg.evaluate(() => ({
+      states: [...document.querySelectorAll("#chron-f-state .chron-chip")].map(b => b.textContent.trim()),
+      cats: [...document.querySelectorAll("#chron-f-cat .chron-chip")].map(b => b.textContent.trim()),
+      intro: document.getElementById("chron-intro").textContent,
+      rows: Number(document.getElementById("chron-list").dataset.rows),
+    }));
+    ok(r.states.length === 13, "按国之目 13", "实测 " + r.states.length + " 目：" + r.states.join(" | "));
+    ok(r.cats.length === 17, "按类 17 类", "实测 " + r.cats.length + " 类：" + r.cats.join(" | "));
+    const mTotal = r.intro.match(/全库\s*(\d+)\s*条事件/);
+    const mOrph = r.intro.match(/其中\s*(\d+)\s*条未系于任何主角/);
+    ok(!!mTotal && !!mOrph, "编年自述之二数可取", r.intro.slice(0, 40) + "…");
+    ok(mTotal && Number(mTotal[1]) === rc.total, "自述之全库条数＝独立自 events.json 复算之数",
+      "页面 " + (mTotal && mTotal[1]) + " ／ 复算 " + rc.total);
+    ok(mOrph && Number(mOrph[1]) === rc.orphan, "自述之「只此一处可见」＝独立复算之数",
+      "页面 " + (mOrph && mOrph[1]) + " ／ 复算 " + rc.orphan);
+    ok(r.rows === rc.total, "chron-list data-rows＝复算之全库条数", r.rows + " ／ " + rc.total);
+    ok(errs.length === 0 && cerrs.length === 0, "编年页零 pageerror（beacon 噪音已剔，见 pageOf 之注）", "pageerror " + errs.length + "／console " + cerrs.length + (errs.concat(cerrs).length ? "：" + errs.concat(cerrs).join(" ; ") : ""));
+    await ctx.close();
+  }
+  // 「不得写死」之机械证据：新增之文内不许出现这两个数之字面
+  {
+    const ledeSrc = (newApp.match(/function renderHomeLede\(\)[\s\S]*?\n}/) || [""])[0];
+    const badLede = [String(rc.total), String(rc.orphan), String(rc.meta.tables.people), String(rc.meta.tables.places), String(rc.meta.tables.passages)]
+      .filter(n => ledeSrc.includes(n));
+    ok(badLede.length === 0, "renderHomeLede 源码内不含任何一个库数之字面", badLede.length ? "撞见 " + badLede.join("/") : "无");
+    const homeBlock = (newHtml.match(/<div class="home-lede"[\s\S]*?<\/div>/) || [""])[0];
+    const badHtml = [String(rc.total), String(rc.orphan), String(rc.meta.tables.people)].filter(n => homeBlock.includes(n));
+    ok(badHtml.length === 0, "index.html 之引言块内不含任何一个库数之字面", badHtml.length ? "撞见 " + badHtml.join("/") : "无");
+  }
+
+  /* ===== §二 导览之记（二节 1；七式离场逐式量） ===== */
+  head("§二 导览之记已治——七式离场（★ 判据是「下次不复覆于地图之上」，非「键非 null」）");
+  const HOWS = ["skip", "esc", "finish", "abandon", "legacy-1", "garbage", "blocked"];
+  const newTour = {};
+  for (const how of HOWS) {
+    const m = await measureTour(br, baseNew, how);
+    newTour[how] = m;
+    console.log("    · " + how.padEnd(9) + " 初显=" + m.shown0 + " 键=" + JSON.stringify(m.key) +
+      " 复弹=" + m.reshown + " 入口=" + (m.entry ? JSON.stringify(m.entry.text) + "/resume=" + JSON.stringify(m.entry.resume) + "/可见=" + m.entry.visible : "无"));
+  }
+  ok(newTour["abandon"].key !== null, "【记·甲】中途不理（未走完）亦留记", "键=" + JSON.stringify(newTour["abandon"].key));
+  ok(newTour["abandon"].reshown === false, "【记·乙】未走完者下次不复弹（不复覆地图）", "复弹=" + newTour["abandon"].reshown);
+  ok(newTour["skip"].reshown === false && newTour["esc"].reshown === false && newTour["finish"].reshown === false,
+    "【记·丙】跳过／Esc／走完三式俱不复弹", "skip=" + newTour["skip"].reshown + " esc=" + newTour["esc"].reshown + " finish=" + newTour["finish"].reshown);
+  ok(/"done":true/.test(String(newTour["finish"].key)) && /"step":2/.test(String(newTour["finish"].key)),
+    "【记·丁】走完者其记书明 step=2、done=true", "键=" + JSON.stringify(newTour["finish"].key));
+  ok(newTour["legacy-1"].shown0 === false, "【记·戊】旧值 \"1\" 读作已走完（向后兼容，不复弹）", "初显=" + newTour["legacy-1"].shown0);
+  ok(newTour["garbage"].shown0 === false, "【记·己】键已损者不抛错、断为已走完", "初显=" + newTour["garbage"].shown0);
+  const entAll = HOWS.every(h => newTour[h].entry && newTour[h].entry.visible);
+  ok(entAll, "【记·庚】七式之后首页皆有可见之常驻导览入口（二节 3 之明路）",
+    HOWS.map(h => h + "=" + !!(newTour[h].entry && newTour[h].entry.visible)).join(" "));
+  ok(newTour["blocked"].entry && newTour["blocked"].entry.visible,
+    "【记·辛】存储不可用（隐私模式）时首页仍有明路", "入口可见=" + !!(newTour["blocked"].entry && newTour["blocked"].entry.visible));
+  ok(newTour["abandon"].entry && newTour["abandon"].entry.resume === "0",
+    "【记·壬】未走完之记使入口转为「继续」并带其步", "resume=" + JSON.stringify(newTour["abandon"].entry && newTour["abandon"].entry.resume));
+  ok(HOWS.every(h => newTour[h].errs.length === 0 && newTour[h].cerrs.length === 0), "【记·癸】七式俱零 pageerror（beacon 噪音已剔）",
+    HOWS.map(h => h + ":p" + newTour[h].errs.length + "/c" + newTour[h].cerrs.length).join(" ") +
+    (HOWS.some(h => newTour[h].errs.length || newTour[h].cerrs.length) ? " ：" + HOWS.flatMap(h => newTour[h].errs.concat(newTour[h].cerrs)).join(" ; ") : ""));
+
+  /* ===== §三 首页之言（三节；两宽） ===== */
+  head("§三 首页之言已立（三节；1440／375 两宽）");
+  const lede = {};
+  for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
+    const m = await measureLede(br, baseNew, w, h);
+    lede[w] = m;
+    console.log("    · " + w + "px 盒=" + JSON.stringify(m.box) + " 视口高=" + m.vh +
+      " 首屏内=" + m.inFold + " 地图顶=" + m.mapTop + " 地图整幅在首屏=" + m.mapFullyInFold + " 链数=" + m.nLinks);
+    (m.ps || []).forEach((t, i) => console.log("        句" + (i + 1) + "：" + t));
+    ok(m.exists, w + "px 引言块在", "");
+    /* r54-4 之后为**四**句（第四句系裁七十一之甲：编年之径一链）。 */
+    ok(m.ps && m.ps.length === 4 && m.ps.every(t => t.length > 0), w + "px 四句俱在且非空（r54-4 增第四句）", "实测 " + (m.ps || []).length + " 句");
+    ok(m.inFold, w + "px 引言在第一眼之内", "y=" + (m.box && m.box.y) + " 视口高=" + m.vh);
+    ok(m.mapFullyInFold, w + "px 引言落地之后地图整幅仍在首屏", "地图顶=" + m.mapTop);
+    /* ★ 此条 r54-4 分了家：句三（#home-lede-why）内**一个链也没有**（考据页未立），
+     *   而引言全块之链数今为 **1**（甲之链）。原条只问「引言内链数=0」，甲落即撞红，
+     *   而红之处非病所在——故改问两处，各问其所该问。 */
+    /* ★★ 【r54-7 二次反转，照 r54-4b 之例留其痕，不默然改】——**考据页今已立**（`#/kaodui`，裁七十七），
+     *   故 `KAODUI_ENTRY` 由 `null` 改为 `{hash,label}`，句三之链遂出。**原条之文与其立意照录于此**：
+     *     - 原：`ok(m.whyLinks === 0 && m.nInLine === 0, "句三今日无链（其页由 r54-3／r54-7 立，未立不显）")`
+     *       其立意是把「**页未立故不显链**」钉成一条可复验之事实（同 r54-4【丁·〇】之立法）——
+     *       页一立，这条事实即不复存在；故其反转不是迁就，是**所断之事实变了**。
+     *     - 原：`ok(m.nLinks === 1, "引言全块之链恰一个（即甲之链）")`——今为**二**（甲之链＋考据之链）。
+     *   ★ 今断其**有**：句三内恰一链、其 class 为 `.hl-kaodui`、href 为 `#/kaodui`、
+     *     其数＝`meta.tables.kaodui`（**另路复算**，不读页面之文）。 */
+    ok(m.whyLinks === 1 && m.nInLine === 1, w + "px 句三今有考据之一链（r54-7 页既立，其链自出）",
+      "句三内链数=" + m.whyLinks + " ／ .hl-kaodui=" + m.nInLine);
+    ok(m.kaodui && m.kaodui.href === "#/kaodui", w + "px 考据之链其 href ＝ #/kaodui",
+      m.kaodui ? m.kaodui.href : "<无此链>");
+    ok(m.kaodui && m.kaodui.n === rc.meta.tables.kaodui,
+      w + "px 考据之链所书之数 ＝ meta.tables.kaodui（跑时自数，非写死）",
+      "链上 " + (m.kaodui && m.kaodui.n) + " ／ meta.tables.kaodui " + rc.meta.tables.kaodui);
+    ok(m.nLinks === 2, w + "px 引言全块之链恰二个（甲之链＋考据之链，别无他链）", "链数=" + m.nLinks);
+    ok(m.errs.length === 0 && m.cerrs.length === 0, w + "px 零 pageerror（beacon 噪音已剔）", "pageerror " + m.errs.length + "／console " + m.cerrs.length + (m.errs.concat(m.cerrs).length ? "：" + m.errs.concat(m.cerrs).join(" ; ") : ""));
+  }
+  {
+    const t = rc.meta.tables;
+    const s = (lede[W_WIDE].ps || [])[1] || "";
+    for (const [k, v] of [["events", t.events], ["people", t.people], ["places", t.places], ["passages", t.passages]]) {
+      ok(s.includes(String(v)), "句二之 " + k + " 数＝meta.tables." + k + " = " + v, "句二：" + s);
+    }
+    /* ★ 【r54-7 反转，留痕】原条：`ok(/KAODUI_ENTRY\s*=\s*null/.test(newApp), "考据索引之链其位确在源码（KAODUI_ENTRY = null，一处可开）")`
+     *   ——其立意是证「其位确在源码之内、且只此一处可开」。**今日即开之之日**，故改断其已开且开得对：
+     *   ① 其值确为 `{ hash: "#/kaodui", label: … }`；② **该常量内不含任何数之字面**
+     *   （件之 6「其 count 取 DATA.meta.tables.kaodui，不写死」之机械之证）。 */
+    const kdConst = (newApp.match(/const KAODUI_ENTRY[^\n]*/) || [""])[0].trim();
+    ok(/KAODUI_ENTRY\s*=\s*\{[^}]*hash:\s*"#\/kaodui"/.test(newApp),
+      "考据索引之链其位已开且指 #/kaodui（r54-7 件之 6：只改此一常量）", kdConst);
+    ok(!/[0-9]/.test(kdConst), "该常量内不含任何数之字面（其条数取 meta.tables.kaodui，不写死）", kdConst);
+    ok(/KAODUI_ENTRY\s*&&\s*KAODUI_ENTRY\.hash/.test(newApp), "其链之出否只系于该常量一处", "");
+    ok(/const kdN = t\.kaodui;/.test(newApp),
+      "句三之数取 `DATA.meta.tables.kaodui`（解乙；与考据页页首之第一数同源）",
+      (newApp.match(/const kdN[^\n]*/) || [""])[0].trim());
+    ok(!/innerHTML/.test((newApp.match(/function renderHomeLede\(\)[\s\S]*?\n}/) || [""])[0]),
+      "引言不走 innerHTML（红线六·零 XSS 面）", "");
+    /* r54-4：二数之唯一出处 chronCounts() 内亦不许有任何库数之字面。 */
+    const cntSrc = (newApp.match(/function chronCounts\(\)[\s\S]*?\n}/) || [""])[0];
+    ok(cntSrc.length > 0, "chronCounts() 在源码之内（甲之二数与编年自述之唯一出处）", "长 " + cntSrc.length + " 字");
+    const badCnt = [String(rc.total), String(rc.orphan)].filter(n => cntSrc.includes(n));
+    ok(badCnt.length === 0, "chronCounts() 源码内不含库数之字面", badCnt.length ? "撞见 " + badCnt.join("/") : "无");
+    ok(/const nOrphan = chronCounts\(\)\.orphan/.test(newApp),
+      "编年页之自述亦取 chronCounts()（二处同源，不各算一遍）",
+      (newApp.match(/const nOrphan[^\n]*/) || [""])[0].trim());
+  }
+
+  /* ===== §四 按类反证·逐条对位（r52 裁二十四） ===== */
+  head("§四 按类反证·逐条对位——同法施于旧版（" + OLD_REF + "），逐条各自见红");
+  const oldTour = {};
+  for (const how of ["abandon", "skip", "legacy-1", "blocked"]) {
+    oldTour[how] = await measureTour(br, baseOld, how);
+    const m = oldTour[how];
+    console.log("    · 旧版 " + how.padEnd(9) + " 初显=" + m.shown0 + " 键=" + JSON.stringify(m.key) +
+      " 复弹=" + m.reshown + " 入口=" + (m.entry ? "有" : "无"));
+  }
+  const oldLede = await measureLede(br, baseOld, W_WIDE, H_WIDE);
+  const counter = [
+    ["记·甲 未走完亦留记", oldTour["abandon"].key === null, "旧版键=" + JSON.stringify(oldTour["abandon"].key) + "（应为 null 方算见红）"],
+    ["记·乙 未走完不复弹", oldTour["abandon"].reshown === true, "旧版复弹=" + oldTour["abandon"].reshown + "（应为 true 方算见红）"],
+    ["记·丁 其记书明 step／done", !/"done"/.test(String(oldTour["skip"].key)), "旧版键=" + JSON.stringify(oldTour["skip"].key)],
+    ["记·庚 首页常驻入口", oldTour["abandon"].entry === null, "旧版入口=" + (oldTour["abandon"].entry ? "有" : "无")],
+    ["记·辛 隐私模式仍有明路", oldTour["blocked"].entry === null, "旧版入口=" + (oldTour["blocked"].entry ? "有" : "无")],
+    ["记·壬 入口转「继续」并带其步", oldTour["abandon"].entry === null, "旧版无入口，故无 resume 可言"],
+    ["三节 引言三句", oldLede.exists !== true, "旧版 #home-lede 存在=" + !!oldLede.exists],
+  ];
+  for (const [cls, red, d] of counter) ok(red, "〔反证〕" + cls + " —— 旧版当场红", d);
+  // ★ 诚实一条：新旧同绿者照实标出，不冒充反证
+  console.log("  ⚠ 新旧同绿·非本轮之新能（照实标出，不入反证之数）：");
+  console.log("      · 记·戊「旧值 \"1\" 读作已走完」——旧版 tourSeen() 对 \"1\" 亦为真，旧版初显=" +
+    oldTour["legacy-1"].shown0 + "。本条是**向后兼容之不回退**，非新增之能，故无红可测。");
+  console.log("      · 记·己「键已损者不抛错」——旧版 `!!getItem` 对任何非空串皆真，亦不抛错；本条同为不回退。");
+  console.log("      · 记·丙「跳过／Esc／走完不复弹」——旧版此三式本已留记（实测旧版 skip 键=" +
+    JSON.stringify(oldTour["skip"].key) + "、复弹=" + oldTour["skip"].reshown +
+    "）。★ 即任务书二节 1「略过之后仍为 null」于「跳过」一钮**不复现**，详见交付文档之验收偏差上报。");
+
+  /* ===== §五 零影响：未涉之页 DOM 与旧版逐位全等 ===== */
+  head("§五 零影响——未涉之页 DOM 与旧版逐位全等（两宽）");
+  const PAGES = [
+    ["#/chronicle", "#view-chronicle"],
+    ["#/library", "#view-library"],
+    ["#/about", "#view-about"],
+    ["#/relations", "#view-relations"],
+    ["#/p/P_WENJIANG/timeline", "#view-timeline"],
+    ["#/p/P_WENJIANG/map", "#view-map"],
+  ];
+  for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
+    for (const [hash, sel] of PAGES) {
+      const a = await snapshot(br, baseNew, hash, sel, w, h);
+      const b = await snapshot(br, baseOld, hash, sel, w, h);
+      let where = "";
+      if (a.s !== b.s) {
+        const n = Math.min(a.s.length, b.s.length);
+        let i = 0; while (i < n && a.s[i] === b.s[i]) i++;
+        where = " 首异于第 " + i + " 字：新「" + a.s.slice(i, i + 60) + "」／旧「" + b.s.slice(i, i + 60) + "」";
+      }
+      ok(a.s === b.s, w + "px " + hash + " → " + sel + " 逐位全等",
+        "长 " + a.s.length + " ／ " + b.s.length + where);
+      ok(a.errs.length === 0 && a.cerrs.length === 0, w + "px " + hash + " 零 pageerror（beacon 噪音已剔）", "pageerror " + a.errs.length + "／console " + a.cerrs.length + (a.errs.concat(a.cerrs).length ? "：" + a.errs.concat(a.cerrs).join(" ; ") : ""));
+    }
+  }
+
+  /* ===== §六 二案之量（供裁，非断言；本节一行也不落改） ===== */
+  head("§六 供裁之量（一）「编年之径」四案——任务书一节 3 三项：首屏可见性／点击之径长／窄屏之形");
+  console.log("  ★ 本节只量不改站；四案俱在无头页内注入后量，site/ 一字未动。");
+  console.log("  ★ r54-4 之后仍留此节，惟量前**先摘去站上已落之第四句**（见 measureEntryCase 之注）——");
+  console.log("    不摘则「现状」已含甲，四案之 Δ 皆自甲之上起算，裁之所据即不可复读。");
+  console.log("    ★ 甲一案之 Δ 与 r54-1 交付文档 §四所载不同（那里 +28／+43，此处 +33／+31），其因已查明，非量之飘："
+    + "本节之探针给注入之元素挂 `class=\"hl-chron\"`，而 r54-4 已为该类落了字号与行高之 CSS——"
+    + "**探针遂被站上新落之样式管住**：375px 下其文自二行收为一行（盒高 38→27），故 Δ 自 +43 落到 +31。"
+    + "★ 此非坏事（探针之数因此贴近真数），惟**须记明**：本节之数自 r54-4 起已不是 r54-1 受裁时之数；"
+    + "落于站上之真数见 §七之一·附（Δ对本件之前 +31／+31）。");
+  console.log("  ★ 点击之径长：现状「主导航·编年」本已 1 击可达，故四案之别不在径长，而在**其所值是否说得出来**。");
+  const ENTRY_CASES = [["base", "现状·主导航「编年」二字（无数、无一语其值）"],
+                       ["jia", "甲·引言第四行一链（带 265／24 二数）"],
+                       ["yi", "乙·引言与地图之间一张入口卡"],
+                       ["bing", "丙·首页 .home-extra 之一钮（同现有诸入口之式）"],
+                       ["ding", "丁·主导航「编年」钮带全库条数（零新增高度）"]];
+  const entryTab = {};
+  for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
+    for (const [cid, desc] of ENTRY_CASES) {
+      const m = await measureEntryCase(br, baseNew, w, h, cid, { total: rc.total, orphan: rc.orphan });
+      entryTab[w + "/" + cid] = m;
+      console.log("    · " + w + "px " + cid.padEnd(5) + " 盒=" + JSON.stringify(m.entryBox) +
+        " 首屏内=" + m.inFold + " 需下滚=" + m.scrollNeeded + "px 地图顶=" + m.mapTop +
+        " 地图整幅在首屏=" + m.mapFullyInFold + " ｜ " + desc);
+      if (m.errs.length || m.cerrs.length) console.log("      ⚠ pageerror " + m.errs.length + "／console " + m.cerrs.length + "：" + m.errs.concat(m.cerrs).join(" ; "));
+    }
+  }
+  console.log("  ★ 与现状之差（Δ地图顶，正数＝把地图往下推）：");
+  for (const w of [W_WIDE, W_NARROW]) {
+    const b = entryTab[w + "/base"].mapTop;
+    for (const [cid] of ENTRY_CASES) {
+      if (cid === "base") continue;
+      console.log("      " + w + "px " + cid + "：Δ地图顶 = " + (entryTab[w + "/" + cid].mapTop - b) + "px");
+    }
+  }
+
+  head("§六 供裁之量（二）「导览之形」三案——任务书二节 2：遮挡面积占地图之比，两宽各量"
+    + "（★ r54-4 之后改量**旧源端** " + OLD_REF + "，其由见下注）");
+  const SHAPES = [["now", "现状·浮卡随高亮孔就近落位（覆于地图之上）"],
+                  ["xia", "甲·下置贴边条（全宽、贴视口底）"],
+                  ["ce", "乙·侧置（>680px 贴右缘垂直居中；≤680px 退为下置）"],
+                  ["bi", "丙·避让（择地图盒之外最空一侧落卡，高亮孔不变）"]];
+  /* ★ r54-4 之后本节改量**旧源端**（`OLD_REF`），其由要紧：
+   *   乙既已落于站上，新源端之「现状·就近落位」一案**已不存在**——其定位之码已去（app.js 之 drawTourHole）。
+   *   若仍量新源端，则「现状」一行量到的是**乙**（实测 0.0%），而标签写着「就近落位」——**标签与所量之物不符即是假账**。
+   *   故本节自此量旧源端：那才是四案受裁时所对之真形。
+   *   ★ 一事须记明：旧源端**无首页引言**（引言系 r54-1 所立），故其地图坐得比 r54-1 量时高约 120／156px；
+   *     惟「现状」一案之浮卡系随高亮孔落位、孔随地图同移，故其比**恰与 r54-1 所载相同**（8.3%／54.1%，下可自证）；
+   *     甲（贴视口底之条）之数则因地图上移而与 r54-1 所载不同——**不可混引**。 */
+  for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
+    for (const [sh, desc] of SHAPES) {
+      const m = await measureTourShape(br, baseOld, w, h, sh);
+      console.log("    · " + w + "px " + sh.padEnd(4) + " 遮挡 " + Math.round(m.ovl) + " / 地图 " + Math.round(m.mapArea) +
+        " = " + (m.pct == null ? "n/a" : m.pct.toFixed(1) + "%") + " 浮卡盒=" + JSON.stringify(m.popBox) +
+        " 浮卡可见=" + m.popVisible + " 导览在显=" + m.tourShown + " ｜ " + desc);
+      if (m.errs.length || m.cerrs.length) console.log("      ⚠ pageerror " + m.errs.length + "／console " + m.cerrs.length + "：" + m.errs.concat(m.cerrs).join(" ; "));
+    }
+  }
+
+  /* ===================================================================
+   * §七 r54-4 之落（裁七十一取甲／裁七十二取乙／裁七十三只藏其链）
+   * ★ 与 §六之别：§六 以行内样式**模拟**诸案以供裁；§七 量的是**站上真形**，一字不注入。
+   * =================================================================== */
+  head("§七 r54-4 之落——甲（编年之径）／乙（导览侧置）／句三（只藏其链），量站上真形");
+
+  /* ---- 七之一 甲：引言第四句一链（裁七十一） ---- */
+  console.log("  ── 七之一 甲·编年之径（引言第四句一链）");
+  const hop = {};
+  for (const w of [W_WIDE, W_NARROW]) {
+    const m = lede[w];                                   // §三 已量，此处只断其 r54-4 之条
+    const c = m.chron;
+    console.log("    · " + w + "px 第四句：" + (c ? JSON.stringify(c.text) : "无") +
+      " href=" + (c && c.href) + " 盒=" + (c ? JSON.stringify(c.box) : "—") +
+      " 首屏内=" + (c && c.inFold) + " 需下滚=" + (c && c.scrollNeeded) + "px 横溢=" + m.docOverflowX);
+    ok(!!c, w + "px 【径·甲】引言第四句在，且是一条链", c ? "文=" + c.text : "无 .hl-chron");
+    ok(c && c.href === "#/chronicle", w + "px 【径·甲】其 href 指编年（相对之 hash，非绝对路径）", c && c.href);
+    ok(c && /^编年 · 全库 \d+ 条按年铺开，其中 \d+ 条只此一处可见 →$/.test(c.text),
+      w + "px 【径·甲】其文合裁七十一所定之形", c && c.text);
+    ok(c && c.total === rc.total, w + "px 【径·乙】其「全库」之数＝独立自 events.json 复算之数",
+      (c && c.total) + " ／ 复算 " + rc.total);
+    ok(c && c.orphan === rc.orphan, w + "px 【径·乙】其「只此一处可见」之数＝独立复算之数",
+      (c && c.orphan) + " ／ 复算 " + rc.orphan);
+    ok(c && c.inFold && c.scrollNeeded === 0, w + "px 【径·丙】其链整个在首屏之内、需下滚 0px",
+      "盒=" + (c ? JSON.stringify(c.box) : "—") + " 视口高=" + m.vh);
+    ok(m.docOverflowX === false, w + "px 【径·丙】落其链之后页无横向溢出", "doc 横溢=" + m.docOverflowX);
+    const hp = await measureChronHop(br, baseNew, w, W_WIDE === w ? H_WIDE : H_NARROW);
+    hop[w] = hp;
+    console.log("      点其链 → hash=" + hp.hash + " 编年屏在显=" + hp.shown + " rows=" + hp.rows);
+    ok(hp.hash === "#/chronicle" && hp.shown === true, w + "px 【径·丁】其链**点得进去**（不只是「在」）",
+      "hash=" + hp.hash + " 编年屏在显=" + hp.shown);
+    ok(hp.rows === rc.total, w + "px 【径·丁】落地之编年确铺全库", "rows=" + hp.rows + " ／ " + rc.total);
+    const mt = (hp.intro.match(/全库\s*(\d+)\s*条事件/) || [])[1];
+    const mo = (hp.intro.match(/其中\s*(\d+)\s*条未系于任何主角/) || [])[1];
+    ok(Number(mt) === c.total && Number(mo) === c.orphan,
+      w + "px 【径·戊】首页第四句之二数与编年页自述**逐个相等**（同源之证，非巧合）",
+      "首页 " + c.total + "／" + c.orphan + " ⇔ 编年 " + mt + "／" + mo);
+    ok(hp.errs.length === 0 && hp.cerrs.length === 0, w + "px 【径·己】点其链一路零 pageerror",
+      "pageerror " + hp.errs.length + "／console " + hp.cerrs.length +
+      (hp.errs.concat(hp.cerrs).length ? "：" + hp.errs.concat(hp.cerrs).join(" ; ") : ""));
+  }
+  /* Δ地图顶：三个基准俱现量（基准之义见 measureMapTop 之注） */
+  console.log("  ── 七之一·附 Δ地图顶（三基准俱现量；正数＝把地图往下推）");
+  for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
+    const old0 = await measureMapTop(br, baseOld, w, h, false);       // ① 旧版：无引言
+    const pre = await measureMapTop(br, baseNew, w, h, true);         // ② 本件之前：引言三句
+    const now = await measureMapTop(br, baseNew, w, h, false);        // ③ 今：引言四句
+    console.log("    · " + w + "px 地图顶：旧版(无引言) " + old0.mapTop + " → 本件之前(三句) " + pre.mapTop +
+      "（Δ对旧版 +" + (pre.mapTop - old0.mapTop) + "） → 今(四句) " + now.mapTop +
+      "（Δ对本件之前 +" + (now.mapTop - pre.mapTop) + "；Δ对旧版 +" + (now.mapTop - old0.mapTop) + "）" +
+      " ｜ 引言盒高 三句 " + pre.ledeH + " → 四句 " + now.ledeH + " ｜ 地图整幅在首屏 " + now.mapFullyInFold);
+    ok(pre.nP === 3 && now.nP === 4, w + "px 基准②之复原属实（摘第四句之 <p> 后恰三句）",
+      "本件之前 " + pre.nP + " 句 ／ 今 " + now.nP + " 句");
+    ok(now.mapFullyInFold === true, w + "px 【径·庚】第四句落地之后地图整幅**仍**在首屏", "地图顶=" + now.mapTop);
+  }
+
+  /* ---- 七之二 乙：导览侧置（裁七十二） ---- */
+  console.log("  ── 七之二 乙·导览之形（侧置；≤680px 退下置）；★ 走真导览，一字不注入");
+  const realTour = {};
+  for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
+    const m = await measureTourReal(br, baseNew, w, h);
+    realTour[w] = m;
+    m.steps.forEach((s, i) => console.log("    · " + w + "px 步" + (i + 1) + " [" + s.step + "] 卡=" + JSON.stringify(s.pop) +
+      " 孔=" + JSON.stringify(s.hole) + " 遮图=" + (s.mapPct == null ? "n/a" : s.mapPct + "%") +
+      " 遮孔=" + s.holePct + "% 卡全在视口=" + s.popInView + " 行内样式=" + JSON.stringify(s.inlineStyle) + " 焦点=" + s.focusId));
+    const s1 = m.steps[0];
+    ok(s1.shown === true, w + "px 【形·〇】导览确在显（否则以下诸量皆是假 0）", "在显=" + s1.shown);
+    ok(s1.mapPct === 0, w + "px 【形·甲】步一浮卡遮首页地图 0.0%（裁七十二之验收）",
+      "遮 " + s1.mapOvl + " / 地图 " + s1.mapArea + " = " + s1.mapPct + "%");
+    ok(m.steps.every(s => s.inlineStyle === ""), w + "px 【形·乙】浮卡之位全由 CSS 定（三步俱无行内样式）",
+      m.steps.map((s, i) => "步" + (i + 1) + "=" + JSON.stringify(s.inlineStyle)).join(" "));
+    ok(m.steps.every(s => s.popInView), w + "px 【形·丙】三步之卡俱整个在视口之内",
+      m.steps.map((s, i) => "步" + (i + 1) + "=" + s.popInView).join(" "));
+    ok(m.steps.every(s => s.focusId === "tour-next"), w + "px 【形·丁】三步之焦点仍落「下一步」（键盘可达不回退）",
+      m.steps.map(s => s.focusId).join("/"));
+    ok(m.errs.length === 0 && m.cerrs.length === 0, w + "px 【形·戊】走完三步零 pageerror",
+      "pageerror " + m.errs.length + "／console " + m.cerrs.length +
+      (m.errs.concat(m.cerrs).length ? "：" + m.errs.concat(m.cerrs).join(" ; ") : ""));
+  }
+  /* ★ r54-4b：此注之**理由**照站长 2026-09-26 之裁改写（原作「任何固定之卡必与之有交」一路，
+   *   其失在以「其数之所以然」代「其为何不足为据」；站长所正者是**量法与所量之物对不上**）。 */
+  console.log("  ★ 步二／步三之「遮孔比」只作**量**记，不作断言——其由是**量法与所量之物对不上**（站长 2026-09-26 裁）：");
+  console.log("    裁七十二之验收，步一量的是「**卡 ∩ 地图 ／ 地图**」；**而步二所指之物不是地图**"
+    + "（是文姜时间线之首卡，1440px 1196×520／375px 343×918）。");
+  console.log("    ★ **同一个比施于步二，是换了被量之物而不换其名**——故其数不入验收，只作量记。"
+    + "★ 此与裁七十一之条件（「仍不换行」所预设者不成立）**同族**：判据与所量之物对不上。");
+  console.log("    （其数与旧版之对照见 §七之五 反证表；★ 不以「其数尚小」为由——那是以量之大小论其可否为据。）");
+
+  /* ---- 七之三 句三：只藏其链，且其无链之态须读得通（裁七十三） ---- */
+  console.log("  ── 七之三 句三·只藏其链（裁七十三）；★ r54-7 之后其链**已出**，下为实读之文");
+  for (const w of [W_WIDE, W_NARROW]) {
+    const t = lede[w].whyText || "";
+    console.log("    · " + w + "px 句三实读：" + JSON.stringify(t));
+    /* ★★ 【r54-7 三次反转之一，照 r54-4b 之例留其痕，不默然改】
+     *   **原条**：`ok(lede[w].whyLinks === 0, "【句三·甲】今日句三内一个链也没有")`。
+     *   **其立意**（裁七十三「只藏其链」）：页未立之日，句三之文照出而**链不出**——
+     *   把「**不显一个点不进去的链**」钉成一条可复验之事实。
+     *   ★ **今考据页已立（r54-7），那条事实即不复存在**：藏之之由是「点不进去」，其页既立，藏即成掩。
+     *   故改断其**有且恰一**，并另断其**指得着**（`href === "#/kaodui"`，§三 已断之）。
+     *   ★ **裁七十三一字未变**——变的是它所系之前提（页立与否），**不是判据本身**。 */
+    ok(lede[w].whyLinks === 1, w + "px 【句三·甲】句三内恰一链（r54-7 页既立，藏之之由已不存）",
+      "链数=" + lede[w].whyLinks);
+    /* 「读得通」之机械判（裁七十三：不得出现一句指向空处之文）：
+     *   ① 不以悬空之引语收尾（「见」「：」「，」「、」）；② 不含空括（（）〔〕[]()）；③ 以句号收。
+     *   ★ 此三条**不因链之出而松**：链既出，「…之记录见<链>。」仍须是一句读得通之整话。 */
+    ok(/。$/.test(t), w + "px 【句三·乙】以句号收，不以悬空之引语收尾", "末三字=" + JSON.stringify(t.slice(-3)));
+    ok(!/[见：，、]$/.test(t.replace(/。$/, "")), w + "px 【句三·丙】去句号后亦不以「见／：／，／、」收尾",
+      "末三字=" + JSON.stringify(t.replace(/。$/, "").slice(-3)));
+    ok(!/（\s*）|〔\s*〕|\(\s*\)|\[\s*\]/.test(t), w + "px 【句三·丁】文内无空括（无一处指向空处）", "");
+  }
+
+  /* ---- 七之四 丁：**已落**（r54-4b，站长 2026-09-26 裁「丁可落」），并现量其代价 ---- */
+  console.log("  ── 七之四 丁·导航钮带全库条数（★ r54-4b **已落**；站长 2026-09-26 裁「丁可落」）");
+  /* ★★ 一条断言之期望值在此反转，其痕记此（站长明命「不得默然改一个断言之期望值」）：
+   *   - **r54-4 时**本条作「【丁·〇】主导航『编年』钮今**仍无数**」——其立**正为使「未落」本身可复验**
+   *     （一件事没做，也要留下可核之证；领队之五·一以此为当记者）；
+   *   - **r54-4b 站长裁「丁可落」**，丁既落，原期望值即成陈迹，故**反转为其反面**：钮**须**带数，
+   *     且其数须与独立复算相等。
+   *   ★ 原条之文与其立意照录于上，不删——**期望值可以改，改之之由不可无声**。 */
+  console.log("    ★ 【丁·〇】之期望值于 r54-4b **反转**：r54-4 时断「钮仍无数」（为使「未落」可复验），"
+    + "今站长裁「丁可落」，遂改断「钮带数且其数＝独立复算」。原条之文与其立意照录于门内之注，不删。");
+  for (const w of [W_WIDE, W_NARROW]) {
+    const m = lede[w];
+    console.log("    · " + w + "px 钮文=" + JSON.stringify(m.navChronText) + " 其数=" + JSON.stringify(m.navNum) +
+      " aria-label=" + JSON.stringify(m.navChronAria));
+    ok(m.navNum !== null && m.navNum === String(rc.total),
+      w + "px 【丁·〇】主导航「编年」钮**带数**，且其数＝独立自 events.json 复算之数（期望值 r54-4b 反转，见上）",
+      "其数=" + JSON.stringify(m.navNum) + " ／ 复算 " + rc.total);
+    ok(m.navChronText === "编年" + rc.total, w + "px 【丁·甲】钮之文恰为「编年」＋其数（别无他字）",
+      JSON.stringify(m.navChronText));
+    ok(m.navChronAria === "编年 · 全库 " + rc.total + " 条",
+      w + "px 【丁·乙】其 `aria-label` 明其义（读屏不致读作「编年二百六十五」而不知所指）",
+      JSON.stringify(m.navChronAria));
+  }
+  /* 源码之证：其数不写死（与 renderHomeLede／chronCounts 同一口径之断言） */
+  {
+    const src = (newApp.match(/function syncNavChronCount\(\)[\s\S]*?\n}/) || [""])[0];
+    ok(src.length > 0, "【丁·丙】`syncNavChronCount()` 在源码之内", "长 " + src.length + " 字");
+    const bad = [String(rc.total), String(rc.orphan)].filter(n => src.includes(n));
+    ok(bad.length === 0, "【丁·丙】其源码内不含任何库数之字面（数自 chronCounts() 取）", bad.length ? "撞见 " + bad.join("/") : "无");
+    ok(/syncNavChronCount\(\);/.test(newApp), "【丁·丙】其于 `boot()` 内确被调用一次", "");
+    const navBlock = (newHtml.match(/<button type="button" data-view="chronicle">[\s\S]*?<\/button>/) || [""])[0];
+    ok(navBlock.includes('id="nav-chron-count"') && !navBlock.includes(String(rc.total)),
+      "【丁·丙】`index.html` 之钮内只留其位，不写死其数", JSON.stringify(navBlock));
+  }
+  /* 代价：现量「带数」与「去其数」二态（基准＝去其数之真态，非注入之模拟） */
+  for (const [w, h] of [[W_NARROW, H_NARROW], [320, 700], [680, 800], [W_WIDE, H_WIDE]]) {
+    const n = await measureNav(br, baseNew, w, h);
+    ok(n.hasNum === true, w + "px 【丁·丁】`#nav-chron-count` 确在（基准②之复原所系）", "hasNum=" + n.hasNum);
+    for (const [lab, r] of [["带数", n.ding], ["去数", n.bare]]) {
+      console.log("    · " + w + "px [" + lab + "] nav 高=" + r.navH + " flex 行数=" + r.lines +
+        " nav 横溢=" + r.navOverflowX + " doc 横溢=" + r.docOverflowX + "(" + r.docScrollW + "/" + r.docClientW + ")" +
+        " 编年钮=" + JSON.stringify(r.chron) + " 文=" + JSON.stringify(r.chronText) +
+        " 钮内文行数≈" + r.chronTextLines + " headerH=" + r.headerH + " mapTop=" + r.mapTop);
+    }
+    const zero = n.bare.navH === n.ding.navH && n.bare.lines === n.ding.lines &&
+                 n.bare.headerH === n.ding.headerH && n.bare.mapTop === n.ding.mapTop;
+    ok(zero, w + "px 【丁·戊】丁之代价为**零**：nav 高／flex 行数／headerH／地图顶，带数与去数**逐项相同**",
+      "高 " + n.bare.navH + "→" + n.ding.navH + "、行 " + n.bare.lines + "→" + n.ding.lines +
+      "、headerH " + n.bare.headerH + "→" + n.ding.headerH + "、地图顶 " + n.bare.mapTop + "→" + n.ding.mapTop);
+    ok(n.ding.docOverflowX === false && n.ding.navOverflowX === false,
+      w + "px 【丁·己】带数之后 nav 与页俱无横向溢出",
+      "nav=" + n.ding.navOverflowX + " doc=" + n.ding.docOverflowX + "(" + n.ding.docScrollW + "/" + n.ding.docClientW + ")");
+    ok(n.ding.chronTextLines <= 1.2, w + "px 【丁·庚】钮内文不换行", "行数≈" + n.ding.chronTextLines);
+    console.log("      ⇒ " + w + "px ★ 而「" + w + "px 下导航栏恰一行」本身＝" + (n.bare.lines === 1) +
+      "（**落丁之前即如此**，与丁无关——裁七十一之条件严读所以量不着丁者，正在此数）");
+  }
+  console.log("  ★ 裁七十一之条件严读（「375px 下导航栏不换行」）**本不满足，且其不满足与丁无关**：");
+  console.log("    375px 下主导航自 r13 起即 `flex-wrap:wrap`，落丁之前已 2 行（选人／关系／编年／资料库 ｜ 关于／反馈／邮件）；320px 下 3 行。");
+  console.log("    r54-4 遂照任务书之退路「丁不落」并上报；★ **站长 2026-09-26 裁「丁可落」**，r54-4b 补落之——");
+  console.log("    **其判据之改在裁者，执行者只呈其量**（此即 design_notes §7.8 所记者）。");
+
+  /* ---- 七之五 按类反证·逐条对位（r52 裁二十四；r54-4 之诸类） ---- */
+  head("§七之五 r54-4 之按类反证·逐条对位——同法施于旧版（" + OLD_REF + "），逐条各自见红");
+  const oldLede4 = await measureLede(br, baseOld, W_WIDE, H_WIDE);
+  const oldTourW = await measureTourReal(br, baseOld, W_WIDE, H_WIDE);
+  const oldTourN = await measureTourReal(br, baseOld, W_NARROW, H_NARROW);
+  console.log("    · 旧版 1440px 步一 卡=" + JSON.stringify(oldTourW.steps[0].pop) + " 遮图=" + oldTourW.steps[0].mapPct +
+    "% 遮孔=" + oldTourW.steps[0].holePct + "% 行内样式=" + JSON.stringify(oldTourW.steps[0].inlineStyle));
+  console.log("    · 旧版 375px  步一 卡=" + JSON.stringify(oldTourN.steps[0].pop) + " 遮图=" + oldTourN.steps[0].mapPct +
+    "% 遮孔=" + oldTourN.steps[0].holePct + "% 行内样式=" + JSON.stringify(oldTourN.steps[0].inlineStyle));
+  console.log("    · 旧版 1440px 步二／步三 遮孔=" + oldTourW.steps[1].holePct + "%／" + oldTourW.steps[2].holePct +
+    "%；旧版 375px 步二／步三 遮孔=" + oldTourN.steps[1].holePct + "%／" + oldTourN.steps[2].holePct + "%");
+  const counter4 = [
+    ["径·甲 引言第四句为编年之一链", oldLede4.exists !== true, "旧版 #home-lede 存在=" + !!oldLede4.exists + "（并无第四句可言）"],
+    /* ★ 此二条之红须以「**量到了，而其无**」为据，不得以「没量到」充之：
+     *   故先断旧版之钮**确已找到**（`navBtnFound`），再断其无数、无 aria-label。 */
+    ["丁·〇 导航钮带全库条数", oldLede4.navBtnFound === true && oldLede4.navNum === null,
+      "旧版钮确已找到=" + oldLede4.navBtnFound + "；其 #nav-chron-count 不在（量出之值 null），钮文=" + JSON.stringify(oldLede4.navChronText)],
+    ["丁·乙 其 aria-label 明其义", oldLede4.navBtnFound === true && oldLede4.navChronAria === null,
+      "旧版钮确已找到=" + oldLede4.navBtnFound + "；其 aria-label 量出之值=" + JSON.stringify(oldLede4.navChronAria)],
+    ["径·乙 其二数与编年自述同源同数", oldLede4.chron == null, "旧版首页无 .hl-chron，一个数也不报"],
+    ["形·甲 步一浮卡遮地图 0.0%（1440px）", oldTourW.steps[0].mapPct > 0, "旧版遮 " + oldTourW.steps[0].mapPct + "%（>0 方算见红）"],
+    ["形·甲 步一浮卡遮地图 0.0%（375px）", oldTourN.steps[0].mapPct > 0, "旧版遮 " + oldTourN.steps[0].mapPct + "%（>0 方算见红）"],
+    ["形·乙 浮卡之位全由 CSS 定（无行内样式）", oldTourW.steps[0].inlineStyle !== "", "旧版行内样式=" + JSON.stringify(oldTourW.steps[0].inlineStyle)],
+  ];
+  for (const [cls, red, d] of counter4) ok(red, "〔反证〕" + cls + " —— 旧版当场红", d);
+  console.log("  ⚠ 新旧同绿·非本轮之新能（照实标出，不入反证之数）：");
+  console.log("      · 形·丙「卡整个在视口之内」——旧版「就近落位」本已有夹取（Math.min/max 之两笔），三步亦俱在视口内；本条是**不回退**。");
+  console.log("      · 形·丁「焦点落下一步」——旧版 placeTour 末已 focus #tour-next；本条同为不回退。");
+  console.log("      · 句三·乙／丙／丁「其文读得通」——旧版无句三可读，故其红不足以证本轮之文**本身**读得通；");
+  console.log("        句三之据是本门实读其文并逐条机械判（见 §七之三 所印之字），不靠反证。");
+
+  /* ===================================================================================
+   * §八 r54-7 之门——考据索引之读者页（`#/kaodui`；裁七十七、裁九十四至九十八）
+   * ★ 与 §五（DOM 逐位全等）之分工：§五 量「**未涉之页**一字未动」，§八 量「**新立之页**其形其数其链」。
+   * ★ 本节之「旧版」不足以作反证：`OLD_REF` 根本无此页，**其红恒真而不指向任何一条断言之能**
+   *   （同 §四之「新旧同绿·非本轮之新能」之诚实一条之反面：这里是「新旧同红·而其红不足以证能」）。
+   *   故本节之按类反证**不取旧版，取注入之变体**（`srv(SITE, override)` 以改过一处之 `app.js`／`notice`
+   *   起一个源端）——**每类各注一处同型之改，各自看它红在何处**（r52 裁二十四；记忆「按类反证立断言」）。
+   * =================================================================================== */
+  head("§八 r54-7 考据索引之读者页——其形、其三数、其档、其记号、其链（两宽）");
+
+  /* ---- 八之〇 独立复算：不读页面之文，直接自 `site/data/*.json` 与 `docs/kaodui_index.md` 算 ---- */
+  const kdJson = JSON.parse(fs.readFileSync(path.join(SITE, "data", "kaodui.json"), "utf8"));
+  const kdNotice = JSON.parse(fs.readFileSync(path.join(SITE, "data", "kaodui_notice.json"), "utf8"));
+  const kdMd = fs.readFileSync(path.join(ROOT, "docs", "kaodui_index.md"), "utf8");
+  const kdCalc = (() => {
+    const byStatus = new Map();
+    let flat = 0, none = 0, negPairs = 0;
+    const negRows = new Set(), negGroups = new Set();
+    for (const r of kdJson) {
+      const st = r.status || [];
+      if (!st.length) { none++; continue; }
+      for (const s of st) {
+        flat++;
+        byStatus.set(s.name, (byStatus.get(s.name) || 0) + 1);
+        if (s.negated) { negPairs++; negRows.add(r.key); negGroups.add(s.name); }
+      }
+    }
+    return { rows: kdJson.length, flat, none, byStatus, negPairs,
+             negRows: negRows.size, negGroups: negGroups.size, items: flat + none };
+  })();
+  /* md §三 速查之逐档之数——**自 md 之文独立求之**，不读 json、不读页面。
+   * 其形：`### <档名>（N 条）`。这一路是「同数」之另一源，两源相等才算数（裁九十六①）。 */
+  const kdMdCounts = (() => {
+    const m = new Map();
+    const re = /^### (.+?)（(\d+) 条）\s*$/gm;
+    const sec3 = kdMd.slice(kdMd.indexOf("## 三、速查·按核对状态"), kdMd.indexOf("## 四、台账正表"));
+    let x;
+    while ((x = re.exec(sec3))) m.set(x[1], Number(x[2]));
+    return m;
+  })();
+  console.log("  · 独立复算（json）：行 " + kdCalc.rows + "／档之引 " + kdCalc.flat +
+    "／无档之行 " + kdCalc.none + "／页上之目 " + kdCalc.items +
+    "；否定 " + kdCalc.negPairs + " 引、涉 " + kdCalc.negRows + " 行、跨 " + kdCalc.negGroups + " 档");
+  console.log("  · 独立复算（md §三 速查）：" + kdMdCounts.size + " 档，其和 " +
+    [...kdMdCounts.values()].reduce((a, b) => a + b, 0));
+
+  /* ---- 八之一 三源同数：json 之档 ＝ md 速查之档 ＝ `notice.status_order`（裁九十六①） ---- */
+  head("§八之一 「同数」之义已定：档数同 21，且**逐档之条数逐档同**（裁九十六①；三源对读）");
+  ok(kdNotice.status_order.length === 21, "`notice.status_order` 恰 21 档（一档不并）", "实测 " + kdNotice.status_order.length);
+  ok(kdCalc.byStatus.size === 21, "json 摊平所得之档集恰 21 档", "实测 " + kdCalc.byStatus.size);
+  ok(kdMdCounts.size === 21, "md §三 速查恰 21 档", "实测 " + kdMdCounts.size);
+  {
+    const bad = kdNotice.status_order.filter((n, i) => [...kdMdCounts.keys()][i] !== n);
+    ok(bad.length === 0, "md §三 之档序与 `status_order` **逐位相同**", bad.length ? "首异 " + bad[0] : "0 位不符");
+    const mism = kdNotice.status_order.filter(n => (kdCalc.byStatus.get(n) || 0) !== (kdMdCounts.get(n) || 0));
+    ok(mism.length === 0, "**逐档之条数逐档同**（json 摊平 vs md 速查，21 档逐档对）",
+      mism.length ? mism.map(n => n + "：json " + kdCalc.byStatus.get(n) + "／md " + kdMdCounts.get(n)).join("；") : "0 档不符");
+  }
+  ok(kdCalc.flat - kdCalc.rows === 48, "★ 行 " + kdCalc.rows + " 与档之引 " + kdCalc.flat + " 相去 48（裁九十六③之数）",
+    "差 " + (kdCalc.flat - kdCalc.rows));
+
+  /* ---- 八之二 页上之量（两宽） ---- */
+  const kdPage = {};
+  for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
+    const m = await measureKaodui(br, baseNew, w, h);
+    kdPage[w] = m;
+    console.log("    · " + w + "px 目=" + m.items + " 组=" + m.groups + " 渲=" + m.renderMs +
+      "ms 横溢=" + m.docOverflowX + " 行数=" + m.rows + " 摘要上之记号=" + m.negInSummary +
+      " 触区最小高=" + m.minSummaryH + "px 首屏内(凡例)=" + m.fanliInFold);
+    ok(m.shown, w + "px `#/kaodui` 其屏已显（hash 认得）", "view-kaodui hidden=" + !m.shown);
+    ok(m.items === kdCalc.items && m.rows === kdCalc.items,
+      w + "px 页上之目 ＝ 独立复算之 " + kdCalc.items + "（＝511 档之引 ＋ 176 无档之行）",
+      "dataset.items=" + m.items + " 实数 `.kd-row`=" + m.rows);
+    ok(m.groups === 22, w + "px 组恰 22（21 档 ＋ **无档者之位**一位；★ 其位非第 22 档）", "实测 " + m.groups);
+    /* ★ 逐组对位：组之序与其目数，与 `status_order`＋独立复算逐组对。**不以总数相同充之。** */
+    {
+      const exp = kdNotice.status_order.map(n => ({ name: n, n: kdCalc.byStatus.get(n) }))
+        .concat([{ name: "未提取到核对状态", n: kdCalc.none }]);
+      const bad = exp.filter((e, i) => !m.gts[i] || m.gts[i].name !== e.name || m.gts[i].n !== e.n);
+      ok(bad.length === 0, w + "px **22 组逐组对位**：其名其序其目数，与档序＋独立复算逐组相同",
+        bad.length ? "不符 " + bad.length + " 组，首为「" + bad[0].name + "」期 " + bad[0].n +
+          "，实 " + JSON.stringify(m.gts[exp.indexOf(bad[0])]) : "0 组不符");
+    }
+    /* ★ 三数并书（裁九十六②）——页首引之内三数俱在，且逐个等于独立复算之数；
+     *   并断其**不以一数代之**（三数俱须现身，缺一即红）。 */
+    ok(m.intro.rows === kdCalc.rows && m.intro.flat === kdCalc.flat && m.intro.none === kdCalc.none,
+      w + "px 页首**三数并书**且逐个＝独立复算（行 " + kdCalc.rows + "／档之引 " + kdCalc.flat +
+      "／无档之行 " + kdCalc.none + "）", JSON.stringify(m.intro));
+    ok(/共 687 目/.test(m.introText) && /所涉之行 463/.test(m.introText),
+      w + "px 页上「共 N 目」之语**明其所指**（目 vs 行，裁九十六③）", m.introText.slice(-60));
+    ok(/目/.test(m.statusText) && !/共 \d+ 条/.test(m.statusText),
+      w + "px 状态行一律称「目」，不出无主之「共 N 条」", m.statusText);
+    /* ★ 二位不得混（裁九十五；领队之十一·5）：二者俱在、其数各别、且页上写着其辨。 */
+    ok(m.noneGroup && m.noneGroup.n === kdCalc.none, w + "px 「未提取到核对状态」之位在，其数 " + kdCalc.none,
+      JSON.stringify(m.noneGroup));
+    ok(m.markedGroup && m.markedGroup.n === kdCalc.byStatus.get("未标核对状态"),
+      w + "px 「未标核对状态」一档另在，其数 " + kdCalc.byStatus.get("未标核对状态"), JSON.stringify(m.markedGroup));
+    ok(m.noneNote && /未从其文提取到/.test(m.noneNote) && /源文明书其未标/.test(m.noneNote) && /非.*第二十二档/.test(m.noneNote),
+      w + "px 其位之下写着二者之辨（「未从其文提取到」vs「源文明书其未标」，且明其非第 22 档）",
+      m.noneNote ? m.noneNote.slice(0, 60) + "…" : "<无此注>");
+    /* ★ 否定之记号挂在「行×档」之对（裁九十七）——摘要上之记号数 ＝ 独立复算之 40 引；
+     *   并断其**不是**挂在行上（挂在行则其数当为「涉 neg 之行所摊平之档数之和」，与 40 不等）。 */
+    ok(m.negInSummary === kdCalc.negPairs,
+      w + "px 摘要上之短记恰 " + kdCalc.negPairs + " 枚 ＝ `status[i].negated` 之引数（**挂在行×档之对**）",
+      "实测 " + m.negInSummary);
+    ok(m.negRowsTouched === kdCalc.negRows && m.negGroupsTouched === kdCalc.negGroups,
+      w + "px 其所涉之行 " + kdCalc.negRows + "、所跨之档 " + kdCalc.negGroups + "，与独立复算逐个相同",
+      "实测 行 " + m.negRowsTouched + "／档 " + m.negGroupsTouched);
+    ok(m.negMixedRows > 0 && m.negMixedOk,
+      w + "px **同一行一档否定、一档不否定者** " + m.negMixedRows + " 行，其记只落否定之那一档（逐目对位）",
+      "混档之行 " + m.negMixedRows + "，错挂 " + m.negMixedBad + " 目");
+    ok(m.docOverflowX === false, w + "px 无横向溢出", "scrollW/clientW=" + m.docScrollW + "/" + m.docClientW);
+    ok(m.errs.length === 0 && m.cerrs.length === 0, w + "px 零 pageerror（beacon 噪音已剔）",
+      "pageerror " + m.errs.length + "／console " + m.cerrs.length +
+      (m.errs.concat(m.cerrs).length ? "：" + m.errs.concat(m.cerrs).join(" ; ") : ""));
+  }
+  ok(kdPage[W_NARROW].minSummaryH >= 44,
+    "375px 行之触区 ≥44px（手机可点之界，同编年 `.chron-row summary` 之例）",
+    "最小 " + kdPage[W_NARROW].minSummaryH + "px");
+  ok(kdPage[W_NARROW].cardOverflow === false && kdPage[W_WIDE].cardOverflow === false,
+    "两宽**687 目全展**，其卡无一横溢其容器（逐目量，不取样）",
+    "375px=" + kdPage[W_NARROW].cardOverflow + "（卡 " + kdPage[W_NARROW].cards + " 张" +
+    (kdPage[W_NARROW].overflowFirst ? "，首溢 " + kdPage[W_NARROW].overflowFirst : "") + "）／1440px=" +
+    kdPage[W_WIDE].cardOverflow + "（卡 " + kdPage[W_WIDE].cards + " 张" +
+    (kdPage[W_WIDE].overflowFirst ? "，首溢 " + kdPage[W_WIDE].overflowFirst : "") + "）");
+  ok(kdPage[W_NARROW].docOverflowXOpen === false && kdPage[W_WIDE].docOverflowXOpen === false,
+    "两宽**687 目全展**之后，页仍无横向溢出（窄屏之实测，非推想）",
+    "375px=" + kdPage[W_NARROW].docOverflowXOpen + "／1440px=" + kdPage[W_WIDE].docOverflowXOpen);
+  ok(kdPage[W_WIDE].cards === kdCalc.items && kdPage[W_NARROW].cards === kdCalc.items,
+    "**每一目之卡俱建得起来**（展开即建，幂等）——两宽俱 " + kdCalc.items + " 张",
+    "1440px " + kdPage[W_WIDE].cards + "／375px " + kdPage[W_NARROW].cards);
+
+  /* ---- 八之二·附 筛选之一往一返（二组 chips ＋ 清除钮；★ 其立之由见量法（三）之注） ---- */
+  head("§八之二·附 筛选：组内并集、组间交集、清除归零，且**不入 hash**");
+  const kdF = await measureKaoduiFilter(br, baseNew);
+  {
+    const n1 = kdCalc.byStatus.get("本轮无从核");
+    const n2 = kdJson.filter(r => r.table === "places" && (r.status || []).some(x => x.name === "本轮无从核")).length;
+    console.log("    · 全表 " + kdF.base0.items + " 目 → 取「本轮无从核」得 " + kdF.one.items +
+      " → 再取「places」得 " + kdF.two.items + " → 清除得 " + kdF.back.items + "；hash=" + JSON.stringify(kdF.hash));
+    ok(kdF.base0.items === kdCalc.items && kdF.base0.clearHidden === true,
+      "未筛之时全表 " + kdCalc.items + " 目，且「清除筛选」之钮不出（无可清者不出其钮）",
+      "目 " + kdF.base0.items + "／钮隐 " + kdF.base0.clearHidden);
+    ok(kdF.one.items === n1 && kdF.one.groups === 1 && kdF.one.clearHidden === false,
+      "取「本轮无从核」一枚 → 恰 " + n1 + " 目、1 组，且清除之钮现身",
+      "目 " + kdF.one.items + "／组 " + kdF.one.groups + "／钮隐 " + kdF.one.clearHidden);
+    ok(kdF.two.items === n2, "再取「places」一枚 → **组间取交集**，恰 " + n2 + " 目（独立自 json 复算）",
+      "实测 " + kdF.two.items);
+    /* ★ 往返之断：清除之后须**一模一样地**回到全表，且二组之按压状态一并归零。 */
+    ok(kdF.back.items === kdCalc.items && kdF.back.rows === kdCalc.items &&
+       kdF.back.groups === 22 && kdF.back.pressed.length === 0 && kdF.back.clearHidden === true,
+      "点「清除筛选」→ 二组一并归零，复得 " + kdCalc.items + " 目／22 组，钮亦复隐",
+      "目 " + kdF.back.items + "／组 " + kdF.back.groups + "／仍按着 " + JSON.stringify(kdF.back.pressed) +
+      "／钮隐 " + kdF.back.clearHidden);
+    ok(kdF.empty.rows === 0 && kdF.empty.emptyLine.length > 0,
+      "筛空之组合下**空表自己说话**，不留白屏（同编年之例）",
+      "行 " + kdF.empty.rows + "／其文 " + JSON.stringify(kdF.empty.emptyLine));
+    ok(kdF.hash === "#/kaodui", "**筛选不入 hash**——分享出去一律是全表（件之 1）", "hash=" + JSON.stringify(kdF.hash));
+    ok(kdF.errs.length === 0 && kdF.cerrs.length === 0, "筛选一往一返之间零 pageerror",
+      "pageerror " + kdF.errs.length + "／console " + kdF.cerrs.length);
+  }
+
+  /* ---- 八之三 凡例**同出一源**之机械之证（裁九十八：逐元照取，不改一字，不增不删） ---- */
+  head("§八之三 凡例与二记号之字**同出一源**（裁九十八）——去 markdown 之记法后，与 json 逐字相同");
+  {
+    const strip = (s) => String(s).replace(/\*\*/g, "").replace(/`/g, "")
+      .replace(/^-\s+/gm, "").replace(/\s+/g, "");
+    const dom = kdPage[W_WIDE].fanli;
+    ok(dom.length === kdNotice.fanli.length, "页首凡例之块数 ＝ `notice.fanli` 之长（三元，不增不删）",
+      "页上 " + dom.length + "／json " + kdNotice.fanli.length);
+    kdNotice.fanli.forEach((f, i) => {
+      ok(dom[i] && strip(dom[i].body) === strip(f.text),
+        "凡例" + (i + 1) + "「" + f.title + "」其文与 json 逐字相同（只去 markdown 之记法）",
+        dom[i] ? "长 " + strip(dom[i].body).length + "／" + strip(f.text).length : "<缺>");
+      ok(dom[i] && dom[i].title.includes(f.title), "凡例" + (i + 1) + " 其标即 `fanli[" + i + "].title`", f.title);
+    });
+    ok(strip(kdPage[W_WIDE].negNote).includes(strip(kdNotice.neg_mark_note)),
+      "否定记号之**释文**入页首一次，与 `notice.neg_mark_note` 逐字相同（裁九十七③）", "");
+    ok(kdPage[W_WIDE].negFull.includes(kdNotice.neg_mark),
+      "否定记号之**全式**（含「须回原文」四字）入页首一次", kdNotice.neg_mark);
+    ok(kdPage[W_WIDE].negShorts.length > 0 &&
+       kdPage[W_WIDE].negShorts.every(t => t === kdNotice.neg_mark_short),
+      "条上所挂者一律**短式** `neg_mark_short`（裁九十七②，与 md 速查同）",
+      "共 " + kdPage[W_WIDE].negShorts.length + " 枚，异者 " +
+      kdPage[W_WIDE].negShorts.filter(t => t !== kdNotice.neg_mark_short).length);
+    /* ★ 「凡例不得手抄」之另一面：**其字不得在站码之内另有一份副本**。 */
+    const copied = kdNotice.fanli.map(f => f.text.slice(0, 18).replace(/\*\*/g, ""))
+      .concat([kdNotice.neg_mark, kdNotice.neg_mark_short, kdNotice.neg_mark_note.slice(0, 18)])
+      .filter(t => newApp.includes(t) || newHtml.includes(t));
+    ok(copied.length === 0, "`site/app.js`／`index.html` 之内**无凡例与记号之字之副本**（手抄即与 md 分家）",
+      copied.length ? "撞见 " + copied.length + " 处：" + copied[0] : "0 处");
+    /* ★ 二事照实之文（件之 4）须真在页上，不只在注里。 */
+    /* ★ 【本门自撞之一处，照实留其痕】原条作 `!/打开该地望页/.test(limits)`——**其谓词写反了**：
+     *   页上那一行正是要**明说**「不作『打开该地望页』」，故其字**当在**页上，只是不得用作链之文。
+     *   「此四字不得出现」与「此四字不得用作链之文」是两件事；原条禁其字，遂把一条写对了的文判成红。
+     *   ★ 治法是分开问：页首之文**当有**其正反二语（此条），而**链之文**不得含「地望页」
+     *   （另一条在 §八之四，逐目数之，`links.badWord`）。 */
+    ok(/在地图上定位/.test(kdPage[W_WIDE].limits) && /不作「打开该地望页」/.test(kdPage[W_WIDE].limits),
+      "页上明书地望一路之落点是「在地图上定位」，**并明说不作「打开该地望页」**（件之 4）",
+      kdPage[W_WIDE].limits.slice(0, 46) + "…");
+    ok(/不入网址/.test(kdPage[W_WIDE].limits) && /不可分享/.test(kdPage[W_WIDE].limits),
+      "页上明书其链**不可分享为深链**（`pendingSpot` 不入 URL），不掩", "");
+  }
+
+  /* ---- 八之四 回库之链：逐目机械之验 ＋ 五路真点之验 ---- */
+  head("§八之四 回库之链——**逐目**机械之验（687 目）＋ **五表五路**真点之验（断链 0）");
+  {
+    const lk = kdPage[W_WIDE].links;
+    ok(lk.total === kdCalc.items, "**每一目恰一条回库之链**，共 " + kdCalc.items + " 条（逐目数，不抽样）",
+      "有链之目 " + lk.total + "／目 " + kdCalc.items + "；无链之目 " + lk.missing);
+    ok(lk.badLabel === 0, "**逐目**：其文与其表相符（五表五式，people 一路并与 `isProto` 相符）",
+      "不符 " + lk.badLabel + " 目" + (lk.badLabelFirst ? "，首为 " + lk.badLabelFirst : ""));
+    ok(lk.unresolved === 0, "**逐目**：其所指之物在库内（地望→`PLACES`／文献→`SOURCES`／引文→`EVENTS[event_id]`／事件→`EVENTS`／人物→`PEOPLE`）",
+      "不在者 " + lk.unresolved + " 目" + (lk.unresolvedFirst ? "，首为 " + lk.unresolvedFirst : ""));
+    ok(lk.badWord === 0, "**逐目**：无一条链之文作「打开该地望页」（本库无此屏，件之 4）", "含「地望页」者 " + lk.badWord + " 条");
+    console.log("    ★ 机械之验读的是**数据**，读不出**码**之改（如把 people 一路换回 `setHash`）——");
+    console.log("      故其下另有真点之验；二者之分工写在交付文档。");
+    for (const c of KD_CLICKS) {
+      const r = await kdClick(br, baseNew, c.key, c.spot);
+      ok(r.hash === c.hash && r.view === c.view && r.landed && r.spotted === true,
+        "真点 · " + c.why + "（" + c.key + "）→ " + c.view + "，**且其条于该屏内实有其痕**",
+        "hash=" + r.hash + " 屏=" + r.view + " 屏内之痕=" + r.spotted + "｜" + r.evidence);
+    }
+  }
+
+  /* ---- 八之五 按类反证·逐条对位（注入之变体，非旧版；理由见 §八 之首注） ---- */
+  head("§八之五 r54-7 之按类反证·逐条对位——**注入五类同型之改**，各看其红在何处");
+  {
+    const mut = [
+      { cls: "甲·并档", how: "`kdGroupOrder()` 去其一档（『未见』）——即「21 档一档不并」之反面",
+        app: newApp.replace('return (DATA.kaodui_notice.status_order || []).concat([KD_NOSTATUS]);',
+                            'return (DATA.kaodui_notice.status_order || []).filter(x => x !== "未见").concat([KD_NOSTATUS]);'),
+        /* ★ 其红须以**页上真有之目**（`.kd-row` 之实数）为据，不以 `dataset.items` 充之——
+         *   后者是「当筛之后该有几目」，并档之变体不动它；**页上少了 16 目而它一字不变**，
+         *   正是「自述之数与页上之物分家」之相，故二者并断（`rows !== items` 亦入其据）。 */
+        red: (m) => m.groups === 21 && m.rows === kdCalc.items - kdCalc.byStatus.get("未见") && m.rows !== m.items,
+        say: (m) => "组 " + m.groups + "（期 22）、页上真有之目 " + m.rows + "（期 " + kdCalc.items +
+          "）、而页自述仍 " + m.items + "——并一档即少 16 目，且页之自述与页上之物当场分家" },
+      { cls: "乙·漏无档者之位", how: "不渲无档之 176 行——即裁九十五所斥之病（读者见 287 行而首页书 463）",
+        app: newApp.replace('      out.push({ r, i, si: -1, group: KD_NOSTATUS, neg: false });',
+                            '      /* 注入之变体：漏无档者之位 */'),
+        red: (m) => m.items === kdCalc.flat && !m.noneGroup,
+        say: (m) => "目 " + m.items + "（期 " + kdCalc.items + "）、无档者之位=" + (m.noneGroup ? "在" : "不在") },
+      { cls: "丙·记号挂在行", how: "把短记由 `en.neg` 改挂 `行有任一档否定`——即裁九十七所斥之「把整行诬为否定」",
+        app: newApp.replace('  if (en.neg) {\n    const ng = document.createElement("span");',
+                            '  if ((en.r.status || []).some(s => s.negated)) {\n    const ng = document.createElement("span");'),
+        red: (m) => m.negInSummary !== kdCalc.negPairs,
+        say: (m) => "摘要上之记号 " + m.negInSummary + "（期 " + kdCalc.negPairs + "）——挂在行上即多出其行之他档" },
+      { cls: "丁·凡例手抄", how: "`kaodui_notice.json` 内凡例一之文改一字——即「不得手抄」之反面",
+        notice: JSON.stringify((() => {
+          const n = JSON.parse(JSON.stringify(kdNotice));
+          n.fanli[0].text = n.fanli[0].text.replace("只抽不断", "只抽不判");
+          return n;
+        })(), null, 2),
+        red: (m) => {
+          const strip = (s) => String(s).replace(/\*\*/g, "").replace(/`/g, "").replace(/^-\s+/gm, "").replace(/\s+/g, "");
+          return strip(m.fanli[0].body) !== strip(kdNotice.fanli[0].text);
+        },
+        say: (m) => "页上凡例一之文与仓内 json 不再逐字相同（其页照取其源，故源一改页即改——此正是「同出一源」之实）" },
+      { cls: "己·漏其链", how: "卡内不挂回库之钮——即「每目一链」之反面",
+        app: newApp.replace('  card.appendChild(back);', '  /* 注入之变体：漏其链 */'),
+        red: (m) => m.links.total === 0 && m.links.missing === kdCalc.items,
+        say: (m) => "有链之目 " + m.links.total + "（期 " + kdCalc.items + "）、无链之目 " + m.links.missing },
+    ];
+    for (const t of mut) {
+      const ov = {};
+      if (t.app) ov["/app.js"] = t.app;
+      if (t.notice) ov["/data/kaodui_notice.json"] = t.notice;
+      const sv = await srv(SITE, ov);
+      const b = "http://127.0.0.1:" + sv.address().port + "/";
+      const m = await measureKaodui(br, b, W_WIDE, H_WIDE);
+      ok(t.red(m), "〔反证〕" + t.cls + " —— 注入之变体当场红（" + t.how + "）", t.say(m));
+      sv.close();
+    }
+    /* ★ 庚·清除之钮失聪——**此类之反证是补立的，其由须书**：我落笔时确实漏接了 `#kd-clear` 之监听，
+     *   自查时撞上而后补。**既撞上一个活的，就该留一条钉子**（记忆「按类反证立断言」之正例）。 */
+    {
+      const ov = { "/app.js": newApp.replace('  $("#kd-clear").addEventListener("click", () => {\n    kdView.statuses.clear();', '  (() => {}) && (() => {\n    kdView.statuses.clear();') };
+      const sv = await srv(SITE, ov);
+      const b = "http://127.0.0.1:" + sv.address().port + "/";
+      const m = await measureKaoduiFilter(br, b);
+      ok(m.back.items !== kdCalc.items || m.back.pressed.length > 0,
+        "〔反证〕庚·清除之钮失聪 —— 去其监听，点「清除筛选」之后**仍筛着**",
+        "清除之后 目 " + m.back.items + "（全表 " + kdCalc.items + "）、仍按着 " + JSON.stringify(m.back.pressed) +
+        "（二者有一不复原即算见红）");
+      sv.close();
+    }
+    /* ★ 戊·断链（people 一路换回契所列之 `setHash`）——**其红只出在真点之验**：
+     *   机械之验读数据，读不出码之改。故此类单列，且其量取真点。 */
+    {
+      const ov = { "/app.js": newApp.replace('run: () => goSearchPerson(id),', 'run: () => setHash(id, "timeline"),') };
+      const sv = await srv(SITE, ov);
+      const b = "http://127.0.0.1:" + sv.address().port + "/";
+      const c = KD_CLICKS.find(x => x.why.includes("非主角"));
+      const r = await kdClick(br, b, c.key, c.spot);
+      ok(r.view === "home", "〔反证〕戊·断链 —— people 一路换回契所列之 `setHash(row_id,\"timeline\")`，非主角当场落回首页",
+        "hash=" + r.hash + " 屏=" + r.view + "（期 home 方算见红；此即本件取 `goSearchPerson` 之由，已上报）");
+      sv.close();
+    }
+    console.log("  ⚠ 诚实二条（照实标出，不冒充反证）：");
+    console.log("      · **旧版（" + OLD_REF + "）于本节一红到底而其红无用**——彼时根本无此页，" +
+      "其红不指向本节任何一条断言之能。故本节之反证一律取**注入之变体**，不取旧版。");
+    console.log("      · **机械之验与真点之验各有其盲**：机械之验读数据、读不出码之改（类戊即其例）；" +
+      "真点之验今取五表五路之**抽样**（" + KD_CLICKS.length + " 目），非 " + kdCalc.items +
+      " 目俱点——其由与其界写在 docs/delivery_vision_r54.md，不以「逐条」自称。");
+  }
+
+  await br.close(); srvNew.close(); srvOld.close();
+  head("—— 共 " + checks + " 项断言，FAIL " + fails + " ——");
+  console.log("（§六 为供裁之量，不计入断言；其改一行未落，照任务书一节 3／二节 2「停下上报、不自行落定」。）");
+  if (fails) process.exitCode = 1;
+})().catch(e => {
+  console.error("门内抛错：" + (e && e.stack || e));
+  /* ★ 【r54-7 改，留痕】原作 `process.exitCode = 2`——**不够**：抛错之时浏览器与二源端俱未关，
+   *   node 之事件循环遂不空，**进程挂住不退**。其果是本门首跑时「输出一字不出、CPU 不动」，
+   *   我一度疑其死循环，实则是**抛错之后没人收摊**。★ 一个**抛了错却不退**的门，比一个红门更坏：
+   *   红门在说话，挂住之门什么也不说，而调它的人只能等。故改 `process.exit(2)` 强退。 */
+  process.exit(2);
+});

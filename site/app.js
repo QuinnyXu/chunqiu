@@ -238,6 +238,7 @@ async function fetchSVG(name) {
  *   #/p/<PID>/timeline|map|relations   人物视图（relations=以其为中心的 ego 图）
  *   #/relations               全景关系图谱（默认主角环，勾「显示全部」回全库）
  *   #/chronicle               编年（全库事件大事年表，r25）
+ *   #/kaodui                  考据索引（逐条核对记录之读者页，r54-7）
  *   #/library[/<tab>][?q=…]   资料库
  *   #/about                   关于
  * 旧格式（#person=X&view=…）由 legacyToNewHash 就地改写重定向，外部旧链接不失效。
@@ -246,6 +247,11 @@ async function fetchSVG(name) {
  * 同时把 chronicle 并入旧格式白名单——`#view=chronicle` 照旧可用，会被就地改写为 `#/chronicle`，
  * 两种写法都通，站内链接与分享一律用规范形态。 */
 const PERSON_VIEWS = ["timeline", "map", "relations"];
+/* 无人物语境之全局视图（其 hash 一律 `#/<view>`，别无段与参）。
+ * ★ r54-7 立此常量之由：此前「relations／about／chronicle」三名在 `legacyToNewHash`／`parseHash`／
+ *   `buildHash` 三处各写一遍，添一个视图即须三处同改——漏一处之果是**旧链不通或新链读不回**，
+ *   且三处皆不报错，静默失效。今三处同取此一本，`kaodui` 只入一次。 */
+const GLOBAL_VIEWS = ["relations", "about", "chronicle", "kaodui"];
 const LIB_TABS = ["background", "archaeology", "sources"];
 
 function legacyToNewHash(h) {
@@ -255,7 +261,7 @@ function legacyToNewHash(h) {
     if (k && v !== undefined) o[k] = v;
   }
   const person = PROTAGONISTS.some(p => p.id === o.person) ? o.person : null;
-  let view = ["home", "timeline", "map", "library", "relations", "about", "chronicle"].includes(o.view) ? o.view : null;
+  let view = ["home", "timeline", "map", "library", "relations", "about", "chronicle", "kaodui"].includes(o.view) ? o.view : null;
   if (person && (!view || view === "home")) view = "timeline"; // 旧 #person=X 落其时间线
   if (person && PERSON_VIEWS.includes(view)) return buildHash(person, view);
   // 库/关于/全景等全局视图：旧链接中的 person 语境不再入 hash
@@ -264,7 +270,7 @@ function legacyToNewHash(h) {
     if (o.q) { try { q = decodeURIComponent(o.q); } catch { q = o.q; } }
     return buildHash(null, "library", LIB_TABS.includes(o.tab) ? o.tab : "background", q);
   }
-  if (view === "relations" || view === "about" || view === "chronicle") return buildHash(null, view);
+  if (GLOBAL_VIEWS.includes(view)) return buildHash(null, view);
   return "#/";
 }
 
@@ -310,7 +316,7 @@ function parseHash() {
     }
     return st;
   }
-  if (segs[0] === "relations" || segs[0] === "about" || segs[0] === "chronicle") { st.view = segs[0]; return st; }
+  if (GLOBAL_VIEWS.includes(segs[0])) { st.view = segs[0]; return st; }
   if (segs[0] === "library") {
     st.view = "library";
     if (LIB_TABS.includes(segs[1])) st.tab = segs[1];
@@ -322,7 +328,7 @@ function parseHash() {
 let homeMode = "map";
 function buildHash(person, view, tab, q) {
   if (person && PERSON_VIEWS.includes(view)) return "#/p/" + person + "/" + view;
-  if (view === "relations" || view === "about" || view === "chronicle") return "#/" + view;
+  if (GLOBAL_VIEWS.includes(view)) return "#/" + view;
   if (view === "library") {
     let h = "#/library";
     if (tab && tab !== "background") h += "/" + tab;
@@ -453,7 +459,7 @@ function render() {
   document.querySelectorAll(".main-nav button").forEach(btn => {
     btn.setAttribute("aria-current", String(btn.dataset.view === navCur));
   });
-  for (const v of ["home", "timeline", "map", "library", "relations", "about", "compare", "chronicle"]) {
+  for (const v of ["home", "timeline", "map", "library", "relations", "about", "compare", "chronicle", "kaodui"]) {
     $("#view-" + v).hidden = (state.view !== v);
   }
   $("#timeline-relations-entry").hidden = !state.person;
@@ -469,6 +475,7 @@ function render() {
   if (state.view === "relations") renderRelations();
   if (state.view === "compare") renderCompare();
   if (state.view === "chronicle") renderChronicle();
+  if (state.view === "kaodui") renderKaodui();   // 其料懒载（裁九十四），故本函数是 async；render 不待之
 
   // 滚动复位（r14，Xiangtao 反馈 2）：凡前向导航（点卡/切人/切视图/关于页内链/搜索直达）一律回顶，
   // 时间线从最早一张卡开始；唯浏览器前进/后退（popstate 先于 hashchange 置位 navByPop）不干预，
@@ -1599,6 +1606,21 @@ function chronStateOf(evt, pal) {
 }
 const chronFiltered = () => chronView.states.size > 0 || chronView.cats.size > 0;
 
+/* 「全库 N 条／其中 M 条只此一处可见」之二数（r54-4 裁七十一 甲）——
+ * ★ 编年页之自述（#chron-intro）与首页引言之第四行（.hl-chron）**同取此一处**。
+ *   二处各算一遍，早晚分家：日后有人改了「只此一处可见」之谓词（如把「主角」换成别的口径），
+ *   改一处而漏另一处，而这两个数在读者那里隔一屏即可对照——分家即当场自相矛盾。
+ * 谓词：一事件若不系于任何 is_protagonist=1 之人（PROTAGONISTS），即「只此一处可见」——
+ *   其在全站三条通路（人物时间线／地图／关系）上皆无入口，唯编年可达（见本屏首注 r25）。
+ * 求法：event_people 一趟建「系于主角之事件」之集，再以 events 逐条问之——
+ *   O(n+m)，不是逐事件重扫 event_people（694 行 × 265 事件）；其果与逐扫式逐条相同，
+ *   走查门另自 site/data/*.json 独立复算一遍以证之（tools/qa/vision_r54.js §一）。 */
+function chronCounts() {
+  const linked = new Set();
+  for (const l of DATA.event_people) if (isProto(l.person_id)) linked.add(l.event_id);
+  return { total: DATA.events.length, orphan: DATA.events.filter(e => !linked.has(e.id)).length };
+}
+
 function renderChronicle() {
   const list = $("#chron-list");
   // 国色一次读入，避免每行各调一次 getComputedStyle（编年铺的是全库事件，逐行强制取样没有必要）
@@ -1633,8 +1655,9 @@ function renderChronicle() {
   list.dataset.renderMs = String(Math.round(((typeof performance !== "undefined" ? performance.now() : 0) - t0) * 100) / 100);
   list.dataset.rows = String(shown.length);
 
-  const nOrphan = rows.filter(r => !DATA.event_people.some(l =>
-    l.event_id === r.e.id && isProto(l.person_id))).length;
+  /* r54-4：此数原在本处就地算一遍（逐事件重扫 event_people）；今改取 chronCounts()——
+   * 首页引言第四行须报同一个数，二处各算即早晚分家。**其文一字未改，其数一字未变。** */
+  const nOrphan = chronCounts().orphan;
   $("#chron-intro").textContent =
     "全库 " + rows.length + " 条事件按年铺开，同年之内依经传季月次第（sort_key）排列；" +
     "其中 " + nOrphan + " 条未系于任何主角，只此一处可见。点任一行，展开其出处、可靠度与所系人物。";
@@ -1777,6 +1800,535 @@ function consumeChronicleSpot(list) {
     "已落锚 " + yearLabel(+y) + (evt && evt.lu_reign ? " · " + evt.lu_reign : "") +
     "（该年 " + sameYear.length + " 条）。" + $("#chron-status").textContent;
   spotScrollInto(target, det.querySelector("summary"));
+}
+
+/* ---------- 屏9 考据索引（#/kaodui，r54-7；裁七十七、裁九十四至九十八） ----------
+ * 本页是 `docs/kaodui_index.md`（463 条逐条核对记录）之**层一读者页**：把只在仓里可读之台账
+ * 搬到站上，使「凭什么」一句所指之物，读者点得进去。
+ *
+ * ★ 一料二物（Skipper r54-5 所落之契，docs/delivery_skipper_r54.md 七之 §2）：
+ *   `site/data/kaodui.json`        —— **顶层即数组**，463 元（**非** `{records:[…]}`；其由是一条硬界：
+ *                                     常跑门 `tools/qa/prod_data_invariants.js` 以
+ *                                     `Array.isArray(rows) ? rows.length : null` 数其行，非数组即 `null`，
+ *                                     该门从此永红。故**凡非行之物一律不入此物**。）
+ *   `site/data/kaodui_notice.json` —— 凡例、档序、二记号之字、二上限、源指纹（**不入 `meta.tables`**）。
+ * ★ **懒载**（裁九十四）：402 KB 不入 `boot()` 之必载清单；入页时取一次，存于 `DATA.kaodui`。
+ *   首页之链其数取 `DATA.meta.tables.kaodui`，而 `meta` 已在 `boot()` 内载——故懒载不妨首页之数。
+ *
+ * ★★ **三数不得混**（裁九十六）——页上任何「共 N」之语须明其所指：
+ *   **行 463**（＝`meta.tables.kaodui`，首页之链所书者）／**档之引 511**（按档摊平之和）／**无档之行 176**。
+ *   本页之铺法是「**行×档**」：一行兼数档者于各档之下各见一次，无档之行另立一位——
+ *   故页上之**目** ＝ 511 ＋ 176 ＝ 687，而所涉之**行**仍 463。二者相去甚远，故本页一律称「目」，
+ *   并于页首把三数并书。**一个数也不写死**，俱跑时自 json 求之。
+ *
+ * ★★ **「无档者之位」与「未标核对状态」一档不得混**（裁九十五；领队之十一·5 特请顾之）：
+ *   - **未标核对状态**（一档，6 目）——**源文明书其未标**，是库内已有之判。
+ *   - **未提取到核对状态**（无档者之位，176 目，占 38%）——**本库未从其文提取到**，是抽取之所得为空。
+ *   二者一混，即把「我们没抽到」说成「源文没写」。**宁其名长，不可其名混**
+ *   （同 r52「未核／本轮无从核／未见」三者不得归并之训）。
+ *   ★ 此位**非第二十二档**：裁七十七「21 档一档不并」不动，`status_order` 仍二十一。
+ *
+ * ★ **凡例与档序一字不手抄**（裁九十八）：三句凡例、二记号之字、二十一档之序，俱自
+ *   `kaodui_notice.json` 逐元照取。页内不得出现其任一字之副本——手抄即与 md 分家。
+ * ★ **否定之记号挂在「行×档」之对，不挂在行**（裁九十七）：其源是 `status[i].negated`
+ *   （实测 40 引、涉 36 行、跨 10 档）。**同一行可一档否定、一档不否定**；挂在行上即把整行诬为
+ *   否定，与去之同样失实。故条上之短记只随其**所在之档**，卡内之状态列则逐档各带其记。
+ */
+const KD_NOSTATUS = "未提取到核对状态";      // 无档者之位（裁九十五）；**非第 22 档**
+const KD_TABLE_ORDER = ["places", "sources", "passages", "people", "events"];  // 副序按表，即抽取之序
+const KD_TABLE_LABEL = { places: "地望", sources: "文献", passages: "引文", people: "人物", events: "事件" };
+const kdView = { statuses: new Set(), tables: new Set() };
+const kdFiltered = () => kdView.statuses.size > 0 || kdView.tables.size > 0;
+let kdLoad = null;   // 懒载之凭据（Promise），只发一次
+
+/* 懒载其二物。**幂等**：并发入页只发一次请求，其后直接复用 `DATA.kaodui`。
+ * ★ 失败照实报，不静默留白：生产今日对未知路径一律回「200 ＋ 首页 HTML」（r54-3 §2.1 实测），
+ *   故其败之相是 `r.json()` 抛 SyntaxError 而非 404——页上须说得出「取到了，但不是 json」。 */
+function ensureKaodui() {
+  if (DATA.kaodui && DATA.kaodui_notice) return Promise.resolve();
+  if (!kdLoad) {
+    kdLoad = Promise.all([fetchJSON("kaodui"), fetchJSON("kaodui_notice")]).then(([rows, notice]) => {
+      if (!Array.isArray(rows)) throw new Error("kaodui.json 顶层非数组（契已定其为数组，见 app.js 本屏首注）");
+      DATA.kaodui = rows;
+      DATA.kaodui_notice = notice;
+    }).catch(e => { kdLoad = null; throw e; });   // 败则清其凭据，使读者重入可再试
+  }
+  return kdLoad;
+}
+
+/* 一行拆成其诸目：有档者逐档各一目（**行×档**），无档者一目落「未提取到核对状态」之位。 */
+function kdEntries() {
+  const out = [];
+  DATA.kaodui.forEach((r, i) => {
+    if (r.status && r.status.length) {
+      r.status.forEach((s, si) => out.push({ r, i, si, group: s.name, neg: !!s.negated }));
+    } else {
+      out.push({ r, i, si: -1, group: KD_NOSTATUS, neg: false });
+    }
+  });
+  return out;
+}
+/* 档之序**不由页自定**，取 `notice.status_order`（裁九十八）；无档者之位缀其末。 */
+function kdGroupOrder() {
+  return (DATA.kaodui_notice.status_order || []).concat([KD_NOSTATUS]);
+}
+
+async function renderKaodui() {
+  const body = $("#kd-body");
+  if (!DATA.kaodui || !DATA.kaodui_notice) {
+    body.textContent = "";
+    const p = document.createElement("p");
+    p.className = "kd-note kd-loading";
+    p.textContent = "考据索引载入中……（其料 400 KB 余，只在入此页时取一次）";
+    body.appendChild(p);
+    try {
+      await ensureKaodui();
+    } catch (e) {
+      if (state.view !== "kaodui") return;
+      body.textContent = "";
+      const err = document.createElement("p");
+      err.className = "kd-note kd-err";
+      err.textContent = "考据索引载入失败：" + e.message +
+        "。请经 http 访问，并确认已运行 tools/csv_to_json.py（其二物系生成物）。";
+      body.appendChild(err);
+      return;
+    }
+    if (state.view !== "kaodui") return;   // 载入之间读者已离页：不往别的屏上写字
+  }
+  drawKaodui();
+}
+
+function drawKaodui() {
+  const notice = DATA.kaodui_notice;
+  const all = kdEntries();
+  renderKaoduiFanli(notice);
+  renderKaoduiIntro(all, notice);
+  renderKaoduiFilters(all);
+  $("#kd-filters").hidden = false;
+
+  const shown = all.filter(en =>
+    (!kdView.statuses.size || kdView.statuses.has(en.group)) &&
+    (!kdView.tables.size || kdView.tables.has(en.r.table)));
+
+  const t0 = (typeof performance !== "undefined" ? performance.now() : 0);
+  const body = $("#kd-body");
+  body.textContent = "";
+  const frag = document.createDocumentFragment();
+  const byGroup = new Map();
+  for (const en of shown) {
+    if (!byGroup.has(en.group)) byGroup.set(en.group, []);
+    byGroup.get(en.group).push(en);
+  }
+  const rank = (t) => { const k = KD_TABLE_ORDER.indexOf(t); return k < 0 ? KD_TABLE_ORDER.length : k; };
+  let nGroups = 0;
+  for (const g of kdGroupOrder()) {
+    const items = byGroup.get(g);
+    if (!items || !items.length) continue;          // 筛空之档不出空标题
+    items.sort((a, b) => rank(a.r.table) - rank(b.r.table) || a.i - b.i || a.si - b.si);
+    frag.appendChild(kdGroupNode(g, items, all));
+    nGroups++;
+  }
+  if (!shown.length) {
+    const em = document.createElement("p");
+    em.className = "chron-empty";
+    em.textContent = "此组合下库中无记录——松开一两个条件试试。";
+    frag.appendChild(em);
+  }
+  body.appendChild(frag);
+  body.dataset.renderMs = String(Math.round(((typeof performance !== "undefined" ? performance.now() : 0) - t0) * 100) / 100);
+  body.dataset.items = String(shown.length);
+  body.dataset.groups = String(nGroups);
+  /* ★ 状态行之数一律称「目」并随书其义——裁九十六③「页上任何『共 N 条』之语须明其所指」。 */
+  const rowsShown = new Set(shown.map(en => en.i)).size;
+  $("#kd-status").textContent = kdFiltered()
+    ? "筛选中：现列 " + shown.length + " / " + all.length + " 目（所涉之行 " + rowsShown + " / " + DATA.kaodui.length + "）。"
+    : "现列 " + all.length + " 目（全库；所涉之行 " + DATA.kaodui.length + "）。";
+  $("#kd-clear").hidden = !kdFiltered();
+}
+
+/* 页首三句凡例 ＋ 否定记号之全式与其释文（裁九十八：**逐元照取，不改一字，不增不删**）。
+ * ★ 其字**全部**取自 `kaodui_notice.json`，本函数内一句凡例之文也没有。
+ * ★ `text` 内含行内 markdown（成对星号、反引号）与换行，并有一条以「- 」起首之列——
+ *   故以 `mdInlineFrag()`（r53 所立，全站同一式）出其行内记法，换行断段，行首「- 」作列项之记。
+ *   **所去者只 markdown 之记法本身**（与 `**` 之去同类），**一个字未改、未增、未删**；
+ *   走查门 §八 以「去记法后逐字相同」机械验之。 */
+function renderKaoduiFanli(notice) {
+  const host = $("#kd-fanli");
+  if (host.dataset.done === "1") return;   // 凡例不随筛选变，写一次即可
+  host.textContent = "";
+  (notice.fanli || []).forEach((f, k) => {
+    const sec = document.createElement("section");
+    sec.className = "kd-fl";
+    sec.dataset.key = f.key;
+    const h = document.createElement("h3");
+    h.className = "kd-fl-t";
+    h.textContent = "凡例" + (["一", "二", "三"][k] || (k + 1)) + " · " + f.title;
+    sec.appendChild(h);
+    sec.appendChild(kdTextBlock(f.text, "kd-fl-b"));
+    host.appendChild(sec);
+  });
+  /* 否定记号：**全式**与其释文入页首**一次**（裁九十七③——「须回原文」四字是这记号的全部用处，
+   * 不可只在条上省掉而页上无处交代）；条上所挂者是**短式**。 */
+  const neg = document.createElement("section");
+  neg.className = "kd-fl kd-fl-neg";
+  const nh = document.createElement("h3");
+  nh.className = "kd-fl-t";
+  nh.textContent = "记号 · " + notice.neg_mark;
+  neg.appendChild(nh);
+  neg.appendChild(kdTextBlock(notice.neg_mark_note, "kd-fl-b"));
+  const ns = document.createElement("p");
+  ns.className = "kd-fl-sub";
+  ns.appendChild(document.createTextNode("条上从简，作 "));
+  const short = document.createElement("span");
+  short.className = "kd-neg";
+  short.textContent = notice.neg_mark_short;
+  ns.appendChild(short);
+  ns.appendChild(mdInlineFrag(
+    "，与索引之速查同。★ 其所挂者是**行×档之对，不是行**——同一行可一档否定、一档不否定；" +
+    "挂在行上即把整行诬为否定，与去之同样失实。卡内「核对状态」一目逐档各带其记，一眼见其分。"));
+  neg.appendChild(ns);
+  host.appendChild(neg);
+  /* 二事照实书之（裁七十七所拈、r54-7 件之 4）——**现行机制之界，不掩**。 */
+  const lim = document.createElement("p");
+  lim.className = "kd-note kd-limits";
+  lim.appendChild(mdInlineFrag(
+    "★ 回库之链二事照实：① 地望一路之落点是**某人页之地图**（本库无地望独立页），" +
+    "故其文作「**在地图上定位**」，不作「打开该地望页」；" +
+    "② 此类链是站内跳转，其定位**不入网址**——故**可点而不可分享**：" +
+    "彼时复制网址所得者是该视图之全表，不是本条。"));
+  host.appendChild(lim);
+  host.dataset.done = "1";
+}
+/* 把一段带换行与「- 」列之文出成节点：行内记法交 mdInlineFrag，换行断段，「- 」起首者成列项。 */
+function kdTextBlock(text, cls) {
+  const wrap = document.createElement("div");
+  wrap.className = cls;
+  const lines = String(text == null ? "" : text).split("\n");
+  let ul = null;
+  for (const ln of lines) {
+    if (!ln.trim()) { ul = null; continue; }
+    if (/^-\s/.test(ln)) {
+      if (!ul) { ul = document.createElement("ul"); ul.className = "kd-fl-list"; wrap.appendChild(ul); }
+      const li = document.createElement("li");
+      li.appendChild(mdInlineFrag(ln.replace(/^-\s+/, "")));
+      ul.appendChild(li);
+    } else {
+      ul = null;
+      const p = document.createElement("p");
+      p.appendChild(mdInlineFrag(ln));
+      wrap.appendChild(p);
+    }
+  }
+  return wrap;
+}
+
+/* 页首之三数并书（裁九十六②）——**不以一数代之**，且明其所指。一个数也不写死。 */
+function renderKaoduiIntro(all, notice) {
+  const p = $("#kd-intro");
+  const nRow = DATA.kaodui.length;
+  const nFlat = all.filter(en => en.si >= 0).length;
+  const nNone = all.filter(en => en.si < 0).length;
+  const nStatus = (notice.status_order || []).length;
+  p.textContent = "";
+  p.appendChild(mdInlineFrag(
+    "本页是逐条核对记录之索引，其料自五张源表之注文栏机械抽取——**只抽不断**，凡抽不出者书「未标」。" +
+    "全库 **" + nRow + " 行**（首页之链所书者即此数）；一行可兼记数档，按核对状态摊平得 **" +
+    nFlat + " 条档之引**（二数相去 " + (nFlat - nRow) + "）；另有 **" + nNone +
+    " 行**本库未从其文提取到核对状态，另立一位于表末。本页以「**行×档**」为一目铺开，故共 **" +
+    all.length + " 目**（" + nFlat + " ＋ " + nNone + "），所涉之行 **" + nRow +
+    "**。主序按核对状态（**" + nStatus + " 档一档不并**），副序按表。"));
+}
+
+/* 筛选 chips 二组（形照编年页）：组内并集、组间交集，**筛选不入 hash**（分享出去一律是全表）。
+ * ★ 二组之计数俱以**目**为单位，其义是「**只选此一枚时页上之目数**」——
+ *   故二组各自之和皆等于页上总目数。以行数与目数混记，正是裁九十六所斥之病。 */
+function renderKaoduiFilters(all) {
+  const mk = (host, label, items, sel) => {
+    host.textContent = "";
+    const lb = document.createElement("span");
+    lb.className = "chron-flabel";
+    lb.textContent = label;
+    host.appendChild(lb);
+    for (const it of items) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip chron-chip kd-chip" + (it.cls ? " " + it.cls : "");
+      b.dataset.key = it.key;
+      b.setAttribute("aria-pressed", String(sel.has(it.key)));
+      b.title = it.title;
+      b.appendChild(document.createTextNode(it.label + " " + it.n));
+      b.addEventListener("click", () => {
+        if (sel.has(it.key)) sel.delete(it.key); else sel.add(it.key);
+        drawKaodui();
+      });
+      host.appendChild(b);
+    }
+  };
+  const cnt = (fn) => all.reduce((m, en) => { const k = fn(en); m[k] = (m[k] || 0) + 1; return m; }, {});
+  const gc = cnt(en => en.group);
+  const statusItems = kdGroupOrder().filter(k => gc[k]).map(k => ({
+    key: k, label: k, n: gc[k],
+    cls: k === KD_NOSTATUS ? "kd-chip-none" : null,
+    title: k === KD_NOSTATUS
+      ? KD_NOSTATUS + "：" + gc[k] + " 目。★ 此非第二十二档，是「无档者之位」——本库未从其文提取到核对状态；与「未标核对状态」一档（源文明书其未标）不得混。"
+      : k + "：" + gc[k] + " 目（只选此一枚时页上之目数）",
+  }));
+  const tc = cnt(en => en.r.table);
+  const tableItems = KD_TABLE_ORDER.filter(k => tc[k]).map(k => ({
+    key: k, label: KD_TABLE_LABEL[k] + "（" + k + "）", n: tc[k], cls: null,
+    title: k + "：" + tc[k] + " 目（只选此一枚时页上之目数，非其行数——一行兼数档者于此各计一次）",
+  }));
+  mk($("#kd-f-status"), "按状态", statusItems, kdView.statuses);
+  mk($("#kd-f-table"), "按表", tableItems, kdView.tables);
+}
+
+/* 一档之组：标题带其目数（与 `docs/kaodui_index.md` §三 速查之逐档之数同，走查门 §八 逐档对之）。 */
+function kdGroupNode(group, items, all) {
+  const sec = document.createElement("section");
+  sec.className = "kd-group" + (group === KD_NOSTATUS ? " kd-group-none" : "");
+  sec.dataset.group = group;
+  const h = document.createElement("h3");
+  h.className = "kd-gt";
+  const nm = document.createElement("span");
+  nm.className = "kd-gt-name";
+  nm.textContent = group;
+  h.appendChild(nm);
+  const n = document.createElement("span");
+  n.className = "kd-gt-n";
+  n.textContent = items.length + " 目";
+  h.appendChild(n);
+  sec.appendChild(h);
+  /* ★ 二位之辨须写在页上，不只写在注里（裁九十五；领队之十一·5）——其数跑时自数据求，不写死。 */
+  if (group === KD_NOSTATUS) {
+    const nMarked = all.filter(en => en.group === "未标核对状态").length;
+    const note = document.createElement("p");
+    note.className = "kd-note kd-gnote";
+    note.appendChild(mdInlineFrag(
+      "★ 此**非第二十二档**，是**无档者之位**：本库**未从其文提取到**核对状态之行。" +
+      /* ★ 不作「与**上**…一档」：筛选之下那一档未必还在上头，其文即成假指。 */
+      "与另一档「**未标核对状态**」（全库 " + nMarked + " 目）**不得混**——后者是**源文明书其未标**，" +
+      "是库内已有之判；此位是**抽取所得为空**。二者一混，即把「我们没抽到」说成「源文没写」。" +
+      "★ 这些行本无状态词、抑或抽取之漏，**本轮只给其位，不问其对错**——不因上站而改索引之口径。"));
+    sec.appendChild(note);
+  }
+  const ol = document.createElement("ol");
+  ol.className = "kd-list";
+  for (const en of items) ol.appendChild(kdRow(en));
+  sec.appendChild(ol);
+  return sec;
+}
+
+function kdRow(en) {
+  const r = en.r;
+  const li = document.createElement("li");
+  const det = document.createElement("details");
+  det.className = "kd-row";
+  det.dataset.key = r.key;
+  det.dataset.table = r.table;
+  det.dataset.group = en.group;
+  det.dataset.neg = String(en.neg);
+
+  const sum = document.createElement("summary");
+  const tg = document.createElement("span");
+  tg.className = "kd-tbl";
+  tg.textContent = KD_TABLE_LABEL[r.table] || r.table;
+  sum.appendChild(tg);
+
+  const tgt = document.createElement("code");
+  tgt.className = MD_CODE_CLASS + " kd-tgt";
+  tgt.textContent = r.table + "." + r.row_id + "." + r.col + "@" + r.offset;
+  sum.appendChild(tgt);
+
+  const item = document.createElement("span");
+  item.className = "kd-item" + (r.item === "未标" ? " is-none" : "");
+  item.textContent = r.item;
+  sum.appendChild(item);
+
+  /* ★ 短记只在**本目之档**为否定时出（裁九十七①②）——其源是 `status[si].negated`，
+   *   故此记随「行×档」之对，不随行。无档者之位恒无此记（无档即无可否定之档）。 */
+  if (en.neg) {
+    const ng = document.createElement("span");
+    ng.className = "kd-neg";
+    ng.textContent = DATA.kaodui_notice.neg_mark_short;
+    ng.title = DATA.kaodui_notice.neg_mark;
+    sum.appendChild(ng);
+  }
+
+  const hint = document.createElement("span");
+  hint.className = "kd-hint";
+  hint.setAttribute("aria-hidden", "true");
+  sum.appendChild(hint);
+  det.appendChild(sum);
+  /* 详情按需构建（同编年 chronEnsureBody 之例）：本页铺七百目之谱，全量预建卡体即白造七百余张
+   * 定义表与其链，而读者九成不会展开。展开即建、幂等可重入（节点身份取自 data-key，不靠闭包记忆）。 */
+  det.addEventListener("toggle", () => { if (det.open) kdEnsureBody(det, en); });
+  li.appendChild(det);
+  return li;
+}
+
+function kdEnsureBody(det, en) {
+  if (det.querySelector(".kd-body-card")) return;
+  det.appendChild(kdBodyNode(en));
+}
+
+/* 八目（其名与其出处照 `docs/kaodui_index.md` §一之 2 之表，一目不并、一目不增）＋ 一条回库之链。 */
+function kdBodyNode(en) {
+  const r = en.r, notice = DATA.kaodui_notice;
+  const card = document.createElement("div");
+  card.className = "kd-body-card";
+  const dl = document.createElement("dl");
+  dl.className = "kd-dl";
+  const row = (label, node) => {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.appendChild(node);
+    dl.appendChild(dt);
+    dl.appendChild(dd);
+  };
+  const txt = (s, none) => {
+    const sp = document.createElement("span");
+    if (s === "" || s == null) { sp.className = "is-none"; sp.textContent = none || "（空）"; }
+    else sp.textContent = s;
+    return sp;
+  };
+
+  /* ① 标的（机械：表名·行 id·栏名·字符偏移）＋ 段之首四十字 */
+  {
+    const f = document.createDocumentFragment();
+    const c = document.createElement("code");
+    c.className = MD_CODE_CLASS;
+    c.textContent = r.key;
+    f.appendChild(c);
+    const h = document.createElement("p");
+    h.className = "kd-head40";
+    h.textContent = "首四十字：" + r.head40;
+    f.appendChild(h);
+    row("标的", f);
+  }
+  /* ② 所核之项（段之 `【…】` 节标原文；抽不出者恒为字符串「未标」，非 null） */
+  row("所核之项", txt(r.item));
+  /* ③ 所据之书；④ 页——二目分书（md 八目如此），其配对系「就近后随」之机械规则。
+   * ★ 书名可为「未标」：其义是「此数页出现在任何书名之前」，**非「无书」**（契 §2.2 明之）。 */
+  {
+    const names = (r.books || []).map(b => b.name);
+    const f = document.createDocumentFragment();
+    f.appendChild(txt(names.length ? names.join(" ／ ") : "", "未标"));
+    if (r.books_more) {
+      const more = document.createElement("span");
+      more.className = "kd-more";
+      more.textContent = "（另 " + r.books_more + " 项未列；本索引每条至多列 " + notice.books_max + " 书）";
+      f.appendChild(more);
+    }
+    row("所据之书", f);
+    const paired = (r.books || []).filter(b => b.pages && b.pages.length);
+    const pf = document.createDocumentFragment();
+    pf.appendChild(txt(paired.length
+      ? paired.map(b => b.name + "：" + b.pages.join("、")).join(" ／ ") : "", "未标"));
+    const pn = document.createElement("span");
+    pn.className = "kd-more";
+    pn.textContent = "（书与页按「就近后随」机械配对；书名书「未标」者，其义是此数页出现在任何书名之前，非「无书」）";
+    pf.appendChild(pn);
+    row("页", pf);
+  }
+  /* ⑤ 核对状态——**逐档各带其记**：一行之诸档俱列，本目之档标出，否定者各带其短记。
+   *   ★ 此处正见裁九十七之实：同一行可一档否定、一档不否定。 */
+  {
+    const f = document.createDocumentFragment();
+    if (!r.status || !r.status.length) {
+      f.appendChild(txt("", KD_NOSTATUS + "（本库未从其文提取到，非源文明书其未标）"));
+    } else {
+      r.status.forEach((s, k) => {
+        if (k) f.appendChild(document.createTextNode(" ／ "));
+        const sp = document.createElement("span");
+        sp.className = "kd-st" + (k === en.si ? " is-here" : "");
+        sp.textContent = s.name;
+        if (k === en.si) sp.title = "本目即落此档";
+        f.appendChild(sp);
+        if (s.negated) {
+          const ng = document.createElement("span");
+          ng.className = "kd-neg";
+          ng.textContent = notice.neg_mark_short;
+          ng.title = notice.neg_mark;
+          f.appendChild(ng);
+        }
+      });
+    }
+    row("核对状态", f);
+  }
+  /* ⑥ 核者；⑦ 日期（空数组即「未标」，契 §2.2） */
+  row("核者", txt((r.actors || []).join("、"), "未标"));
+  row("日期", txt((r.dates || []).join("、"), "未标"));
+  /* ⑧ 结论与其裁定出处（结论逾 concl_max 者已截，其尾自带「〔截，全文见源栏〕」） */
+  {
+    const f = document.createDocumentFragment();
+    f.appendChild(txt(r.concl, "（空）"));
+    if (r.concl && r.concl.length >= notice.concl_max) {
+      const n = document.createElement("span");
+      n.className = "kd-more";
+      n.textContent = "（结论摘逾 " + notice.concl_max + " 字者已截，全文见源栏）";
+      f.appendChild(n);
+    }
+    const refs = document.createElement("p");
+    refs.className = "kd-refs";
+    refs.textContent = "裁定出处：" + ((r.refs && r.refs.length) ? r.refs.join(" · ") : "未标");
+    f.appendChild(refs);
+    row("结论与其裁定出处", f);
+  }
+  card.appendChild(dl);
+
+  /* 回库之链——**只调现成之式，一个新机制也不立**（件之 5）。
+   * ★ 其落点与其措辞照实（件之 4）：地望一路落**某人页之地图**，故作「在地图上定位」；
+   *   `pendingSpot` 不入 URL，故此链**不可分享为深链**——页首已书之，此处以 title 再书一次。 */
+  const back = document.createElement("p");
+  back.className = "kd-back";
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "inline-entry kd-back-btn";
+  const go = kdBackOf(r);
+  b.textContent = go.label;
+  b.title = go.title + "（站内跳转；其定位不入网址，故此链可点而不可分享）";
+  b.addEventListener("click", go.run);
+  back.appendChild(b);
+  card.appendChild(back);
+  return card;
+}
+
+/* 五表五路，俱调现成之式：
+ *   places   → goSearchPlace(row_id)            落某人页之地图并定位此地
+ *   sources  → goSearchSource(row_id)           落资料库「来源文献」页并展开此条
+ *   passages → goSearchEvent(event_id, row_id)  落编年并定位此条引文（`event_id` 只此表有值）
+ *   events   → goSearchEvent(row_id)            落编年并展开此事
+ *   people   → goSearchPerson(row_id)           主角落其时间线，非主角落其 ego 关系图
+ * ★ **people 一路之式与契 §2.4 所列不同，系本件之验收偏差，已上报**（见 docs/delivery_vision_r54.md）：
+ *   契列 `setHash(row_id, "timeline")`，而本表 32 目之 `row_id` 内有 **19 个非主角**；
+ *   `parseHash` 只认 `PROTAGONISTS`，故 `setHash(非主角, "timeline")` 之果是**落回首页选人屏**——
+ *   件之 8② 所命「回库之链逐条可落，断链 0」于此不成立。`goSearchPerson` 是**站上现成之式**
+ *   （全站搜索之人物一路即调之，r28 起未改一字），内含此一分判，故取之；**本件未新立一个机制**。
+ * ★ 其文亦分二式（「回其人物线」／「回其关系图」），其判据与 `goSearchPerson` 内者**同一条**
+ *   （`isProto(pid) && PEOPLE[pid]`）——二处同写一判是可分家之形，故走查门 §八 以
+ *   「32 目之文与其实落之屏逐目相符」钉之：一旦分家，当场红。 */
+function kdBackOf(r) {
+  const id = r.row_id;
+  if (r.table === "places") {
+    return { label: "在地图上定位 →", run: () => goSearchPlace(id),
+             title: "落某人页之地图并定位此地——本库无地望独立页，故不作「打开该地望页」" };
+  }
+  if (r.table === "sources") {
+    return { label: "在资料库中打开 →", run: () => goSearchSource(id),
+             title: "落资料库「来源文献」页并展开此条" };
+  }
+  if (r.table === "passages") {
+    return { label: "回其事件并定位此条引文 →", run: () => goSearchEvent(r.event_id, id),
+             title: "落编年，展开其事件并定位此条引文" };
+  }
+  if (r.table === "events") {
+    return { label: "回其事件 →", run: () => goSearchEvent(id),
+             title: "落编年并展开此事" };
+  }
+  const proto = isProto(id) && PEOPLE[id];
+  return { label: proto ? "回其人物线 →" : "回其关系图 →", run: () => goSearchPerson(id),
+           title: proto ? "落其人物时间线" : "此人非八主角，本站无其时间线，故落其 ego 关系图" };
 }
 
 /* ---------- 屏3 地图 ---------- */
@@ -5448,10 +6000,39 @@ function initShare() {
 /* ---------- 首访三步引导（r14，Xiangtao 反馈四）：一次性 spotlight，localStorage 记忆 ----------
  * 步骤：①首页高亮齐国「点一个国，选一个人」；②文姜时间线实际展开首卡「每张卡都能点开」；
  * ③高亮人物子导航「三面看一个人」。跳过/开始探索后记 localStorage，关于页可重看。 */
+/* r54-1（任务书 §二之 1）：此键自 r14 起只记「见过与否」，而其唯一写入之处在 endTour()——
+ * 故凡**未走完**者（读者重载、切页、关标签、径自不理）一律不留记，下次再访导览又覆到地图上。
+ * ★ 实测（2026-09-26，1440×900 无头 Chromium，本机 python -m http.server 同源）：
+ *   点「跳过」→ 键得 "1"；Esc → 键得 "1"；走完三步 → 键得 "1"；**中途重载 → 键仍为 `null` 且导览复现**。
+ *   即：任务书 §二之 1 所书「略过之后仍为 null」于「跳过」一钮不复现，其病实在「未走完即无记」
+ *   （与 §一之表所书「未走完即无记」一致）。详见 docs/delivery_vision_r54.md §验收偏差上报。
+ * 治法：键之值由一态改记「走到哪一步、是否走完」，且**逐步落记**（不俟走完）。
+ *   旧值 `"1"`（r14–r53 所写）一律读作「已走完」，向后兼容；解析不出者同断为已走完——
+ *   宁可少弹一次，不可把读者的旧记当没有。 */
 const TOUR_KEY = "chunqiu_tour_v1";
 const tour = { active: false, i: 0, steps: null, prevFocus: null };
-function tourSeen() { try { return !!localStorage.getItem(TOUR_KEY); } catch { return true; } }
-function tourMarkSeen() { try { localStorage.setItem(TOUR_KEY, "1"); } catch { /* 隐私模式：本会话内不复弹 */ } }
+/* 读所记之进度：null＝一无所记（真首访）；{ step, done }＝走到第 step 步（0 基）、是否走完。
+ * localStorage 不可用（隐私模式）时一律当作已走完，与 r14 之 tourSeen() 同——不自动打扰。 */
+function tourRead() {
+  let raw;
+  try { raw = localStorage.getItem(TOUR_KEY); } catch { return { step: -1, done: true }; }
+  if (raw == null) return null;
+  if (raw === "1") return { step: -1, done: true };       // r14–r53 之旧值
+  try {
+    const o = JSON.parse(raw);
+    if (o && typeof o === "object") {
+      const step = Number.isInteger(o.step) ? o.step : -1;
+      return { step, done: !!o.done };
+    }
+  } catch { /* 非本站所写／已损：落回已走完 */ }
+  return { step: -1, done: true };
+}
+function tourWrite(step, done) {
+  try { localStorage.setItem(TOUR_KEY, JSON.stringify({ v: 1, step, done: !!done })); }
+  catch { /* 隐私模式：本会话内不复弹 */ }
+}
+function tourSeen() { return tourRead() != null; }
+function tourMarkSeen() { tourWrite(tour.steps ? tour.i : -1, true); }
 function tourStepDefs() {
   return [
     // 第一步强制首页地图模式（用户可能停在列表模式，此处显式归位再取位）
@@ -5467,15 +6048,20 @@ function tourStepDefs() {
       label: "第三步 / 三", text: "时间线、地图、关系，三面看一人" },
   ];
 }
-function startTour() {
+/* from：自第几步起（0 基）。未给或越界一律自首步起。首页「继续导览」按钮以此接上前次之进度。 */
+function startTour(from) {
   tour.active = true;
-  tour.i = 0;
   tour.steps = tourStepDefs();
+  tour.i = Number.isInteger(from) && from > 0 && from < tour.steps.length ? from : 0;
   tour.prevFocus = document.activeElement;
   showTourStep();
 }
 function showTourStep() {
   const step = tour.steps[tour.i];
+  /* ★ r54-1 §二之 1：逐步落记（done=false）。写在这里而不在 endTour——
+   * 「未走完即无记」之病正出于只在收尾写一次；读者中途离去，此记已落。 */
+  tourWrite(tour.i, false);
+  syncTourEntry();
   step.go(); // 导航到该步视图（幂等：已在则原地 render）
   // render 或异步 hashchange 后目标才出现，rAF 轮询直至就绪
   waitForEl(step.find, () => {
@@ -5506,14 +6092,14 @@ function placeTour(step) {
   $("#tour-next").textContent = last ? "开始探索" : "下一步";
   const el = step.find();
   const hole = $("#tour-hole");
-  const pop = $("#tour-pop");
-  if (!elLaidOut(el)) {           // 元素缺席或仍无真实盒（超时兜底）：居中显示，不落左上角
+  /* r54-4（裁七十二取乙）：浮卡之位改由 CSS 全权定（侧置／窄屏下置），此处不再写其 top/left。
+   * ★ 故「元素缺席」之兜底亦不必再把卡搬到屏心——卡本就在一个固定的位上，只须去其孔。
+   *   旧版此处写 `pop.style.left/top/transform` 三笔行内样式，写下即盖过 CSS 之位，故一并去之。 */
+  if (!elLaidOut(el)) {           // 元素缺席或仍无真实盒（超时兜底）：只去其孔，卡照在其固定之位
     hole.style.display = "none";
-    pop.style.left = "50%"; pop.style.top = "50%"; pop.style.transform = "translate(-50%,-50%)";
     $("#tour-next").focus();
     return;
   }
-  pop.style.transform = "";
   el.scrollIntoView({ block: "center", behavior: "instant" });
   requestAnimationFrame(() => { drawTourHole(el); $("#tour-next").focus(); });
 }
@@ -5526,13 +6112,9 @@ function drawTourHole(el) {
   hole.style.left = Math.max(2, r.left - pad) + "px";
   hole.style.width = Math.min(r.width + pad * 2, window.innerWidth - 6) + "px";
   hole.style.height = (r.height + pad * 2) + "px";
-  const pop = $("#tour-pop");
-  const pw = pop.offsetWidth, ph = pop.offsetHeight;
-  let top = r.bottom + 12;
-  if (top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 12);
-  const left = Math.min(Math.max(8, r.left), window.innerWidth - pw - 8);
-  pop.style.top = Math.round(top) + "px";
-  pop.style.left = Math.round(left) + "px";
+  /* r54-4（裁七十二取乙）：此处原有四行按高亮孔算浮卡之 top／left（「就近落位」），已去——
+   * 正是那四行使卡落在孔旁而压住地图（375px 实测遮 54.1%）。卡之位今全在 styles.css 之 .tour-pop。
+   * ★ 本函数遂只管孔，不管卡；resize／scroll 之 repositionTour 亦只重画孔（卡是 fixed，不须重排）。 */
 }
 function tourNext() {
   if (!tour.active) return;
@@ -5544,6 +6126,7 @@ function endTour() {
   tour.active = false;
   $("#tour").hidden = true;
   tourMarkSeen();
+  syncTourEntry();
   // 完成或跳过后一律返回首页默认态（清人物语境，收起子导航），并轻提示「选一个人开始」。
   // 重看引导（关于页入口）走同一路径，落点一致。
   personCtx = null;
@@ -5567,6 +6150,105 @@ function repositionTour() {
   const step = tour.steps[tour.i];
   const el = step && step.find();
   if (el) drawTourHole(el);
+}
+/* 首页常驻之导览入口（r54-1 §二之 3）：其文随所记之进度变——
+ * 一无所记／已走完＝「初次导览 →」；走到第 N 步而未走完＝「继续导览 · 第 N 步 →」。
+ * ★ 此按钮是「不自动弹」之后唯一常驻的明路，故其存在不系于任何存储状态：
+ *   localStorage 不可用时其文照出，点之照走（那正是旧版一向不弹导览、首页又无入口之缺）。 */
+const TOUR_STEP_ORD = ["一", "二", "三", "四", "五"];
+function syncTourEntry() {
+  const btn = $("#home-tour-entry");
+  if (!btn) return;
+  const rec = tourRead();
+  const total = (tour.steps || tourStepDefs()).length;
+  const mid = rec && !rec.done && rec.step >= 0 && rec.step < total - 1;
+  btn.dataset.resume = mid ? String(rec.step) : "";
+  btn.textContent = mid
+    ? "继续导览 · 第" + (TOUR_STEP_ORD[rec.step] || (rec.step + 1)) + "步 →"
+    : "初次导览 · " + (TOUR_STEP_ORD[total - 1] || total) + "步 →";
+}
+
+/* ---------- 首页引言（r54-1 §三「首页之言」） ----------
+ * 三句：是什么（HTML 内静态一句）／有多大（本函数注入，数自 DATA.meta）／凭什么（本函数注入）。
+ * ★ 一个数也不写死：句二四数俱取 DATA.meta.tables，年代取 year_range_bce 经 yearLabel 成文
+ *   ——与页脚 #footer-stats、头部 #site-frontier 同一口径、同一来源，故新事入库即自涨。
+ * ★ 不走 innerHTML（红线六）：只以 createTextNode／createElement 建节点。 */
+/* 考据索引之读者页（`docs/kaodui_index.md` 463 条）由 r54-3 拟其形，**r54-7 已立**（裁七十七）。
+ * ★ 其位与其链只此一处：r54-1 立此常量时其值为 `null`，其文曰「页立之日把本常量由 null 改成
+ *   { hash, label }，首页引言即自带其链」——**今日即其日**，故只改此一处之值（r54-7 件之 6）。
+ *   **旧文照留于上，不抹**：其「本轮未立」是 r54-1 之实，非误。
+ * ★ **其数不入本常量**：条数取 `DATA.meta.tables.kaodui`（r54-5 解乙，跑时自数），
+ *   写进这里即是站上第二个「463」之出处，早晚与库分家（同 r54-4 之二数只许一个出处之训）。
+ * ★ 此数**指行，非指档之引**（裁九十六③）：全库 **463 行**，按状态摊平为 **511 条档之引**，
+ *   二数相去 48。考据页页首三数并书，其第一数即此链所书者——二处之义在那里对得上。 */
+const KAODUI_ENTRY = { hash: "#/kaodui", label: "考据索引" };
+function renderHomeLede() {
+  const t = (DATA.meta && DATA.meta.tables) || {};
+  const yr = (DATA.meta && DATA.meta.year_range_bce) || {};
+  const size = $("#home-lede-size");
+  if (size) {
+    /* 年代不入本句——头部时间双标（#site-frontier）已载其事，此处只答「有多大」之四数。 */
+    size.textContent = "今收事件 " + t.events + " 条、人物 " + t.people + " 位、地望 " +
+      t.places + " 处、引文 " + t.passages + " 条。";
+  }
+  const why = $("#home-lede-why");
+  if (why) {
+    why.textContent = "";
+    why.appendChild(document.createTextNode(
+      "每条皆注出处与可靠度，亲至与相关分判，后出叙事另层，无出处者不入库"));
+    if (KAODUI_ENTRY && KAODUI_ENTRY.hash) {
+      why.appendChild(document.createTextNode("；逐条核对之记录见"));
+      const a = document.createElement("a");
+      a.className = "hl-kaodui";
+      a.href = KAODUI_ENTRY.hash;
+      /* 条数取 `DATA.meta.tables.kaodui`（跑时自数，与考据页页首之第一数同源同口径）；
+       * meta 已在 `boot()` 内载，故 402 KB 之 `kaodui.json` 虽懒载，亦不妨此数（裁九十四）。
+       * meta 内无此键时只出其名、不出假数——同句二句三「不做假数兜底」之例。 */
+      const kdN = t.kaodui;
+      a.textContent = kdN
+        ? KAODUI_ENTRY.label + " · " + kdN + " 条 →"
+        : KAODUI_ENTRY.label + " →";
+      why.appendChild(a);
+    }
+    why.appendChild(document.createTextNode("。"));
+  }
+  /* 第四句「往哪走」——编年之径（r54-4 之 1，裁七十一取甲）。
+   * ★ 二数俱跑时自数据取（chronCounts()，与编年页自述同一处），本函数内一个数字字面也没有。
+   * ★ 其形是**一条真链**（<a href="#/chronicle">），不是按钮：读者可中键新开、可复制其址，
+   *   且无 JS 时亦为可用之链——故不走 setHash 之按钮式（那是视图内之动作，此处是「入另一屏」）。
+   * ★ 裁七十一之「丁之分工」：全库条数由导航钮承担（本轮未落，见交付文档之验收偏差上报），
+   *   而「M 条只此一处可见」这句最要紧的话由本行承担——故本行二数俱带，不因丁之未落而减。 */
+  const chron = $("#home-lede-chron");
+  if (chron) {
+    /* 二数之出处与主导航之数同为 chronCounts()（见 syncNavChronCount）——
+     * 站上今有二处报「全库条数」（此句与导航钮），**其数只能有一个出处**。 */
+    const c = chronCounts();
+    chron.textContent = "";
+    const a = document.createElement("a");
+    a.className = "hl-chron";
+    a.href = "#/chronicle";
+    a.textContent = "编年 · 全库 " + c.total + " 条按年铺开，其中 " + c.orphan + " 条只此一处可见 →";
+    chron.appendChild(a);
+  }
+}
+
+/* ---------- 主导航「编年」钮之全库条数（r54-4b；裁七十一之丁，站长 2026-09-26 裁「丁可落」） ----------
+ * 其所治者与引言第四句同一病之另一面：导航是读者第二眼唯一稳定之物，钮上只有「编年」二字时
+ * 它是一个**标签**；带一个数它才成「有内容之门」（裁七十一语）。
+ * ★ 数不写死：取 `chronCounts().total`——与引言第四句、编年页自述**同一出处**（今站上三处报此数）。
+ * ★ 其落之代价实测为零（走查门 §七之四：nav 高／flex 行数／headerH／地图顶，落其数前后一字不变）；
+ *   裁七十一之条件「375px 下导航栏不换行」之严读**不成立而与丁无关**（`.main-nav` 于 ≤680px
+ *   早有 `flex-wrap: wrap`，落丁之前已 2 行），站长遂裁「丁可落」。其实录见 docs/delivery_vision_r54.md。
+ * ★ 并补一条读屏之文：钮内只见「编年 265」，读屏读作「编年二百六十五」易含混，
+ *   故以 `aria-label` 明其义为「编年 · 全库 N 条」。
+ * ★ 本函数只在 boot() 内调一次：`render()` 于主导航只改 `aria-current`，不动其文，故不须每次重写。 */
+function syncNavChronCount() {
+  const span = $("#nav-chron-count");
+  if (!span) return;
+  const n = chronCounts().total;
+  span.textContent = String(n);
+  const btn = span.closest("button");
+  if (btn) btn.setAttribute("aria-label", "编年 · 全库 " + n + " 条");
 }
 
 async function boot() {
@@ -5611,6 +6293,14 @@ async function boot() {
     chronView.states.clear();
     chronView.cats.clear();
     renderChronicle();
+  });
+  /* 考据索引「清除筛选」：二组 chips 一并归零（同编年之例；筛选是内存浏览态，不入 hash）。
+   * ★ 其料未载时点之无害：`drawKaodui()` 只在 `DATA.kaodui` 已在时才到得了此处——
+   *   钮自身在载成之前一直是 `hidden`（`#kd-filters` 亦然）。 */
+  $("#kd-clear").addEventListener("click", () => {
+    kdView.statuses.clear();
+    kdView.tables.clear();
+    drawKaodui();
   });
   document.querySelectorAll(".lib-tabs button").forEach(btn => {
     btn.addEventListener("click", () => setHash(null, "library", btn.dataset.tab, state.q));
@@ -5720,6 +6410,11 @@ async function boot() {
     try { localStorage.removeItem(TOUR_KEY); } catch { /* 隐私模式 */ }
     startTour();
   });
+  /* 首页常驻之导览入口（r54-1 §二之 3）：有未走完之记则自该步接上，否则自首步起。 */
+  $("#home-tour-entry").addEventListener("click", (e) => {
+    const r = e.currentTarget.dataset.resume;
+    startTour(r === "" ? 0 : Number(r));
+  });
   window.addEventListener("resize", repositionTour);
   window.addEventListener("scroll", () => { hideCardPop(); repositionTour(); }, { passive: true });
   // 自管滚动复位：关掉浏览器自动 restoration（其异步补回旧位置正是「切视图不回顶」的 bug 源）
@@ -5745,8 +6440,13 @@ async function boot() {
    * 两侧一致时二者本就相等；不一致时本行只肯报小的那个，多的由 warn 报账。 */
   const roster = protoRoster();
   $("#brand-caption").textContent = "分享给同好——" + roster.enterable.length + " 条人物线，择一而入。";
+  renderHomeLede();   // 首页引言（r54-1 §三）：数俱自 DATA.meta，故须在 DATA 就位之后
+  syncNavChronCount();// 主导航「编年」钮之全库条数（r54-4b 之丁）：同须俟 DATA 就位
+  syncTourEntry();    // 首页导览入口之文（r54-1 §二之 3）
   render();
-  // 首访三步引导：仅首次、且落在首页视图（深链入站者不打扰）
+  // 首访三步引导：仅一无所记者、且落在首页视图（深链入站者不打扰）。
+  // ★ r54-1 §二之 1：自本轮起「走到第一步」即落记，故中途离去者下次不再被覆——
+  //   其明路改由首页常驻之 #home-tour-entry 承担。
   if (!tourSeen() && state.view === "home") startTour();
 }
 // 浏览器内自启动；Node（无 document，供 tools/test_binguan_play.js 脱离浏览器驱动引擎）不自启

@@ -373,6 +373,17 @@ body {
   border-color: var(--ink);
 }
 .main-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+/* 主导航「编年」钮之全库条数（r54-4b，裁七十一之丁）：小半档、淡一档、等宽数字。
+ * ★ 以 `opacity` 淡之而不写死色值——此钮在 `aria-current="true"` 时底玄墨、字绢白，
+ *   写死色值即在两态之一处失色；`opacity` 两态通用。
+ * ★ `em` 而非 `rem`：其字号随钮之字号走（窄屏钮字号若再收，数亦随之）。 */
+.main-nav .nav-num {
+  margin-left: 0.4em;
+  font-size: 0.82em;
+  opacity: 0.72;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
 .main-nav a.nav-feedback {
   font-family: var(--serif);
   letter-spacing: 0.1em;
@@ -396,6 +407,48 @@ section[hidden] { display: none; }
   color: var(--ink-soft);
   margin: 0.4rem 0 1.2rem;
 }
+/* 首页引言（r54-1，任务书 §三「首页之言」）：是什么／有多大／凭什么三句，压在标题之下、地图之上。
+ * 形取绢帛底上一段小字，左侧一道赭色细界——不另起卡、不加底色，免与其下地图争第一眼。
+ * 句一用衬线（「是什么」是一句话，宜读作文），句二句三用界面字号并降一档墨色（是账与凭据，宜读作注）。 */
+.home-lede {
+  margin: -0.6rem 0 1.1rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--ochre);
+  max-width: 62ch;
+}
+.home-lede p { margin: 0 0 0.3rem; }
+.home-lede p:last-child { margin-bottom: 0; }
+.home-lede .hl-what {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  line-height: 1.75;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.home-lede .hl-size,
+.home-lede .hl-why {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+.home-lede .hl-size { font-variant-numeric: tabular-nums; }
+/* 第四句「往哪走」·编年之径一链（r54-4，裁七十一取甲）：
+ * 与句二句三同字号（此三句同读作「注」），惟着赭色并带一道细底线——引言四句之内只此一处可点，
+ * 其可点性须一眼看得出，而不必另起一张卡（裁七十一不取乙之由正在此：卡把地图挤出首屏）。
+ * ★ 聚焦环走全局 :focus-visible（本文件首 §），此处不另立一套。 */
+.home-lede .hl-chron-line { margin-top: 0.15rem; }
+.home-lede .hl-chron {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  font-variant-numeric: tabular-nums;
+  color: var(--ochre);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(180, 101, 47, 0.42);
+}
+.home-lede .hl-chron:hover { color: var(--cinnabar); border-bottom-color: var(--cinnabar); }
+/* 考据索引之链（其页由 r54-3 立；未立之前 app.js 不建此节点，故本条今日无落点，留待其页上站） */
+.home-lede .hl-kaodui { color: var(--bronze); border-bottom: 1px dotted currentColor; text-decoration: none; }
+.home-lede .hl-kaodui:hover { color: var(--ochre); }
 /* 国别选项卡（滚动定位到分区；680px 下可横滑） */
 .state-tabs {
   position: sticky;
@@ -1586,6 +1639,184 @@ button.chron-chip[aria-pressed="true"] {
   .evt-person { min-height: 34px; }
 }
 
+/* ---------- 屏9 考据索引（#/kaodui，r54-7；design_notes §6.11） ----------
+ * 其形照编年页：同一套筛选条（`.chron-filters`／`.chron-chip`／`.chron-clear`／`.chron-status`
+ * 逐个复用，**不另立一套胶囊语言**），行体亦是 `<details>` 一行一目、展开即见其卡。
+ * 与编年之别只二事：① 主序是**档**（故多一层 `.kd-group` 之组标），② 卡内是**八目之定义表**
+ * 而非事件卡（其料不是事件，是核对记录）。
+ * `--theme` 在本屏内归**青绿**（`--bronze`）：编年已占暖赭，考据是「核过没有」之屏，
+ * 与人物语境色、与编年俱不相干——**色只答一件事**（同 §6.9 之理）。 */
+#view-kaodui { --theme: var(--bronze); }
+.kd-intro {
+  margin: -0.7rem 0 0.8rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  line-height: 1.75;
+}
+.kd-intro strong { color: var(--ink); font-weight: 600; }
+
+/* 凡例区：三句凡例＋记号之全式＋二界之实录。其文一字不在本站码内，俱自 kaodui_notice.json 取。 */
+.kd-fanli {
+  margin: 0 0 0.9rem;
+  padding: 0.7rem 0.85rem 0.55rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--bronze);
+  border-radius: 3px;
+  background: var(--silk-panel);
+}
+.kd-fl + .kd-fl { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dashed var(--line); }
+.kd-fl-t {
+  margin: 0 0 0.25rem;
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--bronze);
+}
+.kd-fl-b { font-size: 0.82rem; line-height: 1.8; color: var(--ink); }
+.kd-fl-b p { margin: 0 0 0.3rem; }
+.kd-fl-b p:last-child { margin-bottom: 0; }
+.kd-fl-list { margin: 0.1rem 0 0.3rem; padding-left: 1.1rem; }
+.kd-fl-list li { margin: 0 0 0.16rem; }
+.kd-fl-sub { margin: 0.35rem 0 0; font-size: 0.8rem; line-height: 1.8; color: var(--ink-soft); }
+.kd-note {
+  font-size: 0.79rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.kd-limits { margin: 0.7rem 0 0; padding-top: 0.55rem; border-top: 1px dashed var(--line); }
+.kd-loading, .kd-err { padding: 1.2rem 0.9rem; text-align: center; }
+.kd-err { color: var(--cinnabar); }
+
+/* 一档之组 */
+.kd-group { margin: 0 0 1.2rem; }
+.kd-gt {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 0.4rem;
+  padding: 0 0 0.25rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.kd-gt-name { color: var(--ink); }
+.kd-gt-n {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+/* 无档者之位：虚线框，与二十一档在形上即可分——**它不是第二十二档**（裁九十五）。 */
+.kd-group-none .kd-gt { border-bottom-style: dashed; }
+.kd-group-none .kd-gt-name { color: var(--ink-soft); }
+.kd-gnote {
+  margin: 0 0 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px dashed var(--line);
+  border-radius: 3px;
+  background: var(--silk-panel);
+}
+.kd-gnote strong { color: var(--ink); font-weight: 600; }
+
+/* 一目之行 */
+.kd-list { list-style: none; margin: 0; padding: 0; }
+.kd-list li { margin: 0 0 0.25rem; }
+.kd-row {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--silk-panel);
+}
+.kd-row > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  list-style: none;
+  min-height: 34px;
+}
+.kd-row > summary::-webkit-details-marker { display: none; }
+.kd-row > summary:hover { background: rgba(68, 118, 107, 0.06); }
+.kd-row[open] { border-color: var(--bronze); }
+.kd-row[open] > summary { border-bottom: 1px solid var(--line); }
+.kd-tbl {
+  flex: 0 0 auto;
+  font-family: var(--serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--bronze);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  line-height: 1.7;
+}
+.kd-row .kd-tgt { flex: 0 0 auto; font-size: 0.72rem; }
+.kd-item { flex: 1 1 16em; font-family: var(--serif); font-size: 0.84rem; color: var(--ink); }
+.kd-item.is-none, .kd-dl .is-none { color: var(--ink-soft); font-style: normal; opacity: 0.85; }
+/* 否定／引述语境之短记：朱砂虚线，形与「相关」空心签同族——示「此处存疑，须回原文」，
+ * 不示「此条为假」。**其所挂者是行×档之对**（裁九十七），故同一行诸档各带各的。 */
+.kd-neg {
+  flex: 0 0 auto;
+  font-family: var(--serif);
+  font-size: 0.7rem;
+  color: var(--cinnabar);
+  border: 1px dashed currentColor;
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+.kd-hint { flex: 0 0 auto; margin-left: auto; }
+.kd-hint::after { content: "展开 ▾"; font-size: 0.7rem; color: var(--ink-soft); }
+.kd-row[open] .kd-hint::after { content: "收起 ▴"; }
+
+/* 卡内：八目之定义表 */
+.kd-body-card { padding: 0.6rem 0.75rem 0.7rem; }
+.kd-dl {
+  display: grid;
+  grid-template-columns: 6.5em 1fr;
+  gap: 0.28rem 0.7rem;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+.kd-dl dt {
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+.kd-dl dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+.kd-head40 { margin: 0.2rem 0 0; font-family: var(--serif); color: var(--ink-soft); }
+.kd-refs { margin: 0.25rem 0 0; font-size: 0.76rem; color: var(--ink-soft); }
+.kd-more { display: block; font-size: 0.74rem; color: var(--ink-soft); }
+.kd-st { white-space: nowrap; }
+/* 本目所落之档：只加一道下划线以示「你在这一档里看它」，不改其色——
+ * 色在本页已有其职（朱砂＝否定之记），再加一色即二义相争。 */
+.kd-st.is-here { font-weight: 600; box-shadow: inset 0 -1px 0 var(--bronze); }
+.kd-back { margin: 0.6rem 0 0; }
+.kd-back-btn { font-size: 0.78rem; }
+
+/* 筛选条：二组 chips 沿用编年之形；无档者之位一枚作虚线，与二十一档一眼可分 */
+.kd-filters[hidden] { display: none; }
+.kd-chip.kd-chip-none { border-style: dashed; color: var(--ink-soft); }
+.kd-chip.kd-chip-none[aria-pressed="true"] { border-style: solid; color: var(--ink); }
+
+@media (max-width: 680px) {
+  /* 手机：行触区达标；所核之项独占一行不被挤断；定义表改上下两行（6.5em 一列在 375px 下过窄） */
+  .kd-row > summary { min-height: 44px; padding: 0.55rem 0.65rem; gap: 0.4rem; }
+  .kd-item { flex: 1 1 100%; }
+  .kd-hint { flex: 0 0 100%; margin-left: 0; text-align: right; }
+  .kd-dl { grid-template-columns: 1fr; gap: 0.05rem; }
+  .kd-dl dt { margin-top: 0.4rem; }
+  .kd-fanli { padding: 0.6rem 0.65rem 0.5rem; }
+  .kd-back-btn { min-height: 34px; }
+}
+
 /* ---------- 屏4 资料库 ---------- */
 .lib-toolbar {
   display: flex;
@@ -2027,6 +2258,12 @@ button.chron-chip[aria-pressed="true"] {
   .person-nav { padding: 0.5rem 0.8rem 0.55rem; }
   .person-nav button { padding: 0.14rem 0.6rem; }
   .person-nav:not([hidden]) + main { padding-top: 1.5rem; }
+  /* 首页引言（r54-1）：窄屏收其字号与外边距，句一降至 0.96rem——
+   * 375px 下若照桌面字号，三句即吃掉首屏近半，反把地图挤出屏外（与本轮「编年之显」同一笔账）。 */
+  .home-lede { margin: -0.4rem 0 0.9rem; padding-left: 0.6rem; }
+  .home-lede .hl-what { font-size: 0.96rem; line-height: 1.7; }
+  .home-lede .hl-size, .home-lede .hl-why { font-size: 0.8rem; }
+  .home-lede .hl-chron { font-size: 0.8rem; }   /* r54-4：第四句同收，免其独大于上两句 */
   /* 首页地图：底图在上、分组列表在下同屏纵排；侧面板隐藏。
    * r13：底图改 fit-to-width（不再 min-width:640 强撑＋横滚），载入即适配免手动缩放 */
   .home-map-mode .home-hero { flex-direction: column; }
@@ -2101,9 +2338,22 @@ button.chron-chip[aria-pressed="true"] {
   pointer-events: none;
   transition: top 0.22s ease, left 0.22s ease, width 0.22s ease, height 0.22s ease;
 }
+/* 导览浮卡之位（r54-4，裁七十二取乙「侧置，窄屏退下置」）：
+ * ★ 其位自本轮起**全由 CSS 定，JS 一字不写**（app.js 之 drawTourHole 原有四行写 pop 之 top/left
+ *   已去，其注在彼处）。改此制之由是实测：r14 之「随高亮孔就近落位」在 375px 下
+ *   遮住其所指之首页地图 **54.1%**（1440px 下 8.3%）——导览正遮着它让读者看的东西。
+ *   侧置之后两宽俱 **0.0%**（tools/qa/vision_r54.js §七之二逐宽实测）。
+ * ★ 指向性之账（裁七十二已议，本轮不补引线／三角）：卡既不再贴着高亮孔，
+ *   1440px 下其落点距高亮之齐国尚远；其补须带实测（读者是否真找不到高亮），不在无凭之时先加装饰。 */
 .tour-pop {
   position: fixed;
   z-index: 96;
+  /* >680px：贴视口右缘、垂直居中。地图与诸高亮之物皆在内容栏之内，右缘之外是页边留白，
+   * 故此位与任何高亮孔之交最小，且三步之间卡不动（读者眼中它是一块固定的「说明板」）。 */
+  right: 12px;
+  left: auto;
+  top: 50%;
+  transform: translateY(-50%);
   width: min(300px, calc(100vw - 2rem));
   background: var(--silk-panel);
   border: 1px solid var(--line);
@@ -2111,6 +2361,21 @@ button.chron-chip[aria-pressed="true"] {
   border-radius: 8px;
   box-shadow: 0 14px 40px rgba(46, 42, 36, 0.3);
   padding: 0.8rem 1rem 0.85rem;
+}
+/* ≤680px：退为下置贴边条（窄屏右缘无留白可借，侧置即压在内容上）。
+ * 其形取手机上惯见之底部提示条：贴底、通栏、上缘两角圆、赭色顶线照留。 */
+@media (max-width: 680px) {
+  .tour-pop {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    transform: none;
+    width: auto;
+    max-width: none;
+    border-radius: 8px 8px 0 0;
+    border-bottom: none;
+  }
 }
 .tour-step {
   font-family: var(--serif);
