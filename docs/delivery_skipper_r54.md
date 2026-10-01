@@ -1094,3 +1094,105 @@ r54-3 §1.1 之 2 所拟者为 `DATA.kaodui.records.length`——**即一个带 
 3. ★ **`base_map.svg` 今无戳、其窗 4 小时**（§6）：**故改 `base_map.svg` 而推送之后，读者最长 4 小时内可持旧图配新 `app.js`**——**照裁八十五之分，此已不只是「旧」，是可能「坏」**。**登记，候裁一。**
 4. **`site/index.html` 仍系人手维护之文件、非生成物**（conventions v1.47 §9.3 所记之「新生之分层」）——**只其二引之参由工具写入**；红线二「生成物勿手改」**不推及之**。
 5. **本件不含推送口令**，停在推送之前；**工作区并陈本轮诸件之在制品，未动他人一字。**
+
+---
+
+# 九、r54 推送（站长口令已下；领队之十六）
+
+## 〇、所读之节与其末次勘注之日（体例第 5 条）
+
+- **所读之节**：`team/round54_prompts.md` 「**领队之十六、【任务 For Skipper】r54 推送之领队加注**」五节（〇抬头／一推前基线／二先读之条／三提交之分法／四推后逐项入账／五共守）。★ **以节标定位，未以行号**。
+- **该节末次勘注之日：2026-09-30**。求法：节内所见之日仅 `2026-09-28`（领队自跑复现 `exit 2` 之日）与 `2026-09-30`（节标所署、领队复验基线之日），取其最后者。该文件 mtime `2026-09-30 20:14:25 -0400`（本机时区，照裁十四），与节标所署同日。
+- 体例第 2 条：**以任务书现行文本为准**，派件块之复述未作依据——五节俱自文件实读。
+
+## 一、推前三核（★ 不凭领队与站长之告，逐项自核）
+
+| 项 | 领队 2026-09-30 20:13 -0400 所记 | 我自核之果 | 同否 |
+|---|---|---|---|
+| `HEAD` | `a189d00`，领先远端 1 | `a189d00`；远端 `9c646f8` | **逐位相同** |
+| `app.js` sha256[:8] | `6f08c920` | `6f08c920` | **相同** |
+| `styles.css` sha256[:8] | `7f00e1a7` | `7f00e1a7` | **相同** |
+| 工作区 | 18 项（10 `M` ＋ 8 `??`） | 18 项（10 `M` ＋ 8 `??`） | **相同** |
+| `git diff --stat a189d00 HEAD -- data/csv/` | 须 **0 行** | **0 行**；且 `git status --porcelain -- data/csv/` 无输出 | **本轮未动 `data/csv/` 一字** |
+
+**推前之门**（求法·所期·读法）：
+- `python tools/validate.py` → 期 exit 0 → **exit 0，「OK：全部校验通过」无告警** → 质量门过。
+- `python tools/qa/asset_stamp_gate.py` → 期 exit 0 → **exit 0**，2 引俱相符，§三 按类反证四类 7 条俱命中，§四 自证不写死亦过。
+- **管线可复现之自验**（我自加，不在件之命内）：备份 `site/data/` → 重跑 `python tools/csv_to_json.py` → 逐文件比对 → **12 物之中 11 物逐字节相同**，唯 `meta.json` 之 `generated_at` 一戳由 `2026-09-29T16:14:36+00:00` 变 `2026-10-01T00:16:05+00:00`。**读法**：其戳重生成即变，与「数据之同异」非一事；故生成物可复现。**比对毕即将 `meta.json` 复原为所验之本**，工作区复为 18 项，入库者即站长与领队所验之字节。
+- `node tools/qa/prod_data_invariants.js` → **期 exit 2（领队之十六·二）** → **实测 exit 2**，其因机器自述：`kaodui：生产 meta 之 tables 内无此键`、`https://chunqiu.timechorus.com/data/kaodui.json` 之 JSON 解析失败（回 `<!DOCTYPE` ＝ 404 之 HTML），`【三之二】真旧本`之反证因 `kaodui` 不红而中止。**读法**：此即领队所言「**推前 exit 2 ＝ 应有之果**」，其因与所告逐字相合——非本件坏了数据。
+
+## 二、提交之分法与其由（领队之十六·三；★ 领队只立三义，分法由我定）
+
+**共守 2 已守**：五提交俱 `git add <明指之路径>`，**未用 `-A`／`.`／`-u` 一次**；每提交前自读 `git status --porcelain`。
+
+| # | 提交 | 所含 | 物数 |
+|---|---|---|---|
+| 1 | `d6dcde1` feat(qa): 生产新鲜度抽验门 | `tools/qa/prod_freshness.js` | 1 |
+| 2 | `a2de9ce` feat(kaodui): 考据索引入库 | `tools/csv_to_json.py`／`tools/build_kaodui_index.py`／`site/data/kaodui.json`／`kaodui_notice.json`／`meta.json`／`docs/kaodui_index.md` | 6 |
+| 3 | `f20ea95` feat(site): 考据索引页＋资产指纹之戳 | `site/app.js`／`styles.css`／`index.html`／`docs/design/design_notes.md`／`tools/qa/vision_r54.js`／`tools/stamp_assets.py`／`tools/qa/asset_stamp_gate.py` | 7 |
+| 4 | `b3a997b` docs(conventions): v1.47 | `docs/conventions.md` | 1 |
+| 5 | `3726776` docs(delivery): r54 交付二本＋r53 追记 | `docs/delivery_skipper_r54.md`／`delivery_vision_r54.md`／`delivery_skipper_r53.md` | 3 |
+
+★ **二数分书（共守 2）**：**本次所提交者 18 项**（分五提交，1＋6＋7＋1＋3＝18）；**其时工作区尚有他人之物 0 项**（提交毕 `git status --porcelain` 得 0 行）。**本轮工作区 18 项俱系本轮之物，无他人未毕之在制品并陈**——故全数入库，而所用仍是明指之路径，未恃全量暂存。
+
+### ★ 与领队所拟之序之异：**二物易位，书其由**（领队「若你之分法与此不同，书其由即可」）
+
+领队拟以 `tools/stamp_assets.py` 与 `tools/qa/asset_stamp_gate.py` 入序首之「工具三物」，其理为「**戳者先于其戳之果入库**」。
+
+**我易此二物入提交三**，其由：
+1. 「戳者先于其果」之理，于**戳者**（`stamp_assets.py`，写者）成立；于**门**（`asset_stamp_gate.py`，验者）则**反**——**门所断之不变量若未立，其提交之态即当场红**。
+2. ★ **此非推度，已实测**：取 `a189d00` 之 `site/`（其 `index.html` 尚无 `?v=`）喂同一门——
+   `python tools/qa/asset_stamp_gate.py --site <a189d00之站点> --skip-counter-proof` → **exit 1**，二引俱报「**缺参**（其引无 `?v=`）」。
+   **读法**：若依原序，提交一与提交二之态皆为「**门在而其所守之约未立**」，正违领队之十六·三义三「即令中途停下，其态亦不自相矛盾」。
+3. 并入提交三，一举得三：**义一**（戳与其所戳之物同一提交）、**义三**（门不早于其所断之不变量）、并顺 `conventions` v1.47「戳与其门**同件同落**」之文。
+4. ★ **领队所立三义一字未违，所易者只是其序**；且提交三落定之后当场复跑其门，**exit 0**（见下）。
+
+**义二（所依赖者在前）之守**：提交二（`site/data/kaodui.json` 等）在提交三（`site/app.js` 之考据索引页）**之前**。故中途之态为「**数据在而消费者未至**」——此向是安全的；其反向「页在而其数据未入库」则不存在。
+
+## 三、推送
+
+- **推送之时刻**：**2026-09-30 20:22:20 -0400**（本机时区，照裁十四连时区书）。
+- `git push origin main` → `9c646f8..3726776  main -> main`。**远端新 `HEAD`：`3726776`**。
+- **Actions 运行号 `36795847974`**（`Deploy site to GitHub Pages`，起于 `2026-10-01T00:22:24Z`，历 21s）→ **`success`**。
+- ★ **站长明命，谨记**：「**Actions success 只证『推了』，不证『读者拿到』**」。故下表六项**俱实测生产**，未以 Actions 代之一项。
+- ★ 并记一界：此 Actions 所部署者是 **GitHub Pages 镜像**；**生产（`chunqiu.timechorus.com`）系 Cloudflare Pages，自成一管线**（`prod_freshness.js` §四 之机器旁证：生产 `server=cloudflare`／镜像 `server=GitHub.com`＋`via: varnish`）。**故此 success 连「推了」亦只证镜像之一路**——下表之六项才是生产之实证。
+
+## 四、推后逐项入账（裁八十四，六项；★ 不只记「绿」，逐项随书 **求法·所期·读法**）
+
+| # | 项 | 求法（可复跑） | 所期 | **实测** | 读法 |
+|---|---|---|---|---|---|
+| 1 | 生产 `index.html` 之 `app.js?v=` | `curl -sS https://chunqiu.timechorus.com/`，正则取其值，与 `sha256(site/app.js)[:8]` **逐字符**比 | `6f08c920` | **`6f08c920`**，8 位**逐位俱 True** | **相符**。推前为裸 `<script src="app.js">`（无参） |
+| 2 | 生产 `index.html` 之 `styles.css?v=` | 同上 | `7f00e1a7` | **`7f00e1a7`**，8 位**逐位俱 True** | **相符**。推前为裸 `<link ... href="styles.css">`（无参） |
+| 3 | `prod_freshness.js` §三 | `node tools/qa/prod_freshness.js` | 其 URL 已指纹化 | **exit 0**；§三 之主脚本自 `app.js` 变 **`app.js?v=6f08c920`**；**`cf-cache-status` 自 `REVALIDATED` 变 `MISS`**（样式表同）；门之收语自「**其 URL 未指纹化**」转「**其 URL 已指纹化**」；「只报」之条 **4 → 1** | ★ **甲-1 之唯一生产实证**（详下） |
+| 4 | `prod_data_invariants.js` | `node tools/qa/prod_data_invariants.js` | **须 0** | **exit 0**，**91 过 / 0 红**（共 91 判） | 推前 `exit 2` 之因（生产无 `kaodui` 表、其 JSON 回 404）**已除**；§一之绿意谓「生产所服之本与本仓所推之本**逐表同数**」 |
+| 5 | `prod_render_invariants.js` | `node tools/qa/prod_render_invariants.js` | FAIL 0 | **exit 0**，**合计 48 项，FAIL 0** | 两级色制与徽记在位；按类反证各层**当场红**、撤注入后**复归**；所历诸页**零 pageerror** |
+| 6 | `asset_stamp_gate.py` | `python tools/qa/asset_stamp_gate.py` | exit 0 | **exit 0**，2 引俱相符（`v=7f00e1a7`／`v=6f08c920`），§三 反证 7 条俱命中，§四 自证不写死亦过 | 戳与其所戳之物相符，推送未使之离 |
+
+### ★ 第 3 项之详：**甲-1 之生产实证何以成立**（★ 非我之推论，系机器之自述＋一同跑之对照）
+
+同**一次跑**之内得一**受控对照**——三物之 `max-age` 俱 `14400`，而：
+- **已指纹化**之二物：`app.js?v=6f08c920`、`styles.css?v=7f00e1a7` → **`cf-cache-status=MISS`**；
+- **未指纹化**之一物：`assets/icons/badge_baoshuya.svg` → **`cf-cache-status=REVALIDATED`**（与推前同）。
+
+**读法**：指纹既换其 URL，即换其**缓存之键**，边缘无此键故**必回源**（`MISS`）——此正是甲案所许之「**一换即必回源**」。**窗虽仍存（14400s＝4 小时），而指纹使其不再压住新本**。推前同一门之同一处为 `REVALIDATED` ＋「未指纹化」，推后为 `MISS` ＋「已指纹化」，**其变只由本次推送而来**。
+
+★ **其界仍在，不得写过头**（照门头与领队之十六·四）：本门所量者是「**边缘此刻所服之本**」与「**窗之长**」;「**读者浏览器内之旧本，服务端探不到**」。**「推了」「边缘服了」「读者拿到了」是三件事**——前二件本轮量得出来，**第三件至今无门可量**。
+
+### ★ 裁八十三之续件（**不在本件内，仅登记**）
+
+三项（第 1、2 项二参相符 ＋ 第 3 项 freshness 绿）**俱已验**，故**已成就**依裁八十三改 `prod_freshness.js` §三 之判为**红**之条件。★ **其改另件，本轮未改其门一字**（领队之十六·四明命；并照 `conventions` v1.47 §9.3 ⑥「登记、候排」）。
+
+## 五、推后三核（收尾自核）
+
+- 工作区：**0 项**（`git status --porcelain` 无输出；本节落笔前之态）。
+- 远端：**`3726776`**，与本地 `HEAD` 同。
+- `git diff --stat a189d00 HEAD -- data/csv/`：**0 行**——★ **本轮 `data/csv/` 一字未动**，无越界。
+
+## 六、候裁与交接备注
+
+1. ★ **候裁**：裁八十三之续件（改 `prod_freshness.js` §三 为红）条件已成，**候领队排期**；其改须「连其文一并改」（门头【升格之约】）。
+2. ★ **登记，非已知**：`site/_headers` 能否压住 Cloudflare zone 之 Browser Cache TTL，**仍系「未验之说」**（`conventions` v1.47 §9.3 ④）——**本轮未验，不得写成已知**。本轮所证者只是「**指纹使窗不再压住新本**」，**非**「窗已缩」。
+3. **须报之小事**（照「QA 诚实优先」，原委照书）：
+   - 取生产之物时**遇三次网络抖断**（`curl (28) Failed to connect`／`(6) Could not resolve host`／`prod_freshness` 一跑 `取物超时 25000ms`）。照 `prod_freshness` 门头「本门无重试（承裁五十七）：若系一次网络抖断，请**复跑**，勿补重试」——**我复跑，未向任何门补一行重试**。其后二跑俱 `http=200`，故判为本机网络之抖，非生产之病。★ **记此，免后人见此门偶红而疑生产**。
+   - `git add` 时 git 报 **CRLF 将normalize为 LF** 之告三处：`tools/stamp_assets.py`、`tools/qa/asset_stamp_gate.py`、`docs/delivery_skipper_r54.md`。★ **与资产之戳无干**：`site/app.js`／`styles.css` 系 `.gitattributes` 之 `eol=lf`，**二者俱未报此告**，其字节未动，故哈希未动（推后门跑 exit 0 即其证）。
+4. **本节之后尚有一提交**（本节自身之追记），其后远端 `HEAD` 将再进一——**二数分书**：该提交所含 **1 项**（`docs/delivery_skipper_r54.md`），其时工作区他人之物 **0 项**。
