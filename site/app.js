@@ -2,6 +2,84 @@
  * 史料文本一律来自 site/data/*.json；本文件只含界面文案与设计配置。 */
 "use strict";
 
+/* ===== 底图之契（site/assets/map/base_map.svg ↔ 本文件）与载时自验（裁九十九②③④、裁一百〇五①） =====
+ *
+ * 【何以写在此】`base_map.svg` **不入资产指纹之戳**（裁九十九①：`tools/stamp_assets.py` 之德在「无名单」，
+ * 而此图 `index.html` 内 0 处、本文件内 1 处；欲戳之则二途俱坏——或在 JS 内写死其名而废其无名单之德，
+ * 或令戳去解析 `fetch` 字面而漏掉 `assets/icons/<name>.svg` 以变量拼成之 52 物且报绿。裁一百〇五①
+ * 据此实测再定「不建二阶之戳」）。**所当治者不是缓存，是「坏而不声」**：旧图若无所需之 id，
+ * 注入后 `querySelector` 得 null，其后 append 抛错，图即不出——而读者不知何故。
+ * 故改以**载时自验**守之，并先把契写下来：**契写下来，方能验其变；写不全者，其所漏之一项即是日后静默之坏。**
+ *
+ * 【契之清册】本文件今日所依赖之底图结构，逐一列明（括号内书其依赖之处）：
+ *  ① **外层 `<svg>`**（三处注入点皆以 `querySelector("svg")` 取之）：
+ *     `buildHomeMap()`（首页地图）、`renderMap()`（人物地图）、`cmpBuildMap()`（并观地图），
+ *     三处各以 `innerHTML = baseMapText` 注入同一份底图文本（见 `baseMapText` 之 fetch）。
+ *  ② **`#layer-anchors`**（**二处**：`renderMap()`、`cmpBuildMap()`）：空组一枚，
+ *     轨迹 polyline、锚点、交会环、行进标记皆 append 其内。其不在则图不出——载时自验所守之第一物。
+ *  ③ **海报化所改之节点**（**`buildHomeMap()` 一处所独用**；人物地图与并观地图用原参数，三处共用同一文件）：
+ *     ·`#layer-states`／`#layer-states-west`／`#layer-states-southeast` **三组本身** —— 改其 `fill-opacity` 为 0.5；
+ *     ·`#layer-labels text[data-state]` —— **国名文本**，改其 `font-size` 为 26、`fill` 为 `#4E4338`；
+ *     ·上三组内之 `ellipse[data-state]` —— **每国热区所据之色块**：`ellipseFinalGeom()` 读其
+ *       `cx`／`cy`／`rx`／`ry` **属性**（非 getBBox），并读 `el.parentNode.transform.baseVal` 之合并变换
+ *       （故椭圆须为该图层组之**直接子节点**；东部三组带仿射矩阵、西部无变换即单位阵）；
+ *       其 `data-state` 之值即分区之键（`homeGroups`／`HOME_BADGE_POS`）。
+ *  ④ **`#layer-labels` 之子组须带 `font-size` 属性**（`renderMap()`／`cmpBuildMap()` 之缩放补偿
+ *     取 `g.getAttribute("font-size")` 写入 `dataset.fs`；缺则回退 "14"，字号遂与底图不符而不报）。
+ *  ⑤ **外层 `<svg>` 之 `viewBox` 须为 `0 0 1200 700`**，与本文件 `MAP_W`／`MAP_H` 及 `project()` 之
+ *     投影常数同源（见 `base_map.svg` 之 `<desc>` 与 docs/conventions.md 之投影式）；
+ *     不符则一切落点整体偏移**而无一处报错**。
+ *  ⑥ **不系于结构者（不入自验）**：`path, polyline, line, circle, ellipse` 之全量 `vector-effect`、
+ *     `[data-r]`／`[data-fs]` 之缩放补偿——皆按形取之，底图增删节点不致其坏。
+ *
+ * 【一约】（裁九十九④；**同文另书于 `site/assets/map/base_map.svg` 头，二处俱在**）
+ *  一、**凡动 `base_map.svg` 之结构者，同件须复读本清册**——改其 id、改其嵌套、去其 `data-state`、
+ *      移其 `transform`、换其 `viewBox`，皆在此列。
+ *  二、**凡本文件新依赖一个 id 者，同件须确认该 id 已在今日生产所服之图内**——否则缓存之窗
+ *      （实测 `Cache-Control: max-age=14400`）即令**新 `app.js` 配旧图**，**四小时内图不出**。
+ *      新依赖之 id 并须**同件**落入下方 `BASE_MAP_NEEDS`，方得载时自验之护。
+ */
+/* 载时自验所验者（写作 CSS 选择器，一式兼验其 id 与其属性之形）。
+ * 所缺者**原文照报**，故其告自带所缺之 id——无须另备一份 id 清单与之同步。 */
+const BASE_MAP_NEEDS = {
+  home: ["#layer-states ellipse[data-state]", "#layer-states-west ellipse[data-state]",
+         "#layer-states-southeast ellipse[data-state]", "#layer-labels text[data-state]"],
+  single: ["#layer-anchors", "#layer-labels g[font-size]"],
+  dual:   ["#layer-anchors", "#layer-labels g[font-size]"],
+};
+/* 注入底图后自验其契：俱在则返回外层 `<svg>`；缺一即**显式报出**（一行可见之告落在图框之内，
+ * 并 console.error 记所缺之选择器）而返回 null，调用方据此停手。
+ * ★ 旧式 `if (!svg) return;` 正是**静默之形**——图不出而读者不知何故；
+ *   **一个静默的 return，与一个没有门的不变量是同一回事：其坏时无人知，而无人知即无人治。**
+ *   故此处之告**须有声**，且其声须在读者那一侧（不止于控制台）。 */
+function mountBaseMap(box, where, needs) {
+  const svg = box.querySelector("svg");
+  const missing = [];
+  if (!svg) {
+    missing.push("外层 <svg>");
+  } else {
+    needs.forEach(sel => { if (!svg.querySelector(sel)) missing.push(sel); });
+    const vb = (svg.getAttribute("viewBox") || "").trim().split(/[\s,]+/).map(Number);
+    if (vb.length !== 4 || vb[0] !== 0 || vb[1] !== 0 || vb[2] !== MAP_W || vb[3] !== MAP_H) {
+      missing.push('viewBox="0 0 ' + MAP_W + " " + MAP_H + '"（今为「' + (svg.getAttribute("viewBox") || "无") + '」）');
+    }
+  }
+  if (!missing.length) return svg;
+  const msg = "底图未按契载入（" + where + "）：缺 " + missing.join("、")
+    + "——多半是浏览器缓存中的旧 assets/map/base_map.svg，请强制刷新（Ctrl/⌘+Shift+R）后重试；"
+    + "若刷新无效，是底图与 app.js 之契已变，见二者文件头之「契之清册」。";
+  const p = document.createElement("p");
+  p.className = "base-map-breach";
+  p.setAttribute("role", "alert");
+  p.style.cssText = "margin:.6rem 0;padding:.5rem .7rem;border:1px solid var(--cinnabar);"
+    + "background:var(--silk-panel);color:var(--cinnabar);font-family:var(--serif);"
+    + "font-size:.92rem;line-height:1.55;";
+  p.textContent = msg;
+  box.appendChild(p);
+  console.error("[base_map 契] " + msg);
+  return null;
+}
+
 /* ---------- 设计配置（见 docs/design/design_notes.md） ---------- */
 /* 顺序即选人页分区内顺序；分组按 people.state 首国自动生成，新国加入只增分区。
  * home：分区归属覆盖项（武姜 state「申/郑」，人物线全在郑，归郑分区，卡上仍标流向） */
@@ -647,7 +725,8 @@ function clusterSlots(metas, pos, gap, rowGap, fold) {
 function buildHomeMap() {
   const box = $("#home-map");
   box.innerHTML = baseMapText;
-  const svg = box.querySelector("svg");
+  // 注入后自验其契（裁九十九②）：缺者显式报出，不复静默 return——旧式 `if (!svg) return;` 图不出而读者不知何故
+  const svg = mountBaseMap(box, "首页地图", BASE_MAP_NEEDS.home);
   if (!svg) return;
   const NS = "http://www.w3.org/2000/svg";
   svg.setAttribute("aria-label", "春秋列国示意图：点国入其人物线");
@@ -2383,8 +2462,11 @@ function renderMap() {
   const canvas = $("#map-canvas");
   canvas.innerHTML = baseMapText;
   mountCaption("single");   // 内嵌图框内的字幕条同为派生物（静态节点已移除，见 mountCaption 注释）
-  const svg = canvas.querySelector("svg");
+  // 注入后自验其契（裁九十九②）：旧码在此直取 svg 而后 `svg.querySelector("#layer-anchors")`，
+  // 旧图无此 id 即 anchors 为 null、其后 append 抛错——坏而不声。今缺一即有声，并停手。
+  const svg = mountBaseMap(canvas, "人物地图", BASE_MAP_NEEDS.single);
   mapState.svg = svg;
+  if (!svg) return;   // 告已由 mountBaseMap 报出；下游 applyView 等皆自守 !svg，故此处只须停手
   const anchors = svg.querySelector("#layer-anchors");
   const NS = "http://www.w3.org/2000/svg";
   const theme = getComputedStyle(document.documentElement).getPropertyValue("--theme").trim();
@@ -3709,8 +3791,10 @@ function cmpBuildMap() {
   const canvas = $("#cmp-canvas");
   canvas.innerHTML = baseMapText;
   mountCaption("dual");     // 同上：内嵌并观图框的字幕条亦为派生物
-  const svg = canvas.querySelector("svg");
+  // 注入后自验其契（裁九十九②）：同人物地图之理，缺一即有声，并停手
+  const svg = mountBaseMap(canvas, "并观地图", BASE_MAP_NEEDS.dual);
   cmp.svg = svg;
+  if (!svg) { cmp.anchors = null; return; }   // 告已由 mountBaseMap 报出；cmp.svg 之下游皆自守 !svg
   const anchors = svg.querySelector("#layer-anchors");
   cmp.anchors = anchors;
   svg.querySelectorAll("path, polyline, line, circle, ellipse")

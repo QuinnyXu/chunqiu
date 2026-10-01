@@ -3,6 +3,24 @@
   <desc>覆盖东经105–122、北纬29.5–38.5；投影见 docs/conventions.md：x=(lng-105)/17*1200，y=700-(lat-29.5)/9*700。水系取春秋大势（河水走故道东北入海），列国底色仅示势力范围，非考据疆界。
   西扩（第13轮第①批，2026-07-19）：东部既有图层（海域/列国/水系/山地/标注）按仿射关系 x'=12/17*x+352.9412、y'=6.5/9*y 整体换算自旧投影（东经110–122、北纬32–38.5），几何位置不变、仅随新投影重新落点；西部秦楚新增地形与色块占位见文末 layer-*-west 空图层，绘制归 Vision（第13轮第②批）。</desc>
 
+  <!-- ===== 一约：本图之结构与 site/app.js 互为契（裁九十九④，2026-10-01 Co站长；同文另书于 app.js 头） =====
+       本图**不入资产指纹之戳**（`tools/stamp_assets.py` 之 `ASSET_EXT` 不含 `.svg` 之此物，裁九十九①、裁一百〇五①），
+       故其新旧不由指纹分辨，而由 `app.js` 之**载时自验**守之（见 `app.js` 头「契之清册」与 `mountBaseMap()`）。
+
+       一、**凡动本图之结构者，同件须复读 `app.js` 头之「契之清册」**——
+           改其 id、改其嵌套、去其 `data-state`、移其 `transform`、换其 `viewBox`，皆在此列。
+           今 `app.js` 所依赖者：外层 `<svg>`（三处注入）、`#layer-anchors`（二处）、
+           `#layer-states`／`#layer-states-west`／`#layer-states-southeast` 三组及其内 `ellipse[data-state]`
+           （热区读其 cx/cy/rx/ry 属性与父组 transform，故椭圆须为该组之直接子节点）、
+           `#layer-labels text[data-state]`（国名）、`#layer-labels` 之子组之 `font-size` 属性、
+           以及 `viewBox` 须为 `0 0 1200 700`（与 `MAP_W`／`MAP_H` 及投影常数同源）。
+
+       二、**凡 `app.js` 新依赖一个 id 者，同件须确认该 id 已在今日生产所服之图内**——
+           否则缓存之窗（实测 `Cache-Control: max-age=14400`）即令**新 `app.js` 配旧图**，**四小时内图不出**。
+           新依赖之 id 并须同件落入 `app.js` 之 `BASE_MAP_NEEDS`，方得载时自验之护。
+
+       ★ 此约不占一轮，它挂在这个文件上：「最隐」之物不该用排期治，排期会忘，约不会。 -->
+
   <rect width="1200" height="700" fill="#F4EDDF"/>
 
   <!-- 海域与海岸；transform 由旧投影(110–122E,32–38.5N)仿射换算至新投影(105–122E,29.5–38.5N)，几何形状不变 -->
