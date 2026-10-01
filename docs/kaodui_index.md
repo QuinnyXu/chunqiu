@@ -1,6 +1,8 @@
 # 考据核对台账索引（kaodui index）
 
-> **本文件由 `tools/build_kaodui_index.py` 生成，勿手改。**改动请改抽取器或改 `data/csv/` 源栏，再重新生成。
+> **本文件由 `tools/csv_to_json.py` 生成，勿手改。**改动请改抽取器 `tools/build_kaodui_index.py`（其料与其文之所出，**r55-D 起为被调之库，不写本文件**）或改 `data/csv/` 源栏，再跑 `python tools/csv_to_json.py` 重新生成。
+
+〔**2026-10-01（EDT）就地加注·上句之改**（r55-D；据 `team/round54_prompts.md` §十 **裁一百一十一** 取甲、§九 **裁一百〇六** 三条件之①）：上句原书「**本文件由 `tools/build_kaodui_index.py` 生成，勿手改。**改动请改抽取器或改 `data/csv/` 源栏，再重新生成。」——**其语自 r52 立至 2026-10-01 为真**；今裁一百一十一 取甲，`tools/build_kaodui_index.py` **去其写权、定为被调之库**，本文件之写者改为 `tools/csv_to_json.py`（与 `site/data/kaodui.json`、`site/data/kaodui_notice.json` **同一跑**），故上句随之改。★ **宣与实不符比越界更坏**（裁一百〇六 之一），故宣随实改，原字记此不抹。〕
 
 本索引系 r52 裁七之产物——**病根不是记录缺失，是记录不可检索**。历轮之核对记录本以散文埋在 `coord_basis`／`notes`／`modern_note`／`summary` 诸长栏中，本文件把其中可机器辨认之痕迹一次性浮出，使「此事何时核过、核在何处、据何书何页、谁核的」**一检即得**。
 
@@ -1194,3 +1196,5 @@ Q427
 生成器：`tools/build_kaodui_index.py`（r52 裁七）。本文件不入 `site/data/`（裁八：公开与否本轮不定）。
 
 〔**2026-09-28 就地加注**（r54-5；**上段旧文一字不删**）：上段「本文件不入 `site/data/`」之语**今日仍真**——本 md 自身仍不入 `site/data/`；惟其括号内所据之 **r52 裁八**「公开与否本轮不定」**已非现行之判**。站长 2026-09-26 命「护城河之索引读者页须排进来」，`team/round54_prompts.md` §三 **裁七十七**明许越**裁八**与**裁十五②**，取**甲-ii**：同一个 `build_records()` 之果今另成二物——`site/data/kaodui.json`（台账逐条）与 `site/data/kaodui_notice.json`（凡例、档序与源栏指纹），**由 `tools/csv_to_json.py` 写**，故 `site/data/` 之写者进程仍只其一个。★ **二者同源而不同跑**：本 md 由本脚本写、二 json 由 `tools/csv_to_json.py` 写，故 `data/csv/` 一改，**二者须各跑一过方同步**；`python tools/build_kaodui_index.py --check` 可当场验本 md 是否已同步。〕
+
+〔**2026-10-01（EDT）就地加注·上二段之勘**（r55-D；据 `team/round54_prompts.md` §十 **裁一百一十一** 取甲、§九 **裁一百〇六**；**上二段旧文一字不删**）：① 上段「生成器：`tools/build_kaodui_index.py`」**今当改读 `tools/csv_to_json.py`**——后者是本文件之**写者**，前者是其**料与其文之所出**（**被调之库，不写任何文件**）。② 上段（2026-09-28 之注）末「**二者同源而不同跑**……『须各跑一过方同步』……`python tools/build_kaodui_index.py --check` 可当场验本 md 是否已同步」之语，**自 2026-10-01（EDT）起不复真**：md 与二 json **同源亦同跑**——`python tools/csv_to_json.py` 一跑即出三物，**无『各跑一过』之窗**；`--check` 一式仍在（**只读不写**），然其所验者今是「本文件与重生成之果相符否」，非「二跑之间是否落后」。★ **二者原字照留，不抹**——其为 r52／2026-09-28 当日之实，系判定史（`docs/conventions.md` §7 v1.29）；**今之实以本注为准**。〕

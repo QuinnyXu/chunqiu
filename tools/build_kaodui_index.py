@@ -1,8 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""考据核对台账索引生成器（r52 裁七）。
+"""考据核对台账索引之抽取器（r52 裁七立；★ **r55-D 起为「被调之库」，不写任何文件**）。
 
-从 data/csv/ 现有字段抽取核对台账，生成 docs/kaodui_index.md。
+从 data/csv/ 现有字段抽取核对台账之料与其文；其写出者别为二处（见下「本文件之地位」）。
+
+【本文件之地位（2026-10-01 EDT r55-D 定；据 team/round54_prompts.md §十 裁一百一十一 取甲，
+  并 §九 裁一百〇六 三条件之②「其地位须同件定」）】
+  ★ **本文件是被调之库，不是写手**：其所有者是抽取之法（build_records()／extract_*／STATUS_PATTERNS／
+    render()／public_records()／public_notice()），**而无一写权**。
+  ★ **其果之写者只一个进程**：tools/csv_to_json.py——
+      · site/data/kaodui.json、site/data/kaodui_notice.json（r54-5 起，裁七十七取甲-ii）；
+      · docs/kaodui_index.md（**r55-D 起**，裁一百〇六准其写 docs/、裁一百一十一取甲）。
+  ★ **其由**：「两个写手一个文件」正是 r53 立「单一写手」所禁（裁一百〇六之二）。
+    r55-D 之前，本文件与 csv_to_json.py **俱能据同一 render() 之果去动 docs/kaodui_index.md**，
+    虽实际只本文件写之，其形已是二写手；今去本文件之写权，形与实同归一。
+  ★ **旧语之留痕**：上「生成器」一名与「生成 docs/kaodui_index.md」一语系 r52 至 2026-10-01 之文，
+    **其时为真**；今随地位之改而改，原字记于此行与本注，不抹（docs/conventions.md §7 v1.41）。
+
+原题与原句（r52 立，照留）：「考据核对台账索引生成器（r52 裁七）。／从 data/csv/ 现有字段抽取核对台账，
+  生成 docs/kaodui_index.md。」
 
 设计红线（team/round52_prompts.md §二 口径七条）：
   1. 只抽不断——本脚本不作任何史学判断；抽不出者一律书「未标」，
@@ -10,6 +26,10 @@
   2. 「未核」「本轮无从核」「未见」三者分书，不归并。
   3. 每条带源栏定位（表、行 id、栏名、字符偏移、首四十字），可径回原文。
   4. 只读 data/csv/，一字不改；不写 site/data/。
+     〔2026-10-01（EDT）就地加注（r55-D；裁一百一十一 取甲，**上句一字不删**）：上句之「不写 site/data/」
+      **今日仍真**，且其面已推及全库——**本文件自 r55-D 起不写任何文件**（docs/ 亦不写）。
+      ★ 其反证：单跑 `python tools/build_kaodui_index.py`，docs/kaodui_index.md 之 mtime 不变
+      （裁一百一十一 明命此证；★ `grep open(..., "w")` 是读码所得，不是实证）。〕
      〔2026-09-28 就地加注（r54-5；**旧文一字不删**）：上句今日仍真——**本文件自身仍不写
       site/data/**；惟其所本之 r52 裁八「公开与否本轮不定」**已非现行之判**。站长 2026-09-26
       命「护城河之索引读者页须排进来」，team/round54_prompts.md §三 裁七十七明许越裁八与
@@ -18,9 +38,12 @@
       site/data/kaodui_notice.json（凡例与档序）。故 site/data/ 之写者进程仍只
       tools/csv_to_json.py 一个，CLAUDE.md 红线二与 docs/conventions.md 之数据流一字不须改。〕
 
-用法：  python tools/build_kaodui_index.py            # 生成 docs/kaodui_index.md
+用法（★ **三式俱只读不写**；欲生成 docs/kaodui_index.md 请跑 `python tools/csv_to_json.py`）：
+        python tools/build_kaodui_index.py            # 只印不写：印其地位、条数与逐表之统
         python tools/build_kaodui_index.py --check    # 只验不写（退出码 1 表示与现文件不符）
         python tools/build_kaodui_index.py --stdout   # 打印到标准输出
+  〔2026-10-01（EDT）就地加注（r55-D）：第一式原书「# 生成 docs/kaodui_index.md」，
+   **其语自 r52 至 2026-10-01 为真**；今其写权已去，故改书「只印不写」。原字记此，不抹。〕
 """
 
 import csv
@@ -36,7 +59,10 @@ for _stream in (sys.stdout, sys.stderr):
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_DIR = os.path.join(REPO, "data", "csv")
-OUT_PATH = os.path.join(REPO, "docs", "kaodui_index.md")
+# ★ 2026-10-01 EDT r55-D（裁一百一十一 取甲）：此常量原名 `OUT_PATH`，今改名 `MD_PATH`。
+#   其由：本文件已无写权，而「OUT」一名宣其为本文件之输出——**宣与实不符比越界更坏**（裁一百〇六之一）。
+#   今其用只二：① 本文件 --check 之**读**；② tools/csv_to_json.py 取其路以**写**（单一写手在彼）。
+MD_PATH = os.path.join(REPO, "docs", "kaodui_index.md")
 
 # ---------------------------------------------------------------- 源栏
 # (表名, 文件名, 行 id 栏, 抽取之源栏)
@@ -463,8 +489,20 @@ def render(records, stats):
     W = L.append
     W("# 考据核对台账索引（kaodui index）")
     W("")
-    W("> **本文件由 `tools/build_kaodui_index.py` 生成，勿手改。**"
-      "改动请改抽取器或改 `data/csv/` 源栏，再重新生成。")
+    W("> **本文件由 `tools/csv_to_json.py` 生成，勿手改。**"
+      "改动请改抽取器 `tools/build_kaodui_index.py`（其料与其文之所出，"
+      "**r55-D 起为被调之库，不写本文件**）或改 `data/csv/` 源栏，"
+      "再跑 `python tools/csv_to_json.py` 重新生成。")
+    W("")
+    W("〔**2026-10-01（EDT）就地加注·上句之改**（r55-D；据 `team/round54_prompts.md` "
+      "§十 **裁一百一十一** 取甲、§九 **裁一百〇六** 三条件之①）："
+      "上句原书「**本文件由 `tools/build_kaodui_index.py` 生成，勿手改。**"
+      "改动请改抽取器或改 `data/csv/` 源栏，再重新生成。」"
+      "——**其语自 r52 立至 2026-10-01 为真**；今裁一百一十一 取甲，"
+      "`tools/build_kaodui_index.py` **去其写权、定为被调之库**，"
+      "本文件之写者改为 `tools/csv_to_json.py`（与 `site/data/kaodui.json`、"
+      "`site/data/kaodui_notice.json` **同一跑**），故上句随之改。"
+      "★ **宣与实不符比越界更坏**（裁一百〇六 之一），故宣随实改，原字记此不抹。〕")
     W("")
     W("本索引系 r52 裁七之产物——**病根不是记录缺失，是记录不可检索**。"
       "历轮之核对记录本以散文埋在 `coord_basis`／`notes`／`modern_note`／`summary` 诸长栏中，"
@@ -666,6 +704,20 @@ def render(records, stats):
       "★ **二者同源而不同跑**：本 md 由本脚本写、二 json 由 `tools/csv_to_json.py` 写，"
       "故 `data/csv/` 一改，**二者须各跑一过方同步**；"
       "`python tools/build_kaodui_index.py --check` 可当场验本 md 是否已同步。〕")
+    W("")
+    W("〔**2026-10-01（EDT）就地加注·上二段之勘**（r55-D；据 `team/round54_prompts.md` "
+      "§十 **裁一百一十一** 取甲、§九 **裁一百〇六**；**上二段旧文一字不删**）："
+      "① 上段「生成器：`tools/build_kaodui_index.py`」**今当改读 `tools/csv_to_json.py`**"
+      "——后者是本文件之**写者**，前者是其**料与其文之所出**"
+      "（**被调之库，不写任何文件**）。"
+      "② 上段（2026-09-28 之注）末「**二者同源而不同跑**……『须各跑一过方同步』……"
+      "`python tools/build_kaodui_index.py --check` 可当场验本 md 是否已同步」之语，"
+      "**自 2026-10-01（EDT）起不复真**：md 与二 json **同源亦同跑**——"
+      "`python tools/csv_to_json.py` 一跑即出三物，**无『各跑一过』之窗**；"
+      "`--check` 一式仍在（**只读不写**），然其所验者今是「本文件与重生成之果相符否」，"
+      "非「二跑之间是否落后」。"
+      "★ **二者原字照留，不抹**——其为 r52／2026-09-28 当日之实，系判定史"
+      "（`docs/conventions.md` §7 v1.29）；**今之实以本注为准**。〕")
     return "\n".join(L) + "\n"
 
 
@@ -678,18 +730,30 @@ def main():
         sys.stdout.write(text)
         return 0
     if "--check" in args:
-        if not os.path.exists(OUT_PATH):
+        if not os.path.exists(MD_PATH):
             print("docs/kaodui_index.md 不存在")
             return 1
-        cur = open(OUT_PATH, encoding="utf-8", newline="").read().replace("\r\n", "\n")
+        cur = open(MD_PATH, encoding="utf-8", newline="").read().replace("\r\n", "\n")
         if cur != text:
-            print("docs/kaodui_index.md 与重新生成之结果不符——请重新生成")
+            # ★ r55-D：此指引之语原书「docs/kaodui_index.md 与重新生成之结果不符——请重新生成」，
+            #   今随写者之改而改指其新写者（原字记此，不抹）。
+            print("docs/kaodui_index.md 与重新生成之结果不符"
+                  "——请跑 python tools/csv_to_json.py（r55-D 起其写者在彼）")
             return 1
         print("一致：%d 条" % len(records))
         return 0
-    with open(OUT_PATH, "w", encoding="utf-8", newline="\n") as f:
-        f.write(text)
-    print("已生成 %s：%d 条" % (os.path.relpath(OUT_PATH, REPO), len(records)))
+    # ----------------------------------------------------------------
+    # ★ 2026-10-01 EDT r55-D（裁一百一十一 取甲）：此处原有「写 OUT_PATH」一路，**今删**。
+    #   原码（照留以见其改，不复可执行）：
+    #       with open(OUT_PATH, "w", encoding="utf-8", newline="\n") as f:
+    #           f.write(text)
+    #       print("已生成 %s：%d 条" % (os.path.relpath(OUT_PATH, REPO), len(records)))
+    #   （★ 照留者系**删前之原字**，故其内仍作 `OUT_PATH`——改名与删写同件，见上方其赋值处之注。）
+    #   今其默认一式改为**只印不写**：本文件是被调之库（见文件头「本文件之地位」）。
+    #   ★ 其判取 0 不取非零：**不写不是错**，是本文件今日之本分；其所印之语已明指写者何在。
+    print("本文件自 r55-D 起是**被调之库，不写任何文件**（裁一百一十一 取甲）。")
+    print("docs/kaodui_index.md 之写者是 tools/csv_to_json.py——请跑：python tools/csv_to_json.py")
+    print("本跑只印不写：抽出 %d 条（欲见其文请加 --stdout；欲验现文件请加 --check）。" % len(records))
     for s in stats:
         print("  %-9s %-12s 候选 %3d ／ 抽出 %3d ／ 抽不出 %3d ／ 条 %4d" % (
             s["table"], s["col"], len(s["candidates"]),

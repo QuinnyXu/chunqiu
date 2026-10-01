@@ -1,5 +1,22 @@
 # -*- coding: utf-8 -*-
-"""把 data/csv/*.csv 转成 site/data/ 下同名 .json，并生成 meta.json。
+"""把 data/csv/*.csv 转成 site/data/ 下同名 .json 与 meta.json，
+并写出 docs/kaodui_index.md（考据核对台账索引，r55-D 起）。
+
+★【2026-10-01 EDT r55-D·本脚本之宣何以改（裁一百〇六 条件③、裁一百一十一 取甲）】
+  原宣（r9 立至 2026-10-01，照留不抹）：「把 data/csv/*.csv 转成 site/data/ 下同名 .json，
+  并生成 meta.json。」——**其语自立至今日为真**，今所以改者：
+  本脚本之写出之面**已逾 site/data/ 一处**，兼及 docs/kaodui_index.md（docs/ 之下）。
+  · **其所据**：`team/round54_prompts.md` §九 **裁一百〇六**「`csv_to_json.py` 可否写 `docs/`：
+    准，惟三条件」，并 §十 **裁一百一十一**「取甲：`build_kaodui_index.py` 去其写权，定为被调之库」。
+  · **其由**（裁一百〇六 原文）：界之事之判准是「**将来谁会被这个界骗**」——其人二：
+    读 `docs/` 者（以为其下皆人手之文）、改 `build_kaodui_index.py` 者（以为自己是那文件之唯一写手）。
+    故三条件俱落在那两处留痕：① md 头之句改书其新生成者；② 抽取器之地位同件定为被调之库；
+    ③ **本宣随之改并书其由**（即本段）。**三者今俱落。**
+  · ★ **此非「生成物勿手改」之例外，而是其面之扩**：`docs/kaodui_index.md` 自 r52 即生成物
+    （其头自书「勿手改」），本件所改者只「其写者是谁」一事，**不改其为生成物之身份**。
+  · ★ **单一写手仍一个**：本脚本是 site/data/kaodui.json、site/data/kaodui_notice.json 与
+    docs/kaodui_index.md **三物之唯一写手**，抽取器只供其料与其文（CLAUDE.md 红线二与
+    docs/conventions.md 之数据流，其「data/csv/ → csv_to_json.py → site/data/」一支一字不须改）。
 
 用法（在仓库根目录）：
     python tools/csv_to_json.py
@@ -87,19 +104,33 @@ def main():
             f.write("\n")
     tables["kaodui"] = len(kd_records)
 
-    # ★ md 与 json **同源而不同跑**：md 由 tools/build_kaodui_index.py 写。
-    #   故 data/csv/ 一改而只跑本脚本，docs/kaodui_index.md 即落后——**此系只报，不是门**；
-    #   其当否升为红（宜入 tools/validate.py）系 r54-5 之候裁事，见 docs/delivery_skipper_r54.md。
-    md_path = ROOT / "docs" / "kaodui_index.md"
-    if md_path.exists():
-        with md_path.open(encoding="utf-8", newline="") as f:
-            cur_md = f.read().replace("\r\n", "\n")
-        synced = (cur_md == kaodui.render(kd_records, kd_stats))
-    else:
-        synced = False
+    # ---------------------------------------------------------------- 考据索引之 md
+    # ★ 2026-10-01 EDT r55-D（裁一百〇六 三条件、裁一百一十一 取甲）：
+    #   docs/kaodui_index.md 之**写者自此是本脚本**；抽取器已去写权（被调之库）。
+    #   〔原码与原注照留以见其改（r54-5 所落，2026-09-28；**一字不删**）：
+    #         # ★ md 与 json **同源而不同跑**：md 由 tools/build_kaodui_index.py 写。
+    #         #   故 data/csv/ 一改而只跑本脚本，docs/kaodui_index.md 即落后——**此系只报，不是门**；
+    #         #   其当否升为红（宜入 tools/validate.py）系 r54-5 之候裁事，见 docs/delivery_skipper_r54.md。
+    #         md_path = ROOT / "docs" / "kaodui_index.md"
+    #         if md_path.exists():
+    #             with md_path.open(encoding="utf-8", newline="") as f:
+    #                 cur_md = f.read().replace("\r\n", "\n")
+    #             synced = (cur_md == kaodui.render(kd_records, kd_stats))
+    #         else:
+    #             synced = False
+    #         print(f"kaodui -> site/data/kaodui.json（{len(kd_records)} 条）＋ kaodui_notice.json"
+    #               + ("；docs/kaodui_index.md 同步" if synced
+    #                  else "；★ docs/kaodui_index.md 与重生成之果不符——请跑 python tools/build_kaodui_index.py"))
+    #   其「只报」之窗今已闭：md 与二 json **同源亦同跑**，一跑即出三物，
+    #   既无「各跑一过」之窗，亦无可「落后」之物，故其只报之一行无所施而去之。
+    #   ★ 其「当否升为红（宜入 tools/validate.py）」一问**随之消解**——
+    #   **不是答了，是其所问之病不复存在**（无窗则无门可立）。〕
+    md_path = Path(kaodui.MD_PATH)
+    md_text = kaodui.render(kd_records, kd_stats)
+    with md_path.open("w", encoding="utf-8", newline=chr(10)) as f:
+        f.write(md_text)
     print(f"kaodui -> site/data/kaodui.json（{len(kd_records)} 条）＋ kaodui_notice.json"
-          + ("；docs/kaodui_index.md 同步" if synced
-             else "；★ docs/kaodui_index.md 与重生成之果不符——请跑 python tools/build_kaodui_index.py"))
+          f"＋ docs/kaodui_index.md（同源同跑，一跑三物）")
 
     meta = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
