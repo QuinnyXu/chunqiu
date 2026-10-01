@@ -1,0 +1,99 @@
+{
+  "_": "生成物，勿手改。由 tools/csv_to_json.py 写出；其料与其文出 tools/build_kaodui_index.py，与 docs/kaodui_index.md 同出一源。",
+  "generator": "tools/build_kaodui_index.py",
+  "writer": "tools/csv_to_json.py",
+  "index_doc": "docs/kaodui_index.md",
+  "records": 463,
+  "fanli": [
+    {
+      "key": "zhichou_buduan",
+      "title": "只抽不断",
+      "text": "**★ 只抽不断**：抽取器不作任何史学判断。凡抽不出者一律书「未标」，**不以上下文推断补齐**（如：段内无日期而邻段有，不代填）。宁少勿假。"
+    },
+    {
+      "key": "santai_fenshu",
+      "title": "三态分书，不归并",
+      "text": "「未核」「本轮无从核」「未见」在本库是**三种不同之证据状态**（§7 否定性核字自限、§10.2 有界扫描留痕）：\n- **未核**——未曾核（状态之泛称，多为「某书本条未核」）。\n- **未核待补**——已登记为待补之项。\n- **本轮无从核**——材料不在手，消极的没查到；**不得读作「查无」**（查无是积极之否定结论，本库两者严分）。凡「本轮……无从核」「均无从核」之语俱归此档。\n- **未见**——某物（原书／原图／扫描图／报中之某项）未曾目验。"
+    },
+    {
+      "key": "zhilupai",
+      "title": "索引是指路牌，不是替代品",
+      "text": "**索引是指路牌，不是替代品。** 每条俱带源栏定位（表·行 id·栏名·字符偏移·首四十字），凡须凭以论断者，**一律回原栏读全文**。"
+    }
+  ],
+  "status_order": [
+    "本轮无从核",
+    "未见",
+    "未核待补",
+    "未核",
+    "待核",
+    "未取原文核对",
+    "未取纸本",
+    "非纸本核对",
+    "须纸本核",
+    "待纸本",
+    "留痕待核",
+    "未标核对状态",
+    "电子本逐字核对·否定性结果",
+    "纸本已核",
+    "扫描本已核",
+    "扫描本",
+    "电子本已核",
+    "电子本转引",
+    "电子本",
+    "转引",
+    "已核"
+  ],
+  "neg_mark": "〔否定／引述语境，须回原文〕",
+  "neg_mark_short": "〔否定／引述语境〕",
+  "neg_mark_note": "**〔否定／引述语境，须回原文〕** 之记号：状态词之前后见「不因…径称」「非」「须与…区分」之类语时加此记，示此处之状态词**可能系否定句或引述**（如「不因惯称相符而径称已核」），抽取器不代判其正反，**既不径删、亦不径信**，留待读者回原文。",
+  "concl_max": 220,
+  "books_max": 8,
+  "sources": [
+    {
+      "table": "places",
+      "file": "places.csv",
+      "id_col": "id",
+      "col": "coord_basis",
+      "rows": 104,
+      "records": 119,
+      "sha256_12": "337779a10dff"
+    },
+    {
+      "table": "sources",
+      "file": "sources.csv",
+      "id_col": "id",
+      "col": "notes",
+      "rows": 195,
+      "records": 89,
+      "sha256_12": "aeb17493b674"
+    },
+    {
+      "table": "passages",
+      "file": "passages.csv",
+      "id_col": "id",
+      "col": "modern_note",
+      "rows": 509,
+      "records": 191,
+      "sha256_12": "f8e987ebd19f"
+    },
+    {
+      "table": "people",
+      "file": "people.csv",
+      "id_col": "id",
+      "col": "notes",
+      "rows": 174,
+      "records": 32,
+      "sha256_12": "7f1c68f2b9a6"
+    },
+    {
+      "table": "events",
+      "file": "events.csv",
+      "id_col": "id",
+      "col": "summary",
+      "rows": 265,
+      "records": 32,
+      "sha256_12": "5a50867163a4"
+    }
+  ]
+}

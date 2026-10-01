@@ -7,6 +7,11 @@
 - 输出 UTF-8 JSON，每表为「数组 of 对象」。
 - 纯数字字段自动转 int/float，空字符串转 null。
 - site/data/ 下的文件是生成物，禁止手改（见 docs/conventions.md）。
+- 本脚本于其末 import tools/build_kaodui_index.py 之抽取器，以**同一次抽取之果**
+  另写出 site/data/kaodui.json 与 site/data/kaodui_notice.json，并于 meta.json 之
+  tables 增一键 kaodui（r54-5；team/round54_prompts.md §三 裁七十七取甲-ii）。
+  ★ site/data/ 之**写者进程仍只本文件一个**——抽取器一份、在原处，本文件只调其果，
+  不另抽一次（CLAUDE.md 红线二与 docs/conventions.md 之数据流一字不须改）。
 """
 import csv
 import json
@@ -65,6 +70,36 @@ def main():
             years = [r["year_bce"] for r in rows if isinstance(r.get("year_bce"), int)]
             if years:
                 year_min, year_max = min(years), max(years)
+
+    # ---------------------------------------------------------------- 考据索引之台账
+    # r54-5（裁七十七取甲-ii）：于其末 import 同一抽取器，一跑即出全部生成物，无忘跑之窗。
+    # ★ 只改其输出之路，**不改其所抽之物**——build_records()／extract_*／STATUS_PATTERNS 一字未动。
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import build_kaodui_index as kaodui  # noqa: E402（置于此处，非置于文件头：其料须俟诸表写毕）
+
+    kd_records, kd_stats = kaodui.build_records()
+    for fname, payload in (
+        ("kaodui.json", kaodui.public_records(kd_records)),
+        ("kaodui_notice.json", kaodui.public_notice(kd_records, kd_stats)),
+    ):
+        with (OUT_DIR / fname).open("w", encoding="utf-8", newline="\n") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+            f.write("\n")
+    tables["kaodui"] = len(kd_records)
+
+    # ★ md 与 json **同源而不同跑**：md 由 tools/build_kaodui_index.py 写。
+    #   故 data/csv/ 一改而只跑本脚本，docs/kaodui_index.md 即落后——**此系只报，不是门**；
+    #   其当否升为红（宜入 tools/validate.py）系 r54-5 之候裁事，见 docs/delivery_skipper_r54.md。
+    md_path = ROOT / "docs" / "kaodui_index.md"
+    if md_path.exists():
+        with md_path.open(encoding="utf-8", newline="") as f:
+            cur_md = f.read().replace("\r\n", "\n")
+        synced = (cur_md == kaodui.render(kd_records, kd_stats))
+    else:
+        synced = False
+    print(f"kaodui -> site/data/kaodui.json（{len(kd_records)} 条）＋ kaodui_notice.json"
+          + ("；docs/kaodui_index.md 同步" if synced
+             else "；★ docs/kaodui_index.md 与重生成之果不符——请跑 python tools/build_kaodui_index.py"))
 
     meta = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

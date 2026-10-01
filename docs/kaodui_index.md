@@ -1192,3 +1192,5 @@ Q427
 ---
 
 生成器：`tools/build_kaodui_index.py`（r52 裁七）。本文件不入 `site/data/`（裁八：公开与否本轮不定）。
+
+〔**2026-09-28 就地加注**（r54-5；**上段旧文一字不删**）：上段「本文件不入 `site/data/`」之语**今日仍真**——本 md 自身仍不入 `site/data/`；惟其括号内所据之 **r52 裁八**「公开与否本轮不定」**已非现行之判**。站长 2026-09-26 命「护城河之索引读者页须排进来」，`team/round54_prompts.md` §三 **裁七十七**明许越**裁八**与**裁十五②**，取**甲-ii**：同一个 `build_records()` 之果今另成二物——`site/data/kaodui.json`（台账逐条）与 `site/data/kaodui_notice.json`（凡例、档序与源栏指纹），**由 `tools/csv_to_json.py` 写**，故 `site/data/` 之写者进程仍只其一个。★ **二者同源而不同跑**：本 md 由本脚本写、二 json 由 `tools/csv_to_json.py` 写，故 `data/csv/` 一改，**二者须各跑一过方同步**；`python tools/build_kaodui_index.py --check` 可当场验本 md 是否已同步。〕

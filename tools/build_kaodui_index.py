@@ -10,6 +10,13 @@
   2. 「未核」「本轮无从核」「未见」三者分书，不归并。
   3. 每条带源栏定位（表、行 id、栏名、字符偏移、首四十字），可径回原文。
   4. 只读 data/csv/，一字不改；不写 site/data/。
+     〔2026-09-28 就地加注（r54-5；**旧文一字不删**）：上句今日仍真——**本文件自身仍不写
+      site/data/**；惟其所本之 r52 裁八「公开与否本轮不定」**已非现行之判**。站长 2026-09-26
+      命「护城河之索引读者页须排进来」，team/round54_prompts.md §三 裁七十七明许越裁八与
+      裁十五②，取甲-ii：由 tools/csv_to_json.py 于其末 import 本文件之 build_records()，
+      以**同一次抽取之果**写出 site/data/kaodui.json（台账逐条）与
+      site/data/kaodui_notice.json（凡例与档序）。故 site/data/ 之写者进程仍只
+      tools/csv_to_json.py 一个，CLAUDE.md 红线二与 docs/conventions.md 之数据流一字不须改。〕
 
 用法：  python tools/build_kaodui_index.py            # 生成 docs/kaodui_index.md
         python tools/build_kaodui_index.py --check    # 只验不写（退出码 1 表示与现文件不符）
@@ -116,6 +123,54 @@ SIGNAL_RE = re.compile(r"纸本|扫描本|电子本|电子转录本|转引|未�
 MAX_BOOKS = 8          # 书／页两栏之列举上限
 MAX_CONCL = 220        # 结论摘之字数上限
 MAX_REFS = 10
+
+# ---------------------------------------------------------------- 凡例之文（单一来源）
+# 〔2026-09-28 r54-5 立：以下诸文原系 render() 内逐行硬写之字，今提为模块级常量，由
+#  docs/kaodui_index.md 与 site/data/kaodui_notice.json **共用一源**——读者页之凡例
+#  不得手抄（team/round54_prompts.md §三 裁七十七：「页首凡例之文不得手抄，须与 md
+#  同出一源」）。**其字一字未改**，md 之输出逐字不变（以 --check 实证）。〕
+FANLI_T_ZHICHOU = "只抽不断"
+FANLI_ZHICHOU = ("**★ " + FANLI_T_ZHICHOU + "**：抽取器不作任何史学判断。凡抽不出者一律书「未标」，"
+                 "**不以上下文推断补齐**（如：段内无日期而邻段有，不代填）。宁少勿假。")
+
+FANLI_T_SANTAI = "三态分书，不归并"
+FANLI_SANTAI_LEAD = ("「未核」「本轮无从核」「未见」在本库是**三种不同之证据状态**"
+                     "（§7 否定性核字自限、§10.2 有界扫描留痕）：")
+FANLI_SANTAI_ITEMS = [
+    "- **未核**——未曾核（状态之泛称，多为「某书本条未核」）。",
+    "- **未核待补**——已登记为待补之项。",
+    "- **本轮无从核**——材料不在手，消极的没查到；"
+    "**不得读作「查无」**（查无是积极之否定结论，本库两者严分）。"
+    "凡「本轮……无从核」「均无从核」之语俱归此档。",
+    "- **未见**——某物（原书／原图／扫描图／报中之某项）未曾目验。",
+]
+
+FANLI_T_ZHILUPAI = "索引是指路牌，不是替代品"
+FANLI_ZHILUPAI = ("**" + FANLI_T_ZHILUPAI + "。** 每条俱带源栏定位（表·行 id·栏名·字符偏移·首四十字），"
+                  "凡须凭以论断者，**一律回原栏读全文**。")
+
+# 页首三句凡例（键·题·文）——其序照 r54-3 所拟。
+FANLI = [
+    ("zhichou_buduan", FANLI_T_ZHICHOU, FANLI_ZHICHOU),
+    ("santai_fenshu", FANLI_T_SANTAI,
+     "\n".join([FANLI_SANTAI_LEAD] + FANLI_SANTAI_ITEMS)),
+    ("zhilupai", FANLI_T_ZHILUPAI, FANLI_ZHILUPAI),
+]
+
+# 否定／引述语境之记号：正表用全文之记，速查用短记。**去之即成粉饰**，故一并予读者页。
+NEG_MARK = "〔否定／引述语境，须回原文〕"
+NEG_MARK_SHORT = "〔否定／引述语境〕"
+NEG_MARK_NOTE = ("**" + NEG_MARK + "** 之记号：状态词之前后见「不因…径称」「非」「须与…区分」之类语时加此记，"
+                 "示此处之状态词**可能系否定句或引述**（如「不因惯称相符而径称已核」），"
+                 "抽取器不代判其正反，**既不径删、亦不径信**，留待读者回原文。")
+
+# 速查之档序（**21 档，一档不并**）——md §三 与 site/data/kaodui_notice.json 共用此一序。
+STATUS_ORDER = ["本轮无从核", "未见", "未核待补", "未核", "待核",
+                "未取原文核对", "未取纸本", "非纸本核对",
+                "须纸本核", "待纸本", "留痕待核", "未标核对状态",
+                "电子本逐字核对·否定性结果",
+                "纸本已核", "扫描本已核", "扫描本", "电子本已核", "电子本转引",
+                "电子本", "转引", "已核"]
 
 
 def strip_marks(s):
@@ -324,8 +379,83 @@ def fmt_status(rec):
         return "未标"
     out = []
     for name, negated in rec["status"]:
-        out.append(name + ("〔否定／引述语境，须回原文〕" if negated else ""))
+        out.append(name + (NEG_MARK if negated else ""))
     return "／".join(out)
+
+
+def source_fingerprints(stats):
+    """各源栏之指纹与行数。md §〇 与 site/data/kaodui_notice.json 共用此一求法。"""
+    out = []
+    for table, fname, idcol, col in SOURCES:
+        path = os.path.join(CSV_DIR, fname)
+        s = next(x for x in stats if x["table"] == table)
+        out.append({
+            "table": table,
+            "file": fname,
+            "id_col": idcol,
+            "col": col,
+            "rows": s["total"],
+            "records": s["records"],
+            "sha256_12": hashlib.sha256(open(path, "rb").read()).hexdigest()[:12],
+        })
+    return out
+
+
+def public_records(records):
+    """把内部之条成 `site/data/kaodui.json` 之形。
+
+    ★ **只改输出之形，不改所抽之物**（r54-5 件之 4）：本式不触 build_records()／
+      extract_*／STATUS_PATTERNS 一字，只把已抽之果由元组之形改为具名之形，
+      并补一目 `event_id`（引文回库所需，取自 passages.csv 之同 id 行，**不作任何推断**）。
+    """
+    ev = {}
+    with open(os.path.join(CSV_DIR, "passages.csv"), encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            ev[row["id"]] = (row.get("event_id") or "").strip() or None
+    out = []
+    for r in records:
+        out.append({
+            "key": "%s.%s.%s@%d" % (r["table"], r["row_id"], r["col"], r["offset"]),
+            "table": r["table"],
+            "row_id": r["row_id"],
+            "col": r["col"],
+            "offset": r["offset"],
+            "head40": r["head40"],
+            "item": r["item"],
+            "books": [{"name": n, "pages": list(pgs)} for n, pgs in r["books"]],
+            "books_more": r["books_more"],
+            "status": [{"name": n, "negated": bool(g)} for n, g in r["status"]],
+            "actors": list(r["actors"]),
+            "dates": list(r["dates"]),
+            "concl": r["concl"],
+            "refs": list(r["refs"]),
+            "event_id": ev.get(r["row_id"]) if r["table"] == "passages" else None,
+        })
+    return out
+
+
+def public_notice(records, stats):
+    """`site/data/kaodui_notice.json` 之形：凡例、档序、记号、源栏指纹。
+
+    ★ 其文与 `docs/kaodui_index.md` **同出一源**（模块级常量），读者页不得手抄。
+    ★ 本式**不取墙钟时间**——其果只系于输入，故两跑逐字相同。
+    """
+    return {
+        "_": "生成物，勿手改。由 tools/csv_to_json.py 写出；其料与其文出 tools/build_kaodui_index.py，"
+             "与 docs/kaodui_index.md 同出一源。",
+        "generator": "tools/build_kaodui_index.py",
+        "writer": "tools/csv_to_json.py",
+        "index_doc": "docs/kaodui_index.md",
+        "records": len(records),
+        "fanli": [{"key": k, "title": t, "text": x} for k, t, x in FANLI],
+        "status_order": list(STATUS_ORDER),
+        "neg_mark": NEG_MARK,
+        "neg_mark_short": NEG_MARK_SHORT,
+        "neg_mark_note": NEG_MARK_NOTE,
+        "concl_max": MAX_CONCL,
+        "books_max": MAX_BOOKS,
+        "sources": source_fingerprints(stats),
+    }
 
 
 def render(records, stats):
@@ -340,18 +470,14 @@ def render(records, stats):
       "历轮之核对记录本以散文埋在 `coord_basis`／`notes`／`modern_note`／`summary` 诸长栏中，"
       "本文件把其中可机器辨认之痕迹一次性浮出，使「此事何时核过、核在何处、据何书何页、谁核的」**一检即得**。")
     W("")
-    W("**索引是指路牌，不是替代品。** 每条俱带源栏定位（表·行 id·栏名·字符偏移·首四十字），"
-      "凡须凭以论断者，**一律回原栏读全文**。")
+    W(FANLI_ZHILUPAI)
     W("")
     W("## 〇、源数据指纹")
     W("")
     W("| 源文件 | 行数 | sha256（前 12 位） |")
     W("|---|---:|---|")
-    for table, fname, idcol, col in SOURCES:
-        p = os.path.join(CSV_DIR, fname)
-        h = hashlib.sha256(open(p, "rb").read()).hexdigest()[:12]
-        n = next(s["total"] for s in stats if s["table"] == table)
-        W("| `data/csv/%s` | %d | `%s` |" % (fname, n, h))
+    for fp in source_fingerprints(stats):
+        W("| `data/csv/%s` | %d | `%s` |" % (fp["file"], fp["rows"], fp["sha256_12"]))
     W("")
     W("指纹相同则本文件可逐字重现（生成器不取墙钟时间，输出只系于输入）。")
     W("")
@@ -376,20 +502,14 @@ def render(records, stats):
     W("| 日期 | `YYYY-MM-DD` | 「未标」 |")
     W("| 结论与其裁定出处 | 段内**着重段**（成对星号之内）去其纯引注者，＋ `§N`／`v1.N`／`rNN`／`裁定 N`／归档件路径 | 空 |")
     W("")
-    W("**★ 只抽不断**：抽取器不作任何史学判断。凡抽不出者一律书「未标」，"
-      "**不以上下文推断补齐**（如：段内无日期而邻段有，不代填）。宁少勿假。")
+    W(FANLI_ZHICHOU)
     W("")
-    W("### 3. 核对状态之词表（**三态分书，不归并**）")
+    W("### 3. 核对状态之词表（**" + FANLI_T_SANTAI + "**）")
     W("")
-    W("「未核」「本轮无从核」「未见」在本库是**三种不同之证据状态**"
-      "（§7 否定性核字自限、§10.2 有界扫描留痕）：")
+    W(FANLI_SANTAI_LEAD)
     W("")
-    W("- **未核**——未曾核（状态之泛称，多为「某书本条未核」）。")
-    W("- **未核待补**——已登记为待补之项。")
-    W("- **本轮无从核**——材料不在手，消极的没查到；"
-      "**不得读作「查无」**（查无是积极之否定结论，本库两者严分）。"
-      "凡「本轮……无从核」「均无从核」之语俱归此档。")
-    W("- **未见**——某物（原书／原图／扫描图／报中之某项）未曾目验。")
+    for _item in FANLI_SANTAI_ITEMS:
+        W(_item)
     W("")
     W("**r52 新立二档**（2026-09-21 领队裁十一、裁十二）：")
     W("")
@@ -413,9 +533,7 @@ def render(records, stats):
     W("**一段见数档者并列**（以「／」相连）：一段之内本可兼记数事"
       "（如「页码纸本实见，而幅名未照目录核」），抽取器**不代择其一**。")
     W("")
-    W("**〔否定／引述语境，须回原文〕** 之记号：状态词之前后见「不因…径称」「非」「须与…区分」之类语时加此记，"
-      "示此处之状态词**可能系否定句或引述**（如「不因惯称相符而径称已核」），"
-      "抽取器不代判其正反，**既不径删、亦不径信**，留待读者回原文。")
+    W(NEG_MARK_NOTE)
     W("")
     W("### 4. 字面之处置")
     W("成对星号（`**`）于本表一律去除（表格内难以对读），源栏原文不动；"
@@ -488,12 +606,7 @@ def render(records, stats):
     W("")
     W("**三态分书**：下列三组**不得互代**。行 id 后括号内为其段之首四十字（截）。")
     W("")
-    order = ["本轮无从核", "未见", "未核待补", "未核", "待核",
-             "未取原文核对", "未取纸本", "非纸本核对",
-             "须纸本核", "待纸本", "留痕待核", "未标核对状态",
-             "电子本逐字核对·否定性结果",
-             "纸本已核", "扫描本已核", "扫描本", "电子本已核", "电子本转引",
-             "电子本", "转引", "已核"]
+    order = STATUS_ORDER
     by_status = {}
     for r in records:
         for name, negated in r["status"]:
@@ -507,7 +620,7 @@ def render(records, stats):
             W("")
             continue
         for r, negated in items:
-            mark = " 〔否定／引述语境〕" if negated else ""
+            mark = (" " + NEG_MARK_SHORT) if negated else ""
             W("- `%s.%s.%s` @%d%s — %s" % (
                 r["table"], r["row_id"], r["col"], r["offset"], mark, r["head40"]))
         W("")
@@ -542,6 +655,17 @@ def render(records, stats):
     W("")
     W("生成器：`tools/build_kaodui_index.py`（r52 裁七）。本文件不入 `site/data/`"
       "（裁八：公开与否本轮不定）。")
+    W("")
+    W("〔**2026-09-28 就地加注**（r54-5；**上段旧文一字不删**）：上段「本文件不入 `site/data/`」"
+      "之语**今日仍真**——本 md 自身仍不入 `site/data/`；惟其括号内所据之 **r52 裁八**"
+      "「公开与否本轮不定」**已非现行之判**。站长 2026-09-26 命「护城河之索引读者页须排进来」，"
+      "`team/round54_prompts.md` §三 **裁七十七**明许越**裁八**与**裁十五②**，取**甲-ii**："
+      "同一个 `build_records()` 之果今另成二物——`site/data/kaodui.json`（台账逐条）与 "
+      "`site/data/kaodui_notice.json`（凡例、档序与源栏指纹），**由 `tools/csv_to_json.py` 写**，"
+      "故 `site/data/` 之写者进程仍只其一个。"
+      "★ **二者同源而不同跑**：本 md 由本脚本写、二 json 由 `tools/csv_to_json.py` 写，"
+      "故 `data/csv/` 一改，**二者须各跑一过方同步**；"
+      "`python tools/build_kaodui_index.py --check` 可当场验本 md 是否已同步。〕")
     return "\n".join(L) + "\n"
 
 
