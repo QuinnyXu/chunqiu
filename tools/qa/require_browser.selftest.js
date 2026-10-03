@@ -8,7 +8,10 @@
  * 且反证之果须为红。本件即 requireBrowser() 之自证。
  *
  * 来源标记：r57-A（Skipper），落笔 2026-10-02 EDT，会话
- *   session_01JkpHQRHneUJBWoWQ3o2GNC。尚未提交、未推送（r57-A 红线）。
+ *   session_01JkpHQRHneUJBWoWQ3o2GNC，r57-A 立，于 r58-E 提交。
+ *   〔2026-10-03 EDT 就地勘正，据裁一百三十一〕原句「尚未提交、未推送（r57-A 红线）」
+ *   照留不删，录于此：那句话写下时为真且有用（告读者「此物未上线，勿当已部署」），
+ *   错不在其假，错在把「此刻之状」写进一个会被长期读的文件头——其保质期就是写下它的那一刻。
  *
  * 跑法：node tools/qa/require_browser.selftest.js
  *
