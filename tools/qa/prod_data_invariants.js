@@ -647,13 +647,13 @@ function oldMetaFromGit(nowTables) {
     note("★★ QA_SKIP_RENDER=1：渲染层**未跑**。其 6 判之绿本轮不成立——跳过是声明，不是绿。");
     ok(true, "（声明）渲染层本轮按令跳过", "去掉 QA_SKIP_RENDER=1 即复跑");
   } else {
-    let pw;
-    try { pw = require("playwright"); }
-    catch (e) {
-      throw new Error("渲染层所需之 playwright 取不到（" + e.message.split(/\r?\n/)[0] + "）。"
-        + "★ 本本不默然跳过——若确欲只跑数据层，请明示 QA_SKIP_RENDER=1，其跳过会记在报里。");
-    }
-    const browser = await pw.chromium.launch();
+    // r57-A（Skipper，2026-10-02 EDT）：改调共用之 requireBrowser()（裁一百一十七，
+    // `tools/qa/require_browser.js`）——其契①报 executablePath 与浏览器实际版本于
+    // 输出之首，②取不到即 exit 2（不冒充本门之数据判红），③不猜路（ms-playwright/
+    // 下得零或多于一者亦 exit 2 并列所见）。只此一门示其调，余 22 门登记候排（见
+    // `team/round54_prompts.md` §十一 裁一百一十七，r57-A 件之界）。
+    const { requireBrowser } = require("./require_browser.js");
+    const { browser } = await requireBrowser();
     const errs = [];
     const origin = new URL(base).origin;
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
