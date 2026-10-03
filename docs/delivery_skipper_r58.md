@@ -126,6 +126,14 @@ git log origin/main...main    → （空，二者同一提交）
 
 ---
 
-## 追记（本交付文档提交、推送之后回填；照 r55 推送追记前例）
+## 追记（2026-10-03 EDT，推送之后实测回填；照 r55 推送追记前例）
 
-（俟本文档提交并推送后，由本次会话或续接会话实测回填：本文档之提交哈希、对应 Actions 运行号与结论。回填前，上文「七」所记之 `origin/main...main` 末态只及 v1.50 为止，不预支本件自身提交之状态。）
+本文档之提交 **`26441c1`**（全哈希 `26441c12660617c0eef717b1e1afdf24ba91da34`，`git rev-parse HEAD` 实测）已 `git push origin main`：
+
+```
+47c2e11..26441c1  main -> main
+```
+
+对应 **Actions run id `37157908895`**（`gh run watch 37157908895 --exit-status` 实测）——**结论 success**（`deploy` 作业 13s 完成，含 `Validate data (guard)`／`Deploy to GitHub Pages`／`Post-deploy self-check` 俱绿）。
+
+**回填后之末态**（实测）：`git rev-parse HEAD` ＝ `git rev-parse origin/main` ＝ `26441c1…`；`git status --porcelain` 空；`git log origin/main...main --oneline` 空。★ **本次回填提交自身之运行号到此为止，不再另跑一轮确认其部署**（照 §7「实测口径」通例·回填链截断于追记提交）。
