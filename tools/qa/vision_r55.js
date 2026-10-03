@@ -19,7 +19,21 @@
  *   ⑷ **新版之告不以抛错代之**——三式变体下新版 pageerror 皆须为 0、页脚亦不被污（不冒充「加载失败」）：
  *      **有声不等于崩。**
  *   ⑸ **两宽二途俱量**——⑵在两宽；⑶⑷在 1440px／375px × 深链／站内导航**四格全跑**。
+ *   ⑹ **【r57-B 所增，裁一百一十八②③】其告不惟在，且可见、且可读**——
+ *      §三 之断加一问（`offsetParent` 非 null、`display`／`visibility`／`opacity` 俱不隐），
+ *      §四 另立二页：甲 以三变量（`--cinnabar`／`--silk-panel`／`--serif`）覆为 `initial` 喂之，
+ *      量其框、字号、对比度，证「**颜色与字体可退，可见不可退**」；
+ *      乙 以「**元素在而 `display:none`**」喂之，证**同一判据能红**（不红即 exit 2，裁一百一十四 二款）；
+ *      ★ 丙丁 以 `visibility:hidden`／`opacity:0` 喂之——**此二形有框**，故**旧判据三条全绿而新断红**，
+ *        证「加一问」**非装饰**（乙式无框，旧判据本就拦得住，单以乙自证证不了这一层）。
  *
+ * ★★ 【裁一百一十八之落，当记】`.base-map-breach` 之样式**不搬 `styles.css`**，内联即其护。
+ *   其由在判据：本门昔只断其**枚数**，而「存在而不可见之告」与「无告」在那个判据之下输出一模一样
+ *   ——**裁一百一十四 四款正身**。★ 而「不搬」自己**守不住**：`display` 不在那段内联 `cssText` 之内，
+ *   外间一条规则（无须 `!important`）即能令其静默。**故其治二事并行：样式不搬，判据加密**——
+ *   §四·乙 把那条外间规则喂进来，使「只问枚数」之不足成为一个**必红**之数，而非一句告诫。
+ *
+
  * ★ 旧版源端锚定固定哈希 `OLD_REF`（见下），**不取 `HEAD`**（照 r51 裁二十六、r52／r53／r54 之例）：
  *   本件合入后 `HEAD` 即含本轮之改，「旧版」会等于新版，§三之反证必转绿——错且是静默的错。
  * ★ **单变量**：旧版源端**只覆 `/app.js` 一物**。本轮 `base_map.svg` 之改只是一段注释（一约），
@@ -67,6 +81,15 @@ function ok(cond, label, detail) {
   console.log("  " + (cond ? "✓" : "✗") + " " + label + (detail ? "  —— " + detail : ""));
 }
 function head(s) { console.log("\n" + s); }
+/* ★★ 反证之记（裁一百一十四 二款，r57-B 所增）：**反证不红者，其跑作废**——
+ *   不作绿、不作红，作「**本门自身出错**」（exit 2）。故其数另立一路，不入 `fails`：
+ *   一个该红而未红的反证，不是「门红了一条」，是「这门今日之绿不可恃」。 */
+let gateErrs = 0;
+function selfcheck(cond, label, detail) {
+  if (!cond) gateErrs++;
+  console.log("  " + (cond ? "✓" : "⚠") + " 〔反证〕" + label + (detail ? "  —— " + detail : "")
+    + (cond ? "" : "\n      ←★ **反证不红：其跑作废，作本门自身出错（exit 2，裁一百一十四 二款）**"));
+}
 /* 把多行之错压成一行，便于逐条并列打印（本门之打印一条一行） */
 const oneLine = (t) => String(t).split("\n").join(" ").split("\r").join(" ");
 
@@ -114,6 +137,39 @@ const MUT_NO_LABEL_STATE = NEW_MAP.replace(/<text data-state=/g, "<text data-sta
 const MUT_VIEWBOX = NEW_MAP.replace('viewBox="0 0 1200 700"', 'viewBox="0 0 1200 701"');  // 丙：只动一位数
 const MUT_PATH = "/assets/map/base_map.svg";
 
+/* ---------- 二变体样式表（r57-B §四 所用；皆自工作区之 styles.css 派生，单变量） ----------
+ * ★ 其法与底图之三变体同：**只追一段于其末**，原文一字不改——变量只有那一段。 */
+const NEW_CSS = fs.readFileSync(path.join(SITE, "styles.css"), "utf8");
+const CSS_PATH = "/styles.css";
+/* 甲：三变量覆为 CSS 全局关键字 `initial`。于自定义属性，`initial` 即**guaranteed-invalid value**，
+ *     故其 `var(--x)`（无 fallback）一律「invalid at computed-value time」：
+ *     非继承之属（`background`／`border`）退为初值，继承之属（`color`／`font-family`）退为继承值。
+ *     ★ 此正是裁一百一十八② 所命之形：「以一页覆盖该三变量为 `initial` 喂之」。
+ * ★ `styles.css` 内 `:root` 只一处（实读：`:2`，无 `data-theme`／`prefers-color-scheme` 之另定），
+ *   故同选择器后出者胜，无须 `!important`——**若他日 `:root` 不止一处，此覆盖须同件复核**。 */
+const CSS_VARS_INITIAL = NEW_CSS
+  + "\n/* ===== r57-B §四·甲 所追（走查门之变体，不入仓） ===== */\n"
+  + ":root{--cinnabar:initial;--silk-panel:initial;--serif:initial}\n";
+/* 乙：外间一条规则令其 `display:none`。★ 其所以无须 `!important`：
+ *     `display` **不在**那段内联 `cssText` 之内（内联所护者只及其所声之属），故外间之规则即胜之。
+ *     ★ 此即裁一百一十八① 所指之险**之实证**，今量成一个**必红**之数：
+ *       「一个存在而不可见之告」——若本门之断仍只问枚数，此页与好页之输出一模一样。 */
+const CSS_HIDE_BREACH = NEW_CSS
+  + "\n/* ===== r57-B §四·乙 所追（走查门之变体，不入仓） ===== */\n"
+  + ".base-map-breach{display:none}\n";
+/* 丙·丁：★ **此二形才是「加一问」之所以不是装饰**。
+ *   `display:none` 无框，旧判据（`getClientRects().length > 0`）**本就拦得住**——
+ *   故单以乙式自证，只证了「新断能红」，**未证「新断比旧断多拦住了什么」**。
+ *   `visibility:hidden`（丙）与 `opacity:0`（丁）**俱有框**：旧判据于此二页**全绿**，而新判据红。
+ *   ★ 其二页之设，正是裁一百一十四 四款之施于本门自身：
+ *     **「一个存在而不可见之告」与「一个好页」在旧判据之下输出一模一样**——今量成一个数。 */
+const CSS_VIS_HIDDEN = NEW_CSS
+  + "\n/* ===== r57-B §四·丙 所追（走查门之变体，不入仓） ===== */\n"
+  + ".base-map-breach{visibility:hidden}\n";
+const CSS_OPACITY_0 = NEW_CSS
+  + "\n/* ===== r57-B §四·丁 所追（走查门之变体，不入仓） ===== */\n"
+  + ".base-map-breach{opacity:0}\n";
+
 /* ---------- 独立复算：不读页面之文，直接自 base_map.svg 数其物 ---------- */
 const N_STATE_ELLIPSE = (NEW_MAP.match(/<ellipse data-state=/g) || []).length;
 const N_STATE_LABEL = (NEW_MAP.match(/<text data-state=/g) || []).length;
@@ -154,6 +210,33 @@ async function pageOf(br, base, opts) {
   return { ctx, pg, errs, cerrs, breach };
 }
 
+/* ---------- 「可见」「可读」二判据，各 factored 为一式（r57-B，裁一百一十八②③） ----------
+ * ★ 其所以 factored：**同一式，§三 施之期绿，§四·乙 施之期红**——
+ *   裁一百一十四 三款曰「凡判据，须能指出一个使其为红之输入」；
+ *   此处那个输入**就在同一跑里**，而且走的是**同一个函数**，不是另写一个相似的判据去哄自己。 */
+const fmtVis = (v) => v ? ("{offsetParent:" + (v.offsetParent ? "有" : "null")
+  + "｜display:" + v.display + "｜visibility:" + v.visibility + "｜opacity:" + v.opacity
+  + "｜框 " + v.w + "×" + v.h + "｜字号 " + v.fontSize + "｜字色 " + v.color + "｜底 " + v.bg
+  + "｜边 " + v.border + "｜对比 " + v.contrast + ":1｜" + v.chars + " 字}") : "〔无〕";
+/* 「可读」之三门限，各书其所据，不随所得而调： */
+const MIN_H = 16;      // 一行正文（.92rem≈14.7px × 1.55）＋内距之半，塌到此下即不成一行之告
+const MIN_FS = 12;     // 12px 系正文可读之常用下限（告之字号本设 .92rem≈14.7px，不系于变量）
+const MIN_CR = 4.5;    // WCAG AA 之正文门限；此告系 ~14.7px 之正文，故取 4.5 不取大字之 3.0
+function visibleVerdict(m) {
+  const all = m.breachVis || [];
+  const v = all.filter(x => x.unhidden);
+  return { pass: v.length >= 1, n: v.length, all: all.length, first: v[0] || null,
+    detail: "可见者 " + v.length + " 枚／共 " + all.length + " 枚"
+      + (all.length ? "；逐枚＝" + all.map(fmtVis).join(" ／ ") : "") };
+}
+function readableVerdict(m) {
+  const v = visibleVerdict(m).first;
+  const fs = v ? parseFloat(v.fontSize) : 0;
+  return { v: v, fs: fs,
+    pass: !!v && v.w > 0 && v.h >= MIN_H && fs >= MIN_FS && v.contrast >= MIN_CR,
+    detail: fmtVis(v) };
+}
+
 /* 一式之量：同一个函数施于新旧两版、施于常态与三变体——量具共用，才谈得上对位反证 */
 async function measure(br, base, hash, w, h, nav) {
   const { ctx, pg, errs, cerrs, breach } = await pageOf(br, base, { hash: hash, w: w, h: h, nav: nav });
@@ -169,8 +252,52 @@ async function measure(br, base, hash, w, h, nav) {
      *   站内导航态下，先前视图（首页地图）之告随其视图隐去而仍在 DOM 内，
      *   以「皆可见」为判据者，量到的是上一视图之遗留，而非本页之告（本门第二次自撞，见门头【门内自撞·二】）。 */
     const shown = notes.filter(n => n.getClientRects().length > 0);
+    /* ★★ 「可见」与「可读」之量具（裁一百一十八②③ 所命；§三 与 §四 **共用此一具**——
+     *   承本门自立之则「量具共用，才谈得上对位反证」）。逐枚量四类之数：
+     *     ① **在**：其节点在 DOM 之内（上文 `notes.length` 已记）；
+     *     ② **可见**（`unhidden`）：`offsetParent` 非 `null`，且 `display`／`visibility`／`opacity` 俱不隐；
+     *     ③ **占框**：其 `getBoundingClientRect` 之宽高；
+     *     ④ **可读**：其字号，与**字色对实际底色之对比度**（WCAG 相对亮度式）——
+     *        底色须沿祖先上行求**第一个不透明之底**，因其内联之 `background` 系于 `--silk-panel`，
+     *        该变量一失即退为 `transparent`，此时读者所见之底是祖先之底，不是它自己的。
+     *   ★ **「在」「可见」「可读」是三件事，故量成三个数，不并作一个布尔**（裁一百一十四 四款之意）。
+     *   ★ `offsetParent` 之为代理，其限：`position:fixed` 之物其 `offsetParent` 恒 `null`。
+     *     此 `<p>` 系静态定位（内联之 `cssText` 不设 `position`），故于此物此代理为真；
+     *     他日若改其 `position`，此判据须同件改——**记其限，不假称其普适**。 */
+    const rgb = (s) => { const m = String(s).match(/[\d.]+/g) || []; return m.slice(0, 4).map(Number); };
+    const lum = (c) => {
+      const f = c.slice(0, 3).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+      return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2];
+    };
+    const bgOf = (n) => {
+      let e = n;
+      while (e) {
+        const c = rgb(getComputedStyle(e).backgroundColor);
+        if (c.length < 4 || c[3] > 0) return c.slice(0, 3);
+        e = e.parentElement;
+      }
+      return [255, 255, 255];   // 一路透明到顶：以画布之白为底
+    };
+    const visOf = (n) => {
+      const cs = getComputedStyle(n), r = n.getBoundingClientRect();
+      const op = parseFloat(cs.opacity);
+      const unhidden = n.offsetParent !== null && cs.display !== "none"
+        && cs.visibility !== "hidden" && cs.visibility !== "collapse" && !(op <= 0.01);
+      const fg = rgb(cs.color), bg = bgOf(n);
+      const l1 = lum(fg), l2 = lum(bg);
+      return {
+        unhidden: unhidden, offsetParent: n.offsetParent !== null,
+        display: cs.display, visibility: cs.visibility, opacity: cs.opacity,
+        w: Math.round(r.width), h: Math.round(r.height), fontSize: cs.fontSize,
+        fontFamily: (cs.fontFamily || "").slice(0, 28), color: cs.color, bg: "rgb(" + bg.join(",") + ")",
+        border: cs.borderTopStyle + " " + cs.borderTopWidth + " " + cs.borderTopColor,
+        contrast: Math.round(((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)) * 100) / 100,
+        chars: n.textContent.length,
+      };
+    };
     return {
       breachCount: notes.length,
+      breachVis: notes.map(visOf),
       breachText: notes.map(n => n.textContent).join(" | "),
       breachRole: notes.map(n => n.getAttribute("role")).join(","),
       breachShownCount: shown.length,
@@ -334,6 +461,19 @@ async function measure(br, base, hash, w, h, nav) {
           ok(a.breachCount >= 1, w + "px " + navName + " " + name + "【新】告当场可见：告 " + a.breachCount + " 枚", "role=" + a.breachRole);
           ok(a.breachShownCount >= 1, w + "px " + navName + " " + name + "【新】其告确在页面上现形（非 display:none 之死节点）",
             "可见者 " + a.breachShownCount + " 枚／共 " + a.breachCount + " 枚");
+          /* ★★ 裁一百一十八③ 所命之加一问（r57-B）：**不得只问枚数**。当其应现之时，须并断其**可见**。
+           * 其与上一条（`breachShownCount`，取 `getClientRects().length > 0`）之别，在于拦得住什么：
+           *   `display:none` **无框**，落出 `getClientRects` 之外——上一条拦得住；
+           *   `visibility:hidden`／`opacity:0`／`offsetParent` 为 null 之祖先隐去者 **有框而仍不可见**
+           *   ——★ **枚数与框数俱拦不住那三形**，故须另问 `offsetParent` 与三样式。
+           * ★ **与 `measure()` 内 `shown` 之注（「『现形』之判据取当前可见者，不取『所有节点皆可见』」）不相撞**：
+           *   那一注所定者是**范围**（取当前可见者，不取「皆可见」——其由在站内导航态之遗留告）；
+           *   此断所加者是**判据**（于「可见」之内再问其所以可见）。★ 且二者同向：
+           *   上一视图之遗留告其宿主视图 `display:none`，故其 `offsetParent` 为 `null`、`unhidden` 为 false，
+           *   **本断之筛与那一注之筛筛出同一枚**——是同一范围之加密，非二说。 */
+          const vd = visibleVerdict(a);
+          ok(vd.pass, w + "px " + navName + " " + name + "【新】★ 其告不惟**在**，且**可见**：`offsetParent` 非 null，`display`／`visibility`／`opacity` 俱不隐",
+            vd.detail);
           ok(a.breachShownText.indexOf(c.need) >= 0, w + "px " + navName + " " + name + "【新】**可见之**告内记明所缺之 id／契",
             "含「" + c.need + "」：" + (a.breachShownText.indexOf(c.need) >= 0));
           ok(a.breach.length >= 1, w + "px " + navName + " " + name + "【新】另有一路 console.error 之记（`[base_map 契]`）", "计 " + a.breach.length);
@@ -369,10 +509,96 @@ async function measure(br, base, hash, w, h, nav) {
     }
   }
 
+  /* ===== §四 内联之界，与判据之自证能红（r57-B；裁一百一十八②③、裁一百一十四） =====
+   * 二页俱以**甲式变体底图**（删 `#layer-anchors`）为底——其告必出，故所变只有样式一项：
+   *   ·甲：三变量覆为 `initial` ——**其告仍须可读**（期绿）；
+   *   ·乙：外间一条 `display:none` ——**同一判据施之，其果须红**（期红；不红即 exit 2）。
+   * ★ 并取一**对照**页（样式如常）同跑，以书「可退者果退、不可退者果未退」之实数——
+   *   「其告仍可读」若只凭眼看一遍，便又是一个「过与没跑不可分」之绿（裁一百一十四）。 */
+  const CP_HASH = "#/p/P_WENJIANG/map", CP_NEED = "#layer-anchors";
+  for (const wh of WIDTHS) {
+    const w = wh[0], h = wh[1];
+    const ovCtl = {}; ovCtl[MUT_PATH] = MUT_NO_ANCHORS;
+    const ovIni = {}; ovIni[MUT_PATH] = MUT_NO_ANCHORS; ovIni[CSS_PATH] = CSS_VARS_INITIAL;
+    const ovHid = {}; ovHid[MUT_PATH] = MUT_NO_ANCHORS; ovHid[CSS_PATH] = CSS_HIDE_BREACH;
+    const sCtl = await srv(SITE, ovCtl), sIni = await srv(SITE, ovIni), sHid = await srv(SITE, ovHid);
+    const bCtl = "http://127.0.0.1:" + sCtl.address().port;
+    const bIni = "http://127.0.0.1:" + sIni.address().port;
+    const bHid = "http://127.0.0.1:" + sHid.address().port;
+
+    const mCtl = await measure(br, bCtl, CP_HASH, w, h);
+    const mIni = await measure(br, bIni, CP_HASH, w, h);
+    const mHid = await measure(br, bHid, CP_HASH, w, h);
+
+    head("§四·甲（" + w + "px）：三变量（`--cinnabar`／`--silk-panel`／`--serif`）覆为 `initial`，其告仍须**可读**");
+    console.log("    · 对照（样式如常）：" + fmtVis(visibleVerdict(mCtl).first));
+    console.log("    · 覆为 `initial`  ：" + fmtVis(visibleVerdict(mIni).first));
+    const rIni = readableVerdict(mIni), vIni = rIni.v;
+    ok(visibleVerdict(mIni).pass, w + "px §四·甲：三变量俱失之下，其告**仍可见**（offsetParent 非 null，三样式俱不隐）",
+      visibleVerdict(mIni).detail);
+    ok(!!vIni && vIni.w > 0 && vIni.h >= MIN_H, w + "px §四·甲：其框**不塌**（宽 > 0，高 ≥ " + MIN_H + "px）",
+      vIni ? "框 " + vIni.w + "×" + vIni.h + "；对照 " + (visibleVerdict(mCtl).first || {}).w + "×" + (visibleVerdict(mCtl).first || {}).h : "无一枚可见之告");
+    ok(rIni.fs >= MIN_FS, w + "px §四·甲：其字号 ≥ " + MIN_FS + "px（`.92rem` 不系于变量，故不随之退）",
+      "字号 " + (vIni ? vIni.fontSize : "—") + "；对照 " + ((visibleVerdict(mCtl).first || {}).fontSize || "—"));
+    ok(!!vIni && vIni.contrast >= MIN_CR, w + "px §四·甲：字色对**实际底色**之对比 ≥ " + MIN_CR + ":1（WCAG AA 正文门限）",
+      vIni ? "对比 " + vIni.contrast + ":1（字色 " + vIni.color + "／底 " + vIni.bg + "）；对照 "
+        + (visibleVerdict(mCtl).first || {}).contrast + ":1" : "无一枚可见之告");
+    ok(mIni.breachShownText.indexOf(CP_NEED) >= 0, w + "px §四·甲：其文**仍记明所缺之 id**（告之内容不随样式退）",
+      "含「" + CP_NEED + "」：" + (mIni.breachShownText.indexOf(CP_NEED) >= 0) + "；共 " + (vIni ? vIni.chars : 0) + " 字");
+    ok(rIni.pass, w + "px §四·甲：★ **合判——「可读」四门俱过**（颜色与字体可退，可见不可退）", rIni.detail);
+
+    head("§四·乙（" + w + "px）：★ **自证其能红**——元素在而外间一条 `display:none` 令其静默，上断之果须**红**");
+    selfcheck(mHid.breachCount >= 1, w + "px §四·乙：其告**已造出、仍在 DOM 之内**（故本页非「没跑到」，是「跑到而不可见」）",
+      "共 " + mHid.breachCount + " 枚；console 之记 " + mHid.breach.length + " 条");
+    selfcheck(!visibleVerdict(mHid).pass, w + "px §四·乙：而 §三 之「可见」之断（同一式 `visibleVerdict`）施于此页，其果为**红**",
+      visibleVerdict(mHid).detail);
+    selfcheck(!readableVerdict(mHid).pass, w + "px §四·乙：§四·甲 之「可读」之断（同一式 `readableVerdict`）施于此页，其果亦为**红**",
+      readableVerdict(mHid).detail);
+    selfcheck(mHid.breachCount === mCtl.breachCount, w + "px §四·乙：★ 而**旧判据（枚数）于此页与对照页一模一样**"
+      + "——此即裁一百一十八① 所指之险，今量成一个数",
+      "本页枚数 " + mHid.breachCount + "＝对照页枚数 " + mCtl.breachCount + "；而可见者 "
+      + visibleVerdict(mHid).n + " vs " + visibleVerdict(mCtl).n + "——**只问枚数者，二页不可分**");
+
+    /* ★★ §四·丙丁：**新断比旧断多拦住了什么**——其二形俱「有框而不可见」。
+     * 乙式（`display:none`）无框，旧判据本就拦得住；**单以乙自证，只证新断能红，未证其有所加**。
+     * 故另喂二页：`visibility:hidden`／`opacity:0`——**旧判据（枚数、框数、告内之文）于此二页全绿**，
+     * 而新判据红。★ 此即「加一问」之价，量成一个数，不作一句告诫。 */
+    const DIMS = [
+      ["丙", CSS_VIS_HIDDEN, "visibility:hidden"],
+      ["丁", CSS_OPACITY_0, "opacity:0"],
+    ];
+    for (const d of DIMS) {
+      const ovD = {}; ovD[MUT_PATH] = MUT_NO_ANCHORS; ovD[CSS_PATH] = d[1];
+      const sD = await srv(SITE, ovD);
+      const mD = await measure(br, "http://127.0.0.1:" + sD.address().port, CP_HASH, w, h);
+      head("§四·" + d[0] + "（" + w + "px）：★ 外间一条 `" + d[2] + "`——**有框而不可见**，"
+        + "旧判据全绿而新判据须红（故「加一问」非装饰）");
+      selfcheck(mD.breachCount >= 1 && mD.breachShownCount >= 1
+        && mD.breachShownText.indexOf(CP_NEED) >= 0,
+        w + "px §四·" + d[0] + "：**旧判据三条于此页俱绿**（枚数 ≥ 1、有框者 ≥ 1、告内记明所缺之 id）"
+        + "——★ 与一个好页输出一模一样",
+        "枚数 " + mD.breachCount + "／有框者 " + mD.breachShownCount + "／含「" + CP_NEED + "」"
+        + (mD.breachShownText.indexOf(CP_NEED) >= 0));
+      selfcheck(!visibleVerdict(mD).pass,
+        w + "px §四·" + d[0] + "：★ **而新断（`visibleVerdict`）红**——"
+        + "其所加之一问（offsetParent／display／visibility／opacity）正拦在此处",
+        visibleVerdict(mD).detail);
+      await new Promise(r => sD.close(r));
+    }
+
+    await new Promise(r => sCtl.close(r));
+    await new Promise(r => sIni.close(r));
+    await new Promise(r => sHid.close(r));
+  }
+
   await br.close();
   await new Promise(r => sNew.close(r));
   await new Promise(r => sOld.close(r));
 
-  head("—— 共 " + checks + " 条，" + (fails ? "✗ 红 " + fails + " 条" : "✓ 全绿"));
+  head("—— 共 " + checks + " 条，" + (fails ? "✗ 红 " + fails + " 条" : "✓ 全绿")
+    + "；反证 " + (gateErrs ? "⚠ 不红者 " + gateErrs + " 条——本门自身出错" : "俱如期而红"));
+  /* ★ 其序当记（裁一百一十四 二款）：**反证不红者先于断言之红**——
+   *   反证不红，则此跑之绿与红俱不可恃，故不作 1 而作 2（本门自身出错）。 */
+  if (gateErrs) process.exit(2);
   process.exit(fails ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });

@@ -71,6 +71,28 @@ function mountBaseMap(box, where, needs) {
   const p = document.createElement("p");
   p.className = "base-map-breach";
   p.setAttribute("role", "alert");
+  /* ★★ 下三行之样式**有意内联，不入 `styles.css`**——**非疏懒，勿搬**（裁一百一十八，2026-10-02 EDT）。
+   *   r55 曾议搬之、领队亦曾排入次轮，而站长改其向。**其由在判据，不在体例**：
+   *   走查门昔只断 `.base-map-breach` **之枚数**，而「**存在而不可见之告**」与「**无告**」
+   *   在那个判据之下**输出一模一样**（裁一百一十四 四款：「没有错」与「没有跑到」须可分）。
+   *   样式一入 `styles.css`，即落进数百条规则之中，**日后一次重排即可令其静默，而无一门会红**；
+   *   内联之 `cssText` 其优先级仅次于 `!important`，**且与造它的这段码同处一文件**。
+   *      ★ 〔2026-10-02 勘·裁一百二十②〕**惟其只及所声之属——见下界㈡。**
+   *      裁一百一十八① 原书「外头改不动它」，**其不实已勘**（任务书 §十二 该款就地勘注）；
+   *      ★ 而其所勘之实，r57-B 已先写于下界㈡，**故此处不另立一段，只指其路**。
+   *   并记二事：① 告之形与告之由当同处一处——下一个人改这段自验之码时，**其所见即其所现**；
+   *   ② 此系**一个元素、一处所造、一个函数**，移样式出 JS 之常由（复用／换肤／易维护）
+   *   **于一个单例之错条上俱不成立**。
+   * ★ 其界，当记二条：
+   *   ㈠ 下三行所系之三变量（`--cinnabar`／`--silk-panel`／`--serif`）**只管颜色与字体**；
+   *      「**可见**」所必需者（`<p>` 之块级默认、`margin`／`padding`／`font-size`／`line-height`）
+   *      **一律不写在变量里**——★ **颜色与字体可退，可见不可退**（裁一百一十八②）。
+   *      其验在 `tools/qa/vision_r55.js` §四·甲：以一页覆该三变量为 `initial` 喂之，量其框、其字号、其对比度。
+   *   ㈡ **内联所护者只及其所声之属**：`display` 不在此 `cssText` 之内，
+   *      故外间一条 `.base-map-breach{display:none}` 仍能令其静默（无须 `!important`）。
+   *      ★ **故「不搬」不足以自保，须以判据补之**：其门之断已并问
+   *      `offsetParent` 非 `null` 与 `display`／`visibility`／`opacity` 俱不隐（裁一百一十八③，门之 §三），
+   *      并自带其反证于门之 §四·乙（元素在而 `display:none`，其果须红）。 */
   p.style.cssText = "margin:.6rem 0;padding:.5rem .7rem;border:1px solid var(--cinnabar);"
     + "background:var(--silk-panel);color:var(--cinnabar);font-family:var(--serif);"
     + "font-size:.92rem;line-height:1.55;";
