@@ -3,7 +3,7 @@
   "generator": "tools/build_kaodui_index.py",
   "writer": "tools/csv_to_json.py",
   "index_doc": "docs/kaodui_index.md",
-  "records": 463,
+  "records": 487,
   "fanli": [
     {
       "key": "zhichou_buduan",
@@ -57,43 +57,43 @@
       "col": "coord_basis",
       "rows": 104,
       "records": 119,
-      "sha256_12": "337779a10dff"
+      "sha256_12": "0ad26d8efd59"
     },
     {
       "table": "sources",
       "file": "sources.csv",
       "id_col": "id",
       "col": "notes",
-      "rows": 195,
-      "records": 89,
-      "sha256_12": "aeb17493b674"
+      "rows": 211,
+      "records": 106,
+      "sha256_12": "7f4a3e546671"
     },
     {
       "table": "passages",
       "file": "passages.csv",
       "id_col": "id",
       "col": "modern_note",
-      "rows": 509,
-      "records": 191,
-      "sha256_12": "f8e987ebd19f"
+      "rows": 531,
+      "records": 192,
+      "sha256_12": "5c875abb55eb"
     },
     {
       "table": "people",
       "file": "people.csv",
       "id_col": "id",
       "col": "notes",
-      "rows": 174,
-      "records": 32,
-      "sha256_12": "7f1c68f2b9a6"
+      "rows": 186,
+      "records": 36,
+      "sha256_12": "a33c6c00ce4a"
     },
     {
       "table": "events",
       "file": "events.csv",
       "id_col": "id",
       "col": "summary",
-      "rows": 265,
-      "records": 32,
-      "sha256_12": "5a50867163a4"
+      "rows": 281,
+      "records": 34,
+      "sha256_12": "89b4d9a3e5a6"
     }
   ]
 }

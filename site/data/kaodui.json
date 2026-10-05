@@ -8240,6 +8240,968 @@
     "event_id": null
   },
   {
+    "key": "sources.Z134.notes@129",
+    "table": "sources",
+    "row_id": "Z134",
+    "col": "notes",
+    "offset": 129,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·文公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z135.notes@125",
+    "table": "sources",
+    "row_id": "Z135",
+    "col": "notes",
+    "offset": 125,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·文公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z136.notes@97",
+    "table": "sources",
+    "row_id": "Z136",
+    "col": "notes",
+    "offset": 97,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·宣公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z137.notes@93",
+    "table": "sources",
+    "row_id": "Z137",
+    "col": "notes",
+    "offset": 93,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·宣公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z138.notes@137",
+    "table": "sources",
+    "row_id": "Z138",
+    "col": "notes",
+    "offset": 137,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·宣公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z139.notes@117",
+    "table": "sources",
+    "row_id": "Z139",
+    "col": "notes",
+    "offset": 117,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·成公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z140.notes@163",
+    "table": "sources",
+    "row_id": "Z140",
+    "col": "notes",
+    "offset": 163,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·成公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z141.notes@82",
+    "table": "sources",
+    "row_id": "Z141",
+    "col": "notes",
+    "offset": 82,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·襄公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z142.notes@132",
+    "table": "sources",
+    "row_id": "Z142",
+    "col": "notes",
+    "offset": 132,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·襄公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z143.notes@78",
+    "table": "sources",
+    "row_id": "Z143",
+    "col": "notes",
+    "offset": 78,
+    "head40": "【绵上之辨】本篇之「綿上」是否即既有 `L_MIANSHANG`——未核（202",
+    "item": "绵上之辨",
+    "books": [],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z143.notes@169",
+    "table": "sources",
+    "row_id": "Z143",
+    "col": "notes",
+    "offset": 169,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·襄公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z144.notes@105",
+    "table": "sources",
+    "row_id": "Z144",
+    "col": "notes",
+    "offset": 105,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·襄公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z145.notes@160",
+    "table": "sources",
+    "row_id": "Z145",
+    "col": "notes",
+    "offset": 160,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·襄公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z146.notes@96",
+    "table": "sources",
+    "row_id": "Z146",
+    "col": "notes",
+    "offset": 96,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·昭公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z147.notes@104",
+    "table": "sources",
+    "row_id": "Z147",
+    "col": "notes",
+    "offset": 104,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·昭公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.G014.notes@125",
+    "table": "sources",
+    "row_id": "G014",
+    "col": "notes",
+    "offset": 125,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《國語》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [],
+    "event_id": null
+  },
+  {
+    "key": "sources.G015.notes@113",
+    "table": "sources",
+    "row_id": "G015",
+    "col": "notes",
+    "offset": 113,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《國語》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [],
+    "event_id": null
+  },
+  {
     "key": "passages.Q073.modern_note@0",
     "table": "passages",
     "row_id": "Q073",
@@ -14688,6 +15650,62 @@
     "event_id": "E280"
   },
   {
+    "key": "passages.Q545.modern_note@0",
+    "table": "passages",
+    "row_id": "Q545",
+    "col": "modern_note",
+    "offset": 0,
+    "head40": "《左传·襄公二十六年》：齐人在郟筑城的那一年，夏天，齐国乌余带着廪丘投奔晋国，袭",
+    "item": "未标",
+    "books": [
+      {
+        "name": "《左传·襄公二十六年》",
+        "pages": []
+      },
+      {
+        "name": "杜注",
+        "pages": []
+      },
+      {
+        "name": "杨注",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [],
+    "concl": "",
+    "refs": [],
+    "event_id": "E315"
+  },
+  {
+    "key": "people.P_SHIHUI.notes@93",
+    "table": "people",
+    "row_id": "P_SHIHUI",
+    "col": "notes",
+    "offset": 93,
+    "head40": "【r59-D 勘注·2026-10-04】上句「后为晋中军将执政（出本库时段）」",
+    "item": "r59-D 勘注·2026-10-04",
+    "books": [],
+    "books_more": 0,
+    "status": [],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [
+      "§7"
+    ],
+    "event_id": null
+  },
+  {
     "key": "people.P_XIHOU.notes@97",
     "table": "people",
     "row_id": "P_XIHOU",
@@ -14803,6 +15821,25 @@
       "r49",
       "§5"
     ],
+    "event_id": null
+  },
+  {
+    "key": "people.P_HANQI.notes@396",
+    "table": "people",
+    "row_id": "P_HANQI",
+    "col": "notes",
+    "offset": 396,
+    "head40": "【r59-D 勘注·2026-10-04】r59-D 立 `E311`（襄公七年",
+    "item": "r59-D 勘注·2026-10-04",
+    "books": [],
+    "books_more": 0,
+    "status": [],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [],
     "event_id": null
   },
   {
@@ -15864,6 +16901,59 @@
       "§7",
       "裁九"
     ],
+    "event_id": null
+  },
+  {
+    "key": "people.P_XIKE.notes@200",
+    "table": "people",
+    "row_id": "P_XIKE",
+    "col": "notes",
+    "offset": 200,
+    "head40": "【称谓】「郤子」于本年前后专指郤克（宣公十七年传「郤子登」「郤子至」），然他年亦",
+    "item": "称谓",
+    "books": [],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [],
+    "concl": "",
+    "refs": [],
+    "event_id": null
+  },
+  {
+    "key": "people.P_WEISHU.notes@359",
+    "table": "people",
+    "row_id": "P_WEISHU",
+    "col": "notes",
+    "offset": 359,
+    "head40": "【其后】魏舒之后谁为晋之执政，《左传》《国语》本文未见明文（详 CHANGES",
+    "item": "其后",
+    "books": [
+      {
+        "name": "《左传》",
+        "pages": []
+      },
+      {
+        "name": "《国语》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [],
+    "concl": "",
+    "refs": [],
     "event_id": null
   },
   {
@@ -17037,6 +18127,70 @@
       "§3.3",
       "§7"
     ],
+    "event_id": null
+  },
+  {
+    "key": "events.E313.summary@0",
+    "table": "events",
+    "row_id": "E313",
+    "col": "summary",
+    "offset": 0,
+    "head40": "《左传·襄公十三年》：「荀罃、士魴卒。晉侯蒐于綿上以治兵，使士匄將中軍，辭曰：伯",
+    "item": "未标",
+    "books": [
+      {
+        "name": "《左传·襄公十三年》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-04"
+    ],
+    "concl": "",
+    "refs": [],
+    "event_id": null
+  },
+  {
+    "key": "events.E318.summary@0",
+    "table": "events",
+    "row_id": "E318",
+    "col": "summary",
+    "offset": 0,
+    "head40": "《左传·定公元年》：「春，王正月，辛巳，晉魏舒合諸侯之大夫于狄泉，將以城成周。魏",
+    "item": "未标",
+    "books": [
+      {
+        "name": "《左传·定公元年》",
+        "pages": []
+      },
+      {
+        "name": "《左传》",
+        "pages": []
+      },
+      {
+        "name": "《国语》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [],
+    "concl": "",
+    "refs": [],
     "event_id": null
   }
 ]

@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-10-04T04:13:13+00:00",
+  "generated_at": "2026-10-05T12:14:07+00:00",
   "tables": {
     "archaeology": 8,
     "background": 11,
-    "event_people": 694,
-    "events": 265,
-    "passages": 509,
-    "people": 174,
+    "event_people": 735,
+    "events": 281,
+    "passages": 531,
+    "people": 186,
     "places": 104,
     "relations": 309,
-    "sources": 195,
-    "kaodui": 463
+    "sources": 211,
+    "kaodui": 487
   },
   "year_range_bce": {
     "min": -773,
