@@ -28,6 +28,10 @@ r59-G 立（据 team/round59_prompts.md §三 裁一百三十八 三、§四 裁
         source_ids（取自各任 title_text／start_basis／end_basis 所引《左传》篇与《国语》篇之 sources 行，逐篇机械对位；
         所引而 sources 无其行者——文公五年、宣公元年、宣公六年、成公三年四篇——不入，亦不新造来源行）、
         verify_status（一律「电子本」，据 CHANGES §十 四①：全件据维基文库整理本一本，未双本互校，纸本未核）。
+  〔r59-F4 勘注〕上句所列四篇（「所引而 sources 无其行者——文公五年、宣公元年、宣公六年、成公三年四篇——不入，亦不新造来源行」），
+    于 r59-F2 俱已补立 `sources` 行并挂于其任之 `source_ids`（`Z148`／`Z149`／`Z150`／`Z151`，逐篇对位见
+    `docs/changes/r59_f2_tenure_sources/duiwei.csv`）；上句原书之时其为实，今其状已改。
+    〔据 `team/round59_prompts.md` §十七 裁一百七十七；上句原字照留，依 conventions §7 v1.41 就地勘正加注之例〕
 
 【二】判据
   (a) 挂钩：任期表之人须在库且 state 含「晋」；凡 state 含「晋」且 role 含「中军将」（或「将中军」）者，
