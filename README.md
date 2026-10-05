@@ -76,8 +76,9 @@ python -m http.server          # 3. 本地起服务，浏览器打开 http://loc
 ## 目录结构
 
 ```
-data/csv/          唯一数据源（9 张表：sources / people / places / events /
-                   event_people / passages / background / archaeology / relations）
+data/csv/          唯一数据源（10 张表：sources / people / places / events /
+                   event_people / passages / background / archaeology / relations /
+                   office_tenures）
 data/incoming/     待复核合入的增量数据（各轮次子目录，合入后清空）
 tools/             csv_to_json.py（生成 JSON）、validate.py（数据校验，仅标准库）
 site/              静态站根目录；site/data/ 为生成的 JSON，禁止手改
