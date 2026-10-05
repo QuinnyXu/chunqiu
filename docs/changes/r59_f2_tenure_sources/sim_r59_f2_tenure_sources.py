@@ -20,11 +20,11 @@
   6. 核对状态：俱书「电子本」之属与「未能双本互校」，无「纸本已核」「电子本已核」
   7. 副本上跑 tools/validate.py（含 tenure_gate）与 tools/csv_to_json.py；台账（kaodui）数与改前副本比
   8. 反证：注入同型之误，须红；不红即 exit 2（裁一百一十四）
-〔r59-F4 入库注，Skipper，2026-10-05〕本脚本之入库副本（docs/changes/r59_f2_tenure_sources_sim.py）：基线 817b21e（取自 git 对象）；
-  数据件读 data/incoming/r59_f2_tenure_sources/，该目录俟领队裁删后本脚本不可再整跑（同 r46_jiliang_sim.py 之例）；
-  合入后之库上整跑，因 Z148–Z153 已入而「sources 追加」类断言或撞 ID 而红，非脚本之误。
-  合入时 TEN013.end_basis 照裁一百七十四 改书，与本件 fixes 原文不同，本脚本未随改。除 ROOT／HERE 二行外不改一字。
-
+〔r59-F5 入库注，Skipper，2026-10-05〕本脚本之入库副本（docs/changes/r59_f2_tenure_sources/，裁一百七十六）：基线 817b21e（取自 git 对象）；
+  数据件读本子目录（HERE＝本脚本所在目录，其深度与 data/incoming/r59_f2_tenure_sources/ 同为 3，ROOT＝HERE/../../.. 即仓库根，二行原字自正），
+  故归档而不死；合入后之库上整跑，因 Z148–Z153 已入而「sources 追加」类断言或撞 ID 而红，非脚本之误。
+  合入时 TEN013.end_basis 照裁一百七十四 改书、复照裁一百七十五 加「推（年有据，人之卒年未定）：」前缀，与本件 fixes 原文不同，本脚本未随改。
+  除本注外不改一字。
 退出码：0 全过；1 有 FAIL；2 反证未红。临时目录可用环境变量 CHUNQIU_SIM_TMP 覆写。
 """
 import csv, io, os, re, shutil, subprocess, sys, tempfile
@@ -32,9 +32,8 @@ import csv, io, os, re, shutil, subprocess, sys, tempfile
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 csv.field_size_limit(10 ** 7)
 
-# 〔r59-F4 入库改〕入库副本在 docs/changes/，ROOT 上溯二级；数据件仍在 data/incoming/r59_f2_tenure_sources/（HERE 指向之）
-ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
-HERE = os.path.join(ROOT, "data", "incoming", "r59_f2_tenure_sources")
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 BASE_SHA = "817b21e"  # 〔r59-F3 改〕原 9055f72
 TMP = os.path.join(os.environ.get("CHUNQIU_SIM_TMP") or tempfile.gettempdir(), "mergesim_r59f2")
 TABLES = ["events", "passages", "sources", "people", "event_people", "relations",
