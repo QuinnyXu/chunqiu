@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-10-05T12:14:07+00:00",
+  "generated_at": "2026-10-05T15:15:12+00:00",
   "tables": {
     "archaeology": 8,
     "background": 11,
     "event_people": 735,
     "events": 281,
+    "office_tenures": 16,
     "passages": 531,
     "people": 186,
     "places": 104,

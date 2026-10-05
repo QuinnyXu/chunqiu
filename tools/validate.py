@@ -6,6 +6,9 @@
 
 任何一条校验失败都会打印可读报错并以非零码退出；全部通过打印 OK。
 规范定义见 docs/conventions.md。
+
+退出码：0 全过；1 有校验失败；2 任期表之门（tools/tenure_gate.py，r59-G 九表变十表）之反证未红——
+量具不能自证其能红（裁一百一十四），此时即便数据本身无违例亦不印 OK。
 """
 import csv
 import re
@@ -78,6 +81,7 @@ ID_PATTERNS = {
     "passages": re.compile(r"^Q\d{3}[A-Z]?$"),
     "background": re.compile(r"^BKG\d{3}$"),
     "archaeology": re.compile(r"^ARC\d{3}$"),
+    "office_tenures": re.compile(r"^TEN\d{3}$"),  # r59-G 九表变十表：任职期表（晋之中军将），前缀取表名缩写三字母（同 BKG／ARC 例）
 }
 
 errors = []
@@ -156,7 +160,7 @@ def main():
         name: load(name)
         for name in ("sources", "people", "places", "events",
                      "event_people", "passages", "background", "archaeology",
-                     "relations")
+                     "relations", "office_tenures")
     }
     if errors:
         report()
@@ -292,16 +296,59 @@ def main():
             check_multi_ref(f"{name}.csv", i, "source_ids",
                             (row.get("source_ids") or "").strip(), ids["sources"], "sources")
 
-    report()
+    # ---- office_tenures（r59-G 九表变十表；门见 tools/tenure_gate.py）----
+    ten_rows = tables["office_tenures"]
+    for i, row in enumerate(ten_rows, start=2):
+        pid = (row.get("person_id") or "").strip()
+        if not pid:
+            err(f"office_tenures.csv 第{i}行：person_id 不得为空")
+        check_ref("office_tenures.csv", i, "person_id", pid, ids["people"], "people")
+        check_multi_ref("office_tenures.csv", i, "source_ids", (row.get("source_ids") or "").strip(),
+                        ids["sources"], "sources")
+        if not (row.get("source_ids") or "").strip():
+            err(f"office_tenures.csv 第{i}行：source_ids 不得为空（史料无出处不入库）")
+        for field in ("start_year_bce", "end_year_bce"):
+            val = (row.get(field) or "").strip()
+            if not re.match(r"^-\d+$", val):
+                err(f"office_tenures.csv 第{i}行：{field} '{val}' 必须是负整数")
+            elif not (YEAR_MIN <= int(val) <= YEAR_MAX):
+                err(f"office_tenures.csv 第{i}行：{field} {val} 超出范围 [{YEAR_MIN}, {YEAR_MAX}]")
+    selftest_failed = False
+    need = ("id", "person_id", "state", "office", "start_year_bce", "end_year_bce", "start_basis",
+            "end_basis", "start_basis_type", "end_basis_type", "title_text", "title_evidence",
+            "title_certainty", "certainty", "source_ids", "verify_status")
+    miss_cols = [c for c in need if ten_rows and c not in ten_rows[0]]
+    if miss_cols:
+        err(f"office_tenures.csv 缺栏：{miss_cols}")
+    elif not errors:
+        # 门：晋之中军将，一时一人（正测）；反证须同跑且须红，不红即 exit 2（裁一百一十四）
+        import tenure_gate
+        from build_kaodui_index import STATUS_ORDER
+        vocab = set(STATUS_ORDER)
+        for v in tenure_gate.check(tables["people"], ten_rows, vocab):
+            err(f"office_tenures 门：{v}")
+        for name, shape, res in tenure_gate.selftest(tables["people"], ten_rows, vocab):
+            if not res:
+                selftest_failed = True
+                print(f"反证未红：「{name}」（所取史料之形：{shape}）——量具不能自证其能红，"
+                      f"门不可信（tools/tenure_gate.py selftest，裁一百一十四）", file=sys.stderr)
+
+    report(selftest_failed)
+    if selftest_failed:
+        return 2
     return 1 if errors else 0
 
 
-def report():
+def report(selftest_failed=False):
+    if selftest_failed:
+        # 反证未红：门不能自证其能红，不得印「OK」（exit 2，裁一百一十四）
+        print("校验未通过：任期表之门有反证未红（exit 2）；" + (f"另有 {len(errors)} 处问题" if errors else "数据本身无违例，但量具失灵"),
+              file=sys.stderr)
     if errors:
         print(f"校验失败，共 {len(errors)} 处问题：", file=sys.stderr)
         for e in errors:
             print(f"  - {e}", file=sys.stderr)
-    else:
+    elif not selftest_failed:
         print("OK：全部校验通过")
     if warnings:
         print(f"\n软检警告（不阻断，共 {len(warnings)} 条）：", file=sys.stderr)
