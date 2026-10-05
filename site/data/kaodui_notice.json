@@ -3,7 +3,7 @@
   "generator": "tools/build_kaodui_index.py",
   "writer": "tools/csv_to_json.py",
   "index_doc": "docs/kaodui_index.md",
-  "records": 487,
+  "records": 494,
   "fanli": [
     {
       "key": "zhichou_buduan",
@@ -64,9 +64,9 @@
       "file": "sources.csv",
       "id_col": "id",
       "col": "notes",
-      "rows": 211,
-      "records": 106,
-      "sha256_12": "7f4a3e546671"
+      "rows": 217,
+      "records": 113,
+      "sha256_12": "d586f37e688e"
     },
     {
       "table": "passages",

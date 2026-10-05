@@ -9202,6 +9202,399 @@
     "event_id": null
   },
   {
+    "key": "sources.Z148.notes@144",
+    "table": "sources",
+    "row_id": "Z148",
+    "col": "notes",
+    "offset": 144,
+    "head40": "【杜注之文】下引一句出杜预注，非传文，不入本行所承之据，只记「此本文有此注」：「",
+    "item": "杜注之文",
+    "books": [
+      {
+        "name": "杜注",
+        "pages": []
+      },
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左傳正義》",
+        "pages": []
+      },
+      {
+        "name": "《春秋經傳集解》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-05"
+    ],
+    "concl": "",
+    "refs": [],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z148.notes@449",
+    "table": "sources",
+    "row_id": "Z148",
+    "col": "notes",
+    "offset": 449,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·文公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      },
+      {
+        "name": "《春秋左傳正義》",
+        "pages": []
+      },
+      {
+        "name": "《春秋經傳集解》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-05"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z149.notes@245",
+    "table": "sources",
+    "row_id": "Z149",
+    "col": "notes",
+    "offset": 245,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·宣公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-05"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z150.notes@253",
+    "table": "sources",
+    "row_id": "Z150",
+    "col": "notes",
+    "offset": 253,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·宣公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-05"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z151.notes@295",
+    "table": "sources",
+    "row_id": "Z151",
+    "col": "notes",
+    "offset": 295,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·成公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-05"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z152.notes@252",
+    "table": "sources",
+    "row_id": "Z152",
+    "col": "notes",
+    "offset": 252,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·文公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-05"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
+    "key": "sources.Z153.notes@255",
+    "table": "sources",
+    "row_id": "Z153",
+    "col": "notes",
+    "offset": 255,
+    "head40": "【底本与核对状态】核对状态属电子本（只维基文库整理本一本），未能双本互校，纸本未",
+    "item": "底本与核对状态",
+    "books": [
+      {
+        "name": "维基文库",
+        "pages": []
+      },
+      {
+        "name": "整理本",
+        "pages": []
+      },
+      {
+        "name": "《春秋左氏傳·成公》",
+        "pages": []
+      },
+      {
+        "name": "阮刻十三经注疏",
+        "pages": []
+      },
+      {
+        "name": "《春秋左传注》",
+        "pages": []
+      }
+    ],
+    "books_more": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ],
+    "actors": [],
+    "dates": [
+      "2026-10-05"
+    ],
+    "concl": "",
+    "refs": [
+      "§7",
+      "v1.27"
+    ],
+    "event_id": null
+  },
+  {
     "key": "passages.Q073.modern_note@0",
     "table": "passages",
     "row_id": "Q073",

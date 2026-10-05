@@ -25,14 +25,14 @@
     "start_year_bce": -627,
     "end_year_bce": -622,
     "start_basis": "僖公三十三年（前627）「反自箕，襄公以三命命先且居將中軍」",
-    "end_basis": "推：传无「先且居卒」字面；文公五年（前622）「霍伯……皆卒」，霍伯即先且居系杜注之说；明文上限为文公六年（前621）夷之蒐「使狐射姑將中軍」。取前622（据杜注）",
+    "end_basis": "推：传无「先且居卒」字面，其止分二环——环一（明文）：文公五年（前622）传「晉趙成子、欒貞子、霍伯、臼季，皆卒」，本文之行已挂；环二（推）：霍伯即先且居，系杜注之说（杜预注「霍伯，先且居，中軍帥也」；取维基文库《春秋左傳正義》卷18、《春秋經傳集解》卷第八之电子录文，纸本未核），推之环不立出处行。明文上限为文公六年（前621）夷之蒐「使狐射姑將中軍」。取前622（据杜注）",
     "start_basis_type": "明文",
     "end_basis_type": "推",
     "title_text": "將中軍（僖公三十三年；文公二年）",
     "title_evidence": "將中軍",
     "title_certainty": "明文",
     "certainty": "medium",
-    "source_ids": "Z056;Z134;Z059",
+    "source_ids": "Z056;Z134;Z148;Z059",
     "verify_status": "电子本"
   },
   {
@@ -68,7 +68,7 @@
     "title_evidence": "將中軍",
     "title_certainty": "明文",
     "certainty": "medium",
-    "source_ids": "Z059;Z135;Z136",
+    "source_ids": "Z059;Z135;Z152;Z149;Z150;Z136",
     "verify_status": "电子本"
   },
   {
@@ -86,7 +86,7 @@
     "title_evidence": "為政",
     "title_certainty": "反例已求·未见（域：前632–前560 全段；该段有「將中軍」之文可撞）",
     "certainty": "medium",
-    "source_ids": "Z136;Z064",
+    "source_ids": "Z136;Z063;Z064",
     "verify_status": "电子本"
   },
   {
@@ -96,7 +96,7 @@
     "office": "中军将",
     "start_year_bce": -597,
     "end_year_bce": -593,
-    "start_basis": "宣公十二年（前597）六月「晉師救鄭，荀林父將中軍」（实任之起可早至前598——郤缺末见之年，传无荀林父受命之文）",
+    "start_basis": "宣公十二年（前597）六月「晉師救鄭，荀林父將中軍」（实任之起可早至前598——郤缺末见之年，隐引、不名篇，故不挂；传无荀林父受命之文）",
     "end_basis": "推：传无荀林父去职之文；末见宣公十五年（前594）「晉荀林父敗赤狄于曲梁」；明文上限宣公十六年（前593）「命士會將中軍」。取前593",
     "start_basis_type": "明文",
     "end_basis_type": "推",
@@ -140,7 +140,7 @@
     "title_evidence": "將中軍",
     "title_certainty": "明文",
     "certainty": "medium",
-    "source_ids": "Z138;Z076;Z139",
+    "source_ids": "Z138;Z076;Z151;Z139",
     "verify_status": "电子本"
   },
   {
@@ -158,7 +158,7 @@
     "title_evidence": "將中軍",
     "title_certainty": "明文",
     "certainty": "high",
-    "source_ids": "Z139;Z140",
+    "source_ids": "Z139;Z153;Z089;Z140",
     "verify_status": "电子本"
   },
   {
@@ -223,14 +223,14 @@
     "start_year_bce": -554,
     "end_year_bce": -548,
     "start_basis": "襄公十九年（前554）「范宣子為政」",
-    "end_basis": "推：襄公二十六年追书「於是范宣子卒……及趙文子為政」，卒在赵武为政前有明文；卒年系于「齊人城郟之歲」，本库未论定（前549 或前548）；继任明文襄公二十五年（前548）秋七月「趙文子為政」。取前548",
+    "end_basis": "其二篇已挂（Z145、Z082）；其任之止取前548——其后 TEN014 赵武之起即前548。而其人之卒年二说（前549／前548）未定，见 people.P_SHIGAI.death_year_bce 留空。任之止不是人之卒：一人卒年未定，不等于其任无止；其任之止由其后任之起定，而那一格有明文。",
     "start_basis_type": "明文",
     "end_basis_type": "推",
     "title_text": "為政（襄公十九年、二十四年）；其前佐中軍（襄公九年、十三年）",
     "title_evidence": "為政",
     "title_certainty": "反例无从求·无判别力（域：前559–前509 全段；该段无「將中軍」之文可撞）",
     "certainty": "medium",
-    "source_ids": "Z144;Z142;Z145;Z082",
+    "source_ids": "Z144;Z142;Z143;Z081;Z145;Z082",
     "verify_status": "电子本"
   },
   {
@@ -258,7 +258,7 @@
     "office": "中军将",
     "start_year_bce": -540,
     "end_year_bce": -514,
-    "start_basis": "昭公二年（前540）春「晉侯使韓宣子來聘，且告為政」（实任之起或在前541 冬赵武卒后；襄公三十一年「韓宣子為政」系预叙，不作系年之据）",
+    "start_basis": "昭公二年（前540）春「晉侯使韓宣子來聘，且告為政」（实任之起或在前541 冬赵武卒后——隐引、不名篇，故不挂；襄公三十一年「韓宣子為政」系预叙，不作系年之据——其篇之行挂于本任，只为对位，对位而不为据）",
     "end_basis": "昭公二十八年（前514）秋「晉韓宣子卒，魏獻子為政」",
     "start_basis_type": "明文",
     "end_basis_type": "明文",
@@ -266,7 +266,7 @@
     "title_evidence": "為政",
     "title_certainty": "反例无从求·无判别力（域：前559–前509 全段；该段无「將中軍」之文可撞）",
     "certainty": "high",
-    "source_ids": "Z147;Z078",
+    "source_ids": "Z084;Z147;Z078",
     "verify_status": "电子本"
   },
   {
