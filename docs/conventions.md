@@ -1,6 +1,6 @@
 # 经纬春秋 · 项目约定（conventions）
 
-版本：v1.51（2026-10-03 EDT：r59-A 立，据 `team/round59_prompts.md`「Task for Skipper · r59-A」——勘 §14 点②之量法：核「`Claude-Session` trailer 笔数」之命令由不锚行首之 `git log --grep='Claude-Session' --oneline | wc -l` 改作锚行首之 `git log --format=%H --grep='^Claude-Session:' | wc -l`（加 sha、只认 trailer 不认散文），其由与反证就地加注于 §14 点②（原字照留，依 §7 v1.41「事实错就地勘正加注」之例）；并于 §14 新立点④「数须随量之命令」，命其后凡入条文之数须随书其所截之 sha／日与其量之命令，不得书裸值。照裁六十五「一轮一号」：r59 另起一轮，不并入 v1.50。**本轮续落一事（2026-10-04 EDT，r59-B）**：点④续据取三数并书（甲 72／乙 69／丙 67，各随其命令全文，截至 `d87c4d8`、全仓 262），逐笔列乙丙差集之 sha 与三数相容之式；并于点④新增一款「凡书其数，书其命令，不书其别名」，废「旧法」二字——其据见 `team/round59_prompts.md` §二 裁一百三十七。并入本号，不另升）
+版本：v1.51（2026-10-03 EDT：r59-A 立，据 `team/round59_prompts.md`「Task for Skipper · r59-A」——勘 §14 点②之量法：核「`Claude-Session` trailer 笔数」之命令由不锚行首之 `git log --grep='Claude-Session' --oneline | wc -l` 改作锚行首之 `git log --format=%H --grep='^Claude-Session:' | wc -l`（加 sha、只认 trailer 不认散文），其由与反证就地加注于 §14 点②（原字照留，依 §7 v1.41「事实错就地勘正加注」之例）；并于 §14 新立点④「数须随量之命令」，命其后凡入条文之数须随书其所截之 sha／日与其量之命令，不得书裸值。照裁六十五「一轮一号」：r59 另起一轮，不并入 v1.50。**本轮续落一事（2026-10-04 EDT，r59-B）**：点④续据取三数并书（甲 72／乙 69／丙 67，各随其命令全文，截至 `d87c4d8`、全仓 262），逐笔列乙丙差集之 sha 与三数相容之式；并于点④新增一款「凡书其数，书其命令，不书其别名」，废「旧法」二字——其据见 `team/round59_prompts.md` §二 裁一百三十七。并入本号，不另升）。**本轮续落一事（2026-10-05 EDT，r59-H）**：§1 目录结构补列 `tools/tenure_gate.py`，§2 ID 表补 `office_tenures`（前缀 `TEN###`）并新立「`office_tenures` 与 `tenure_gate` 之门」一款，据 `team/round59_prompts.md` §十三 裁一百六十七——〔r59-H 并入 v1.51，未升号〕：领队「升下一号」之议与裁一百三十六①（r59 诸件并入 v1.51、不再升号）相抵，站长不取。并入本号，不另升
 历史：v1.50（2026-10-03 EDT：r58 推送件立——落四事，俱据 `team/round54_prompts.md`：① §7 新立常条「**系于现状之文，须系于一条量**」四款（§十七 裁一百三十）；② 了结 §7「未验之说」勘注内「其号候裁」一句——裁已下，归本号，就地加注、原句不删；③ §10 新立「10.4 件号之连续」四款（§十八 裁一百三十二、§十九 裁一百三十四）；④ 新立「§14 提交归属行裁定记录」（§十九 裁一百三十三）——自此执行者于本仓之提交只书 `Co-Authored-By`、不书 `Claude-Session`；既往 67 笔（截至 `96605a1`，全仓提交 258 笔；谓词与核法：`git log --oneline | wc -l`＝258、`git log --grep='Claude-Session' --oneline | wc -l`＝67，2026-10-03 EDT 实跑）照留不改，故其史必然是混的。★ 本轮若有续落，照裁六十五「一轮一号」并入本号，不另升）
 历史：v1.49（2026-10-02 EDT：r56 立——新立常条一「**绿须自证其能红**」四款，据 `team/round54_prompts.md` §十一 裁一百一十四；★ 本轮若有续落，照裁六十五「一轮一号」并入本号，不另升。**本轮续落一事（2026-10-02 EDT，r57-C 领队自办）**：新立常条二「**判与事实分记**」三条，据同书 §十三 裁一百一十九·一百二十 之「一款合观」；并入本号，不另升）
 历史：v1.48（2026-09-30：r55 立——新立常条一「**所核与所言须同一物**」三款，据 `team/round54_prompts.md` §九 裁一百〇八；★ 本轮若有续落，照裁六十五「一轮一号」并入本号，不另升）
@@ -62,6 +62,7 @@
 data/csv/          唯一数据源（source of truth），所有编辑发生在这里
 data/incoming/     待合入的增量数据；复核通过后手工合入 data/csv/ 并删除
 tools/             管线脚本（仅 Python 标准库）
+tools/tenure_gate.py 任期表（office_tenures）之门，由 validate.py 每跑必调（见 §2「office_tenures 与 tenure_gate」）
 site/              静态站根目录，可整体部署到 GitHub Pages
 site/data/         生成的 JSON —— 生成物，禁止手改
 site/assets/       图标（icons/）与地图底图（map/）
@@ -91,8 +92,21 @@ data/csv/*.csv  →  tools/csv_to_json.py  →  site/data/*.json + meta.json
 | background | `BKG###` | BKG001 | |
 | archaeology | `ARC###` | ARC001 | |
 | relations | `R###` | R001 | 人物关系结构表，供图谱用 |
+| office_tenures | `TEN###` | TEN001 | 任期表（r59-G 立，第十表；晋之中军将，16 任）；前缀取表名缩写三字母（同 BKG／ARC 例）——单字母前缀已为 sources 十类所占，故不取 T；栏与判据见下「office_tenures 与 tenure_gate」 |
 
 ID 一经使用不得复用或改义；删除记录时其 ID 作废封存。
+
+**`office_tenures` 与 `tenure_gate`（v1.51，r59-G 立、r59-H 补文并入本号，未升号；据 `team/round59_prompts.md` §三 裁一百三十八三、§十一 裁一百六十、一百六十三、§十三 裁一百六十七）**：第十表 `data/csv/office_tenures.csv`，现存 16 行（TEN001–TEN016，晋之中军将任期，由 Sophia 备料 `zhongjunjiang_ren.csv` 入库；原件已归档，逐栏映射见 `tools/tenure_gate.py` 门头【一】）。栏：`id, person_id, state, office, start_year_bce, end_year_bce, start_basis, end_basis, start_basis_type, end_basis_type, title_text, title_evidence, title_certainty, certainty, source_ids, verify_status`。一栏一义：`certainty` 专承起止之定度；`title_certainty` 专承「职之推之验」；`title_evidence` 书职名之证（將中軍／為政／推）；三栏不得相兼。
+
+门 `tools/tenure_gate.py` 由 `tools/validate.py` 每跑必调，护栏不得绕过或删除。判据 (a)–(f)（全文见该文件门头【二】）：
+- (a) 挂钩：任期表之人须在库且 state 含「晋」；`people.role` 之「中军将」「执政」「系推」与 `title_evidence` 须相应，role 只容可断之物；
+- (b) 任二任 [start,end] 不得相叠（只共交接之一年者不为叠）；
+- (c) 以 id 号序为序，后任 start 不得早于前任 end；
+- (d) 有 `death_year_bce` 者，其 end 不得晚于卒年；
+- (e) 栏值之域（title_evidence、title_certainty 全文、certainty、`*_basis_type`、`verify_status` 取 21 档词表、state 含「晋」、office＝「中军将」）；
+- (f) `title_certainty` 与 `title_evidence` 相应，非明文二值各自之域须覆其任之起止、二域相接不相叠而合覆全表，且域之「有／无『將中軍』之文可撞」须与 `ZJJ_TEXT_YEARS`（15 元）相合。
+
+**门须限 state 含「晋」**：他国亦有「将中军」之文（齐 P_GUOSHU 之 role 含「将中军」，不限晋则必误伤；楚亦有），其全集与量法见门头【三】。**反证同跑**（裁一百一十四）：`selftest()` 所返之反证形取自史料之形，每跑必同跑，凡有反证未红（违例列表为空）者 validate 即 exit 2。
 
 **并行备料 ID 网段预分配（v1.15 新增）**：当同一轮次内有两批及以上增量并行备料时（如 r19b 的 fix19 与 round20），events/sources/passages 等序号型 ID 存在撞号风险——各批次备料时都是"接续当前主表最大号"起编，若并行下达任务书时未预先划分号段，两批各自独立起编就会撞在同一起点。
 

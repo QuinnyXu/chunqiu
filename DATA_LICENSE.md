@@ -6,7 +6,7 @@
 
 | 范围 | 是否适用本许可 |
 |---|---|
-| `data/csv/*.csv`（唯一数据源，8 张表：events / people / places / sources / passages / event_people / background / archaeology，及 relations） | ✅ 适用 |
+| `data/csv/*.csv`（唯一数据源，其表见 `docs/conventions.md` §1 之 ID 表） | ✅ 适用 |
 | `site/data/*.json`（由上述 CSV 经 `tools/csv_to_json.py` 生成的发布物，含 `meta.json`） | ✅ 适用 |
 | `site/` 下的程序代码、样式、美术资源（SVG、PNG 等，如底图、图标）（**本站标识除外**，详见下行） | ❌ 不适用，见 [`LICENSE`](LICENSE)（MIT） |
 | `site/assets/icons/favicon.svg`、`site/assets/og/og-card.png`（本站标识：本站徽记，及徽记与站名合成的分享图） | ❌ 不适用本许可，亦不适用 [`LICENSE`](LICENSE)（MIT）；保留一切权利。标识的使用见 [`README.md`](README.md) §许可「标识保留」一节。此二者是同一枚徽记的两身，其设计稿为 `docs/design/logo_r15/mark_jia.svg`。**本次修订并将上一行之枚举扩及 PNG**（其原枚举为「SVG 美术资源」，**不及 PNG**）——此系与 [`README.md`](README.md) §许可 「`tools/`、`site/` 下除 `site/data/` 外的所有文件」之既有表述**对齐而补，非新授**；其一广，`site/assets/og/og-card.png` 即落入上一行之域，而当场为该行之「本站标识除外」所摘出，本行对此二身之摘出，自此不复只系于 [`README.md`](README.md) 一处。**本行只向后生效，不追既往**：在本次修订之前，本项目的许可文本对此二者所涵**并不相同**——`favicon.svg` 为**二处所涵**（本文件上一行**在本次修订前**作「`site/` 下的程序代码、样式、SVG 美术资源（底图、图标等）」，及 [`README.md`](README.md) §许可 的「`tools/`、`site/` 下除 `site/data/` 外的所有文件」）；`og-card.png` 系 PNG，**只为后一处所涵**——本文件上一行**在本次修订前**所枚举者为「SVG 美术资源」，**不及 PNG**。此处所引二段俱系**本次修订之前**之文，非修订后之文；二处文本自 2026-07-20 起如此。凡在此之前依当时文本取得副本者，其许可不因本次修订而失效。 |
