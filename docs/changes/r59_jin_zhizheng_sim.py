@@ -36,6 +36,12 @@ r59_jin_zhizheng 合并模拟 —— 晋之执政（中军将）序列备料（r
      〔r59-F 续〕本脚本之入库副本（docs/changes/r59_jin_zhizheng_sim.py）：数据件读 data/incoming/r59_jin_zhizheng/
      （合入毕、俟 r59-G 后其目录删，则本脚本不可再整跑——同 r46_jiliang_sim.py 之例）；且本脚本以 data/csv/ 为「改前」，
      须在合入之前之库上跑（已合入之库上整跑必撞 ID 而红，非脚本之误）。其 ZJJ_TEXT_YEARS 定义处为本文件。
+〔r59-收轮 补注〕★ 其料不可取回：本批十件备料从未入 git
+  （git log --all --oneline -- 'data/incoming/r59_jin_zhizheng/*' ＝ 0，2026-10-06 EDT 实跑），
+  故本脚本不止「不可再整跑」，是永不可跑。
+  ★ 不得以 r53_kongzi_role（c008647）之例类推——该批在 git 之内，三物可 git show 取回；本批不能。
+  其值与其栏之映射尚存：入库之行见 data/csv/／a08f1ec，zhongjunjiang_ren.csv 之逐栏映射见 tools/tenure_gate.py 门头【一】。
+  （裁一百八十五④；既有之句原字照留，本补注为增。）
 
 退出码：0 全过；1 有 FAIL；2 反证未红（量具不能自证其能红）。
 本脚本不属数据，不入 data/csv/。临时目录可用环境变量 CHUNQIU_SIM_TMP 覆写。
