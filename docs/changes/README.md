@@ -16,3 +16,44 @@ r21（宋襄公升格线 + 夏姬线，两件并行备料）合入后，`data/in
 本规则生效后的所有轮次（r22 起）一律先归档、后清空，不再出现同类缺口。
 
 **本目录文件已被 `data/csv/` 直接引用，路径与文件名不得再改**：`data/csv/events.csv`（E172.summary）、`data/csv/event_people.csv`（E172/P_SONGXIANG.role_in_event）、`data/csv/passages.csv`（Q204.modern_note）三处均以 `docs/changes/r21_songxiang.md 三` 作为 presence 判据出处指向（r21 落库回补，见提交记录）。这四处指向此前失效过一次（原文写「见 CHANGES.md 三」，`data/incoming/` 清空后引用落空），本目录文件的路径/文件名若再变动或被移动，须同步改这三处引用，否则会重蹈覆辙、需要再走一次溯源（Sophia 提请记录）。
+
+## 备料可否取回——一条可复跑之判别（r59 收轮立，裁一百八十六）
+
+本节记一桩事实与一条查法，**非约**（不入 conventions；归档之辖已在 §10.1）。
+
+### 一、判别（命令）
+
+```
+git log --all --oneline -- 'data/incoming/<批名>/*' | wc -l
+```
+
+- **＝ 0**：该批备料**从未入 git**，其件永失，本目录之归档件是其唯一痕迹。
+- **> 0**：曾入 git，可 `git show <sha>:<路径>` 取回。
+
+注：`<批名>` 是 `data/incoming/` 下之目录名，**不等于**本目录归档件之名（如归档件 `r46_gugan.md` 对应之备料目录为 `round46_gugan`），查时先对名。
+
+### 二、其判别力之验（2026-10-06 EDT 实跑）
+
+| 批（`data/incoming/` 目录名） | 输出 |
+|---|---|
+| `r53_kongzi_role` | **2** |
+| `r59_jin_zhizheng` | **0** |
+| `r59_f2_tenure_sources` | **0** |
+| `round21` | **0** |
+| `fix44d` | **0** |
+| `round46` | **0** |
+| `r51_peijue` | **0** |
+
+即曾入 git 者（r53）得 2，从未入者俱得 0，判别能分二类。
+
+### 三、其数（同日实跑）
+
+- `git log --all --diff-filter=A --name-only --format= -- 'data/incoming/*'` 取其第三段去重，**曾入 git 之 `data/incoming/` 目录全集 ＝ 7**：`.gitkeep`、`fix7`、`r53_kongzi_role`、`relations`、`round5`、`round7`、`round9`（含 `.gitkeep`，非批）。
+- 本目录已归档之批（`r*.md`，不含本 README）＝ **34**。
+- 故「备料可取回」是少数，不是常态；**凡引一轮之例以推他轮者，先跑上之判别。** 二数各自为计，其目录与归档件并非一一对应（如 `r53_kongzi_role` 未见归档件于本目录），故本节不以相减得「余者几批」，逐批之标须逐批跑判别（登记 r60，后人需时自跑）。
+
+### 四、因之一则
+
+**凡本目录之 sim，其 `HERE` 指向 `data/incoming/` 而该批判别为 0 者，俱不可跑**——此非某一脚本之疾，是归档之形所致。裁一百七十六之「同深子目录」归档之形（数据件随 sim 入同深子目录，`HERE` 自正）**自 r59-F5 起行，其前诸批不可追补**（其料已不在）。
+
+实况（同日 grep）：现仅 `r59_jin_zhizheng_sim.py` 之 `HERE` 字面指向 `data/incoming/`（其头上已补注，见该件）；其余各 sim 之 `HERE` 为本脚本所在目录，其文档头仍载 `python data/incoming/<批>/sim_*.py` 之旧用法，其可否整跑未于本轮逐一验。
