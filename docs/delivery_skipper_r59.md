@@ -135,11 +135,40 @@
 
 未跑者：无（六门各一至二模式俱已实跑）。
 
+〔加注一·r59 收轮，Skipper，2026-10-06 EDT；裁一百八十七②；上表与上段原字照留，不改〕**推送后之转绿**（站长已推送；本节为推后重跑之实，数由本人此刻自跑）：
+
+| 门 | 命令（于 `tools/qa/`） | 模式 | exit | 结果 |
+|---|---|---|---|---|
+| `asset_stamp_gate.py` | `python asset_stamp_gate.py` | 本地读 `site/` | **0** | 2 引俱相符 |
+| `prod_data_invariants.js` | `node prod_data_invariants.js` | **生产** | **0** | **91 过／0 红（共 91 判）** |
+| `prod_freshness.js` | `node prod_freshness.js` | 生产 | **0** | 判红 0、只报 1 |
+| `prod_render_invariants.js` | `node prod_render_invariants.js` | 生产 | **0** | 48 项，FAIL 0 |
+| `vision_r56.js` | `node vision_r56.js` | 生产 | **0** | 99 条全绿，反证俱红 |
+
+五门推后 exit code 俱为 0，无一为 2（exit 2 若有，是「本门出错」，非绿；本次无）。
+
+`prod_data_invariants` 生产模式二判，推送前后并列（推送前文取自上〔§七〕所书；推后文逐字摘自本次实跑输出）：
+
+- 「逐表同数」　推送前：红，14 处不符（生产落后：`people` 174／186、`events` 265／281 等，`office_tenures` 生产未供其表）。推后：`✓ 逐表同数：生产实际行数、生产 meta 之记、本仓 meta 之期，三者逐表相符  —— 11 表俱符（含 meta 之记与实数两重比对）`
+- 「相同之表一处不误红」　推送前：红（因逐表同数之红所连）。推后：`✓ 且其相同之表**一处不误红**——证其红非泛红  —— 零误红`
+
+★ **其所以转绿者，是数据已上，非量法改过**：`git log -- tools/qa` 之最近一笔为 `96605a1`（2026-10-03），早于本文所记之推送前实跑，推送前后 `tools/qa/` 无一笔改动；推后生产各表实数（当场数其行）：`office_tenures` 16、`people` 186、`events` 281、`passages` 531、`event_people` 735、`sources` 217、`kaodui` 494，与上段所期同。此亦印证上段「红在生产落后、非数据之误」之判。
+
+戳之验（以生产自验生产，不以本地之戳比生产之参）：取生产站自身所服之 `app.js`、`styles.css` 之实体 sha256 前 8 位，与生产站自身 `index.html` 之 `?v=` 参数相比——`app.js` 实体 `6c1ca025` ／ `?v=6c1ca025`（相符）；`styles.css` 实体 `7f00e1a7` ／ `?v=7f00e1a7`（相符）。
+
+
 ---
 
 ## 八、推送口令
 
 推送属站长，今不推。本地领先远端：本文提交前 15 笔、提交后 16 笔。生产站落后，故 `prod_data_invariants` 生产模式之 2 红为推送前之预期。
+
+〔加注二·r59 收轮，Skipper，2026-10-06 EDT；裁一百八十七②；上段原字照留，其数为本文提交那一刻之实〕**今已推送**：站长已推 `main`，上段「今不推」「生产站落后」「2 红为推送前之预期」三句俱成往事（其闭环见 §七〔加注一〕）。今之实（本人自核）：
+
+- `git rev-list --count origin/main..HEAD`：推送后、本轮收轮三提交前为 **0**（本收轮三提交在本地，尚未推送，故其后此数随之为 3，非回到「未推送十余笔」之旧况）；
+- `git rev-list --count HEAD..origin/main`：**0**（落后零）；
+- `git status --short`：本文提交前为空（未提交零）。
+
 
 ---
 
