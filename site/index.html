@@ -22,7 +22,7 @@
      主站已切至 Cloudflare Pages 自定义域 chunqiu.timechorus.com（2026-07-18），github.io 保留为镜像 -->
 <link rel="image_src" href="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <link rel="canonical" href="https://chunqiu.timechorus.com/">
-<link rel="stylesheet" href="styles.css?v=7f00e1a7">
+<link rel="stylesheet" href="styles.css?v=62293f73">
 </head>
 <body>
 <header class="site-header">
@@ -121,6 +121,7 @@
       <button type="button" class="library-entry" id="home-guide-entry">初识春秋 →</button>
       <button type="button" class="library-entry" id="home-relations-entry">全景关系图谱 →</button>
       <button type="button" class="library-entry" id="home-library-entry">资料库 · 背景 · 考古 · 来源 →</button>
+      <button type="button" class="library-entry" id="home-tenures-entry">晋之中军将 · 历任 →</button>
       <button type="button" class="library-entry" id="home-about-entry">关于本站与数据凡例 →</button>
     </p>
     <!-- 站铭卡：兼作分享缩略图的可抓取来源（部分爬虫忽略隐藏图，故以可见小图呈现，勿隐藏）；
@@ -389,6 +390,14 @@
     </div>
     <div class="kd-body" id="kd-body"></div>
   </section>
+  <!-- 晋中军将历任（r60-A）：`site/data/office_tenures.json` 之读者页，hash `#/tenures`，不入主导航
+       （入口只首页「更多」一行之一钮，同考据索引之例）。任数、年、人名、职名字面一律由 app.js renderTenures()
+       自数据跑时生成，此处不写死一条史料。三栏（title_evidence／title_certainty／certainty）不照搬给读者。 -->
+  <section id="view-tenures" hidden aria-labelledby="tenures-title">
+    <h2 class="screen-title" id="tenures-title">晋之中军将 · 历任</h2>
+    <p class="kd-intro" id="tn-intro"></p>
+    <div class="tn-body" id="tn-body"></div>
+  </section>
 </main>
 
 <div class="map-overlay" id="map-overlay" hidden role="dialog" aria-modal="true" aria-label="地图全屏查看">
@@ -481,7 +490,7 @@
   <p class="footer-feedback">反馈：<a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> · <a href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E7%BB%8F%E7%BA%AC%E6%98%A5%E7%A7%8B%E3%80%91%E5%8F%8D%E9%A6%88">chunqiu@timechorus.com</a>，史实纠错请附出处。</p>
   <p class="footer-stats" id="footer-stats">数据加载中…</p>
 </footer>
-<script src="app.js?v=6c1ca025"></script>
+<script src="app.js?v=e59c0b78"></script>
 <!-- Cloudflare Web Analytics：领队特批外部资源例外（隐私友好、无 cookie 的访问统计）；
      token 出现在页面源码为 CF 官方设计如此，不构成信息泄露，见 docs/conventions.md §9.2 -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "972676e4c141408481d7b8cb54dc8cb5"}'></script>

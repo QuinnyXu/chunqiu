@@ -2669,3 +2669,101 @@ button.chron-chip[aria-pressed="true"] {
   .cmp-pick { grid-template-columns: 1fr 1fr; min-width: min(20rem, 82vw); }
   .cmp-axis { margin: 1.6rem 0.3rem 1.6rem; }
 }
+
+/* ---------- 屏10 晋中军将历任（#/tenures，r60-A） ----------
+ * 一条总带（段宽按年、点之跳卡）＋逐任之卡。`--theme` 在本屏内归晋之国色（栗褐）：
+ * 本屏所列俱晋人，国色制下「色只答一件事」——国。
+ * 「职名系推」记号（`.tn-infer`）：朱砂虚线胶囊，与考据页 `.kd-neg` 同族语汇（示「须回仓库看其据」，
+ * 不示「此任为假」）；类名前缀 `tn-` 专属本屏，r60-B 之核对状态记号另取别名，二者不相犯。
+ * 带上之推任亦取空心虚线边（位置与他任同一刻度，只形不同——其断处显而不藏）。 */
+#view-tenures { --theme: var(--state-jin); }
+.tn-axis { margin: 0.2rem 0 1.4rem; }
+.tn-strip {
+  position: relative;
+  height: 28px;
+  background: var(--silk-panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.tn-seg {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  padding: 0;
+  border: 1px solid var(--silk-panel);
+  border-radius: 2px;
+  background: var(--theme);
+  cursor: pointer;
+  min-width: 6px;
+}
+.tn-seg:nth-child(even) { opacity: 0.72; }
+.tn-seg:hover, .tn-seg:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; z-index: 1; opacity: 1; }
+.tn-seg.is-infer {
+  background: transparent;
+  border: 1px dashed var(--cinnabar);
+  opacity: 1;
+}
+.tn-ticks { position: relative; height: 1.3rem; margin-top: 0.2rem; }
+.tn-tick {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.tn-tick::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -0.25rem;
+  height: 0.2rem;
+  border-left: 1px solid var(--line);
+}
+.tn-list { list-style: none; margin: 0; padding: 0; }
+.tn-card {
+  margin: 0 0 0.5rem;
+  padding: 0.55rem 0.8rem 0.6rem;
+  background: var(--silk-panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--theme);
+  border-radius: 3px;
+}
+.tn-card.is-infer { border-left-style: dashed; border-left-color: var(--cinnabar); }
+.tn-card:focus { outline: 2px solid var(--theme); outline-offset: 1px; }
+.tn-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.7rem; }
+.tn-ord { font-size: 0.72rem; color: var(--ink-soft); letter-spacing: 0.08em; }
+.tn-person {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline dotted var(--ink-soft);
+  text-underline-offset: 3px;
+}
+.tn-person:hover { color: var(--theme); }
+.tn-years { margin-left: auto; font-size: 0.82rem; color: var(--ink); white-space: nowrap; }
+.tn-title { margin: 0.3rem 0 0; font-family: var(--serif); font-size: 0.86rem; line-height: 1.75; color: var(--ink); }
+.tn-infer-wrap { margin-top: 0.35rem; }
+button.tn-infer {
+  font-family: var(--serif);
+  font-size: 0.72rem;
+  color: var(--cinnabar);
+  background: none;
+  border: 1px dashed currentColor;
+  border-radius: 999px;
+  padding: 0.05rem 0.6rem;
+  line-height: 1.7;
+  cursor: pointer;
+}
+button.tn-infer[aria-expanded="true"] { background: rgba(188, 68, 51, 0.08); }
+.tn-infer-note { margin: 0.35rem 0 0; font-size: 0.8rem; line-height: 1.75; color: var(--ink-soft); }
+.tn-infer-note a { margin-left: 0.3rem; color: var(--bronze); }
+.tn-foot a { color: var(--bronze); }
+.tn-mini { position: relative; height: 5px; margin-top: 0.5rem; background: rgba(122, 113, 102, 0.12); border-radius: 2px; }
+.tn-mini-bar { position: absolute; top: 0; bottom: 0; background: var(--theme); border-radius: 2px; min-width: 4px; }
+.tn-mini-bar.is-infer { background: transparent; border: 1px dashed var(--cinnabar); }
+.tn-foot { margin: 1rem 0 0; font-size: 0.8rem; color: var(--ink-soft); }
+@media (max-width: 680px) {
+  button.tn-infer { min-height: 32px; padding: 0.15rem 0.8rem; }
+  .tn-tick:nth-child(even) { display: none; }
+}

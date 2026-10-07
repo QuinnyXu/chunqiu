@@ -339,6 +339,7 @@ async function fetchSVG(name) {
  *   #/relations               全景关系图谱（默认主角环，勾「显示全部」回全库）
  *   #/chronicle               编年（全库事件大事年表，r25）
  *   #/kaodui                  考据索引（逐条核对记录之读者页，r54-7）
+ *   #/tenures                 晋中军将历任（office_tenures 之读者页，r60-A）
  *   #/library[/<tab>][?q=…]   资料库
  *   #/about                   关于
  * 旧格式（#person=X&view=…）由 legacyToNewHash 就地改写重定向，外部旧链接不失效。
@@ -351,7 +352,7 @@ const PERSON_VIEWS = ["timeline", "map", "relations"];
  * ★ r54-7 立此常量之由：此前「relations／about／chronicle」三名在 `legacyToNewHash`／`parseHash`／
  *   `buildHash` 三处各写一遍，添一个视图即须三处同改——漏一处之果是**旧链不通或新链读不回**，
  *   且三处皆不报错，静默失效。今三处同取此一本，`kaodui` 只入一次。 */
-const GLOBAL_VIEWS = ["relations", "about", "chronicle", "kaodui"];
+const GLOBAL_VIEWS = ["relations", "about", "chronicle", "kaodui", "tenures"];
 const LIB_TABS = ["background", "archaeology", "sources"];
 
 function legacyToNewHash(h) {
@@ -361,7 +362,7 @@ function legacyToNewHash(h) {
     if (k && v !== undefined) o[k] = v;
   }
   const person = PROTAGONISTS.some(p => p.id === o.person) ? o.person : null;
-  let view = ["home", "timeline", "map", "library", "relations", "about", "chronicle", "kaodui"].includes(o.view) ? o.view : null;
+  let view = ["home", "timeline", "map", "library", "relations", "about", "chronicle", "kaodui", "tenures"].includes(o.view) ? o.view : null;
   if (person && (!view || view === "home")) view = "timeline"; // 旧 #person=X 落其时间线
   if (person && PERSON_VIEWS.includes(view)) return buildHash(person, view);
   // 库/关于/全景等全局视图：旧链接中的 person 语境不再入 hash
@@ -559,7 +560,7 @@ function render() {
   document.querySelectorAll(".main-nav button").forEach(btn => {
     btn.setAttribute("aria-current", String(btn.dataset.view === navCur));
   });
-  for (const v of ["home", "timeline", "map", "library", "relations", "about", "compare", "chronicle", "kaodui"]) {
+  for (const v of ["home", "timeline", "map", "library", "relations", "about", "compare", "chronicle", "kaodui", "tenures"]) {
     $("#view-" + v).hidden = (state.view !== v);
   }
   $("#timeline-relations-entry").hidden = !state.person;
@@ -575,6 +576,7 @@ function render() {
   if (state.view === "relations") renderRelations();
   if (state.view === "compare") renderCompare();
   if (state.view === "chronicle") renderChronicle();
+  if (state.view === "tenures") renderTenures();
   if (state.view === "kaodui") renderKaodui();   // 其料懒载（裁九十四），故本函数是 async；render 不待之
 
   // 滚动复位（r14，Xiangtao 反馈 2）：凡前向导航（点卡/切人/切视图/关于页内链/搜索直达）一律回顶，
@@ -6279,6 +6281,147 @@ function syncTourEntry() {
  * ★ 一个数也不写死：句二四数俱取 DATA.meta.tables，年代取 year_range_bce 经 yearLabel 成文
  *   ——与页脚 #footer-stats、头部 #site-frontier 同一口径、同一来源，故新事入库即自涨。
  * ★ 不走 innerHTML（红线六）：只以 createTextNode／createElement 建节点。 */
+/* ---------- 屏10 晋中军将历任（#/tenures，r60-A；料取 `site/data/office_tenures.json`） ----------
+ * 一条时间轴＋逐任之卡：每卡其人（连人物）、起止之年、职名之字面（`title_text`）。
+ * ★ 三栏（title_evidence／title_certainty／certainty）是我们判其可信之具，不是读者要读的东西：
+ *   `title_certainty` 之括注全文一字不入本页；`certainty` 不入本页；
+ *   唯 `title_evidence === "推"`（职名无明文、系由旁证推得者）之任，卡上缀一小记号「职名系推」，
+ *   点开一句话并链回仓库——此记号之字与样式（`.tn-infer`）只属 office_tenures 之职名之别，
+ *   与 r60-B 之「核对状态」记号（verify_status）二物，类名、字面俱不相犯。
+ * ★ 起止之年一律照库显示，不自改、不作任期之判断；其在轴上之位亦一律取库中年。
+ * ★ 数据照库：不手写一任之史料；任数、首尾之年皆跑时自数。 */
+const TENURE_REPO_URL = "https://github.com/QuinnyXu/chunqiu/blob/main/data/csv/office_tenures.csv";
+const TENURE_INFER_NOTE = "晋之史文无此任之职名明文，其任系由旁人之口与自述推得，故记作「推」。";
+function renderTenures() {
+  const host = $("#tn-body");
+  if (!host) return;
+  host.textContent = "";
+  const rows = (DATA.office_tenures || []).slice();
+  const intro = $("#tn-intro");
+  if (!rows.length) {
+    intro.textContent = "";
+    const p = document.createElement("p");
+    p.className = "kd-note kd-err";
+    p.textContent = "任期表未载入。";
+    host.appendChild(p);
+    return;
+  }
+  const mk = (tag, cls, text) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const yrs = (r) => r.start_year_bce === r.end_year_bce
+    ? yearLabel(r.start_year_bce)
+    : yearLabel(r.start_year_bce) + "—" + yearLabel(r.end_year_bce);
+  const lo = Math.min(...rows.map(r => r.start_year_bce));   // 最早（如 -632）
+  const hi = Math.max(...rows.map(r => r.end_year_bce));     // 最晚（如 -509）
+  const span = hi - lo;
+  const pct = (y) => ((y - lo) / span * 100);
+  const isInfer = (r) => r.title_evidence === "推";
+  const nInfer = rows.filter(isInfer).length;
+  intro.textContent = "晋国中军将之历任，自" + yearLabel(lo) + "至" + yearLabel(hi) + "，库中共 " + rows.length +
+    " 任，依先后排列。各任之年与职名照史文所书；其中 " + nInfer +
+    " 任之职名史文无明文、系由旁证推得，卡上另作记号。";
+
+  // 一、时间轴：一条总带，段宽按年；一年之任亦有最小宽度，段点之即跳至其卡
+  const axis = mk("div", "tn-axis");
+  axis.setAttribute("role", "group");
+  axis.setAttribute("aria-label", "历任时间轴，" + yearLabel(lo) + "至" + yearLabel(hi));
+  const strip = mk("div", "tn-strip");
+  const cardOf = {};
+  rows.forEach(r => {
+    const name = (PEOPLE[r.person_id] || {}).name || r.person_id;
+    const b = mk("button", "tn-seg" + (isInfer(r) ? " is-infer" : ""));
+    b.type = "button";
+    b.style.left = pct(r.start_year_bce) + "%";
+    b.style.width = "max(" + (pct(r.end_year_bce) - pct(r.start_year_bce)) + "%, 6px)";
+    const lab = name + " " + yrs(r) + (isInfer(r) ? "（职名系推）" : "");
+    b.title = lab;
+    b.setAttribute("aria-label", lab + "，跳至其卡");
+    b.addEventListener("click", () => {
+      const c = cardOf[r.id];
+      if (c) { c.scrollIntoView({ block: "center", behavior: "smooth" }); c.focus({ preventScroll: true }); }
+    });
+    strip.appendChild(b);
+  });
+  axis.appendChild(strip);
+  const ticks = mk("div", "tn-ticks");
+  ticks.setAttribute("aria-hidden", "true");
+  for (let y = Math.ceil(lo / 20) * 20; y <= hi; y += 20) {
+    const t = mk("span", "tn-tick", yearLabel(y));
+    t.style.left = pct(y) + "%";
+    ticks.appendChild(t);
+  }
+  axis.appendChild(ticks);
+  host.appendChild(axis);
+
+  // 二、逐任之卡
+  const ol = mk("ol", "tn-list");
+  rows.forEach((r, i) => {
+    const li = mk("li", "tn-card" + (isInfer(r) ? " is-infer" : ""));
+    li.id = "tn-" + r.id;
+    li.tabIndex = -1;
+    cardOf[r.id] = li;
+    const head = mk("div", "tn-head");
+    head.appendChild(mk("span", "tn-ord", "第 " + (i + 1) + " 任"));
+    const pe = PEOPLE[r.person_id];
+    const a = mk("a", "tn-person", pe ? pe.name : r.person_id);
+    a.href = isProto(r.person_id) ? buildHash(r.person_id, "timeline") : "#/relations";
+    a.title = "查看其人物（关系图）";
+    a.addEventListener("click", (ev) => {
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button === 1) return;
+      ev.preventDefault();
+      goSearchPerson(r.person_id);
+    });
+    head.appendChild(a);
+    head.appendChild(mk("span", "tn-years", yrs(r)));
+    li.appendChild(head);
+    li.appendChild(mk("p", "tn-title", r.title_text));
+    if (isInfer(r)) {
+      const wrap = mk("div", "tn-infer-wrap");
+      const btn = mk("button", "tn-infer", "职名系推");
+      btn.type = "button";
+      btn.setAttribute("aria-expanded", "false");
+      const note = mk("p", "tn-infer-note");
+      note.id = "tn-note-" + r.id;
+      note.hidden = true;
+      note.appendChild(document.createTextNode(TENURE_INFER_NOTE));
+      const lk = mk("a", null, "依据见仓库之任期表 →");
+      lk.href = TENURE_REPO_URL;
+      lk.target = "_blank";
+      lk.rel = "noopener";
+      note.appendChild(lk);
+      btn.setAttribute("aria-controls", note.id);
+      btn.addEventListener("click", () => {
+        const open = note.hidden;
+        note.hidden = !open;
+        btn.setAttribute("aria-expanded", String(open));
+      });
+      wrap.appendChild(btn);
+      wrap.appendChild(note);
+      li.appendChild(wrap);
+    }
+    // 卡内小带：本任在全表轴上之位（与总带同一刻度）
+    const mini = mk("div", "tn-mini");
+    mini.setAttribute("aria-hidden", "true");
+    const mb = mk("span", "tn-mini-bar" + (isInfer(r) ? " is-infer" : ""));
+    mb.style.left = pct(r.start_year_bce) + "%";
+    mb.style.width = "max(" + (pct(r.end_year_bce) - pct(r.start_year_bce)) + "%, 4px)";
+    mini.appendChild(mb);
+    li.appendChild(mini);
+    ol.appendChild(li);
+  });
+  host.appendChild(ol);
+  const foot = mk("p", "tn-foot", "每任之起止依据与出处，见");
+  const fa = mk("a", null, "仓库之任期表");
+  fa.href = TENURE_REPO_URL; fa.target = "_blank"; fa.rel = "noopener";
+  foot.appendChild(fa);
+  foot.appendChild(document.createTextNode("。"));
+  host.appendChild(foot);
+}
+
 /* 考据索引之读者页（`docs/kaodui_index.md` 463 条）由 r54-3 拟其形，**r54-7 已立**（裁七十七）。
  * ★ 其位与其链只此一处：r54-1 立此常量时其值为 `null`，其文曰「页立之日把本常量由 null 改成
  *   { hash, label }，首页引言即自带其链」——**今日即其日**，故只改此一处之值（r54-7 件之 6）。
@@ -6360,7 +6503,7 @@ function syncNavChronCount() {
 async function boot() {
   try { localStorage.removeItem("cq_play_speed"); } catch { /* r18 速度定稿：清理旧速度档记忆键 */ }
   const names = ["people", "events", "event_people", "places", "passages", "sources",
-                 "background", "archaeology", "relations", "meta"];
+                 "background", "archaeology", "relations", "office_tenures", "meta"];
   const results = await Promise.all(names.map(fetchJSON));
   names.forEach((n, i) => { DATA[n] = results[i]; });
   PEOPLE = byId(DATA.people);
@@ -6421,6 +6564,13 @@ async function boot() {
   $("#home-relations-entry").textContent = "全景关系图谱 · " + DATA.meta.tables.people + " 人 →";
   $("#home-relations-entry").addEventListener("click", () => setHash(null, "relations")); // 该入口明确指向全景
   $("#home-about-entry").addEventListener("click", () => setHash(null, "about"));
+  { // 晋中军将历任之入口（r60-A）：其数跑时自数，HTML 内不写数
+    const te = $("#home-tenures-entry");
+    if (te) {
+      te.textContent = "晋之中军将 · 历任 " + (DATA.office_tenures || []).length + " 任 →";
+      te.addEventListener("click", () => setHash(null, "tenures"));
+    }
+  }
   $("#home-guide-entry").addEventListener("click", () => { // 关于页「初识春秋」小节
     const go = () => { const s = $("#guide-start"); if (s) s.scrollIntoView({ block: "start" }); };
     if (state.view === "about") { go(); return; }
