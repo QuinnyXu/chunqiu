@@ -1351,6 +1351,117 @@ function eventChipsNode(evt, opts) {
   if (opts && opts.personal) addChip(chips, evt.presence, evt.presence === "相关" ? "rel-low" : "rel-high");
   return chips;
 }
+/* ---------- 核对状态之记号（r60-B；裁一百九十四一、裁一百九十九、裁二百〇一、裁二百〇二） ----------
+ * ★ 记号之主语是「其据」，不是「其人」：只挂在**具体一条引文**（passages，带 event_id）上，
+ *   人物卡、事件卡、事件摘要皆不挂；挂不到具体一条出处者不挂（只抽不断，不以上下文推断补齐）。
+ * ★ 数据：`verify_marks.json`——顶层数组，一记号一元 `{table,row_id,col,offset,status:[{name,negated}]}`，
+ *   由抽取器侧产出（前端不自抽、不改其存储之形）；载入后在此自建 O(1) 索引。
+ * ★ 严口径（裁一百九十九）：status.name 为「本轮无从核」「未见」「未核」三档触发；
+ *   8 档宽口、已核四档、载体五档、未标核对状态一律不显；negated 为 true 之条一律不触发；
+ *   已核者不加记号（记号只标其未定）。三态分书不归并——「本轮无从核」不得读作「查无」。
+ * ★ 点开一句话取自读者面三句，**一字不改**；并链到仓库该表 csv（GitHub blob 链接，与 r60-A 同族）。
+ * ★ 「无记号不等于已核」：与记号同屏常驻——每个带记号之引文行内一句，另在人物时间线与编年页首各一句
+ *   （含账本覆盖之数，跑时自 verify_marks／people／events 数出，不手写）。
+ * 类名前缀 `vs-`；与 r60-A 之「职名系推」（`tn-`）二物，不相犯。 */
+const VS_REPO_BASE = "https://github.com/QuinnyXu/chunqiu/blob/main/data/csv/";
+const VS_SENTENCE = {
+  "本轮无从核": "本轮无从核（材料不在手，不等于查无）",
+  "未见": "未见（某物未曾目验）",
+  "未核": "未核",
+};
+const VS_ORDER = ["本轮无从核", "未见", "未核"];
+const VS_CLASS = { "本轮无从核": "vs-nocheck", "未见": "vs-unseen", "未核": "vs-unchecked" };
+const VS_NOT_VERIFIED = "无记号不等于已核";
+let VS_IDX = null;   // Map: table + "\u0000" + row_id → 元数组
+function vsIndex() {
+  if (VS_IDX) return VS_IDX;
+  VS_IDX = new Map();
+  for (const e of (DATA.verify_marks || [])) {
+    const k = e.table + "\u0000" + e.row_id;
+    if (!VS_IDX.has(k)) VS_IDX.set(k, []);
+    VS_IDX.get(k).push(e);
+  }
+  return VS_IDX;
+}
+/* 某一行之触发态：Map<态名, 元[]>，按 VS_ORDER 之序；negated 之条不入 */
+function vsStatesOf(table, rowId) {
+  const out = new Map();
+  for (const e of (vsIndex().get(table + "\u0000" + rowId) || [])) {
+    for (const st of (e.status || [])) {
+      if (st.negated || !VS_SENTENCE[st.name]) continue;
+      if (!out.has(st.name)) out.set(st.name, []);
+      if (!out.get(st.name).includes(e)) out.get(st.name).push(e);
+    }
+  }
+  return new Map(VS_ORDER.filter(n => out.has(n)).map(n => [n, out.get(n)]));
+}
+/* 一枚记号：原生 details/summary（键盘可达、零脚本），点开一句话＋仓库链接 */
+function vsMarkNode(table, rowId, name, entries) {
+  const d = document.createElement("details");
+  d.className = "vs-mark " + VS_CLASS[name];
+  d.dataset.vsState = name;
+  const sm = document.createElement("summary");
+  sm.textContent = name;
+  sm.title = VS_SENTENCE[name];
+  d.appendChild(sm);
+  const pop = document.createElement("div");
+  pop.className = "vs-pop";
+  const s = document.createElement("p");
+  s.className = "vs-sent";
+  s.textContent = VS_SENTENCE[name];
+  pop.appendChild(s);
+  for (const e of entries) {
+    const w = document.createElement("p");
+    w.className = "vs-where";
+    w.appendChild(document.createTextNode("本条之据：" + e.table + " 表 " + e.row_id + " 行 · " + e.col + " 栏第 " + e.offset + " 字处　"));
+    const a = document.createElement("a");
+    a.href = VS_REPO_BASE + e.table + ".csv";
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "在仓库中查看 data/csv/" + e.table + ".csv →";
+    w.appendChild(a);
+    pop.appendChild(w);
+  }
+  d.appendChild(pop);
+  return d;
+}
+/* 一条引文之记号行；无触发态则返回 null（已核者、negated 者、账本未涉者皆无） */
+function vsPassageRow(q) {
+  const states = vsStatesOf("passages", q.id);
+  if (!states.size) return null;
+  const row = document.createElement("div");
+  row.className = "vs-row";
+  row.dataset.vsPassage = q.id;
+  for (const [name, entries] of states) row.appendChild(vsMarkNode("passages", q.id, name, entries));
+  const foot = document.createElement("span");
+  foot.className = "vs-foot";
+  foot.textContent = VS_NOT_VERIFIED + "。";
+  row.appendChild(foot);
+  return row;
+}
+/* 账本覆盖之数：人物＝verify_marks 中 table=people 之不同 row_id；事件＝table=events 之不同 row_id
+ * 并 table=passages 之引文所属 event_id（直连，不纳 sources／places）。分母取 people.json／events.json 行数。 */
+function vsCoverage() {
+  const ppl = new Set(), evs = new Set();
+  const evOf = new Map((DATA.passages || []).map(q => [q.id, q.event_id]));
+  for (const e of (DATA.verify_marks || [])) {
+    if (e.table === "people") ppl.add(e.row_id);
+    else if (e.table === "events") evs.add(e.row_id);
+    else if (e.table === "passages" && evOf.get(e.row_id)) evs.add(evOf.get(e.row_id));
+  }
+  return { people: ppl.size, nPeople: DATA.people.length, events: evs.size, nEvents: DATA.events.length };
+}
+function vsLedgerText() {
+  const c = vsCoverage();
+  const day = ((DATA.meta && DATA.meta.generated_at) || "").slice(0, 10);
+  return VS_NOT_VERIFIED + "。核对账本现覆盖人物 " + c.people + "／" + c.nPeople + "、事件 " + c.events + "／" + c.nEvents +
+    (day ? "（数据生成于 " + day + "）" : "") +
+    "；引文上的记号只标账本中记为「本轮无从核」「未见」「未核」者，其余——含账本未涉及的——并不因没有记号而即是已核。";
+}
+function vsFillLedgerNotes() {
+  document.querySelectorAll(".vs-ledger-note").forEach(el => { el.textContent = vsLedgerText(); });
+}
+
 /* 引文块：分层徽标（r13）＋编者层标（r21）＋出处脚注，一字不改地沿用时间线旧渲染 */
 function eventQuotesFrag(evt) {
   const frag = document.createDocumentFragment();
@@ -1431,6 +1542,8 @@ function eventQuotesFrag(evt) {
       ft.textContent = head + rest;
     }
     bq.appendChild(ft);
+    const vsRow = vsPassageRow(q);   // r60-B：其据之核对状态记号（已核者无）
+    if (vsRow) bq.appendChild(vsRow);
     frag.appendChild(bq);
   }
   return frag;
@@ -6503,9 +6616,10 @@ function syncNavChronCount() {
 async function boot() {
   try { localStorage.removeItem("cq_play_speed"); } catch { /* r18 速度定稿：清理旧速度档记忆键 */ }
   const names = ["people", "events", "event_people", "places", "passages", "sources",
-                 "background", "archaeology", "relations", "office_tenures", "meta"];
+                 "background", "archaeology", "relations", "office_tenures", "verify_marks", "meta"];
   const results = await Promise.all(names.map(fetchJSON));
   names.forEach((n, i) => { DATA[n] = results[i]; });
+  vsFillLedgerNotes(); // r60-B：账本覆盖之数跑时自数
   PEOPLE = byId(DATA.people);
   PLACES = byId(DATA.places);
   SOURCES = byId(DATA.sources);

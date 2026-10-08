@@ -22,7 +22,7 @@
      主站已切至 Cloudflare Pages 自定义域 chunqiu.timechorus.com（2026-07-18），github.io 保留为镜像 -->
 <link rel="image_src" href="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <link rel="canonical" href="https://chunqiu.timechorus.com/">
-<link rel="stylesheet" href="styles.css?v=62293f73">
+<link rel="stylesheet" href="styles.css?v=e638276a">
 </head>
 <body>
 <header class="site-header">
@@ -138,6 +138,7 @@
       <button type="button" class="inline-entry" id="timeline-relations-entry">查看其关系 →</button>
     </h2>
     <p class="person-nameline" id="timeline-nameline" hidden></p>
+    <p class="vs-ledger-note" id="vs-note-timeline"></p>
     <div class="ruler-wrap" id="ruler"></div>
     <ol class="timeline" id="timeline-list"></ol>
   </section>
@@ -268,6 +269,7 @@
   <section id="view-chronicle" hidden aria-labelledby="chronicle-title">
     <h2 class="screen-title" id="chronicle-title">编年 · 大事年表</h2>
     <p class="chron-intro" id="chron-intro"></p>
+    <p class="vs-ledger-note" id="vs-note-chron"></p>
     <div class="chron-filters" id="chron-filters">
       <div class="chron-fgroup" id="chron-f-state" role="group" aria-label="按国筛选"></div>
       <div class="chron-fgroup" id="chron-f-cat" role="group" aria-label="按分类筛选"></div>
@@ -490,7 +492,7 @@
   <p class="footer-feedback">反馈：<a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> · <a href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E7%BB%8F%E7%BA%AC%E6%98%A5%E7%A7%8B%E3%80%91%E5%8F%8D%E9%A6%88">chunqiu@timechorus.com</a>，史实纠错请附出处。</p>
   <p class="footer-stats" id="footer-stats">数据加载中…</p>
 </footer>
-<script src="app.js?v=e59c0b78"></script>
+<script src="app.js?v=e092b993"></script>
 <!-- Cloudflare Web Analytics：领队特批外部资源例外（隐私友好、无 cookie 的访问统计）；
      token 出现在页面源码为 CF 官方设计如此，不构成信息泄露，见 docs/conventions.md §9.2 -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "972676e4c141408481d7b8cb54dc8cb5"}'></script>

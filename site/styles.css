@@ -2767,3 +2767,50 @@ button.tn-infer[aria-expanded="true"] { background: rgba(188, 68, 51, 0.08); }
   button.tn-infer { min-height: 32px; padding: 0.15rem 0.8rem; }
   .tn-tick:nth-child(even) { display: none; }
 }
+
+/* ---------- 核对状态之记号（r60-B；类名前缀 vs-，与 r60-A 之 tn- 二物不相犯） ----------
+ * 记号挂在「其据」（引文）上，朱砂虚线胶囊（与 .tn-infer／.kd-neg 同族：示「须回仓库看其据」，不示「此条为假」）。
+ * 三态分书：本轮无从核＝朱砂虚线；未见＝赭色虚线；未核＝墨灰虚线；不以颜色独力示义（字面即其名）。 */
+.vs-ledger-note {
+  margin: 0.4rem 0 0.8rem;
+  font-size: 0.8rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.vs-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.35rem 0.5rem;
+  margin-top: 0.4rem;
+  font-family: var(--sans);
+}
+.vs-mark { font-size: 0.72rem; }
+.vs-mark > summary {
+  display: inline-block;
+  list-style: none;
+  cursor: pointer;
+  line-height: 1.7;
+  padding: 0.05rem 0.6rem;
+  border: 1px dashed currentColor;
+  border-radius: 999px;
+  color: var(--cinnabar);
+}
+.vs-mark > summary::-webkit-details-marker { display: none; }
+.vs-mark[open] > summary { background: rgba(188, 68, 51, 0.08); }
+.vs-mark > summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.vs-unseen > summary { color: #8A6D1F; }
+.vs-unchecked > summary { color: var(--ink-soft); }
+.vs-pop {
+  margin-top: 0.3rem;
+  padding: 0.35rem 0.6rem;
+  border-left: 2px solid currentColor;
+  background: rgba(0, 0, 0, 0.02);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.75;
+}
+.vs-pop p { margin: 0.1rem 0; }
+.vs-pop .vs-sent { color: var(--ink); }
+.vs-pop a { color: var(--bronze); }
+.vs-foot { font-size: 0.72rem; line-height: 1.9; color: var(--ink-soft); }
