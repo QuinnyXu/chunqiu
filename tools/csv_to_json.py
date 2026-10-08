@@ -104,6 +104,32 @@ def main():
             f.write("\n")
     tables["kaodui"] = len(kd_records)
 
+    # ---------------------------------------------------------------- 核对记号（第四物）
+    # r60-E（裁一百九十五 取甲；裁二百〇一 改数组形）：以**同一次抽取之果 kd_records** 另出
+    # site/data/verify_marks.json——★ 不另实现抽取，不改 build_kaodui_index.py 一字，只就 kd_records 现有字段重排。
+    # 形：顶层**数组**，一记号一元：{table,row_id,col,offset,status:[{name,negated}]}。
+    #   ★ 顶层必为数组：prod_data_invariants 之 rowsOf 以 Array.isArray／.length 取行，本仓入 meta.tables 之件无一例外为数组；
+    #     故说明不放文件内（任何哨兵元或包装对象都会使其破形或使元数失真），只书于此注与 conventions §2。
+    #   ★ 一元＝一个 kd_record（偏离裁二百〇一三①字面之 state／neg 单值：一记录常有多个状态——601 个状态项分布于
+    #     316 个有状态之记录，另 178 条无状态词；摊成单值则元数不复为 494，与裁文三⑥相抵）。
+    #   ★ 一险（裁二百〇一三⑥）：本文件之元数 494 与 kaodui.json 之元数 494 一字不差，**非巧合**——
+    #     一记号即一条 kaodui 记录，本是同一批物之二形；日后二数同，引时勿混为二物之相符。
+    vm_payload = [
+        {
+            "table": r["table"],
+            "row_id": r["row_id"],
+            "col": r["col"],
+            "offset": r["offset"],
+            "status": [{"name": n, "negated": bool(g)} for n, g in r["status"]],
+        }
+        for r in kd_records
+    ]
+    with (OUT_DIR / "verify_marks.json").open("w", encoding="utf-8", newline="\n") as f:
+        json.dump(vm_payload, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    tables["verify_marks"] = len(vm_payload)  # 数之义——记号数：verify_marks.json 之元数，一记号一元（非实体数、非行数）
+    print(f"verify_marks -> site/data/verify_marks.json（{len(vm_payload)} 记号，同一次抽取之第四物）")
+
     # ---------------------------------------------------------------- 考据索引之 md
     # ★ 2026-10-01 EDT r55-D（裁一百〇六 三条件、裁一百一十一 取甲）：
     #   docs/kaodui_index.md 之**写者自此是本脚本**；抽取器已去写权（被调之库）。

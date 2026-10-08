@@ -1,0 +1,6180 @@
+[
+  {
+    "table": "places",
+    "row_id": "L_HUAN",
+    "col": "coord_basis",
+    "offset": 21,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "未标核对状态",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUAN",
+    "col": "coord_basis",
+    "offset": 514,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUAN",
+    "col": "coord_basis",
+    "offset": 728,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUAN",
+    "col": "coord_basis",
+    "offset": 959,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUAN",
+    "col": "coord_basis",
+    "offset": 1300,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUAN",
+    "col": "coord_basis",
+    "offset": 1671,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUAN",
+    "col": "coord_basis",
+    "offset": 1810,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUAN",
+    "col": "coord_basis",
+    "offset": 2958,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_SHOUZHI",
+    "col": "coord_basis",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未标核对状态",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_SHOUZHI",
+    "col": "coord_basis",
+    "offset": 193,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_SHOUZHI",
+    "col": "coord_basis",
+    "offset": 643,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_LINYAN",
+    "col": "coord_basis",
+    "offset": 16,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YINGGU",
+    "col": "coord_basis",
+    "offset": 16,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YINGGU",
+    "col": "coord_basis",
+    "offset": 534,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUTIAN",
+    "col": "coord_basis",
+    "offset": 28,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUTIAN",
+    "col": "coord_basis",
+    "offset": 778,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUTIAN",
+    "col": "coord_basis",
+    "offset": 1174,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUTIAN",
+    "col": "coord_basis",
+    "offset": 1815,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUTIAN",
+    "col": "coord_basis",
+    "offset": 1984,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUTIAN",
+    "col": "coord_basis",
+    "offset": 2185,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUGE",
+    "col": "coord_basis",
+    "offset": 16,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAN",
+    "col": "coord_basis",
+    "offset": 16,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_SHENGDOU",
+    "col": "coord_basis",
+    "offset": 19,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YIYI",
+    "col": "coord_basis",
+    "offset": 32,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CAOYI",
+    "col": "coord_basis",
+    "offset": 17,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_KUIQIU",
+    "col": "coord_basis",
+    "offset": 30,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_TAO",
+    "col": "coord_basis",
+    "offset": 17,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_WULU",
+    "col": "coord_basis",
+    "offset": 29,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_WULU",
+    "col": "coord_basis",
+    "offset": 573,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_WULU",
+    "col": "coord_basis",
+    "offset": 1113,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_WULU",
+    "col": "coord_basis",
+    "offset": 1792,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHENGPU",
+    "col": "coord_basis",
+    "offset": 35,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIANTU",
+    "col": "coord_basis",
+    "offset": 23,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HONG",
+    "col": "coord_basis",
+    "offset": 24,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_FANNAN",
+    "col": "coord_basis",
+    "offset": 36,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_BI",
+    "col": "coord_basis",
+    "offset": 31,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YU",
+    "col": "coord_basis",
+    "offset": 230,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YU",
+    "col": "coord_basis",
+    "offset": 499,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_YU",
+    "col": "coord_basis",
+    "offset": 762,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YU",
+    "col": "coord_basis",
+    "offset": 1428,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_CAONAN",
+    "col": "coord_basis",
+    "offset": 88,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_LUSHANG",
+    "col": "coord_basis",
+    "offset": 113,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_ZHULIN",
+    "col": "coord_basis",
+    "offset": 152,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_WUDU",
+    "col": "coord_basis",
+    "offset": 44,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_WUDU",
+    "col": "coord_basis",
+    "offset": 232,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_WUDU",
+    "col": "coord_basis",
+    "offset": 745,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_BOJU",
+    "col": "coord_basis",
+    "offset": 69,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_BOJU",
+    "col": "coord_basis",
+    "offset": 782,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_ZUILI",
+    "col": "coord_basis",
+    "offset": 80,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_ZUILI",
+    "col": "coord_basis",
+    "offset": 307,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_ZUILI",
+    "col": "coord_basis",
+    "offset": 633,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_FUJIAO",
+    "col": "coord_basis",
+    "offset": 126,
+    "status": [
+      {
+        "name": "转引",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_FUJIAO",
+    "col": "coord_basis",
+    "offset": 473,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_AILING",
+    "col": "coord_basis",
+    "offset": 155,
+    "status": [
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_AILING",
+    "col": "coord_basis",
+    "offset": 269,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUANGCHI",
+    "col": "coord_basis",
+    "offset": 96,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUANGCHI",
+    "col": "coord_basis",
+    "offset": 348,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HUANGCHI",
+    "col": "coord_basis",
+    "offset": 623,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YONGDONG",
+    "col": "coord_basis",
+    "offset": 379,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_LIZE",
+    "col": "coord_basis",
+    "offset": 289,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIFU",
+    "col": "coord_basis",
+    "offset": 224,
+    "status": [
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIFU",
+    "col": "coord_basis",
+    "offset": 324,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHANGAN",
+    "col": "coord_basis",
+    "offset": 114,
+    "status": [
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHANGAN",
+    "col": "coord_basis",
+    "offset": 325,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUGUO",
+    "col": "coord_basis",
+    "offset": 112,
+    "status": [
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUGUO",
+    "col": "coord_basis",
+    "offset": 291,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_XUGUO",
+    "col": "coord_basis",
+    "offset": 399,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_KUAIJI",
+    "col": "coord_basis",
+    "offset": 373,
+    "status": [
+      {
+        "name": "转引",
+        "negated": false
+      },
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_DIQIU",
+    "col": "coord_basis",
+    "offset": 95,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_DIQIU",
+    "col": "coord_basis",
+    "offset": 284,
+    "status": [
+      {
+        "name": "转引",
+        "negated": false
+      },
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_DIQIU",
+    "col": "coord_basis",
+    "offset": 447,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 0,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 186,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "留痕待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 254,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 657,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 1079,
+    "status": [
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 1242,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 1456,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 2153,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIAGU",
+    "col": "coord_basis",
+    "offset": 2382,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIELIANGCHENG",
+    "col": "coord_basis",
+    "offset": 0,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIELIANGCHENG",
+    "col": "coord_basis",
+    "offset": 1116,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_JIELIANGCHENG",
+    "col": "coord_basis",
+    "offset": 1392,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHENGFU",
+    "col": "coord_basis",
+    "offset": 0,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHENGFU",
+    "col": "coord_basis",
+    "offset": 291,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHENGFU",
+    "col": "coord_basis",
+    "offset": 1035,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHENGFU",
+    "col": "coord_basis",
+    "offset": 1616,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHENGFU",
+    "col": "coord_basis",
+    "offset": 2339,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_SHUZHOU",
+    "col": "coord_basis",
+    "offset": 0,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_SUIGUO",
+    "col": "coord_basis",
+    "offset": 0,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_SUIGUO",
+    "col": "coord_basis",
+    "offset": 271,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "留痕待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_SUIGUO",
+    "col": "coord_basis",
+    "offset": 450,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_SUIGUO",
+    "col": "coord_basis",
+    "offset": 777,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_DAYE",
+    "col": "coord_basis",
+    "offset": 0,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_DAYE",
+    "col": "coord_basis",
+    "offset": 423,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_DAYE",
+    "col": "coord_basis",
+    "offset": 490,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_DAYE",
+    "col": "coord_basis",
+    "offset": 694,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "留痕待核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_DAYE",
+    "col": "coord_basis",
+    "offset": 1121,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_DAYE",
+    "col": "coord_basis",
+    "offset": 1211,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_DAYE",
+    "col": "coord_basis",
+    "offset": 1982,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_FEIJISHI",
+    "col": "coord_basis",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_FEIJISHI",
+    "col": "coord_basis",
+    "offset": 277,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_FEIJISHI",
+    "col": "coord_basis",
+    "offset": 472,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_FEIJISHI",
+    "col": "coord_basis",
+    "offset": 604,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_FEIBO",
+    "col": "coord_basis",
+    "offset": 170,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_FEIBO",
+    "col": "coord_basis",
+    "offset": 370,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_FEIBO",
+    "col": "coord_basis",
+    "offset": 592,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_FEIBO",
+    "col": "coord_basis",
+    "offset": 733,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HOU",
+    "col": "coord_basis",
+    "offset": 149,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HOU",
+    "col": "coord_basis",
+    "offset": 485,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHENGYI",
+    "col": "coord_basis",
+    "offset": 136,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_CHENGYI",
+    "col": "coord_basis",
+    "offset": 447,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YUN",
+    "col": "coord_basis",
+    "offset": 134,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YUN",
+    "col": "coord_basis",
+    "offset": 394,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_GUIYIN",
+    "col": "coord_basis",
+    "offset": 203,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_GUIYIN",
+    "col": "coord_basis",
+    "offset": 407,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_GUIYIN",
+    "col": "coord_basis",
+    "offset": 578,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YANGGUAN",
+    "col": "coord_basis",
+    "offset": 287,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YANGGUAN",
+    "col": "coord_basis",
+    "offset": 620,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z018",
+    "col": "notes",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z101",
+    "col": "notes",
+    "offset": 121,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z102",
+    "col": "notes",
+    "offset": 248,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z102",
+    "col": "notes",
+    "offset": 943,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "A005",
+    "col": "notes",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未取原文核对",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "A006",
+    "col": "notes",
+    "offset": 0,
+    "status": [
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z111",
+    "col": "notes",
+    "offset": 300,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z112",
+    "col": "notes",
+    "offset": 313,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z113",
+    "col": "notes",
+    "offset": 143,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z114",
+    "col": "notes",
+    "offset": 296,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z115",
+    "col": "notes",
+    "offset": 205,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z116",
+    "col": "notes",
+    "offset": 241,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "G010",
+    "col": "notes",
+    "offset": 402,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "G010",
+    "col": "notes",
+    "offset": 526,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z117",
+    "col": "notes",
+    "offset": 130,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "G011",
+    "col": "notes",
+    "offset": 396,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "G012",
+    "col": "notes",
+    "offset": 447,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "S013",
+    "col": "notes",
+    "offset": 466,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "S013",
+    "col": "notes",
+    "offset": 515,
+    "status": [
+      {
+        "name": "转引",
+        "negated": false
+      },
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "非纸本核对",
+        "negated": false
+      },
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "S014",
+    "col": "notes",
+    "offset": 310,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 308,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 453,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本已核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 741,
+    "status": [
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 1393,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 1670,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 2391,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 2599,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 2643,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 2789,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 2983,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 3104,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 3263,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 3367,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 3434,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 3539,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 4172,
+    "status": [
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 4494,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 4712,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 5091,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J001",
+    "col": "notes",
+    "offset": 5276,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 357,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 517,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 524,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 728,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 1037,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 1242,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 1942,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 2106,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 2510,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 2690,
+    "status": [
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 3484,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 3609,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 3870,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 4108,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 4152,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 4298,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 4492,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 4687,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 5039,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 5124,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "J002",
+    "col": "notes",
+    "offset": 5207,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "B002",
+    "col": "notes",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "B002",
+    "col": "notes",
+    "offset": 276,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "B002",
+    "col": "notes",
+    "offset": 826,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "B003",
+    "col": "notes",
+    "offset": 146,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "B003",
+    "col": "notes",
+    "offset": 370,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "B003",
+    "col": "notes",
+    "offset": 662,
+    "status": [
+      {
+        "name": "留痕待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      },
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "B003",
+    "col": "notes",
+    "offset": 1493,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z118",
+    "col": "notes",
+    "offset": 244,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "S015",
+    "col": "notes",
+    "offset": 530,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z119",
+    "col": "notes",
+    "offset": 99,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z119",
+    "col": "notes",
+    "offset": 416,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z120",
+    "col": "notes",
+    "offset": 332,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z121",
+    "col": "notes",
+    "offset": 130,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z121",
+    "col": "notes",
+    "offset": 779,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z122",
+    "col": "notes",
+    "offset": 293,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z123",
+    "col": "notes",
+    "offset": 416,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z124",
+    "col": "notes",
+    "offset": 297,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z125",
+    "col": "notes",
+    "offset": 273,
+    "status": [
+      {
+        "name": "须纸本核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z125",
+    "col": "notes",
+    "offset": 388,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z126",
+    "col": "notes",
+    "offset": 426,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z127",
+    "col": "notes",
+    "offset": 348,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z128",
+    "col": "notes",
+    "offset": 436,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z129",
+    "col": "notes",
+    "offset": 480,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z130",
+    "col": "notes",
+    "offset": 578,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z131",
+    "col": "notes",
+    "offset": 509,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z132",
+    "col": "notes",
+    "offset": 247,
+    "status": [
+      {
+        "name": "未核待补",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z133",
+    "col": "notes",
+    "offset": 314,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "G013",
+    "col": "notes",
+    "offset": 610,
+    "status": []
+  },
+  {
+    "table": "sources",
+    "row_id": "Z134",
+    "col": "notes",
+    "offset": 129,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z135",
+    "col": "notes",
+    "offset": 125,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z136",
+    "col": "notes",
+    "offset": 97,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z137",
+    "col": "notes",
+    "offset": 93,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z138",
+    "col": "notes",
+    "offset": 137,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z139",
+    "col": "notes",
+    "offset": 117,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z140",
+    "col": "notes",
+    "offset": 163,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z141",
+    "col": "notes",
+    "offset": 82,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z142",
+    "col": "notes",
+    "offset": 132,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z143",
+    "col": "notes",
+    "offset": 78,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z143",
+    "col": "notes",
+    "offset": 169,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z144",
+    "col": "notes",
+    "offset": 105,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z145",
+    "col": "notes",
+    "offset": 160,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z146",
+    "col": "notes",
+    "offset": 96,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z147",
+    "col": "notes",
+    "offset": 104,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "G014",
+    "col": "notes",
+    "offset": 125,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "G015",
+    "col": "notes",
+    "offset": 113,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z148",
+    "col": "notes",
+    "offset": 144,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z148",
+    "col": "notes",
+    "offset": 449,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z149",
+    "col": "notes",
+    "offset": 245,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z150",
+    "col": "notes",
+    "offset": 253,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z151",
+    "col": "notes",
+    "offset": 295,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z152",
+    "col": "notes",
+    "offset": 252,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "sources",
+    "row_id": "Z153",
+    "col": "notes",
+    "offset": 255,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q073",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q073",
+    "col": "modern_note",
+    "offset": 918,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q073",
+    "col": "modern_note",
+    "offset": 1110,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q073",
+    "col": "modern_note",
+    "offset": 1769,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q080",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q085",
+    "col": "modern_note",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q095",
+    "col": "modern_note",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q161",
+    "col": "modern_note",
+    "offset": 260,
+    "status": [
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q161",
+    "col": "modern_note",
+    "offset": 677,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q266",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q267",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q269",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q273",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q275",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q298",
+    "col": "modern_note",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q316",
+    "col": "modern_note",
+    "offset": 271,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q333",
+    "col": "modern_note",
+    "offset": 225,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q336",
+    "col": "modern_note",
+    "offset": 453,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q340",
+    "col": "modern_note",
+    "offset": 476,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q344",
+    "col": "modern_note",
+    "offset": 322,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q344",
+    "col": "modern_note",
+    "offset": 889,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q347",
+    "col": "modern_note",
+    "offset": 333,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "未标核对状态",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q368",
+    "col": "modern_note",
+    "offset": 333,
+    "status": [
+      {
+        "name": "未标核对状态",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q370",
+    "col": "modern_note",
+    "offset": 147,
+    "status": [
+      {
+        "name": "电子本逐字核对·否定性结果",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q372",
+    "col": "modern_note",
+    "offset": 242,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q372",
+    "col": "modern_note",
+    "offset": 850,
+    "status": [
+      {
+        "name": "未取纸本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q373",
+    "col": "modern_note",
+    "offset": 352,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q373",
+    "col": "modern_note",
+    "offset": 596,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q377",
+    "col": "modern_note",
+    "offset": 194,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q379",
+    "col": "modern_note",
+    "offset": 228,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q379",
+    "col": "modern_note",
+    "offset": 1057,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q387",
+    "col": "modern_note",
+    "offset": 301,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q388",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q389",
+    "col": "modern_note",
+    "offset": 119,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q391",
+    "col": "modern_note",
+    "offset": 145,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q393",
+    "col": "modern_note",
+    "offset": 157,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q397",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q400",
+    "col": "modern_note",
+    "offset": 52,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q407",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q408",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q408",
+    "col": "modern_note",
+    "offset": 288,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q415",
+    "col": "modern_note",
+    "offset": 343,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q415",
+    "col": "modern_note",
+    "offset": 381,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q417",
+    "col": "modern_note",
+    "offset": 324,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q434",
+    "col": "modern_note",
+    "offset": 333,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q436",
+    "col": "modern_note",
+    "offset": 180,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q437",
+    "col": "modern_note",
+    "offset": 89,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q437",
+    "col": "modern_note",
+    "offset": 450,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "转引",
+        "negated": false
+      },
+      {
+        "name": "转引",
+        "negated": true
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 1004,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 1108,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 1299,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 1877,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 2465,
+    "status": [
+      {
+        "name": "扫描本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 2840,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 3235,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 3606,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 3775,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 4514,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 4642,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 5796,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 6232,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 6281,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 7174,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": true
+      },
+      {
+        "name": "已核",
+        "negated": true
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 8724,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 9087,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 9280,
+    "status": [
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 9992,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": true
+      },
+      {
+        "name": "已核",
+        "negated": true
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q442",
+    "col": "modern_note",
+    "offset": 11198,
+    "status": [
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 1565,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 1793,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 2557,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 3014,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 3219,
+    "status": [
+      {
+        "name": "扫描本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 3823,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 4090,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 4142,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": true
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q443",
+    "col": "modern_note",
+    "offset": 4964,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q444",
+    "col": "modern_note",
+    "offset": 387,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q445",
+    "col": "modern_note",
+    "offset": 304,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q446",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": true
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q446",
+    "col": "modern_note",
+    "offset": 1031,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q446",
+    "col": "modern_note",
+    "offset": 1249,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q446",
+    "col": "modern_note",
+    "offset": 1363,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q446",
+    "col": "modern_note",
+    "offset": 1424,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": true
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q446",
+    "col": "modern_note",
+    "offset": 2119,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": true
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 817,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 904,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 1216,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 1409,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 1520,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 1578,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 2214,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 2268,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q447",
+    "col": "modern_note",
+    "offset": 3419,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 1478,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 1667,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 1938,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 2060,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 2347,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 2544,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "扫描本已核",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 2771,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 2840,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 3083,
+    "status": [
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 4377,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q448",
+    "col": "modern_note",
+    "offset": 5262,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q449",
+    "col": "modern_note",
+    "offset": 504,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q450",
+    "col": "modern_note",
+    "offset": 584,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q451",
+    "col": "modern_note",
+    "offset": 575,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q452",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q452",
+    "col": "modern_note",
+    "offset": 632,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q453",
+    "col": "modern_note",
+    "offset": 652,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q453",
+    "col": "modern_note",
+    "offset": 803,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q454",
+    "col": "modern_note",
+    "offset": 333,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q456",
+    "col": "modern_note",
+    "offset": 533,
+    "status": [
+      {
+        "name": "须纸本核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q456",
+    "col": "modern_note",
+    "offset": 594,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q457",
+    "col": "modern_note",
+    "offset": 731,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未取纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q458",
+    "col": "modern_note",
+    "offset": 178,
+    "status": [
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q459",
+    "col": "modern_note",
+    "offset": 781,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q460",
+    "col": "modern_note",
+    "offset": 576,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q461",
+    "col": "modern_note",
+    "offset": 74,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q462",
+    "col": "modern_note",
+    "offset": 706,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q463",
+    "col": "modern_note",
+    "offset": 858,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q464",
+    "col": "modern_note",
+    "offset": 413,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q465",
+    "col": "modern_note",
+    "offset": 314,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q466",
+    "col": "modern_note",
+    "offset": 316,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q467",
+    "col": "modern_note",
+    "offset": 770,
+    "status": [
+      {
+        "name": "须纸本核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q467",
+    "col": "modern_note",
+    "offset": 872,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q469",
+    "col": "modern_note",
+    "offset": 850,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q471",
+    "col": "modern_note",
+    "offset": 739,
+    "status": [
+      {
+        "name": "须纸本核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q471",
+    "col": "modern_note",
+    "offset": 803,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q472",
+    "col": "modern_note",
+    "offset": 518,
+    "status": [
+      {
+        "name": "须纸本核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q472",
+    "col": "modern_note",
+    "offset": 562,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q473",
+    "col": "modern_note",
+    "offset": 501,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q473",
+    "col": "modern_note",
+    "offset": 939,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q474",
+    "col": "modern_note",
+    "offset": 480,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q475",
+    "col": "modern_note",
+    "offset": 890,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q476",
+    "col": "modern_note",
+    "offset": 476,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q477",
+    "col": "modern_note",
+    "offset": 450,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q477",
+    "col": "modern_note",
+    "offset": 489,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q479",
+    "col": "modern_note",
+    "offset": 751,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q480",
+    "col": "modern_note",
+    "offset": 883,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q482",
+    "col": "modern_note",
+    "offset": 465,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q485",
+    "col": "modern_note",
+    "offset": 1012,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q486",
+    "col": "modern_note",
+    "offset": 1215,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q487",
+    "col": "modern_note",
+    "offset": 1164,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q488",
+    "col": "modern_note",
+    "offset": 1253,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q489",
+    "col": "modern_note",
+    "offset": 660,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q490",
+    "col": "modern_note",
+    "offset": 403,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q491",
+    "col": "modern_note",
+    "offset": 852,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q492",
+    "col": "modern_note",
+    "offset": 513,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q493",
+    "col": "modern_note",
+    "offset": 445,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q493",
+    "col": "modern_note",
+    "offset": 521,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q494",
+    "col": "modern_note",
+    "offset": 531,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "passages",
+    "row_id": "Q495",
+    "col": "modern_note",
+    "offset": 363,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q496",
+    "col": "modern_note",
+    "offset": 663,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q497",
+    "col": "modern_note",
+    "offset": 431,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q498",
+    "col": "modern_note",
+    "offset": 117,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q499",
+    "col": "modern_note",
+    "offset": 383,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q500",
+    "col": "modern_note",
+    "offset": 424,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q501",
+    "col": "modern_note",
+    "offset": 142,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q501",
+    "col": "modern_note",
+    "offset": 442,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q502",
+    "col": "modern_note",
+    "offset": 515,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q503",
+    "col": "modern_note",
+    "offset": 518,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q504",
+    "col": "modern_note",
+    "offset": 570,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q505",
+    "col": "modern_note",
+    "offset": 434,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q506",
+    "col": "modern_note",
+    "offset": 610,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q507",
+    "col": "modern_note",
+    "offset": 348,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q508",
+    "col": "modern_note",
+    "offset": 204,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q508",
+    "col": "modern_note",
+    "offset": 535,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q509",
+    "col": "modern_note",
+    "offset": 231,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q510",
+    "col": "modern_note",
+    "offset": 226,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q510",
+    "col": "modern_note",
+    "offset": 547,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q511",
+    "col": "modern_note",
+    "offset": 640,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q512",
+    "col": "modern_note",
+    "offset": 304,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q513",
+    "col": "modern_note",
+    "offset": 325,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q514",
+    "col": "modern_note",
+    "offset": 839,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q515",
+    "col": "modern_note",
+    "offset": 570,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q516",
+    "col": "modern_note",
+    "offset": 474,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q517",
+    "col": "modern_note",
+    "offset": 438,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q518",
+    "col": "modern_note",
+    "offset": 281,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q519",
+    "col": "modern_note",
+    "offset": 352,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q520",
+    "col": "modern_note",
+    "offset": 284,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q521",
+    "col": "modern_note",
+    "offset": 294,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q522",
+    "col": "modern_note",
+    "offset": 323,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q523",
+    "col": "modern_note",
+    "offset": 794,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q524",
+    "col": "modern_note",
+    "offset": 335,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q526",
+    "col": "modern_note",
+    "offset": 474,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q545",
+    "col": "modern_note",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_SHIHUI",
+    "col": "notes",
+    "offset": 93,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_XIHOU",
+    "col": "notes",
+    "offset": 97,
+    "status": [
+      {
+        "name": "电子本已核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_KONGZI",
+    "col": "notes",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_KONGZI",
+    "col": "notes",
+    "offset": 2551,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_HANQI",
+    "col": "notes",
+    "offset": 396,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_HELU",
+    "col": "notes",
+    "offset": 332,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_WULIAO",
+    "col": "notes",
+    "offset": 193,
+    "status": [
+      {
+        "name": "未取原文核对",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_CAIZHAOHOU",
+    "col": "notes",
+    "offset": 144,
+    "status": [
+      {
+        "name": "未取原文核对",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_GOUJIAN",
+    "col": "notes",
+    "offset": 134,
+    "status": [
+      {
+        "name": "未取原文核对",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_GOUJIAN",
+    "col": "notes",
+    "offset": 292,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_WUYUAN",
+    "col": "notes",
+    "offset": 123,
+    "status": [
+      {
+        "name": "未标核对状态",
+        "negated": false
+      },
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_SHENBAOXU",
+    "col": "notes",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "未标核对状态",
+        "negated": false
+      },
+      {
+        "name": "未取原文核对",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_FUCHA",
+    "col": "notes",
+    "offset": 384,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_WANGSUNLUO",
+    "col": "notes",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_FANLI",
+    "col": "notes",
+    "offset": 206,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      },
+      {
+        "name": "转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_WENZHONG",
+    "col": "notes",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_QINGJI",
+    "col": "notes",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_QINGJI",
+    "col": "notes",
+    "offset": 736,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_BAIGONGSHENG",
+    "col": "notes",
+    "offset": 457,
+    "status": [
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_YEGONG",
+    "col": "notes",
+    "offset": 124,
+    "status": [
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_JILIANG",
+    "col": "notes",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_JILIANG",
+    "col": "notes",
+    "offset": 279,
+    "status": [
+      {
+        "name": "转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_SUISHAOSHI",
+    "col": "notes",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_ZILU",
+    "col": "notes",
+    "offset": 152,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_ZIGONG",
+    "col": "notes",
+    "offset": 152,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_RANYOU",
+    "col": "notes",
+    "offset": 152,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_YANGHU",
+    "col": "notes",
+    "offset": 152,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_JIHUANZI",
+    "col": "notes",
+    "offset": 152,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_JIKANGZI",
+    "col": "notes",
+    "offset": 152,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_JIKANGZI",
+    "col": "notes",
+    "offset": 757,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_CHUWU",
+    "col": "notes",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_CHUWU",
+    "col": "notes",
+    "offset": 218,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_CHUWU",
+    "col": "notes",
+    "offset": 978,
+    "status": []
+  },
+  {
+    "table": "people",
+    "row_id": "P_CHUWU",
+    "col": "notes",
+    "offset": 2050,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_XIKE",
+    "col": "notes",
+    "offset": 200,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "people",
+    "row_id": "P_WEISHU",
+    "col": "notes",
+    "offset": 359,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E076",
+    "col": "summary",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      },
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E079",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E082",
+    "col": "summary",
+    "offset": 0,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E083",
+    "col": "summary",
+    "offset": 0,
+    "status": [
+      {
+        "name": "待纸本",
+        "negated": false
+      },
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E083",
+    "col": "summary",
+    "offset": 471,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E083",
+    "col": "summary",
+    "offset": 777,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E084",
+    "col": "summary",
+    "offset": 189,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E084",
+    "col": "summary",
+    "offset": 233,
+    "status": [
+      {
+        "name": "扫描本",
+        "negated": false
+      },
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E084",
+    "col": "summary",
+    "offset": 557,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E084",
+    "col": "summary",
+    "offset": 1077,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E085",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E086",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E091",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E093",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E094",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E225",
+    "col": "summary",
+    "offset": 209,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E243",
+    "col": "summary",
+    "offset": 291,
+    "status": [
+      {
+        "name": "电子本逐字核对·否定性结果",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E244",
+    "col": "summary",
+    "offset": 377,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E244",
+    "col": "summary",
+    "offset": 1173,
+    "status": [
+      {
+        "name": "未取纸本",
+        "negated": false
+      },
+      {
+        "name": "待核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E251",
+    "col": "summary",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E257",
+    "col": "summary",
+    "offset": 0,
+    "status": [
+      {
+        "name": "电子本",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E272",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E272",
+    "col": "summary",
+    "offset": 581,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E273",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E273",
+    "col": "summary",
+    "offset": 473,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E273",
+    "col": "summary",
+    "offset": 1448,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": true
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E274",
+    "col": "summary",
+    "offset": 394,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E282",
+    "col": "summary",
+    "offset": 210,
+    "status": [
+      {
+        "name": "须纸本核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E294",
+    "col": "summary",
+    "offset": 883,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E295",
+    "col": "summary",
+    "offset": 808,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E298",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E300",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E313",
+    "col": "summary",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "events",
+    "row_id": "E318",
+    "col": "summary",
+    "offset": 0,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      }
+    ]
+  }
+]

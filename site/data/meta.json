@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T21:46:47+00:00",
+  "generated_at": "2026-10-08T03:06:14+00:00",
   "tables": {
     "archaeology": 8,
     "background": 11,
@@ -11,7 +11,8 @@
     "places": 104,
     "relations": 309,
     "sources": 217,
-    "kaodui": 494
+    "kaodui": 494,
+    "verify_marks": 494
   },
   "year_range_bce": {
     "min": -773,
