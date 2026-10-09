@@ -1384,9 +1384,10 @@ function vsIndex() {
   return VS_IDX;
 }
 /* 某一行之触发态：Map<态名, 元[]>，按 VS_ORDER 之序；negated 之条不入 */
-function vsStatesOf(table, rowId) {
+function vsStatesOf(table, rowId, col) {
   const out = new Map();
   for (const e of (vsIndex().get(table + "\u0000" + rowId) || [])) {
+    if (col && e.col !== col) continue;   // 记号只属其 col 所指之栏（裁二百〇三）
     for (const st of (e.status || [])) {
       if (st.negated || !VS_SENTENCE[st.name]) continue;
       if (!out.has(st.name)) out.set(st.name, []);
@@ -1425,20 +1426,37 @@ function vsMarkNode(table, rowId, name, entries) {
   d.appendChild(pop);
   return d;
 }
-/* 一条引文之记号行；无触发态则返回 null（已核者、negated 者、账本未涉者皆无） */
-function vsPassageRow(q) {
-  const states = vsStatesOf("passages", q.id);
+/* 记号行（裁二百〇三）：记号之主语是「那一句」——带 col 与 offset，挂在其 col 所指之文之旁，
+ * 不入人卡之头、不入事卡之头。五栏：passages.modern_note／sources.notes／places.coord_basis／
+ * events.summary／people.notes。无触发态则返回 null（已核者、negated 者、账本未涉者皆无）。
+ * opts.ledger：本屏无页首常驻句者（资料库详情、地点抽屉、并观交会卡），记号行之后另缀账本句。 */
+function vsFieldRow(table, rowId, col, opts) {
+  const states = vsStatesOf(table, rowId, col);
   if (!states.size) return null;
   const row = document.createElement("div");
   row.className = "vs-row";
-  row.dataset.vsPassage = q.id;
-  for (const [name, entries] of states) row.appendChild(vsMarkNode("passages", q.id, name, entries));
+  row.dataset.vsTable = table;
+  row.dataset.vsRow = rowId;
+  row.dataset.vsCol = col;
+  if (table === "passages") row.dataset.vsPassage = rowId;
+  for (const [name, entries] of states) row.appendChild(vsMarkNode(table, rowId, name, entries));
   const foot = document.createElement("span");
   foot.className = "vs-foot";
   foot.textContent = VS_NOT_VERIFIED + "。";
   row.appendChild(foot);
+  if (opts && opts.ledger) {
+    const wrap = document.createElement("div");
+    wrap.className = "vs-field";
+    wrap.appendChild(row);
+    const n = document.createElement("p");
+    n.className = "vs-ledger-note";
+    n.textContent = vsLedgerText();
+    wrap.appendChild(n);
+    return wrap;
+  }
   return row;
 }
+const vsPassageRow = (q) => vsFieldRow("passages", q.id, "modern_note");
 /* 账本覆盖之数：人物＝verify_marks 中 table=people 之不同 row_id；事件＝table=events 之不同 row_id
  * 并 table=passages 之引文所属 event_id（直连，不纳 sources／places）。分母取 people.json／events.json 行数。 */
 function vsCoverage() {
@@ -1449,14 +1467,21 @@ function vsCoverage() {
     else if (e.table === "events") evs.add(e.row_id);
     else if (e.table === "passages" && evOf.get(e.row_id)) evs.add(evOf.get(e.row_id));
   }
-  return { people: ppl.size, nPeople: DATA.people.length, events: evs.size, nEvents: DATA.events.length };
+  const srcs = new Set(), plcs = new Set();
+  for (const e of (DATA.verify_marks || [])) {
+    if (e.table === "sources") srcs.add(e.row_id);
+    else if (e.table === "places") plcs.add(e.row_id);
+  }
+  return { people: ppl.size, nPeople: DATA.people.length, events: evs.size, nEvents: DATA.events.length,
+           sources: srcs.size, nSources: DATA.sources.length, places: plcs.size, nPlaces: DATA.places.length };
 }
 function vsLedgerText() {
   const c = vsCoverage();
   const day = ((DATA.meta && DATA.meta.generated_at) || "").slice(0, 10);
   return VS_NOT_VERIFIED + "。核对账本现覆盖人物 " + c.people + "／" + c.nPeople + "、事件 " + c.events + "／" + c.nEvents +
+    "、来源文献 " + c.sources + "／" + c.nSources + "、地点 " + c.places + "／" + c.nPlaces +
     (day ? "（数据生成于 " + day + "）" : "") +
-    "；引文上的记号只标账本中记为「本轮无从核」「未见」「未核」者，其余——含账本未涉及的——并不因没有记号而即是已核。";
+    "；记号只标账本中记为「本轮无从核」「未见」「未核」者，其余——含账本未涉及的——并不因没有记号而即是已核。";
 }
 function vsFillLedgerNotes() {
   document.querySelectorAll(".vs-ledger-note").forEach(el => { el.textContent = vsLedgerText(); });
@@ -1559,6 +1584,8 @@ function eventBodyNode(evt, opts) {
   sm.appendChild(mdInlineFrag(evt.summary || ""));
   sm.style.margin = "0";
   body.appendChild(sm);
+  const vsSum = vsFieldRow("events", evt.id, "summary");   // r60-B 续：摘要一栏之记号，挂在摘要之旁（不入卡头）
+  if (vsSum) body.appendChild(vsSum);
   /* 役之全文（r52 裁六②）：胶囊载首句者，其整串原值落此，一字不少。
    * 只人物视图出（`opts.personal`）——编年视图之卡本无 `evt.role`（`personEvents()` 方挂此栏），
    * 且编年已有「所系人物」一路交代事系何人，不在此重出。
@@ -2917,16 +2944,17 @@ function buildPlaceContent(pl, evts) {
    * ★ 其余三行（今地、地望确定性、坐标）之值**二记法俱零处**，经同一函数返回恰好一个文本节点，
    *   DOM 与旧版 `d.textContent = dd` 全等——故此处不必分流，一路即可，零影响有机械之证。
    * ★ `dt`（栏名）仍走 `textContent`：那是写死在代码里的界面文字，不是数据，不入 markdown 之域。 */
-  const row = (dt, dd) => {
+  const row = (dt, dd, vs) => {
     if (!dd) return;
     const t = document.createElement("dt"); t.textContent = dt;
     const d = document.createElement("dd"); d.appendChild(mdInlineFrag(dd));
+    if (vs) d.appendChild(vs);   // r60-B 续：记号挂在其栏之文之旁（栏文不渲染则无从挂，不挂）
     dl.appendChild(t); dl.appendChild(d);
   };
   row("今地", pl.modern_location);
   row("地望确定性", pl.certainty);
   row("坐标", pl.lat != null ? pl.lat + ", " + pl.lng + "（" + (pl.coord_certainty || "?") + "）" : "未定位");
-  row("坐标依据", pl.coord_basis);
+  row("坐标依据", pl.coord_basis, vsFieldRow("places", pl.id, "coord_basis", { ledger: true }));
   row("说明", pl.description);
   if (evts && evts.length) {
     const t = document.createElement("dt"); t.textContent = "相关事件";
@@ -4262,6 +4290,8 @@ function cmpMeetEvNode(color, name, evt) {
   const sp = document.createElement("span");
   sp.appendChild(mdInlineFrag(evt.summary || ""));
   p.appendChild(sp);
+  const vsSum = vsFieldRow("events", evt.id, "summary", { ledger: true });   // 并观屏无页首句，记号行自缀账本句
+  if (vsSum) p.appendChild(vsSum);
   return p;
 }
 /* 交会弹卡（点地图交会点或侧栏行）：定位地图到该地，展开两侧事件摘要，重复 B3 免责句 */
@@ -4594,10 +4624,11 @@ function showLibDetail(r, srcCard) {
    *   （「书名号里的星号是书名之一部分」），此处 `row("来源", srcNames(...))` 之书名串却**在域内**。
    *   今日无差（`sources.title` 二记法俱零处，2026-09-25 实测），故不为此另立分流；
    *   他日若书名内实到记号，此处须与页脚同办——**登记其为已知之界，非已治之事**。 */
-  const row = (dt, dd) => {
+  const row = (dt, dd, vs) => {
     if (!dd) return;
     const t = document.createElement("dt"); t.textContent = dt;
     const d = document.createElement("dd"); d.appendChild(mdInlineFrag(dd));
+    if (vs) d.appendChild(vs);   // r60-B 续：记号挂在其栏之文之旁（栏文不渲染则无从挂，不挂）
     dl.appendChild(t); dl.appendChild(d);
   };
   const srcNames = (ids) => (ids || "").split(";").map(s => s.trim()).filter(Boolean)
@@ -4622,7 +4653,7 @@ function showLibDetail(r, srcCard) {
     row("类型", srcTypeOf(r.id) + "（前缀 " + (r.id || "")[0] + "）");
     row("篇章", [r.work, r.section].filter(Boolean).join(" · "));
     row("性质", [r.category, r.source_type].filter(Boolean).join(" · "));
-    row("说明", r.notes);
+    row("说明", r.notes, vsFieldRow("sources", r.id, "notes", { ledger: true }));
   }
   panel.appendChild(h3);
   panel.appendChild(dl);

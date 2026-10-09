@@ -2814,3 +2814,5 @@ button.tn-infer[aria-expanded="true"] { background: rgba(188, 68, 51, 0.08); }
 .vs-pop .vs-sent { color: var(--ink); }
 .vs-pop a { color: var(--bronze); }
 .vs-foot { font-size: 0.72rem; line-height: 1.9; color: var(--ink-soft); }
+.vs-field .vs-ledger-note { margin: 0.3rem 0 0; }
+dd > .vs-row, dd > .vs-field { margin-top: 0.4rem; }

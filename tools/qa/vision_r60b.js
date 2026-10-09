@@ -176,6 +176,143 @@ const negOnly = PASS.filter(q => q.event_id && allSt(q.id).some(e => e.status.so
   ok(inj.after.length === 0, "复原后记号复隐");
   ok(errs.length === 0, "全程无 pageerror", errs.join(" | "));
 
+
+  /* ======================= 续件（裁二百〇三）：五栏 ======================= */
+  console.log("\n§五 续件：记号施于五栏（passages.modern_note 已于上；sources.notes／places.coord_basis／events.summary 真渲染；people.notes 挂不上者不挂）");
+  const COLS = { sources: "notes", places: "coord_basis", events: "summary", people: "notes" };
+  const rowsOf = (t) => ({ sources: J("sources"), places: J("places"), events: EVS, people: PPL })[t];
+  const expF = (t, id) => {
+    const o = new Set();
+    for (const e of VM) if (e.table === t && e.row_id === id && e.col === COLS[t])
+      for (const st of e.status) if (TRIG.includes(st.name) && !st.negated) o.add(st.name);
+    return o;
+  };
+  const entsOf = (t, id) => VM.filter(e => e.table === t && e.row_id === id);
+  const VERIFIED2 = VERIFIED.concat(["电子本", "扫描本"]);
+  for (const t of Object.keys(COLS)) {
+    const trigRows = rowsOf(t).filter(r => expF(t, r.id).size);
+    console.log("  〔" + t + "〕三态非 negated 之行 " + trigRows.length + "；verify_marks 元数 " + VM.filter(e => e.table === t && e.status.some(x => TRIG.includes(x.name) && !x.negated)).length);
+  }
+  await pg.goto(base + "#/library/sources", { waitUntil: "networkidle" });
+  await pg.waitForSelector("#lib-list button[data-lib-id]");
+  const field = await pg.evaluate(() => {
+    const marks = (n) => [...n.querySelectorAll(".vs-mark")].map(m => m.dataset.vsState);
+    const out = { events: {}, sources: {}, places: {}, people: {} };
+    for (const e of DATA.events) out.events[e.id] = [...eventBodyNode(e, { people: true }).querySelectorAll('.vs-row[data-vs-table="events"] .vs-mark')].map(m => m.dataset.vsState);   // 只数 summary 一栏（引文之记号另有 §三 逐条验）
+    state.tab = "sources";
+    for (const r of DATA.sources) { showLibDetail(r, null); out.sources[r.id] = marks($("#lib-detail")); }
+    for (const r of DATA.places) out.places[r.id] = marks(buildPlaceContent(r, []));
+    for (const r of DATA.people) {
+      const li = personCardLi({ id: r.id, color: "#888", badge: PROTAGONISTS[0].badge, fallback: r.id });
+      out.people[r.id] = { marks: marks(li), text: li.textContent };
+    }
+    return out;
+  });
+  for (const t of ["events", "sources", "places"]) {
+    let b = 0, n = 0;
+    for (const r of rowsOf(t)) {
+      const exp = [...expF(t, r.id)].sort().join("|"), got = (field[t][r.id] || []).slice().sort().join("|");
+      if (got) n++;
+      if (exp !== got) { b++; if (b <= 3) console.log("    差：" + t + " " + r.id + " 期[" + exp + "] 得[" + got + "]"); }
+    }
+    ok(b === 0, t + "." + COLS[t] + "：全库 " + rowsOf(t).length + " 行逐行对读，渲染之记号集＝独立复算之期值（挂上 " + n + " 行，差 " + b + "）");
+    const verifiedRows = rowsOf(t).filter(r => !expF(t, r.id).size && entsOf(t, r.id).some(e => e.status.some(x => VERIFIED2.includes(x.name))));
+    ok(verifiedRows.every(r => !(field[t][r.id] || []).length), "    已核而不触发者（" + verifiedRows.length + " 行）零记号");
+    const negRows = rowsOf(t).filter(r => entsOf(t, r.id).some(e => e.status.some(x => TRIG.includes(x.name) && x.negated)));
+    ok(negRows.every(r => (field[t][r.id] || []).every(m => expF(t, r.id).has(m))), "    带 negated 触发名者（" + negRows.length + " 行）：negated 之名无非 negated 之支持者，皆不现");
+    const wideRows = rowsOf(t).filter(r => !expF(t, r.id).size && entsOf(t, r.id).some(e => e.status.some(x => WIDE.includes(x.name) && !x.negated)));
+    ok(wideRows.every(r => !(field[t][r.id] || []).length), "    仅 8 档宽口者（" + wideRows.length + " 行）零记号");
+  }
+  // people.notes：其栏之文未渲染，故不挂；「不挂」是被测过的
+  const pplTrig = PPL.filter(r => expF("people", r.id).size);
+  ok(pplTrig.map(r => r.id).sort().join() === "P_GOUJIAN,P_QINGJI,P_WEISHU,P_XIKE", "people 三态非 negated 之行恰为 P_GOUJIAN／P_QINGJI／P_WEISHU／P_XIKE（共 " + pplTrig.length + "）");
+  for (const r of pplTrig) {
+    const f = field.people[r.id];
+    ok(!!r.short_bio && !!r.notes && !f.text.includes(r.notes.slice(0, 12)), "  " + r.id + "：有 short_bio，人卡不渲染其 notes（卡文中无 notes 前 12 字），故不挂", "挂得上＝否");
+    ok(f.marks.length === 0, "  " + r.id + "：人卡上零记号（不为挂记号而改人卡）");
+  }
+  ok(PPL.every(r => !field.people[r.id].marks.length), "全库 " + PPL.length + " 张人卡零记号");
+  const bioless = PPL.filter(r => !r.short_bio);
+  ok(bioless.every(r => !expF("people", r.id).size), "渲染 notes 之 " + bioless.length + " 人（无 short_bio）皆无触发态——此刻无『栏文渲染而漏挂』之条");
+
+  console.log("\n§六 各栏三态真渲染（真页面真点开）");
+  const checkPop = async (selRoot, n, t, id) => {
+    const m = await pg.$(selRoot + ' .vs-mark[data-vs-state="' + n + '"]');
+    ok(!!m, "  " + t + " " + id + "：「" + n + "」记号在其栏之旁");
+    if (!m) return;
+    await m.$eval("summary", e => e.click());
+    const pop = await m.$eval(".vs-pop", e => ({ sent: e.querySelector(".vs-sent").textContent, vis: !!e.offsetParent, w: [...e.querySelectorAll(".vs-where")].map(x => x.textContent), h: [...e.querySelectorAll("a")].map(a => a.href) }));
+    ok(pop.vis && pop.sent === SENT[n], "    点开一句话逐字＝「" + SENT[n] + "」");
+    ok(pop.w.length > 0 && pop.w.every(w => w.includes(t + " 表 " + id + " 行 · " + COLS[t] + " 栏第 ")) && pop.h.every(h => h === "https://github.com/QuinnyXu/chunqiu/blob/main/data/csv/" + t + ".csv"), "    书其栏与字位，链 data/csv/" + t + ".csv", pop.w[0] ? pop.w[0].slice(0, 45) : "");
+    const foot = await pg.evaluate((sel) => {
+      const r = document.querySelector(sel + ' .vs-mark').closest(".vs-row"); const f = r.querySelector(".vs-foot");
+      const host = r.closest(".vs-field") || r.parentElement;
+      return { v: !!f.offsetParent, t: f.textContent, led: !!host.querySelector(".vs-ledger-note") || !!document.querySelector("#view-chronicle:not([hidden]) .vs-ledger-note") };
+    }, selRoot);
+    ok(foot.v && foot.t.includes(NOTVER), "    「" + NOTVER + "」句与记号同行常驻", "「" + foot.t + "」");
+    ok(foot.led, "    本屏另有账本句（页首或随记号行）");
+  };
+  const pick = (t, n) => rowsOf(t).filter(r => expF(t, r.id).has(n)).sort((a, b) => expF(t, a.id).size - expF(t, b.id).size)[0];
+  for (const n of TRIG) {
+    const r = pick("events", n);
+    await pg.goto(base + "#/chronicle", { waitUntil: "networkidle" }); await pg.waitForSelector("#chron-list details.event");
+    ok(await open(r.id), "events " + r.id + " 在编年页");
+    await checkPop('#chron-list details[data-eid="' + r.id + '"] .vs-row[data-vs-table="events"]', n, "events", r.id);
+  }
+  for (const n of TRIG) {
+    const r = pick("sources", n);
+    await pg.goto(base + "#/library/sources", { waitUntil: "networkidle" }); await pg.waitForSelector("#lib-list button[data-lib-id]");
+    await pg.click('#lib-list button[data-lib-id="' + r.id + '"]');
+    await checkPop('#lib-detail', n, "sources", r.id);
+    const ln = await pg.$eval("#vs-note-library", e => ({ v: !!e.offsetParent, t: e.textContent }));
+    ok(ln.v && ln.t.includes(NOTVER), "    资料库页首常驻句在");
+  }
+  for (const n of TRIG) {
+    const r = pick("places", n);
+    await pg.goto(base + "#/", { waitUntil: "networkidle" });
+    await pg.evaluate((id) => goSearchPlace(id), r.id);
+    try { await pg.waitForSelector('.vs-row[data-vs-table="places"][data-vs-row="' + r.id + '"]', { timeout: 8000 }); } catch (e) { /* 下断自报 */ }
+    await checkPop('.vs-field:has(.vs-row[data-vs-row="' + r.id + '"])', n, "places", r.id);
+  }
+
+  console.log("\n§七 各栏注入反证");
+  const cases = Object.fromEntries(["events", "sources", "places"].map(t => {
+    const r = rowsOf(t).find(r => !expF(t, r.id).size && !entsOf(t, r.id).some(e => e.status.some(x => TRIG.includes(x.name))));
+    return [t, r.id];
+  }));
+  const inj2 = await pg.evaluate(({ cases }) => {
+    const fns = {
+      events: (id) => [...eventBodyNode(EVENTS[id], { people: true }).querySelectorAll('.vs-row[data-vs-table="events"] .vs-mark')].map(m => m.dataset.vsState),
+      sources: (id) => { state.tab = "sources"; showLibDetail(SOURCES[id], null); return [...$("#lib-detail").querySelectorAll(".vs-mark")].map(m => m.dataset.vsState); },
+      places: (id) => [...buildPlaceContent(PLACES[id], []).querySelectorAll(".vs-mark")].map(m => m.dataset.vsState),
+    };
+    const cols = { events: "summary", sources: "notes", places: "coord_basis" };
+    const n0 = DATA.verify_marks.length, res = {};
+    for (const [t, id] of Object.entries(cases)) {
+      const put = (name, neg, col) => { DATA.verify_marks.length = n0; DATA.verify_marks.push({ table: t, row_id: id, col: col || cols[t], offset: 0, status: [{ name, negated: neg }] }); VS_IDX = null; return fns[t](id); };
+      VS_IDX = null; const r = { before: fns[t](id) };
+      r.asUnchecked = put("未核", false); r.asNoCheck = put("本轮无从核", false); r.asUnseen = put("未见", false);
+      r.asNeg = put("未核", true); r.asWide = put("待核", false); r.asOtherCol = put("未核", false, "某他栏");
+      DATA.verify_marks.length = n0; VS_IDX = null; r.after = fns[t](id); res[t] = r;
+    }
+    return res;
+  }, { cases });
+  for (const t of ["events", "sources", "places"]) {
+    const r = inj2[t];
+    ok(r.before.length === 0 && r.asUnchecked.join() === "未核" && r.asNoCheck.join() === "本轮无从核" && r.asUnseen.join() === "未见", t + "（" + cases[t] + "）：无触发之行，注入三态各自当现", JSON.stringify([r.asUnchecked, r.asNoCheck, r.asUnseen]));
+    ok(r.asNeg.length === 0 && r.asWide.length === 0 && r.asOtherCol.length === 0 && r.after.length === 0, "    注入 negated／8 档宽口／他栏 col 不现；复原后复隐");
+  }
+  const pInj = await pg.evaluate((pid) => {
+    DATA.verify_marks.push({ table: "people", row_id: pid, col: "notes", offset: 0, status: [{ name: "未核", negated: false }] }); VS_IDX = null;
+    const li = personCardLi({ id: pid, color: "#888", badge: PROTAGONISTS[0].badge, fallback: pid });
+    const n = li.querySelectorAll(".vs-mark").length; DATA.verify_marks.pop(); VS_IDX = null; return n;
+  }, pplTrig[0].id);
+  ok(pInj === 0, "people：人卡不渲染 notes，注入未核亦不挂（不为挂记号而改人卡，不入人卡之头）");
+  const cmpEv = rowsOf("events").find(r => expF("events", r.id).size);
+  const cmpRes = await pg.evaluate((id) => { const n = cmpMeetEvNode("#888", "某", EVENTS[id]); return { marks: n.querySelectorAll(".vs-mark").length, led: !!n.querySelector(".vs-ledger-note"), foot: !!n.querySelector(".vs-foot") }; }, cmpEv.id);
+  ok(cmpRes.marks > 0 && cmpRes.led && cmpRes.foot, "并观交会卡（cmpMeetEvNode）：事 " + cmpEv.id + " 之摘要记号在，且随记号行带账本句与行内句（该屏无页首句）");
+  ok(errs.length === 0, "续件全程无 pageerror", errs.join(" | "));
+
   await browser.close(); s.close();
   if (gateErrs) { console.log("\n门自身出错 " + gateErrs + " 项（exit 2）"); process.exit(2); }
   console.log("\n—— 判 ——  " + (fails ? "✗ " + fails + " 项红（exit 1）" : "✓ 全过（exit 0）"));
