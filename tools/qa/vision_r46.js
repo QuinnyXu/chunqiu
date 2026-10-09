@@ -104,7 +104,7 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
   console.log("\n§2 真 DOM 三行逐行 ＋ §3 可复制性 ＋ §6 交互可达");
   for (const qid of ["Q167", "Q442", "Q448"]) {
     const det = page.locator("details[data-eid='" + EID[qid] + "']");
-    await det.locator("summary").click();
+    await det.locator(":scope > summary").click();   // r60-H：只取此 details 自己的 summary（直接子元素）；后代里带核对记号的 <summary> 不算（裁二百〇六）
     await page.waitForTimeout(250);
     const bq = det.locator("blockquote[data-qid='" + qid + "']");
     const orig = await page.evaluate(id => DATA.passages.find(p => p.id === id).quote_original, qid);
@@ -243,7 +243,7 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
     await page.setViewportSize({ width: W, height: 900 });
     await page.waitForTimeout(300);
     const det = page.locator("details[data-eid='E146']");
-    if ((await det.locator("blockquote").count()) === 0) { await det.locator("summary").click(); await page.waitForTimeout(250); }
+    if ((await det.locator("blockquote").count()) === 0) { await det.locator(":scope > summary").click(); await page.waitForTimeout(250); }   // r60-H：同 §2，取直接子元素
     const r = await page.evaluate(() => {
       const segs = [...document.querySelectorAll("blockquote[data-qid='Q442'] .q-seg")];
       const split = segs.filter(s => s.getClientRects().length > 1).map(s => s.innerText);
@@ -311,11 +311,13 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
   console.log("\n§8 人物视图复用同形");
   await page.goto(BASE + "/index.html" + BUST + "#/p/P_XIGUI/timeline", { waitUntil: "networkidle" });
   await page.waitForTimeout(800);
-  /* 息妫线上 E146 出现两次（时间线主条＋「远因」条），故一律取 .first()——
-   * 严格模式撞见二元素是走查脚本自己的事，不是站点的事。 */
+  /* 息妫线上 E146 出现两次（可见的人物时间线主条，加上前一节编年视图留在 DOM 里、此刻隐藏的那一行），
+   * 此处原取 .first() 压住了严格模式之报。
+   * r60-H：此处原用 `.first()`，系本病（定位器欠确、「唯一」只是碰巧）之前次发作之痕；
+   * 今改严：限定在 #view-timeline 内，且取 `> summary`（直接子元素，不连引文记号之 <summary>），使其再撞必报。 */
   const hasE146 = await page.locator("details[data-eid='E146']").count();
   if (hasE146) {
-    await page.locator("details[data-eid='E146'] summary").first().click();
+    await page.locator("#view-timeline details[data-eid='E146'] > summary").click();
     await page.waitForTimeout(400);
     const bq = page.locator("blockquote[data-qid='Q442']").first();
     const t = await bq.locator("p.q-text").innerText();
@@ -403,7 +405,7 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
   console.log("\n§11 无障碍树实测");
   await page.goto(BASE + "/index.html" + BUST + "#/chronicle", { waitUntil: "networkidle" });
   await page.waitForSelector("#view-chronicle details[data-eid='E146']", { timeout: 15000 });
-  await page.locator("#view-chronicle details[data-eid='E146'] summary").click();
+  await page.locator("#view-chronicle details[data-eid='E146'] > summary").click();   // r60-H：直接子元素；展开后引文记号亦是 <summary>，裸 summary 会撞严格模式
   await page.waitForTimeout(500);
   const ax = await page.context().newCDPSession(page);
   await ax.send("DOM.enable");
