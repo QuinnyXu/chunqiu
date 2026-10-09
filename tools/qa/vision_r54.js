@@ -2,6 +2,8 @@
  * （任务书 `team/round54_prompts.md` §一、Task for Vision · r54-1、领队之一〇／一／四；
  *   r54-4 部分：§三 裁七十一至七十四、Task for Vision · r54-4、领队之四〇／一／三）
  *
+ * ★★ 【r60-I 外科切除，2026-10-09】原 §八（考据索引之读者页）及其量函数已随该屏并其路由切除；
+ *   §三／§七之三 中三处「句三之考据链」之断言再反转为「无此链」。切处各留其痕。以下为 r54-7 并入时之原注，照留：
  * ★★ 【r54-7 并入，2026-09-29】本门今**一本三轮**：新增 §八（考据索引之读者页，`#/kaodui`）。
  *   并于 §三 **二次反转三条断言**（句三之链、引言之链数、`KAODUI_ENTRY` 之值）——
  *   **其原条之文与其立意俱照录于该处之注，不默然改**（照 r54-4b 之例）。
@@ -198,16 +200,10 @@ async function measureLede(br, base, w, h) {
     return {
       exists: true, ps, ...nav,
       nLinks: L.querySelectorAll("a").length,
-      nInLine: L.querySelectorAll(".hl-kaodui").length,
       whyText: why ? why.textContent.trim() : null,
       whyLinks: why ? why.querySelectorAll("a").length : null,
-      /* r54-7 增：句三之链（考据索引）——其页既立，此链今**当有**，见 §三之注。 */
-      kaodui: (() => {
-        const k = L.querySelector(".hl-kaodui");
-        if (!k) return null;
-        const n = (k.textContent.match(/·\s*(\d+)\s*条/) || [])[1];
-        return { href: k.getAttribute("href"), text: k.textContent.trim(), n: n == null ? null : Number(n) };
-      })(),
+      deadHref: document.querySelectorAll('a[href*="kaodui"]').length,
+      /* 〔r60-I 切除〕原此处有 r54-7 增之 `kaodui` 量项（句三之考据链），该链已去。 */
       chron: a ? {
         href: a.getAttribute("href"), text: a.textContent.trim(),
         total: mt == null ? null : Number(mt), orphan: mo == null ? null : Number(mo),
@@ -475,272 +471,8 @@ async function snapshot(br, base, hash, sel, w, h) {
   return { s, errs, cerrs };
 }
 
-/* ---------- r54-7 之量法（一）：考据索引之页 ----------
- * ★ 本函数**一字不注入**，量的是站上真形；其所读之数一律自 DOM 取，再与门内自
- *   `site/data/*.json` 独立复算之数相比（同 §一之骨：只读页面自述即是量「页面说了什么」）。
- * ★ 懒载（裁九十四）故须等其料到：以 `#kd-body[data-items]` 之现身为准，不以定时充之。 */
-async function measureKaodui(br, base, w, h) {
-  /* ★ **不传 `seed`**，其由是本门自撞之一坑，记此免后人再踩（同 `clearOnInit` 之注）：
-   *   `pageOf` 传 `seed` 时先 `goto(base)`、写 `localStorage`、再 `goto(base + hash)`；
-   *   **而二址只差一个 hash，是同文档之导航——不重载**。故首载之 `boot()` 是在 `#/` 上跑的，
-   *   `state.view === "home"` 且其时键尚未写入，**导览遂起手并覆于页上**；其后改 hash 只走 `render()`，
-   *   导览之蒙层照旧在。其果：读 DOM 无碍（故 §八之二 诸条仍绿），**而真点之验被蒙层挡住**
-   *   （playwright 报 `#tour intercepts pointer events`，30 秒超时抛错）。
-   *   ★ 治法是**径入 `#/kaodui`**：`boot()` 时 `state.view` 已是 `kaodui`，
-   *   `if (!tourSeen() && state.view === "home") startTour()` 自不成立——**不必写那把钥匙**。 */
-  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { hash: "#/kaodui", w, h, settle: 300 });
-  await pg.waitForFunction(() => {
-    const b = document.getElementById("kd-body");
-    return !!(b && b.dataset.items);
-  }, null, { timeout: 15000 }).catch(() => {});
-  await pg.waitForTimeout(400);
-  const r = await pg.evaluate(() => {
-    const b = document.getElementById("kd-body");
-    const T = (el) => (el ? el.textContent.trim() : "");
-    const introText = T(document.getElementById("kd-intro"));
-    const num = (re) => { const m = introText.match(re); return m ? Number(m[1]) : null; };
-    /* 逐组读其名与其目数（组标之文形如「<档名>」＋「<N> 目」二 span） */
-    const gts = [...document.querySelectorAll(".kd-group")].map(g => ({
-      name: T(g.querySelector(".kd-gt-name")),
-      n: Number((T(g.querySelector(".kd-gt-n")).match(/(\d+)/) || [])[1]),
-      rows: g.querySelectorAll(".kd-row").length,
-    }));
-    const find = (nm) => gts.find(g => g.name === nm) || null;
-    /* 否定之记号：只数**摘要上**者（卡内之状态列另有其记，二者不可混数） */
-    const negSums = [...document.querySelectorAll(".kd-row > summary .kd-neg")];
-    const negRows = new Set(), negGroups = new Set();
-    for (const s of negSums) {
-      const d = s.closest(".kd-row");
-      negRows.add(d.dataset.key); negGroups.add(d.dataset.group);
-    }
-    /* ★ 「同一行一档否定、一档不否定」之逐目对位：以 data-key 归行，
-     *   期其 `data-neg="true"` 之目数 ＝ 该行 status 内 negated 之数（页外另有其源之验）。 */
-    const byKey = new Map();
-    for (const d of document.querySelectorAll(".kd-row")) {
-      if (!byKey.has(d.dataset.key)) byKey.set(d.dataset.key, []);
-      byKey.get(d.dataset.key).push(d);
-    }
-    let mixed = 0, mixedBad = 0;
-    for (const [, ds] of byKey) {
-      const yes = ds.filter(d => d.dataset.neg === "true").length;
-      if (yes > 0 && yes < ds.length) {
-        mixed++;
-        for (const d of ds) {
-          const has = !!d.querySelector(":scope > summary .kd-neg");
-          if (has !== (d.dataset.neg === "true")) mixedBad++;
-        }
-      }
-    }
-    const sums = [...document.querySelectorAll(".kd-row > summary")].map(s => s.getBoundingClientRect().height);
-    const fan = document.getElementById("kd-fanli");
-    const fr = fan ? fan.getBoundingClientRect() : null;
-    return {
-      shown: !document.getElementById("view-kaodui").hidden,
-      items: Number(b.dataset.items), groups: Number(b.dataset.groups), renderMs: b.dataset.renderMs,
-      rows: document.querySelectorAll(".kd-row").length,
-      introText,
-      intro: { rows: num(/全库 (\d+) 行/), flat: num(/摊平得 (\d+) 条档之引/), none: num(/另有 (\d+) 行/) },
-      statusText: T(document.getElementById("kd-status")),
-      gts, noneGroup: find("未提取到核对状态"), markedGroup: find("未标核对状态"),
-      noneNote: T(document.querySelector(".kd-group-none .kd-gnote")),
-      negInSummary: negSums.length, negRowsTouched: negRows.size, negGroupsTouched: negGroups.size,
-      negMixedRows: mixed, negMixedBad: mixedBad, negMixedOk: mixedBad === 0,
-      negShorts: negSums.map(s => s.textContent.trim()),
-      fanli: [...document.querySelectorAll("#kd-fanli .kd-fl")].filter(s => !s.classList.contains("kd-fl-neg"))
-        .map(s => ({ title: T(s.querySelector(".kd-fl-t")), body: T(s.querySelector(".kd-fl-b")) })),
-      negFull: T(document.querySelector(".kd-fl-neg .kd-fl-t")),
-      negNote: T(document.querySelector(".kd-fl-neg .kd-fl-b")),
-      limits: T(document.querySelector(".kd-limits")),
-      minSummaryH: sums.length ? Math.round(Math.min(...sums)) : null,
-      fanliInFold: fr ? fr.top < innerHeight : null,
-      docOverflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-      docScrollW: document.documentElement.scrollWidth, docClientW: document.documentElement.clientWidth,
-      chipsStatus: [...document.querySelectorAll("#kd-f-status .kd-chip")].map(x => x.textContent.trim()),
-      chipsTable: [...document.querySelectorAll("#kd-f-table .kd-chip")].map(x => x.textContent.trim()),
-    };
-  });
-  /* ---- 第二过：**逐目展开**而后量其链与其卡 ----
-   * ★ 何以须先展开：回库之链系「展开即建」（`kdEnsureBody`，同编年 `chronEnsureBody` 之例）——
-   *   **未展开之目页上一条链也没有**。本门首跑正因未展开而报「有链之目 0／687」，
-   *   **其红是真红，且红在量具**：量的是「此刻 DOM 里有几条」，而所要断者是「每一目**能不能**给出一条」。
-   *   ★ 故此处把 687 目一并展开再量——**「逐目」之名与所量之物自此相符**（design_notes §7.9 之族）。
-   * ★ `details.open = true` 之 `toggle` 是**异步**派发（故首跑连「展开一目量其卡」亦得 `null`），
-   *   须待其一拍；此处以「卡之数已等于目之数」为准，不以定时充之。 */
-  await pg.evaluate(() => { document.querySelectorAll(".kd-row").forEach(d => { d.open = true; }); });
-  await pg.waitForFunction(() => {
-    const n = document.querySelectorAll(".kd-row").length;
-    return n === 0 || document.querySelectorAll(".kd-body-card").length === n;
-  }, null, { timeout: 30000 }).catch(() => {});
-  const r2 = await pg.evaluate(() => {
-    /* ★ `isProto`／`PEOPLE`／`PLACES`／`SOURCES`／`EVENTS`／`DATA` 系 app.js 之顶层绑定，
-     *   同一 realm 内可读——此处读之，**不另造一份判据**（两份名册必有一天对不上，§7.4）。 */
-    const rowsById = (typeof DATA !== "undefined" && DATA.kaodui) ? DATA.kaodui : [];
-    const byRowKey = new Map(rowsById.map(x => [x.key, x]));
-    const EXP = { places: "在地图上定位 →", sources: "在资料库中打开 →",
-                  passages: "回其事件并定位此条引文 →", events: "回其事件 →" };
-    let total = 0, missing = 0, badLabel = 0, unresolved = 0, badLabelFirst = "", unresolvedFirst = "";
-    let cardOverflow = false, overflowFirst = "";
-    for (const d of document.querySelectorAll(".kd-row")) {
-      const card = d.querySelector(".kd-body-card");
-      if (card && card.scrollWidth > card.clientWidth + 1 && !overflowFirst) {
-        cardOverflow = true; overflowFirst = d.dataset.key + "（" + card.scrollWidth + ">" + card.clientWidth + "）";
-      }
-      const btn = d.querySelector(".kd-back-btn");
-      if (!btn) { missing++; continue; }
-      total++;
-      const rec = byRowKey.get(d.dataset.key);
-      const t = d.dataset.table, id = rec ? rec.row_id : null;
-      let want, okTarget;
-      if (t === "people") {
-        const proto = (typeof isProto === "function") && isProto(id) && !!PEOPLE[id];
-        want = proto ? "回其人物线 →" : "回其关系图 →";
-        okTarget = !!PEOPLE[id];
-      } else {
-        want = EXP[t];
-        okTarget = t === "places" ? !!PLACES[id]
-                 : t === "sources" ? !!SOURCES[id]
-                 : t === "passages" ? !!(rec && rec.event_id && EVENTS[rec.event_id])
-                 : !!EVENTS[id];
-      }
-      if (btn.textContent.trim() !== want) { badLabel++; if (!badLabelFirst) badLabelFirst = d.dataset.key + "：期「" + want + "」实「" + btn.textContent.trim() + "」"; }
-      if (!okTarget) { unresolved++; if (!unresolvedFirst) unresolvedFirst = d.dataset.key; }
-    }
-    /* ★ 并断**无一条链之文作「打开该地望页」**（件之 4 之反面；页首之文另断于 §八之三） */
-    const badWord = [...document.querySelectorAll(".kd-back-btn")].filter(x => /地望页/.test(x.textContent)).length;
-    return {
-      links: { total, missing, badLabel, unresolved, badLabelFirst, unresolvedFirst, badWord },
-      cardOverflow, overflowFirst,
-      docOverflowXOpen: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-      cards: document.querySelectorAll(".kd-body-card").length,
-    };
-  });
-  await ctx.close();
-  return { ...r, ...r2, errs, cerrs };
-}
-
-/* ---------- r54-7 之量法（三）：筛选之一往一返（二组 chips ＋ 清除钮） ----------
- * ★ 立此一量之由，照实书：**「清除筛选」之钮我落笔时漏接了监听**（`#kd-clear` 有其形而无其事），
- *   自查时撞上。**一个点了没反应的钮，比没有这个钮更坏**——它许了一件办不到的事。
- *   故不止补其码，并立此量钉之，另配一类反证（庚·清除之钮失聪）。
- * ★ 其判据取**往返**，不取单程：只断「点 chip 之后少了」不足以证清除有效；
- *   只断「点清除之后是 687」亦不足——未筛之时本就是 687。**二者相接才是一条能红的断言。** */
-async function measureKaoduiFilter(br, base) {
-  const { ctx, pg, errs, cerrs } = await pageOf(br, base, { hash: "#/kaodui", w: W_WIDE, h: H_WIDE, settle: 300 });
-  await pg.waitForFunction(() => {
-    const b = document.getElementById("kd-body");
-    return !!(b && b.dataset.items);
-  }, null, { timeout: 15000 }).catch(() => {});
-  await pg.waitForTimeout(300);
-  const read = () => pg.evaluate(() => {
-    const b = document.getElementById("kd-body");
-    const clr = document.getElementById("kd-clear");
-    return {
-      items: Number(b.dataset.items), rows: document.querySelectorAll(".kd-row").length,
-      groups: Number(b.dataset.groups), status: document.getElementById("kd-status").textContent.trim(),
-      clearHidden: clr.hidden,
-      pressed: [...document.querySelectorAll(".kd-chip")].filter(x => x.getAttribute("aria-pressed") === "true")
-        .map(x => x.dataset.key),
-    };
-  });
-  const base0 = await read();
-  /* ① 按状态取一枚（「本轮无从核」，全库 35 目） */
-  await pg.click('#kd-f-status .kd-chip[data-key="本轮无从核"]');
-  await pg.waitForTimeout(400);
-  const one = await read();
-  /* ② 再按表取一枚（「places」）——组间取**交集** */
-  await pg.click('#kd-f-table .kd-chip[data-key="places"]');
-  await pg.waitForTimeout(400);
-  const two = await read();
-  /* ③ 点「清除筛选」——二组一并归零 */
-  await pg.click("#kd-clear");
-  await pg.waitForTimeout(400);
-  const back = await read();
-  /* ④ 取一个必筛空之组合（「未提取到核对状态」× 其内无之表），验空表自己会说话 */
-  await pg.click('#kd-f-status .kd-chip[data-key="电子本逐字核对·否定性结果"]');
-  await pg.waitForTimeout(300);
-  await pg.click('#kd-f-table .kd-chip[data-key="people"]');
-  await pg.waitForTimeout(400);
-  const empty = await pg.evaluate(() => ({
-    rows: document.querySelectorAll(".kd-row").length,
-    emptyLine: (document.querySelector("#kd-body .chron-empty") || {}).textContent || "",
-    status: document.getElementById("kd-status").textContent.trim(),
-  }));
-  /* ⑤ 筛选**不入 hash**（分享出去一律是全表） */
-  const hash = await pg.evaluate(() => location.hash);
-  await ctx.close();
-  return { base0, one, two, back, empty, hash, errs, cerrs };
-}
-
-/* ---------- r54-7 之量法（二）：回库之链**真点**一过 ----------
- * ★ 与机械之验之分工：机械之验读**数据**（其所指之物在库内否），真点之验读**码之果**
- *   （点下去究竟落在哪一屏）。类戊之反证（people 一路换回 `setHash`）只有真点之验测得出。
- * ★ 「落」之据不取 hash 一项：另读其屏是否真显、其屏内是否真有落点之痕（展开之条／落锚之年／
- *   定位之地），免「hash 变了而屏上什么也没发生」被算作落。 */
-const KD_CLICKS = [
-  { key: "places.L_HUAN.coord_basis@21", why: "地望首条 → 某人页之地图（非地望页）", hash: "#/p/P_WENJIANG/map", view: "map", spot: "L_HUAN" },
-  { key: "places.L_HUAN.coord_basis@514", why: "地望·带否定之记者（同一行之另一目）", hash: "#/p/P_WENJIANG/map", view: "map", spot: "L_HUAN" },
-  { key: "sources.Z018.notes@0", why: "文献首条 → 资料库「来源文献」", hash: "#/library/sources", view: "library", spot: "Z018" },
-  { key: "passages.Q073.modern_note@0", why: "引文首条 → 编年（经 event_id，此表独有）", hash: "#/chronicle", view: "chronicle", spot: "E076" },
-  { key: "events.E076.summary@0", why: "事件首条 → 编年", hash: "#/chronicle", view: "chronicle", spot: "E076" },
-  { key: "people.P_KONGZI.notes@0", why: "人物·主角 → 其人物线", hash: "#/p/P_KONGZI/timeline", view: "timeline", spot: "P_KONGZI" },
-  { key: "people.P_ZIGONG.notes@152", why: "人物·**非主角** → 其 ego 关系图（契所列之 setHash 于此断链，已上报）", hash: "#/relations", view: "relations", spot: "P_ZIGONG" },
-];
-async function kdClick(br, base, key, spotId) {
-  const { ctx, pg } = await pageOf(br, base, { hash: "#/kaodui", w: W_WIDE, h: H_WIDE, settle: 300 });  // 不传 seed，其由见 measureKaodui 之注
-  await pg.waitForFunction(() => {
-    const b = document.getElementById("kd-body");
-    return !!(b && b.dataset.items);
-  }, null, { timeout: 15000 }).catch(() => {});
-  await pg.waitForTimeout(300);
-  const sel = '.kd-row[data-key="' + key + '"]';
-  await pg.evaluate((s) => { const d = document.querySelector(s); if (d) { d.open = true; d.scrollIntoView(); } }, sel);
-  await pg.waitForTimeout(250);
-  const found = await pg.evaluate((s) => !!document.querySelector(s + " .kd-back-btn"), sel);
-  if (!found) { await ctx.close(); return { hash: "<无此目>", view: "<无此目>", landed: false, evidence: "页上无 " + key }; }
-  await pg.click(sel + " .kd-back-btn", { timeout: 20000 });
-  await pg.waitForTimeout(1100);
-  /* ★ 「落」之据**不取 hash 一项，亦不止于「那一屏显了」**——另求其屏内**此条之痕**：
-   *   地望＝该地之锚已选中（`.anchor.selected[data-place]`，`markSelectedAnchor` 之果）；
-   *   文献＝该条在列且详情之题已出；编年＝**该事件**之 `details[open]`；
-   *   人物线＝其人之卡已铺且子导航书其名；关系＝其图已绘。
-   *   ★ 不如此，则「hash 变了而屏上什么也没发生」会被算作落——正是 design_notes §7.3 之训
-   *     （「DOM 状态对 ≠ 读者看得见」）。 */
-  const r = await pg.evaluate((spot) => {
-    const views = ["home", "timeline", "map", "library", "relations", "about", "chronicle", "kaodui", "compare"];
-    const view = views.find(v => { const e = document.getElementById("view-" + v); return e && !e.hidden; }) || "<无>";
-    let ev = "", spotted = null;
-    if (view === "chronicle") {
-      const d = document.querySelector('#chron-list details[data-eid="' + spot + '"]');
-      spotted = !!(d && d.open);
-      ev = "编年展开之条 " + document.querySelectorAll("#chron-list details[open]").length +
-        "、落锚之年 " + document.querySelectorAll("#chron-list details.year-anchor").length +
-        "、其事件(" + spot + ")已展开=" + spotted;
-    } else if (view === "library") {
-      const btn = document.querySelector('[data-lib-id="' + spot + '"]');
-      const h = document.querySelector("#lib-detail h3");
-      spotted = !!btn && !!h && h.textContent.trim().length > 0;
-      ev = "页签=" + ((document.querySelector(".lib-tabs button[aria-selected='true']") || {}).textContent || "?") +
-        "、其条(" + spot + ")在列=" + !!btn + "、详情之题=" + (h ? JSON.stringify(h.textContent.trim()) : "<无>");
-    } else if (view === "map") {
-      const a = document.querySelector('.anchor.selected[data-place="' + spot + '"]');
-      spotted = !!a;
-      ev = "地图之锚 " + document.querySelectorAll("#view-map .anchor").length +
-        "、其地(" + spot + ")之锚已选中=" + spotted;
-    } else if (view === "timeline") {
-      const nm = (document.getElementById("pn-name") || {}).textContent || "";
-      spotted = document.querySelectorAll("#view-timeline .event").length > 0 && nm.length > 0;
-      ev = "时间线之卡 " + document.querySelectorAll("#view-timeline .event").length + "、子导航之名=" + JSON.stringify(nm);
-    } else if (view === "relations") {
-      spotted = document.querySelectorAll("#view-relations svg *").length > 0;
-      ev = "关系图之元素 " + document.querySelectorAll("#view-relations svg *").length;
-    } else if (view === "home") {
-      spotted = false; ev = "落回首页选人屏（**断链之相**）";
-    }
-    return { hash: location.hash, view, evidence: ev, spotted };
-  }, spotId);
-  await ctx.close();
-  return { ...r, landed: r.view !== "home" && r.view !== "<无>" };
-}
+/* 〔r60-I 外科切除留痕〕此处原有 r54-7 之三量法（`measureKaodui`／`measureKaoduiFilter`）与 `KD_CLICKS`／`kdClick`，
+ * 俱量 `#/kaodui` 一屏；该屏并其路由已去，其量法随之切除。 */
 
 (async () => {
   const { chromium } = require(path.join(__dirname, "node_modules", "playwright"));
@@ -851,22 +583,14 @@ async function kdClick(br, base, key, spotId) {
     /* ★ 此条 r54-4 分了家：句三（#home-lede-why）内**一个链也没有**（考据页未立），
      *   而引言全块之链数今为 **1**（甲之链）。原条只问「引言内链数=0」，甲落即撞红，
      *   而红之处非病所在——故改问两处，各问其所该问。 */
-    /* ★★ 【r54-7 二次反转，照 r54-4b 之例留其痕，不默然改】——**考据页今已立**（`#/kaodui`，裁七十七），
-     *   故 `KAODUI_ENTRY` 由 `null` 改为 `{hash,label}`，句三之链遂出。**原条之文与其立意照录于此**：
-     *     - 原：`ok(m.whyLinks === 0 && m.nInLine === 0, "句三今日无链（其页由 r54-3／r54-7 立，未立不显）")`
-     *       其立意是把「**页未立故不显链**」钉成一条可复验之事实（同 r54-4【丁·〇】之立法）——
-     *       页一立，这条事实即不复存在；故其反转不是迁就，是**所断之事实变了**。
-     *     - 原：`ok(m.nLinks === 1, "引言全块之链恰一个（即甲之链）")`——今为**二**（甲之链＋考据之链）。
-     *   ★ 今断其**有**：句三内恰一链、其 class 为 `.hl-kaodui`、href 为 `#/kaodui`、
-     *     其数＝`meta.tables.kaodui`（**另路复算**，不读页面之文）。 */
-    ok(m.whyLinks === 1 && m.nInLine === 1, w + "px 句三今有考据之一链（r54-7 页既立，其链自出）",
-      "句三内链数=" + m.whyLinks + " ／ .hl-kaodui=" + m.nInLine);
-    ok(m.kaodui && m.kaodui.href === "#/kaodui", w + "px 考据之链其 href ＝ #/kaodui",
-      m.kaodui ? m.kaodui.href : "<无此链>");
-    ok(m.kaodui && m.kaodui.n === rc.meta.tables.kaodui,
-      w + "px 考据之链所书之数 ＝ meta.tables.kaodui（跑时自数，非写死）",
-      "链上 " + (m.kaodui && m.kaodui.n) + " ／ meta.tables.kaodui " + rc.meta.tables.kaodui);
-    ok(m.nLinks === 2, w + "px 引言全块之链恰二个（甲之链＋考据之链，别无他链）", "链数=" + m.nLinks);
+    /* ★★ 【r54-7 二次反转之再反转，r60-I，2026-10-09；照 r54-4b 之例留其痕，不默然改】
+     *   r54-7 曾因考据页立而断「句三内恰一链（`.hl-kaodui`，href `#/kaodui`，数＝meta.tables.kaodui）、
+     *   引言全块之链恰二个」。**该屏并其路由与句三之链今已去之**（r60-I），所断之事实又变：
+     *   故断回 r54-4 之原形——句三内**无链**、引言全块之链**恰一个**（即甲之链，编年之径）；
+     *   并另断页上无任何指向 `#/kaodui` 之链（死路由不留入口）。**判据本身未变，变的是所系之前提。** */
+    ok(m.whyLinks === 0, w + "px 句三内无链（r60-I 考据链已去）", "句三内链数=" + m.whyLinks);
+    ok(m.nLinks === 1, w + "px 引言全块之链恰一个（即甲之链，别无他链）", "链数=" + m.nLinks);
+    ok(m.deadHref === 0, w + "px 页上无任何指向 #/kaodui 之链", "数=" + m.deadHref);
     ok(m.errs.length === 0 && m.cerrs.length === 0, w + "px 零 pageerror（beacon 噪音已剔）", "pageerror " + m.errs.length + "／console " + m.cerrs.length + (m.errs.concat(m.cerrs).length ? "：" + m.errs.concat(m.cerrs).join(" ; ") : ""));
   }
   {
@@ -875,18 +599,10 @@ async function kdClick(br, base, key, spotId) {
     for (const [k, v] of [["events", t.events], ["people", t.people], ["places", t.places], ["passages", t.passages]]) {
       ok(s.includes(String(v)), "句二之 " + k + " 数＝meta.tables." + k + " = " + v, "句二：" + s);
     }
-    /* ★ 【r54-7 反转，留痕】原条：`ok(/KAODUI_ENTRY\s*=\s*null/.test(newApp), "考据索引之链其位确在源码（KAODUI_ENTRY = null，一处可开）")`
-     *   ——其立意是证「其位确在源码之内、且只此一处可开」。**今日即开之之日**，故改断其已开且开得对：
-     *   ① 其值确为 `{ hash: "#/kaodui", label: … }`；② **该常量内不含任何数之字面**
-     *   （件之 6「其 count 取 DATA.meta.tables.kaodui，不写死」之机械之证）。 */
-    const kdConst = (newApp.match(/const KAODUI_ENTRY[^\n]*/) || [""])[0].trim();
-    ok(/KAODUI_ENTRY\s*=\s*\{[^}]*hash:\s*"#\/kaodui"/.test(newApp),
-      "考据索引之链其位已开且指 #/kaodui（r54-7 件之 6：只改此一常量）", kdConst);
-    ok(!/[0-9]/.test(kdConst), "该常量内不含任何数之字面（其条数取 meta.tables.kaodui，不写死）", kdConst);
-    ok(/KAODUI_ENTRY\s*&&\s*KAODUI_ENTRY\.hash/.test(newApp), "其链之出否只系于该常量一处", "");
-    ok(/const kdN = t\.kaodui;/.test(newApp),
-      "句三之数取 `DATA.meta.tables.kaodui`（解乙；与考据页页首之第一数同源）",
-      (newApp.match(/const kdN[^\n]*/) || [""])[0].trim());
+    /* ★ 【r54-7 反转之再反转，r60-I 留痕】原条（r54-7）断 `KAODUI_ENTRY` 之值为 `{hash:"#/kaodui",…}`、其内不含数字、
+     *   其出否系于该常量、句三之数取 `meta.tables.kaodui`。**该常量与该链今已去**，故断其**确已不在**：
+     *   源码内无 `KAODUI_ENTRY`、无 `#/kaodui`、无 `.hl-kaodui`（不留死路由）。 */
+    ok(!/KAODUI_ENTRY|#\/kaodui|hl-kaodui/.test(newApp), "app.js 内无 KAODUI_ENTRY／#/kaodui／hl-kaodui（考据入口并其路由已去）", "");
     ok(!/innerHTML/.test((newApp.match(/function renderHomeLede\(\)[\s\S]*?\n}/) || [""])[0]),
       "引言不走 innerHTML（红线六·零 XSS 面）", "");
     /* r54-4：二数之唯一出处 chronCounts() 内亦不许有任何库数之字面。 */
@@ -1113,7 +829,8 @@ async function kdClick(br, base, key, spotId) {
      *   ★ **今考据页已立（r54-7），那条事实即不复存在**：藏之之由是「点不进去」，其页既立，藏即成掩。
      *   故改断其**有且恰一**，并另断其**指得着**（`href === "#/kaodui"`，§三 已断之）。
      *   ★ **裁七十三一字未变**——变的是它所系之前提（页立与否），**不是判据本身**。 */
-    ok(lede[w].whyLinks === 1, w + "px 【句三·甲】句三内恰一链（r54-7 页既立，藏之之由已不存）",
+    /* 〔r60-I 再反转〕考据页并其链已去：句三复无链，故复断 0（回到 r54-4 原形；上注所述「藏之之由」亦随页而去）。 */
+    ok(lede[w].whyLinks === 0, w + "px 【句三·甲】句三内无链（r60-I 考据链已去）",
       "链数=" + lede[w].whyLinks);
     /* 「读得通」之机械判（裁七十三：不得出现一句指向空处之文）：
      *   ① 不以悬空之引语收尾（「见」「：」「，」「、」）；② 不含空括（（）〔〕[]()）；③ 以句号收。
@@ -1217,311 +934,14 @@ async function kdClick(br, base, key, spotId) {
   console.log("        句三之据是本门实读其文并逐条机械判（见 §七之三 所印之字），不靠反证。");
 
   /* ===================================================================================
-   * §八 r54-7 之门——考据索引之读者页（`#/kaodui`；裁七十七、裁九十四至九十八）
-   * ★ 与 §五（DOM 逐位全等）之分工：§五 量「**未涉之页**一字未动」，§八 量「**新立之页**其形其数其链」。
-   * ★ 本节之「旧版」不足以作反证：`OLD_REF` 根本无此页，**其红恒真而不指向任何一条断言之能**
-   *   （同 §四之「新旧同绿·非本轮之新能」之诚实一条之反面：这里是「新旧同红·而其红不足以证能」）。
-   *   故本节之按类反证**不取旧版，取注入之变体**（`srv(SITE, override)` 以改过一处之 `app.js`／`notice`
-   *   起一个源端）——**每类各注一处同型之改，各自看它红在何处**（r52 裁二十四；记忆「按类反证立断言」）。
+   * 〔r60-I 外科切除，2026-10-09 EDT；照 r54-4b 之例留痕，不默然改〕
+   * 原 §八（r54-7 之门，考据索引之读者页 `#/kaodui`：八之〇独立复算、八之一同数、八之二形与三数、
+   * 八之二·附筛选往返、八之三凡例同源、八之四回库之链五表五路真点、八之五按类反证五类注入）
+   * 连同其量函数 `measureKaodui`／`measureKaoduiFilter`／`kdClick`／`KD_CLICKS`，
+   * 随该屏并其路由一并去之（站长 2026-10-06 裁：科普，非学术考订；任务书 r60-I）。
+   * ★ 所去者仅此一屏之断言；§一至§七（r54-1／r54-4／r54-4b）其余仍有效之断言一字未动，
+   *   惟 §三、§七之三 中三处「句三之链」之断言随该链之去而再反转，见各处之注。
    * =================================================================================== */
-  head("§八 r54-7 考据索引之读者页——其形、其三数、其档、其记号、其链（两宽）");
-
-  /* ---- 八之〇 独立复算：不读页面之文，直接自 `site/data/*.json` 与 `docs/kaodui_index.md` 算 ---- */
-  const kdJson = JSON.parse(fs.readFileSync(path.join(SITE, "data", "kaodui.json"), "utf8"));
-  const kdNotice = JSON.parse(fs.readFileSync(path.join(SITE, "data", "kaodui_notice.json"), "utf8"));
-  const kdMd = fs.readFileSync(path.join(ROOT, "docs", "kaodui_index.md"), "utf8");
-  const kdCalc = (() => {
-    const byStatus = new Map();
-    let flat = 0, none = 0, negPairs = 0;
-    const negRows = new Set(), negGroups = new Set();
-    for (const r of kdJson) {
-      const st = r.status || [];
-      if (!st.length) { none++; continue; }
-      for (const s of st) {
-        flat++;
-        byStatus.set(s.name, (byStatus.get(s.name) || 0) + 1);
-        if (s.negated) { negPairs++; negRows.add(r.key); negGroups.add(s.name); }
-      }
-    }
-    return { rows: kdJson.length, flat, none, byStatus, negPairs,
-             negRows: negRows.size, negGroups: negGroups.size, items: flat + none };
-  })();
-  /* md §三 速查之逐档之数——**自 md 之文独立求之**，不读 json、不读页面。
-   * 其形：`### <档名>（N 条）`。这一路是「同数」之另一源，两源相等才算数（裁九十六①）。 */
-  const kdMdCounts = (() => {
-    const m = new Map();
-    const re = /^### (.+?)（(\d+) 条）\s*$/gm;
-    const sec3 = kdMd.slice(kdMd.indexOf("## 三、速查·按核对状态"), kdMd.indexOf("## 四、台账正表"));
-    let x;
-    while ((x = re.exec(sec3))) m.set(x[1], Number(x[2]));
-    return m;
-  })();
-  console.log("  · 独立复算（json）：行 " + kdCalc.rows + "／档之引 " + kdCalc.flat +
-    "／无档之行 " + kdCalc.none + "／页上之目 " + kdCalc.items +
-    "；否定 " + kdCalc.negPairs + " 引、涉 " + kdCalc.negRows + " 行、跨 " + kdCalc.negGroups + " 档");
-  console.log("  · 独立复算（md §三 速查）：" + kdMdCounts.size + " 档，其和 " +
-    [...kdMdCounts.values()].reduce((a, b) => a + b, 0));
-
-  /* ---- 八之一 三源同数：json 之档 ＝ md 速查之档 ＝ `notice.status_order`（裁九十六①） ---- */
-  head("§八之一 「同数」之义已定：档数同 21，且**逐档之条数逐档同**（裁九十六①；三源对读）");
-  ok(kdNotice.status_order.length === 21, "`notice.status_order` 恰 21 档（一档不并）", "实测 " + kdNotice.status_order.length);
-  ok(kdCalc.byStatus.size === 21, "json 摊平所得之档集恰 21 档", "实测 " + kdCalc.byStatus.size);
-  ok(kdMdCounts.size === 21, "md §三 速查恰 21 档", "实测 " + kdMdCounts.size);
-  {
-    const bad = kdNotice.status_order.filter((n, i) => [...kdMdCounts.keys()][i] !== n);
-    ok(bad.length === 0, "md §三 之档序与 `status_order` **逐位相同**", bad.length ? "首异 " + bad[0] : "0 位不符");
-    const mism = kdNotice.status_order.filter(n => (kdCalc.byStatus.get(n) || 0) !== (kdMdCounts.get(n) || 0));
-    ok(mism.length === 0, "**逐档之条数逐档同**（json 摊平 vs md 速查，21 档逐档对）",
-      mism.length ? mism.map(n => n + "：json " + kdCalc.byStatus.get(n) + "／md " + kdMdCounts.get(n)).join("；") : "0 档不符");
-  }
-  ok(kdCalc.flat - kdCalc.rows === 48, "★ 行 " + kdCalc.rows + " 与档之引 " + kdCalc.flat + " 相去 48（裁九十六③之数）",
-    "差 " + (kdCalc.flat - kdCalc.rows));
-
-  /* ---- 八之二 页上之量（两宽） ---- */
-  const kdPage = {};
-  for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
-    const m = await measureKaodui(br, baseNew, w, h);
-    kdPage[w] = m;
-    console.log("    · " + w + "px 目=" + m.items + " 组=" + m.groups + " 渲=" + m.renderMs +
-      "ms 横溢=" + m.docOverflowX + " 行数=" + m.rows + " 摘要上之记号=" + m.negInSummary +
-      " 触区最小高=" + m.minSummaryH + "px 首屏内(凡例)=" + m.fanliInFold);
-    ok(m.shown, w + "px `#/kaodui` 其屏已显（hash 认得）", "view-kaodui hidden=" + !m.shown);
-    ok(m.items === kdCalc.items && m.rows === kdCalc.items,
-      w + "px 页上之目 ＝ 独立复算之 " + kdCalc.items + "（＝511 档之引 ＋ 176 无档之行）",
-      "dataset.items=" + m.items + " 实数 `.kd-row`=" + m.rows);
-    ok(m.groups === 22, w + "px 组恰 22（21 档 ＋ **无档者之位**一位；★ 其位非第 22 档）", "实测 " + m.groups);
-    /* ★ 逐组对位：组之序与其目数，与 `status_order`＋独立复算逐组对。**不以总数相同充之。** */
-    {
-      const exp = kdNotice.status_order.map(n => ({ name: n, n: kdCalc.byStatus.get(n) }))
-        .concat([{ name: "未提取到核对状态", n: kdCalc.none }]);
-      const bad = exp.filter((e, i) => !m.gts[i] || m.gts[i].name !== e.name || m.gts[i].n !== e.n);
-      ok(bad.length === 0, w + "px **22 组逐组对位**：其名其序其目数，与档序＋独立复算逐组相同",
-        bad.length ? "不符 " + bad.length + " 组，首为「" + bad[0].name + "」期 " + bad[0].n +
-          "，实 " + JSON.stringify(m.gts[exp.indexOf(bad[0])]) : "0 组不符");
-    }
-    /* ★ 三数并书（裁九十六②）——页首引之内三数俱在，且逐个等于独立复算之数；
-     *   并断其**不以一数代之**（三数俱须现身，缺一即红）。 */
-    ok(m.intro.rows === kdCalc.rows && m.intro.flat === kdCalc.flat && m.intro.none === kdCalc.none,
-      w + "px 页首**三数并书**且逐个＝独立复算（行 " + kdCalc.rows + "／档之引 " + kdCalc.flat +
-      "／无档之行 " + kdCalc.none + "）", JSON.stringify(m.intro));
-    ok(/共 687 目/.test(m.introText) && /所涉之行 463/.test(m.introText),
-      w + "px 页上「共 N 目」之语**明其所指**（目 vs 行，裁九十六③）", m.introText.slice(-60));
-    ok(/目/.test(m.statusText) && !/共 \d+ 条/.test(m.statusText),
-      w + "px 状态行一律称「目」，不出无主之「共 N 条」", m.statusText);
-    /* ★ 二位不得混（裁九十五；领队之十一·5）：二者俱在、其数各别、且页上写着其辨。 */
-    ok(m.noneGroup && m.noneGroup.n === kdCalc.none, w + "px 「未提取到核对状态」之位在，其数 " + kdCalc.none,
-      JSON.stringify(m.noneGroup));
-    ok(m.markedGroup && m.markedGroup.n === kdCalc.byStatus.get("未标核对状态"),
-      w + "px 「未标核对状态」一档另在，其数 " + kdCalc.byStatus.get("未标核对状态"), JSON.stringify(m.markedGroup));
-    ok(m.noneNote && /未从其文提取到/.test(m.noneNote) && /源文明书其未标/.test(m.noneNote) && /非.*第二十二档/.test(m.noneNote),
-      w + "px 其位之下写着二者之辨（「未从其文提取到」vs「源文明书其未标」，且明其非第 22 档）",
-      m.noneNote ? m.noneNote.slice(0, 60) + "…" : "<无此注>");
-    /* ★ 否定之记号挂在「行×档」之对（裁九十七）——摘要上之记号数 ＝ 独立复算之 40 引；
-     *   并断其**不是**挂在行上（挂在行则其数当为「涉 neg 之行所摊平之档数之和」，与 40 不等）。 */
-    ok(m.negInSummary === kdCalc.negPairs,
-      w + "px 摘要上之短记恰 " + kdCalc.negPairs + " 枚 ＝ `status[i].negated` 之引数（**挂在行×档之对**）",
-      "实测 " + m.negInSummary);
-    ok(m.negRowsTouched === kdCalc.negRows && m.negGroupsTouched === kdCalc.negGroups,
-      w + "px 其所涉之行 " + kdCalc.negRows + "、所跨之档 " + kdCalc.negGroups + "，与独立复算逐个相同",
-      "实测 行 " + m.negRowsTouched + "／档 " + m.negGroupsTouched);
-    ok(m.negMixedRows > 0 && m.negMixedOk,
-      w + "px **同一行一档否定、一档不否定者** " + m.negMixedRows + " 行，其记只落否定之那一档（逐目对位）",
-      "混档之行 " + m.negMixedRows + "，错挂 " + m.negMixedBad + " 目");
-    ok(m.docOverflowX === false, w + "px 无横向溢出", "scrollW/clientW=" + m.docScrollW + "/" + m.docClientW);
-    ok(m.errs.length === 0 && m.cerrs.length === 0, w + "px 零 pageerror（beacon 噪音已剔）",
-      "pageerror " + m.errs.length + "／console " + m.cerrs.length +
-      (m.errs.concat(m.cerrs).length ? "：" + m.errs.concat(m.cerrs).join(" ; ") : ""));
-  }
-  ok(kdPage[W_NARROW].minSummaryH >= 44,
-    "375px 行之触区 ≥44px（手机可点之界，同编年 `.chron-row summary` 之例）",
-    "最小 " + kdPage[W_NARROW].minSummaryH + "px");
-  ok(kdPage[W_NARROW].cardOverflow === false && kdPage[W_WIDE].cardOverflow === false,
-    "两宽**687 目全展**，其卡无一横溢其容器（逐目量，不取样）",
-    "375px=" + kdPage[W_NARROW].cardOverflow + "（卡 " + kdPage[W_NARROW].cards + " 张" +
-    (kdPage[W_NARROW].overflowFirst ? "，首溢 " + kdPage[W_NARROW].overflowFirst : "") + "）／1440px=" +
-    kdPage[W_WIDE].cardOverflow + "（卡 " + kdPage[W_WIDE].cards + " 张" +
-    (kdPage[W_WIDE].overflowFirst ? "，首溢 " + kdPage[W_WIDE].overflowFirst : "") + "）");
-  ok(kdPage[W_NARROW].docOverflowXOpen === false && kdPage[W_WIDE].docOverflowXOpen === false,
-    "两宽**687 目全展**之后，页仍无横向溢出（窄屏之实测，非推想）",
-    "375px=" + kdPage[W_NARROW].docOverflowXOpen + "／1440px=" + kdPage[W_WIDE].docOverflowXOpen);
-  ok(kdPage[W_WIDE].cards === kdCalc.items && kdPage[W_NARROW].cards === kdCalc.items,
-    "**每一目之卡俱建得起来**（展开即建，幂等）——两宽俱 " + kdCalc.items + " 张",
-    "1440px " + kdPage[W_WIDE].cards + "／375px " + kdPage[W_NARROW].cards);
-
-  /* ---- 八之二·附 筛选之一往一返（二组 chips ＋ 清除钮；★ 其立之由见量法（三）之注） ---- */
-  head("§八之二·附 筛选：组内并集、组间交集、清除归零，且**不入 hash**");
-  const kdF = await measureKaoduiFilter(br, baseNew);
-  {
-    const n1 = kdCalc.byStatus.get("本轮无从核");
-    const n2 = kdJson.filter(r => r.table === "places" && (r.status || []).some(x => x.name === "本轮无从核")).length;
-    console.log("    · 全表 " + kdF.base0.items + " 目 → 取「本轮无从核」得 " + kdF.one.items +
-      " → 再取「places」得 " + kdF.two.items + " → 清除得 " + kdF.back.items + "；hash=" + JSON.stringify(kdF.hash));
-    ok(kdF.base0.items === kdCalc.items && kdF.base0.clearHidden === true,
-      "未筛之时全表 " + kdCalc.items + " 目，且「清除筛选」之钮不出（无可清者不出其钮）",
-      "目 " + kdF.base0.items + "／钮隐 " + kdF.base0.clearHidden);
-    ok(kdF.one.items === n1 && kdF.one.groups === 1 && kdF.one.clearHidden === false,
-      "取「本轮无从核」一枚 → 恰 " + n1 + " 目、1 组，且清除之钮现身",
-      "目 " + kdF.one.items + "／组 " + kdF.one.groups + "／钮隐 " + kdF.one.clearHidden);
-    ok(kdF.two.items === n2, "再取「places」一枚 → **组间取交集**，恰 " + n2 + " 目（独立自 json 复算）",
-      "实测 " + kdF.two.items);
-    /* ★ 往返之断：清除之后须**一模一样地**回到全表，且二组之按压状态一并归零。 */
-    ok(kdF.back.items === kdCalc.items && kdF.back.rows === kdCalc.items &&
-       kdF.back.groups === 22 && kdF.back.pressed.length === 0 && kdF.back.clearHidden === true,
-      "点「清除筛选」→ 二组一并归零，复得 " + kdCalc.items + " 目／22 组，钮亦复隐",
-      "目 " + kdF.back.items + "／组 " + kdF.back.groups + "／仍按着 " + JSON.stringify(kdF.back.pressed) +
-      "／钮隐 " + kdF.back.clearHidden);
-    ok(kdF.empty.rows === 0 && kdF.empty.emptyLine.length > 0,
-      "筛空之组合下**空表自己说话**，不留白屏（同编年之例）",
-      "行 " + kdF.empty.rows + "／其文 " + JSON.stringify(kdF.empty.emptyLine));
-    ok(kdF.hash === "#/kaodui", "**筛选不入 hash**——分享出去一律是全表（件之 1）", "hash=" + JSON.stringify(kdF.hash));
-    ok(kdF.errs.length === 0 && kdF.cerrs.length === 0, "筛选一往一返之间零 pageerror",
-      "pageerror " + kdF.errs.length + "／console " + kdF.cerrs.length);
-  }
-
-  /* ---- 八之三 凡例**同出一源**之机械之证（裁九十八：逐元照取，不改一字，不增不删） ---- */
-  head("§八之三 凡例与二记号之字**同出一源**（裁九十八）——去 markdown 之记法后，与 json 逐字相同");
-  {
-    const strip = (s) => String(s).replace(/\*\*/g, "").replace(/`/g, "")
-      .replace(/^-\s+/gm, "").replace(/\s+/g, "");
-    const dom = kdPage[W_WIDE].fanli;
-    ok(dom.length === kdNotice.fanli.length, "页首凡例之块数 ＝ `notice.fanli` 之长（三元，不增不删）",
-      "页上 " + dom.length + "／json " + kdNotice.fanli.length);
-    kdNotice.fanli.forEach((f, i) => {
-      ok(dom[i] && strip(dom[i].body) === strip(f.text),
-        "凡例" + (i + 1) + "「" + f.title + "」其文与 json 逐字相同（只去 markdown 之记法）",
-        dom[i] ? "长 " + strip(dom[i].body).length + "／" + strip(f.text).length : "<缺>");
-      ok(dom[i] && dom[i].title.includes(f.title), "凡例" + (i + 1) + " 其标即 `fanli[" + i + "].title`", f.title);
-    });
-    ok(strip(kdPage[W_WIDE].negNote).includes(strip(kdNotice.neg_mark_note)),
-      "否定记号之**释文**入页首一次，与 `notice.neg_mark_note` 逐字相同（裁九十七③）", "");
-    ok(kdPage[W_WIDE].negFull.includes(kdNotice.neg_mark),
-      "否定记号之**全式**（含「须回原文」四字）入页首一次", kdNotice.neg_mark);
-    ok(kdPage[W_WIDE].negShorts.length > 0 &&
-       kdPage[W_WIDE].negShorts.every(t => t === kdNotice.neg_mark_short),
-      "条上所挂者一律**短式** `neg_mark_short`（裁九十七②，与 md 速查同）",
-      "共 " + kdPage[W_WIDE].negShorts.length + " 枚，异者 " +
-      kdPage[W_WIDE].negShorts.filter(t => t !== kdNotice.neg_mark_short).length);
-    /* ★ 「凡例不得手抄」之另一面：**其字不得在站码之内另有一份副本**。 */
-    const copied = kdNotice.fanli.map(f => f.text.slice(0, 18).replace(/\*\*/g, ""))
-      .concat([kdNotice.neg_mark, kdNotice.neg_mark_short, kdNotice.neg_mark_note.slice(0, 18)])
-      .filter(t => newApp.includes(t) || newHtml.includes(t));
-    ok(copied.length === 0, "`site/app.js`／`index.html` 之内**无凡例与记号之字之副本**（手抄即与 md 分家）",
-      copied.length ? "撞见 " + copied.length + " 处：" + copied[0] : "0 处");
-    /* ★ 二事照实之文（件之 4）须真在页上，不只在注里。 */
-    /* ★ 【本门自撞之一处，照实留其痕】原条作 `!/打开该地望页/.test(limits)`——**其谓词写反了**：
-     *   页上那一行正是要**明说**「不作『打开该地望页』」，故其字**当在**页上，只是不得用作链之文。
-     *   「此四字不得出现」与「此四字不得用作链之文」是两件事；原条禁其字，遂把一条写对了的文判成红。
-     *   ★ 治法是分开问：页首之文**当有**其正反二语（此条），而**链之文**不得含「地望页」
-     *   （另一条在 §八之四，逐目数之，`links.badWord`）。 */
-    ok(/在地图上定位/.test(kdPage[W_WIDE].limits) && /不作「打开该地望页」/.test(kdPage[W_WIDE].limits),
-      "页上明书地望一路之落点是「在地图上定位」，**并明说不作「打开该地望页」**（件之 4）",
-      kdPage[W_WIDE].limits.slice(0, 46) + "…");
-    ok(/不入网址/.test(kdPage[W_WIDE].limits) && /不可分享/.test(kdPage[W_WIDE].limits),
-      "页上明书其链**不可分享为深链**（`pendingSpot` 不入 URL），不掩", "");
-  }
-
-  /* ---- 八之四 回库之链：逐目机械之验 ＋ 五路真点之验 ---- */
-  head("§八之四 回库之链——**逐目**机械之验（687 目）＋ **五表五路**真点之验（断链 0）");
-  {
-    const lk = kdPage[W_WIDE].links;
-    ok(lk.total === kdCalc.items, "**每一目恰一条回库之链**，共 " + kdCalc.items + " 条（逐目数，不抽样）",
-      "有链之目 " + lk.total + "／目 " + kdCalc.items + "；无链之目 " + lk.missing);
-    ok(lk.badLabel === 0, "**逐目**：其文与其表相符（五表五式，people 一路并与 `isProto` 相符）",
-      "不符 " + lk.badLabel + " 目" + (lk.badLabelFirst ? "，首为 " + lk.badLabelFirst : ""));
-    ok(lk.unresolved === 0, "**逐目**：其所指之物在库内（地望→`PLACES`／文献→`SOURCES`／引文→`EVENTS[event_id]`／事件→`EVENTS`／人物→`PEOPLE`）",
-      "不在者 " + lk.unresolved + " 目" + (lk.unresolvedFirst ? "，首为 " + lk.unresolvedFirst : ""));
-    ok(lk.badWord === 0, "**逐目**：无一条链之文作「打开该地望页」（本库无此屏，件之 4）", "含「地望页」者 " + lk.badWord + " 条");
-    console.log("    ★ 机械之验读的是**数据**，读不出**码**之改（如把 people 一路换回 `setHash`）——");
-    console.log("      故其下另有真点之验；二者之分工写在交付文档。");
-    for (const c of KD_CLICKS) {
-      const r = await kdClick(br, baseNew, c.key, c.spot);
-      ok(r.hash === c.hash && r.view === c.view && r.landed && r.spotted === true,
-        "真点 · " + c.why + "（" + c.key + "）→ " + c.view + "，**且其条于该屏内实有其痕**",
-        "hash=" + r.hash + " 屏=" + r.view + " 屏内之痕=" + r.spotted + "｜" + r.evidence);
-    }
-  }
-
-  /* ---- 八之五 按类反证·逐条对位（注入之变体，非旧版；理由见 §八 之首注） ---- */
-  head("§八之五 r54-7 之按类反证·逐条对位——**注入五类同型之改**，各看其红在何处");
-  {
-    const mut = [
-      { cls: "甲·并档", how: "`kdGroupOrder()` 去其一档（『未见』）——即「21 档一档不并」之反面",
-        app: newApp.replace('return (DATA.kaodui_notice.status_order || []).concat([KD_NOSTATUS]);',
-                            'return (DATA.kaodui_notice.status_order || []).filter(x => x !== "未见").concat([KD_NOSTATUS]);'),
-        /* ★ 其红须以**页上真有之目**（`.kd-row` 之实数）为据，不以 `dataset.items` 充之——
-         *   后者是「当筛之后该有几目」，并档之变体不动它；**页上少了 16 目而它一字不变**，
-         *   正是「自述之数与页上之物分家」之相，故二者并断（`rows !== items` 亦入其据）。 */
-        red: (m) => m.groups === 21 && m.rows === kdCalc.items - kdCalc.byStatus.get("未见") && m.rows !== m.items,
-        say: (m) => "组 " + m.groups + "（期 22）、页上真有之目 " + m.rows + "（期 " + kdCalc.items +
-          "）、而页自述仍 " + m.items + "——并一档即少 16 目，且页之自述与页上之物当场分家" },
-      { cls: "乙·漏无档者之位", how: "不渲无档之 176 行——即裁九十五所斥之病（读者见 287 行而首页书 463）",
-        app: newApp.replace('      out.push({ r, i, si: -1, group: KD_NOSTATUS, neg: false });',
-                            '      /* 注入之变体：漏无档者之位 */'),
-        red: (m) => m.items === kdCalc.flat && !m.noneGroup,
-        say: (m) => "目 " + m.items + "（期 " + kdCalc.items + "）、无档者之位=" + (m.noneGroup ? "在" : "不在") },
-      { cls: "丙·记号挂在行", how: "把短记由 `en.neg` 改挂 `行有任一档否定`——即裁九十七所斥之「把整行诬为否定」",
-        app: newApp.replace('  if (en.neg) {\n    const ng = document.createElement("span");',
-                            '  if ((en.r.status || []).some(s => s.negated)) {\n    const ng = document.createElement("span");'),
-        red: (m) => m.negInSummary !== kdCalc.negPairs,
-        say: (m) => "摘要上之记号 " + m.negInSummary + "（期 " + kdCalc.negPairs + "）——挂在行上即多出其行之他档" },
-      { cls: "丁·凡例手抄", how: "`kaodui_notice.json` 内凡例一之文改一字——即「不得手抄」之反面",
-        notice: JSON.stringify((() => {
-          const n = JSON.parse(JSON.stringify(kdNotice));
-          n.fanli[0].text = n.fanli[0].text.replace("只抽不断", "只抽不判");
-          return n;
-        })(), null, 2),
-        red: (m) => {
-          const strip = (s) => String(s).replace(/\*\*/g, "").replace(/`/g, "").replace(/^-\s+/gm, "").replace(/\s+/g, "");
-          return strip(m.fanli[0].body) !== strip(kdNotice.fanli[0].text);
-        },
-        say: (m) => "页上凡例一之文与仓内 json 不再逐字相同（其页照取其源，故源一改页即改——此正是「同出一源」之实）" },
-      { cls: "己·漏其链", how: "卡内不挂回库之钮——即「每目一链」之反面",
-        app: newApp.replace('  card.appendChild(back);', '  /* 注入之变体：漏其链 */'),
-        red: (m) => m.links.total === 0 && m.links.missing === kdCalc.items,
-        say: (m) => "有链之目 " + m.links.total + "（期 " + kdCalc.items + "）、无链之目 " + m.links.missing },
-    ];
-    for (const t of mut) {
-      const ov = {};
-      if (t.app) ov["/app.js"] = t.app;
-      if (t.notice) ov["/data/kaodui_notice.json"] = t.notice;
-      const sv = await srv(SITE, ov);
-      const b = "http://127.0.0.1:" + sv.address().port + "/";
-      const m = await measureKaodui(br, b, W_WIDE, H_WIDE);
-      ok(t.red(m), "〔反证〕" + t.cls + " —— 注入之变体当场红（" + t.how + "）", t.say(m));
-      sv.close();
-    }
-    /* ★ 庚·清除之钮失聪——**此类之反证是补立的，其由须书**：我落笔时确实漏接了 `#kd-clear` 之监听，
-     *   自查时撞上而后补。**既撞上一个活的，就该留一条钉子**（记忆「按类反证立断言」之正例）。 */
-    {
-      const ov = { "/app.js": newApp.replace('  $("#kd-clear").addEventListener("click", () => {\n    kdView.statuses.clear();', '  (() => {}) && (() => {\n    kdView.statuses.clear();') };
-      const sv = await srv(SITE, ov);
-      const b = "http://127.0.0.1:" + sv.address().port + "/";
-      const m = await measureKaoduiFilter(br, b);
-      ok(m.back.items !== kdCalc.items || m.back.pressed.length > 0,
-        "〔反证〕庚·清除之钮失聪 —— 去其监听，点「清除筛选」之后**仍筛着**",
-        "清除之后 目 " + m.back.items + "（全表 " + kdCalc.items + "）、仍按着 " + JSON.stringify(m.back.pressed) +
-        "（二者有一不复原即算见红）");
-      sv.close();
-    }
-    /* ★ 戊·断链（people 一路换回契所列之 `setHash`）——**其红只出在真点之验**：
-     *   机械之验读数据，读不出码之改。故此类单列，且其量取真点。 */
-    {
-      const ov = { "/app.js": newApp.replace('run: () => goSearchPerson(id),', 'run: () => setHash(id, "timeline"),') };
-      const sv = await srv(SITE, ov);
-      const b = "http://127.0.0.1:" + sv.address().port + "/";
-      const c = KD_CLICKS.find(x => x.why.includes("非主角"));
-      const r = await kdClick(br, b, c.key, c.spot);
-      ok(r.view === "home", "〔反证〕戊·断链 —— people 一路换回契所列之 `setHash(row_id,\"timeline\")`，非主角当场落回首页",
-        "hash=" + r.hash + " 屏=" + r.view + "（期 home 方算见红；此即本件取 `goSearchPerson` 之由，已上报）");
-      sv.close();
-    }
-    console.log("  ⚠ 诚实二条（照实标出，不冒充反证）：");
-    console.log("      · **旧版（" + OLD_REF + "）于本节一红到底而其红无用**——彼时根本无此页，" +
-      "其红不指向本节任何一条断言之能。故本节之反证一律取**注入之变体**，不取旧版。");
-    console.log("      · **机械之验与真点之验各有其盲**：机械之验读数据、读不出码之改（类戊即其例）；" +
-      "真点之验今取五表五路之**抽样**（" + KD_CLICKS.length + " 目），非 " + kdCalc.items +
-      " 目俱点——其由与其界写在 docs/delivery_vision_r54.md，不以「逐条」自称。");
-  }
 
   await br.close(); srvNew.close(); srvOld.close();
   head("—— 共 " + checks + " 项断言，FAIL " + fails + " ——");

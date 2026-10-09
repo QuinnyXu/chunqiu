@@ -22,7 +22,7 @@
      主站已切至 Cloudflare Pages 自定义域 chunqiu.timechorus.com（2026-07-18），github.io 保留为镜像 -->
 <link rel="image_src" href="https://chunqiu.timechorus.com/assets/og/og-card.png">
 <link rel="canonical" href="https://chunqiu.timechorus.com/">
-<link rel="stylesheet" href="styles.css?v=2c48a1a7">
+<link rel="stylesheet" href="styles.css?v=44e2789c">
 </head>
 <body>
 <header class="site-header">
@@ -79,11 +79,8 @@
     <!-- 首页引言（r54-1，任务书 §三「首页之言」）：三句——是什么／有多大／凭什么。
          ★ 句二之数与句三之链一律由 app.js 跑时注入（renderHomeLede，四数俱取 DATA.meta.tables），
            HTML 内不写死任何一个数；无 JS 时句二句三留空，句一仍可读，故不做假数兜底。
-         ★ 句三之「考据索引」之链：其页由 r54-3 拟（本轮未立），故其位留在 app.js 之 KAODUI_ENTRY 一处，
-           页未立之前只出其文、不出其链——不显一个点不进去的链。
-         ★〔r54-7 就地加注，2026-09-29；上文一字不删，其「本轮未立」是 r54-1 之实〕**其页今已立**
-           （`#/kaodui`，裁七十七），KAODUI_ENTRY 遂由 null 改为 { hash, label }，句三之链自出；
-           **其条数不在该常量内**，取 `DATA.meta.tables.kaodui`（跑时自数）——站上不得有第二个「463」之出处。 -->
+         ★〔r60-I，2026-10-09〕句三原带一条「考据索引」之链；该屏并其路由已于本件去之（站长 2026-10-06：科普，非学术考订），
+           句三今止于「无出处者不入库。」，不再注入任何链。 -->
     <div class="home-lede" id="home-lede">
       <p class="hl-what">以《左传》为经，《国语》诸书为纬，牵系春秋人物的年、地、行迹与出处。</p>
       <p class="hl-size" id="home-lede-size"></p>
@@ -328,6 +325,8 @@
         <p><strong>可靠度三级</strong>：事件、地望、关系皆标 high / medium / low——high 可当骨架，medium 宜复核（多为追叙、纪年推算或异说并存），low 只作线索。<strong>亲至与相关</strong>：分"亲至"（史文明记其人身在事发地）与"相关"（事与其相关，而史文无其在场明文，如遣使代行、为其议婚）；判定从严——史无明文即标相关，地图轨迹只连亲至。<strong>「相关」是"史文没说他在"，不是"史文说他不在"</strong>：两者之别正是本库不替史料作断的分寸所在。</p>
         <p><strong>坐标确定性</strong>：古地今址按"谭其骧《中国历史地图集》通说 → 杨伯峻《春秋左传注》 → 其他历史地理著作"的次第考订，异说并存则坐标降级、注明所据；确址无考者给区域近似并标 low，个别事件径注"不落图"。<strong>后出叙事分层</strong>：《史记》等晚出文献里的戏剧情节（管仲射钩、曹沫劫盟、病榻论三竖），一律另标"后出叙事"层，与《春秋》经传的当代记事分列，不相混。<strong>经传无其名者不立人物条</strong>：某人若《春秋》经传与《国语》通篇无其名（如孙武），本库不为之立人物条目，其名只存于事目摘要与来源说明里——<strong>搜得到说明，查不到其人</strong>，这是有意为之，不是数据缺口。</p>
         <p>地图只是示意：列国底色与水系皆艺术化简笔，<strong>非考据疆界</strong>。</p>
+        <p><strong>只抽不断</strong>：站上的核对记号由程序从仓库的考订注文中抽取，抽取器不作任何史学判断。凡抽不出者一律书「未标」，不以上下文推断补齐（如：段内无日期而邻段有，不代填）。宁少勿假。</p>
+        <p><strong>索引是指路牌，不是替代品</strong>：记号只告诉你仓库里哪一栏、第几个字处有核对状态之语；凡须凭以论断者，一律回原栏读全文。</p>
       </section>
       <section>
         <h3>主要参考</h3>
@@ -372,33 +371,12 @@
     </div>
   </section>
 
-  <!-- 考据索引（r54-7，裁七十七／裁九十五至九十八）：`docs/kaodui_index.md` 之层一读者页。
-       hash `#/kaodui`；**不入主导航**（本件只开首页引言句三一处入口，见 app.js KAODUI_ENTRY）。
-       ★ 凡例三句、二十一档之序、二记号之字，一律取 `site/data/kaodui_notice.json`，
-         **此处不手抄一字**（裁九十八「逐元照取，不改一字，不增不删」）。
-       ★ 条目、计数、筛选 chips 一律由 app.js renderKaodui() 自 `site/data/kaodui.json` 跑时生成，
-         此处不写死任何一条记录、任何一个数。
-       ★ 其料 402 KB，**懒载**（裁九十四）：入页时取一次，未入页不载——故本节初始只见「载入中」之位。 -->
-  <section id="view-kaodui" hidden aria-labelledby="kaodui-title">
-    <h2 class="screen-title" id="kaodui-title">考据索引</h2>
-    <p class="kd-intro" id="kd-intro"></p>
-    <div class="kd-fanli" id="kd-fanli"></div>
-    <div class="chron-filters kd-filters" id="kd-filters" hidden>
-      <div class="chron-fgroup" id="kd-f-status" role="group" aria-label="按核对状态筛选"></div>
-      <div class="chron-fgroup" id="kd-f-table" role="group" aria-label="按表筛选"></div>
-      <div class="chron-fbar">
-        <button type="button" class="chron-clear" id="kd-clear" hidden>✕ 清除筛选</button>
-        <span class="chron-status" id="kd-status" role="status"></span>
-      </div>
-    </div>
-    <div class="kd-body" id="kd-body"></div>
-  </section>
   <!-- 晋中军将历任（r60-A）：`site/data/office_tenures.json` 之读者页，hash `#/tenures`，不入主导航
        （入口只首页「更多」一行之一钮，同考据索引之例）。任数、年、人名、职名字面一律由 app.js renderTenures()
        自数据跑时生成，此处不写死一条史料。三栏（title_evidence／title_certainty／certainty）不照搬给读者。 -->
   <section id="view-tenures" hidden aria-labelledby="tenures-title">
     <h2 class="screen-title" id="tenures-title">晋之中军将 · 历任</h2>
-    <p class="kd-intro" id="tn-intro"></p>
+    <p class="tn-intro" id="tn-intro"></p>
     <div class="tn-body" id="tn-body"></div>
   </section>
 </main>
@@ -493,7 +471,7 @@
   <p class="footer-feedback">反馈：<a href="https://github.com/QuinnyXu/chunqiu/issues" target="_blank" rel="noopener">GitHub Issues</a> · <a href="mailto:chunqiu@timechorus.com?subject=%E3%80%90%E7%BB%8F%E7%BA%AC%E6%98%A5%E7%A7%8B%E3%80%91%E5%8F%8D%E9%A6%88">chunqiu@timechorus.com</a>，史实纠错请附出处。</p>
   <p class="footer-stats" id="footer-stats">数据加载中…</p>
 </footer>
-<script src="app.js?v=78e8fe10"></script>
+<script src="app.js?v=ef882b72"></script>
 <!-- Cloudflare Web Analytics：领队特批外部资源例外（隐私友好、无 cookie 的访问统计）；
      token 出现在页面源码为 CF 官方设计如此，不构成信息泄露，见 docs/conventions.md §9.2 -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "972676e4c141408481d7b8cb54dc8cb5"}'></script>

@@ -446,9 +446,6 @@ section[hidden] { display: none; }
   border-bottom: 1px solid rgba(180, 101, 47, 0.42);
 }
 .home-lede .hl-chron:hover { color: var(--cinnabar); border-bottom-color: var(--cinnabar); }
-/* 考据索引之链（其页由 r54-3 立；未立之前 app.js 不建此节点，故本条今日无落点，留待其页上站） */
-.home-lede .hl-kaodui { color: var(--bronze); border-bottom: 1px dotted currentColor; text-decoration: none; }
-.home-lede .hl-kaodui:hover { color: var(--ochre); }
 /* 国别选项卡（滚动定位到分区；680px 下可横滑） */
 .state-tabs {
   position: sticky;
@@ -1639,183 +1636,20 @@ button.chron-chip[aria-pressed="true"] {
   .evt-person { min-height: 34px; }
 }
 
-/* ---------- 屏9 考据索引（#/kaodui，r54-7；design_notes §6.11） ----------
- * 其形照编年页：同一套筛选条（`.chron-filters`／`.chron-chip`／`.chron-clear`／`.chron-status`
- * 逐个复用，**不另立一套胶囊语言**），行体亦是 `<details>` 一行一目、展开即见其卡。
- * 与编年之别只二事：① 主序是**档**（故多一层 `.kd-group` 之组标），② 卡内是**八目之定义表**
- * 而非事件卡（其料不是事件，是核对记录）。
- * `--theme` 在本屏内归**青绿**（`--bronze`）：编年已占暖赭，考据是「核过没有」之屏，
- * 与人物语境色、与编年俱不相干——**色只答一件事**（同 §6.9 之理）。 */
-#view-kaodui { --theme: var(--bronze); }
-.kd-intro {
+/* 晋中军将屏之引语与告语（r60-I：原借考据索引屏之引语与告语式，该屏去后自立，形不变） */
+.tn-intro {
   margin: -0.7rem 0 0.8rem;
   color: var(--ink-soft);
   font-size: 0.85rem;
   line-height: 1.75;
 }
-.kd-intro strong { color: var(--ink); font-weight: 600; }
-
-/* 凡例区：三句凡例＋记号之全式＋二界之实录。其文一字不在本站码内，俱自 kaodui_notice.json 取。 */
-.kd-fanli {
-  margin: 0 0 0.9rem;
-  padding: 0.7rem 0.85rem 0.55rem;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--bronze);
-  border-radius: 3px;
-  background: var(--silk-panel);
-}
-.kd-fl + .kd-fl { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px dashed var(--line); }
-.kd-fl-t {
-  margin: 0 0 0.25rem;
-  font-family: var(--serif);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--bronze);
-}
-.kd-fl-b { font-size: 0.82rem; line-height: 1.8; color: var(--ink); }
-.kd-fl-b p { margin: 0 0 0.3rem; }
-.kd-fl-b p:last-child { margin-bottom: 0; }
-.kd-fl-list { margin: 0.1rem 0 0.3rem; padding-left: 1.1rem; }
-.kd-fl-list li { margin: 0 0 0.16rem; }
-.kd-fl-sub { margin: 0.35rem 0 0; font-size: 0.8rem; line-height: 1.8; color: var(--ink-soft); }
-.kd-note {
+.tn-intro strong { color: var(--ink); font-weight: 600; }
+.tn-note {
   font-size: 0.79rem;
   line-height: 1.75;
   color: var(--ink-soft);
 }
-.kd-limits { margin: 0.7rem 0 0; padding-top: 0.55rem; border-top: 1px dashed var(--line); }
-.kd-loading, .kd-err { padding: 1.2rem 0.9rem; text-align: center; }
-.kd-err { color: var(--cinnabar); }
-
-/* 一档之组 */
-.kd-group { margin: 0 0 1.2rem; }
-.kd-gt {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin: 0 0 0.4rem;
-  padding: 0 0 0.25rem;
-  border-bottom: 1px solid var(--line);
-  font-family: var(--serif);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-.kd-gt-name { color: var(--ink); }
-.kd-gt-n {
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  font-weight: 400;
-  color: var(--ink-soft);
-}
-/* 无档者之位：虚线框，与二十一档在形上即可分——**它不是第二十二档**（裁九十五）。 */
-.kd-group-none .kd-gt { border-bottom-style: dashed; }
-.kd-group-none .kd-gt-name { color: var(--ink-soft); }
-.kd-gnote {
-  margin: 0 0 0.5rem;
-  padding: 0.45rem 0.7rem;
-  border: 1px dashed var(--line);
-  border-radius: 3px;
-  background: var(--silk-panel);
-}
-.kd-gnote strong { color: var(--ink); font-weight: 600; }
-
-/* 一目之行 */
-.kd-list { list-style: none; margin: 0; padding: 0; }
-.kd-list li { margin: 0 0 0.25rem; }
-.kd-row {
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  background: var(--silk-panel);
-}
-.kd-row > summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.45rem;
-  padding: 0.4rem 0.7rem;
-  cursor: pointer;
-  list-style: none;
-  min-height: 34px;
-}
-.kd-row > summary::-webkit-details-marker { display: none; }
-.kd-row > summary:hover { background: rgba(68, 118, 107, 0.06); }
-.kd-row[open] { border-color: var(--bronze); }
-.kd-row[open] > summary { border-bottom: 1px solid var(--line); }
-.kd-tbl {
-  flex: 0 0 auto;
-  font-family: var(--serif);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  color: var(--bronze);
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  padding: 0 0.45rem;
-  line-height: 1.7;
-}
-.kd-row .kd-tgt { flex: 0 0 auto; font-size: 0.72rem; }
-.kd-item { flex: 1 1 16em; font-family: var(--serif); font-size: 0.84rem; color: var(--ink); }
-.kd-item.is-none, .kd-dl .is-none { color: var(--ink-soft); font-style: normal; opacity: 0.85; }
-/* 否定／引述语境之短记：朱砂虚线，形与「相关」空心签同族——示「此处存疑，须回原文」，
- * 不示「此条为假」。**其所挂者是行×档之对**（裁九十七），故同一行诸档各带各的。 */
-.kd-neg {
-  flex: 0 0 auto;
-  font-family: var(--serif);
-  font-size: 0.7rem;
-  color: var(--cinnabar);
-  border: 1px dashed currentColor;
-  border-radius: 999px;
-  padding: 0 0.4rem;
-  line-height: 1.7;
-  white-space: nowrap;
-}
-.kd-hint { flex: 0 0 auto; margin-left: auto; }
-.kd-hint::after { content: "展开 ▾"; font-size: 0.7rem; color: var(--ink-soft); }
-.kd-row[open] .kd-hint::after { content: "收起 ▴"; }
-
-/* 卡内：八目之定义表 */
-.kd-body-card { padding: 0.6rem 0.75rem 0.7rem; }
-.kd-dl {
-  display: grid;
-  grid-template-columns: 6.5em 1fr;
-  gap: 0.28rem 0.7rem;
-  margin: 0;
-  font-size: 0.82rem;
-  line-height: 1.75;
-}
-.kd-dl dt {
-  font-family: var(--serif);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  color: var(--ink-soft);
-}
-.kd-dl dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
-.kd-head40 { margin: 0.2rem 0 0; font-family: var(--serif); color: var(--ink-soft); }
-.kd-refs { margin: 0.25rem 0 0; font-size: 0.76rem; color: var(--ink-soft); }
-.kd-more { display: block; font-size: 0.74rem; color: var(--ink-soft); }
-.kd-st { white-space: nowrap; }
-/* 本目所落之档：只加一道下划线以示「你在这一档里看它」，不改其色——
- * 色在本页已有其职（朱砂＝否定之记），再加一色即二义相争。 */
-.kd-st.is-here { font-weight: 600; box-shadow: inset 0 -1px 0 var(--bronze); }
-.kd-back { margin: 0.6rem 0 0; }
-.kd-back-btn { font-size: 0.78rem; }
-
-/* 筛选条：二组 chips 沿用编年之形；无档者之位一枚作虚线，与二十一档一眼可分 */
-.kd-filters[hidden] { display: none; }
-.kd-chip.kd-chip-none { border-style: dashed; color: var(--ink-soft); }
-.kd-chip.kd-chip-none[aria-pressed="true"] { border-style: solid; color: var(--ink); }
-
-@media (max-width: 680px) {
-  /* 手机：行触区达标；所核之项独占一行不被挤断；定义表改上下两行（6.5em 一列在 375px 下过窄） */
-  .kd-row > summary { min-height: 44px; padding: 0.55rem 0.65rem; gap: 0.4rem; }
-  .kd-item { flex: 1 1 100%; }
-  .kd-hint { flex: 0 0 100%; margin-left: 0; text-align: right; }
-  .kd-dl { grid-template-columns: 1fr; gap: 0.05rem; }
-  .kd-dl dt { margin-top: 0.4rem; }
-  .kd-fanli { padding: 0.6rem 0.65rem 0.5rem; }
-  .kd-back-btn { min-height: 34px; }
-}
+.tn-err { padding: 1.2rem 0.9rem; text-align: center; color: var(--cinnabar); }
 
 /* ---------- 屏4 资料库 ---------- */
 .lib-toolbar {
@@ -2673,7 +2507,7 @@ button.chron-chip[aria-pressed="true"] {
 /* ---------- 屏10 晋中军将历任（#/tenures，r60-A） ----------
  * 一条总带（段宽按年、点之跳卡）＋逐任之卡。`--theme` 在本屏内归晋之国色（栗褐）：
  * 本屏所列俱晋人，国色制下「色只答一件事」——国。
- * 「职名系推」记号（`.tn-infer`）：朱砂虚线胶囊，与考据页 `.kd-neg` 同族语汇（示「须回仓库看其据」，
+ * 「职名系推」记号（`.tn-infer`）：朱砂虚线胶囊，与（已去之）考据索引屏的否定记号同族语汇（示「须回仓库看其据」，
  * 不示「此任为假」）；类名前缀 `tn-` 专属本屏，r60-B 之核对状态记号另取别名，二者不相犯。
  * 带上之推任亦取空心虚线边（位置与他任同一刻度，只形不同——其断处显而不藏）。 */
 #view-tenures { --theme: var(--state-jin); }
@@ -2769,7 +2603,7 @@ button.tn-infer[aria-expanded="true"] { background: rgba(188, 68, 51, 0.08); }
 }
 
 /* ---------- 核对状态之记号（r60-B；类名前缀 vs-，与 r60-A 之 tn- 二物不相犯） ----------
- * 记号挂在「其据」（引文）上，朱砂虚线胶囊（与 .tn-infer／.kd-neg 同族：示「须回仓库看其据」，不示「此条为假」）。
+ * 记号挂在「其据」（引文）上，朱砂虚线胶囊（与 .tn-infer 同族：示「须回仓库看其据」，不示「此条为假」）。
  * 三态分书：本轮无从核＝朱砂虚线；未见＝赭色虚线；未核＝墨灰虚线；不以颜色独力示义（字面即其名）。 */
 .vs-ledger-note {
   margin: 0.4rem 0 0.8rem;

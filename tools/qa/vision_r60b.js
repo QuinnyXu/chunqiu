@@ -103,7 +103,7 @@ const negOnly = PASS.filter(q => q.event_id && allSt(q.id).some(e => e.status.so
     ok(pop.vis, "  点开后可见");
     ok(pop.sent === SENT[n], "  点开一句话逐字＝读者面三句", "「" + pop.sent + "」");
     ok(pop.hrefs.length >= 1 && pop.hrefs.every(h => h.startsWith("https://github.com/QuinnyXu/chunqiu/blob/main/data/csv/passages.csv")), "  链到仓库 data/csv/passages.csv", pop.hrefs[0]);
-    ok(pop.where.includes("passages 表 " + q.id) && pop.where.includes("modern_note"), "  随带表／行／栏／偏移", pop.where.slice(0, 50));
+    ok(pop.where.includes("passages 表 " + q.id) && pop.where.includes("modern_note") && pop.where.includes("栏原文第 "), "  随带表／行／栏／偏移", pop.where.slice(0, 50));
     const near = await pg.evaluate((sel) => {
       const row = document.querySelector(sel + " .vs-row");
       const foot = row.querySelector(".vs-foot"), mk = row.querySelector(".vs-mark summary");
@@ -121,6 +121,11 @@ const negOnly = PASS.filter(q => q.event_id && allSt(q.id).some(e => e.status.so
   const note = await pg.$eval("#vs-note-chron", e => ({ t: e.textContent, vis: !!e.offsetParent }));
   ok(note.vis && note.t.includes(NOTVER), "编年页首有常驻可见之句，含「" + NOTVER + "」");
   ok(note.t.includes(expectCov), "  覆盖数＝独立复算之「" + expectCov + "」");
+  const markedPpl = PPL.filter(r => VM.some(e => e.table === "people" && e.row_id === r.id && e.status.some(x => TRIG.includes(x.name) && !x.negated)));
+  ok(markedPpl.length > 0 && markedPpl.every(r => !!r.short_bio), "（裁二百〇四 四③ 前提，独立复算）带记号之人 " + markedPpl.length + " 个，俱有小传（补语所述属实）");
+  ok(note.t.includes("人物一面今无记号") && note.t.includes("其注文只在无小传时才显") && note.t.includes("俱有小传") && note.t.includes("其状见于其事与其引文") && note.t.includes("带记号之 " + markedPpl.length + " 人"),
+    "  覆盖句已补语，三事俱在（人物面无记号／其由／其状见于何处），人数＝独立复算", note.t.slice(0, 120));
+  ok(note.t.indexOf("地点 ") < note.t.indexOf("人物一面今无记号") && note.t.indexOf("人物一面今无记号") < note.t.indexOf("；记号只标"), "  补语位于「地点 N／M」之后、分号之前");
   ok(note.t.includes(day), "  随书其日＝meta.generated_at（" + day + "）");
   await pg.goto(base + "#/p/P_WENJIANG/timeline", { waitUntil: "networkidle" });
   const note2 = await pg.$eval("#vs-note-timeline", e => ({ t: e.textContent, vis: !!e.offsetParent }));
@@ -243,7 +248,7 @@ const negOnly = PASS.filter(q => q.event_id && allSt(q.id).some(e => e.status.so
     await m.$eval("summary", e => e.click());
     const pop = await m.$eval(".vs-pop", e => ({ sent: e.querySelector(".vs-sent").textContent, vis: !!e.offsetParent, w: [...e.querySelectorAll(".vs-where")].map(x => x.textContent), h: [...e.querySelectorAll("a")].map(a => a.href) }));
     ok(pop.vis && pop.sent === SENT[n], "    点开一句话逐字＝「" + SENT[n] + "」");
-    ok(pop.w.length > 0 && pop.w.every(w => w.includes(t + " 表 " + id + " 行 · " + COLS[t] + " 栏第 ")) && pop.h.every(h => h === "https://github.com/QuinnyXu/chunqiu/blob/main/data/csv/" + t + ".csv"), "    书其栏与字位，链 data/csv/" + t + ".csv", pop.w[0] ? pop.w[0].slice(0, 45) : "");
+    ok(pop.w.length > 0 && pop.w.every(w => w.includes(t + " 表 " + id + " 行 · " + COLS[t] + " 栏原文第 ")) && pop.h.every(h => h === "https://github.com/QuinnyXu/chunqiu/blob/main/data/csv/" + t + ".csv"), "    书其栏与字位，链 data/csv/" + t + ".csv", pop.w[0] ? pop.w[0].slice(0, 45) : "");
     const foot = await pg.evaluate((sel) => {
       const r = document.querySelector(sel + ' .vs-mark').closest(".vs-row"); const f = r.querySelector(".vs-foot");
       const host = r.closest(".vs-field") || r.parentElement;
@@ -313,6 +318,32 @@ const negOnly = PASS.filter(q => q.event_id && allSt(q.id).some(e => e.status.so
   ok(cmpRes.marks > 0 && cmpRes.led && cmpRes.foot, "并观交会卡（cmpMeetEvNode）：事 " + cmpEv.id + " 之摘要记号在，且随记号行带账本句与行内句（该屏无页首句）");
   ok(errs.length === 0, "续件全程无 pageerror", errs.join(" | "));
 
+
+  /* ======================= r60-I：考据索引屏并其路由已去——死路由之验 ======================= */
+  console.log("\n§八 r60-I 死路由之验（#/kaodui 今作何；无任何代码路径仍取 kaodui.json／kaodui_notice.json）");
+  {
+    const pg2 = await ctx.newPage(); const reqs = [], perr = [];
+    pg2.on("request", r => reqs.push(r.url())); pg2.on("pageerror", e => perr.push(String(e)));
+    await pg2.goto(base + "#/kaodui", { waitUntil: "networkidle" });
+    await pg2.waitForTimeout(500);
+    const v = await pg2.evaluate(() => ({ visible: [...document.querySelectorAll('main > section[id^="view-"]')].filter(e => !e.hidden).map(e => e.id), hasKd: !!document.getElementById("view-kaodui"), kdLinks: document.querySelectorAll('a[href*="kaodui"]').length, lede: (document.getElementById("home-lede-why") || {}).textContent }));
+    ok(v.visible.join() === "view-home", "#/kaodui 回落首页（唯一显示之屏＝view-home）", JSON.stringify(v.visible));
+    ok(!v.hasKd && v.kdLinks === 0, "DOM 内无 #view-kaodui，页上无指向 kaodui 之链");
+    ok(/无出处者不入库。$/.test(v.lede || ""), "首页句三止于「无出处者不入库。」，无链", JSON.stringify(v.lede));
+    // 走一遍各屏，期间监听全部请求
+    for (const h of ["#/", "#/chronicle", "#/library", "#/library/sources", "#/about", "#/tenures", "#/relations", "#/p/P_WENJIANG/timeline", "#/p/P_WENJIANG/map", "#/kaodui"]) {
+      await pg2.goto(base + h, { waitUntil: "networkidle" }); await pg2.waitForTimeout(150);
+    }
+    const kdReq = reqs.filter(u => /kaodui/i.test(u));
+    ok(kdReq.length === 0, "真渲染十屏（含 #/kaodui 二次）共 " + reqs.length + " 次请求，无一次取 kaodui.json／kaodui_notice.json", kdReq.join(" | "));
+    ok(reqs.some(u => /verify_marks\.json/.test(u)), "（对照）监听确在工作：见 verify_marks.json 之请求");
+    ok(perr.length === 0, "无 pageerror", perr.join(" | "));
+    await pg2.goto(base + "#/about", { waitUntil: "networkidle" });
+    const ab = await pg2.$eval("#view-about", e => e.textContent);
+    ok(ab.includes("只抽不断") && ab.includes("索引是指路牌，不是替代品"), "关于页缩留二条凡例：只抽不断／索引是指路牌，不是替代品");
+    ok(!/779|601|107|178 行|494 行/.test(ab.slice(ab.indexOf("只抽不断") - 5, ab.indexOf("索引是指路牌") + 200)), "  对账之数（779／601／107／178 行／494 行）不入");
+    await pg2.close();
+  }
   await browser.close(); s.close();
   if (gateErrs) { console.log("\n门自身出错 " + gateErrs + " 项（exit 2）"); process.exit(2); }
   console.log("\n—— 判 ——  " + (fails ? "✗ " + fails + " 项红（exit 1）" : "✓ 全过（exit 0）"));
