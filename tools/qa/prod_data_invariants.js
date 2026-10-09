@@ -722,7 +722,7 @@ function oldMetaFromGit(nowTables) {
     await page.waitForSelector("details.event", { timeout: 30000 });
     const e076 = page.locator('details[data-eid="E076"]');
     await e076.waitFor({ timeout: 30000 });
-    await e076.locator("summary").click();
+    await e076.locator(":scope > summary").click();
     await e076.locator(".evt-body, .quote, .evt-role-note").first().waitFor({ timeout: 30000 }).catch(() => { });
     const e076Text = await e076.innerText();
     ok(e076Text.indexOf("婢") >= 0, "[r43渲] 生产渲染 E076 展开后含「婢」");
@@ -739,7 +739,7 @@ function oldMetaFromGit(nowTables) {
     const e084 = page.locator('details[data-eid="E084"]');
     await e084.waitFor({ timeout: 30000 });
     await e084.scrollIntoViewIfNeeded();
-    await e084.locator("summary").click();
+    await e084.locator(":scope > summary").click();
     await e084.locator(".evt-body, .quote, .evt-role-note").first().waitFor({ timeout: 30000 }).catch(() => { });
     const e084Text = await e084.innerText();
     ok(e084Text.indexOf("與") >= 0, "[r43渲] 生产渲染 E084（秦穆公页）展开后含「與」");
