@@ -39,6 +39,16 @@
  *   const { pw, browser, executablePath, browserVersion } = await requireBrowser();
  *   // ... 用毕 await browser.close();
  *
+ * 【退出码】（r60-F 补书，2026-10-08；裁二百〇五；★ 只加注，码未动）
+ *   本模块只有「成功返回」与 exit 2 两途，**无 exit 0／exit 1 之出口**：成功则返回，不退出进程；
+ *   0＝（调用门之）绿，由调用门自定；1＝判红，由调用门自定，本模块不出；
+ *   2＝本门自身出错（器之事，不是调用门之数据判红）。★ 已知之 exit 2 之因，凡五：
+ *     ① playwright 本体 require 不到（尤须报 cwd，见裁一百一十九④）；
+ *     ② 未设 PLAYWRIGHT_CHROMIUM_PATH，且 `ms-playwright/` 下得零个 chromium；
+ *     ③ 同上而得多于一个（不猜，俱列）；
+ *     ④ executablePath 所指文件不存在；
+ *     ⑤ `chromium.launch()` 失败。
+ *
  * 失败路径一律 process.exit(2)，不抛给调用者挑——
  * 这是"本门自身出错"，不是调用门的数据判据之红，二者在退出码上须可分
  * （裁一百一十四 四款之同一道理）。

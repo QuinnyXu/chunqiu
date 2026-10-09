@@ -50,6 +50,15 @@
  *   ★ **本门之自证一节亦配反证**（r52 裁二十三）：见 `selfAuditCounterProof()`——
  *     本门既以反证责人，不可独免其身。
  *
+ * 【退出码】（r60-F 补书，2026-10-08；裁二百〇五；★ 只加注，码未动。三分之实在文件尾 :752–756（补书前为 :743–747））
+ *   0＝全过；1＝判红（有不变量红，出口为 `fails`）；2＝本门自身出错（**这一次没量成**，不是判红）。
+ *   ★ 已知之 exit 2 之因：
+ *     ① 浏览器之路不得——共用之 `requireBrowser()`（`require_browser.js`）于 playwright 本体取不到、
+ *        `ms-playwright/` 下得零个或多于一个 chromium、可执行文件不在、或 launch 失败时 exit 2；
+ *     ② 取物失败——源端起不来、页面或子资源取不到、就绪闸超时；
+ *     ③ 反证失效——按类反证（含 `selfAuditCounterProof()`）有一条不红，即抛错停门；
+ *     ④ 其余一切 `.catch()` 所接之抛错（`:754–756`）。
+ *
  * 【跑法】
  *   node tools/qa/prod_render_invariants.js
  *     · 不设 QA_BASE_URL          → 生产站 https://chunqiu.timechorus.com
