@@ -14,8 +14,8 @@
     ③ **本宣随之改并书其由**（即本段）。**三者今俱落。**
   · ★ **此非「生成物勿手改」之例外，而是其面之扩**：`docs/kaodui_index.md` 自 r52 即生成物
     （其头自书「勿手改」），本件所改者只「其写者是谁」一事，**不改其为生成物之身份**。
-  · ★ **单一写手仍一个**：本脚本是 site/data/kaodui.json、site/data/kaodui_notice.json 与
-    docs/kaodui_index.md **三物之唯一写手**，抽取器只供其料与其文（CLAUDE.md 红线二与
+  · ★ **单一写手仍一个**：本脚本是 docs/kaodui_index.md（及 site/data/verify_marks.json）之唯一写手
+    〔r60-J 前为 site/data/kaodui.json、kaodui_notice.json 与 docs/kaodui_index.md「三物」〕，抽取器只供其料与其文（CLAUDE.md 红线二与
     docs/conventions.md 之数据流，其「data/csv/ → csv_to_json.py → site/data/」一支一字不须改）。
 
 用法（在仓库根目录）：
@@ -25,8 +25,9 @@
 - 纯数字字段自动转 int/float，空字符串转 null。
 - site/data/ 下的文件是生成物，禁止手改（见 docs/conventions.md）。
 - 本脚本于其末 import tools/build_kaodui_index.py 之抽取器，以**同一次抽取之果**
-  另写出 site/data/kaodui.json 与 site/data/kaodui_notice.json，并于 meta.json 之
-  tables 增一键 kaodui（r54-5；team/round54_prompts.md §三 裁七十七取甲-ii）。
+  写出 site/data/verify_marks.json 与 docs/kaodui_index.md。
+  〔r60-J 注：r54-5 起本脚本另写 site/data/kaodui.json、kaodui_notice.json 并于 meta.tables 增键 kaodui
+  （team/round54_prompts.md §三 裁七十七取甲-ii）；r60-I 去考据索引屏后，r60-J（裁一百九十六 二、三①）去其写与键。〕
   ★ site/data/ 之**写者进程仍只本文件一个**——抽取器一份、在原处，本文件只调其果，
   不另抽一次（CLAUDE.md 红线二与 docs/conventions.md 之数据流一字不须改）。
 """
@@ -95,14 +96,8 @@ def main():
     import build_kaodui_index as kaodui  # noqa: E402（置于此处，非置于文件头：其料须俟诸表写毕）
 
     kd_records, kd_stats = kaodui.build_records()
-    for fname, payload in (
-        ("kaodui.json", kaodui.public_records(kd_records)),
-        ("kaodui_notice.json", kaodui.public_notice(kd_records, kd_stats)),
-    ):
-        with (OUT_DIR / fname).open("w", encoding="utf-8", newline="\n") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
-            f.write("\n")
-    tables["kaodui"] = len(kd_records)
+    # 〔r60-J（裁一百九十六 二、三①）：此处原写 site/data/kaodui.json、kaodui_notice.json 并增 tables["kaodui"]，
+    #   考据索引屏并其路由已于 r60-I 去，二物无读者，故去其写与 meta 键；kd_records 仍供下文 verify_marks 与 md。〕
 
     # ---------------------------------------------------------------- 核对记号（第四物）
     # r60-E（裁一百九十五 取甲；裁二百〇一 改数组形）：以**同一次抽取之果 kd_records** 另出
@@ -155,8 +150,7 @@ def main():
     md_text = kaodui.render(kd_records, kd_stats)
     with md_path.open("w", encoding="utf-8", newline=chr(10)) as f:
         f.write(md_text)
-    print(f"kaodui -> site/data/kaodui.json（{len(kd_records)} 条）＋ kaodui_notice.json"
-          f"＋ docs/kaodui_index.md（同源同跑，一跑三物）")
+    print(f"kaodui -> docs/kaodui_index.md（{len(kd_records)} 条；与 verify_marks.json 同源同跑，一跑二物）")
 
     meta = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
