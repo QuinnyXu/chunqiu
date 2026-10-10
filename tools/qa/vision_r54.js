@@ -644,8 +644,90 @@ async function snapshot(br, base, hash, sel, w, h) {
     JSON.stringify(oldTour["skip"].key) + "、复弹=" + oldTour["skip"].reshown +
     "）。★ 即任务书二节 1「略过之后仍为 null」于「跳过」一钮**不复现**，详见交付文档之验收偏差上报。");
 
-  /* ===== §五 零影响：未涉之页 DOM 与旧版逐位全等 ===== */
-  head("§五 零影响——未涉之页 DOM 与旧版逐位全等（两宽）");
+  /* ===== §五 零影响：未涉之页与旧版逐位全等；已涉之页，其变三段式显式列出 =====
+   *
+   * ★★ 【r60-K，2026-10-10；裁二百一十，照 r54-4b 之例留痕，不默然改】
+   *   原作：六页「DOM 与旧版逐位全等」。r60-B／r60-B 续／r60-I 之后其中四页**真有差异**（门说的是实话），
+   *   故此四页不该在「未涉」之集里——今自「未涉」移至「已涉，其变如下」，**不是放宽，是把集合划对**。
+   *   · `OLD_REF`（9c646f8，r53 收官，2026-09-26）**一字未动，未换基线**：基线挪到 r60-B 之后，
+   *     「零影响」即「与自己全等」，恒真，门死（见门头之故）。
+   *   · 每页之变写成**三段式**「旧版 X；今版 Y；其由 Z」，一项一条，**不合并、不书『相异，预期之内』**：
+   *     Y 是**精确的断言**——元素恰一个、tag／class／id 精确、其文精确（覆盖句之数与日期**跑时自 json 另路复算**，
+   *     不写死）、其位精确（紧随哪个元素之后）；剥去之后**余下的与旧版逐位全等**。
+   *     故将来：多出一个元素、少了、文字漂了、位置挪了、关于页改一字——**俱红**。
+   *   · 基线之轮次与所由（conventions v1.44「走查门之基线数」一款）：本节之基线＝`OLD_REF`＝9c646f8（r53 收官），
+   *     由 r54-1 立；所由＝「r54 之前一版」，用以量 r54 之改之零影响；r60-B／B 续／I 所加之变，经 r60-K 逐项列为期望差异。
+   *   · 本节**自带按类反证**（§五之末：对已取之真快照注入同型之改，每类须红，不红即 exit 2）。 */
+  head("§五 零影响——未涉之页与旧版逐位全等；已涉之页，其变三段式显式列出（两宽）");
+  const escRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  /* 覆盖句之确值：另路自 `site/data/*.json` 复算（口径同 app.js `vsCoverage`／`vsLedgerText`，但不读页面、不读 app.js） */
+  const ledgerExpected = (() => {
+    const J = (n) => JSON.parse(fs.readFileSync(path.join(SITE, "data", n + ".json"), "utf8"));
+    const vm = J("verify_marks"), ppl = J("people"), evs = J("events"), pas = J("passages"), src = J("sources"), plc = J("places"), meta = J("meta");
+    const evOf = new Map(pas.map(q => [q.id, q.event_id]));
+    const sp = new Set(), se = new Set(), ss = new Set(), sl = new Set(), marked = new Set();
+    const TRIG = ["本轮无从核", "未见", "未核"];
+    for (const e of vm) {
+      if (e.table === "people") { sp.add(e.row_id); if (e.status.some(s => !s.negated && TRIG.includes(s.name))) marked.add(e.row_id); }
+      else if (e.table === "events") se.add(e.row_id);
+      else if (e.table === "passages" && evOf.get(e.row_id)) se.add(evOf.get(e.row_id));
+      else if (e.table === "sources") ss.add(e.row_id);
+      else if (e.table === "places") sl.add(e.row_id);
+    }
+    return "无记号不等于已核。核对账本现覆盖人物 " + sp.size + "／" + ppl.length + "、事件 " + se.size + "／" + evs.length +
+      "、来源文献 " + ss.size + "／" + src.length + "、地点 " + sl.size + "／" + plc.length +
+      "（数据生成于 " + meta.generated_at.slice(0, 10) + "）（人物一面今无记号：其注文只在无小传时才显，而带记号之 " + marked.size +
+      " 人俱有小传；其状见于其事与其引文。）；记号只标账本中记为「本轮无从核」「未见」「未核」者，其余——含账本未涉及的——并不因没有记号而即是已核。";
+  })();
+  const LEDGER_P = (id) => '<p class="vs-ledger-note" id="' + id + '">' + ledgerExpected + "</p>";
+  const ABOUT_P1 = "<p><strong>只抽不断</strong>：站上的核对记号由程序从仓库的考订注文中抽取，抽取器不作任何史学判断。凡抽不出者一律书「未标」，不以上下文推断补齐（如：段内无日期而邻段有，不代填）。宁少勿假。</p>";
+  const ABOUT_P2 = "<p><strong>索引是指路牌，不是替代品</strong>：记号只告诉你仓库里哪一栏、第几个字处有核对状态之语；凡须凭以论断者，一律回原栏读全文。</p>";
+  /* 锚元素末尾之下标（插入点＝紧随其后）；找不到返 -1 */
+  const endOf = (old, startMark, closeTag) => { const i = old.indexOf(startMark); if (i < 0) return -1; const j = old.indexOf(closeTag, i); return j < 0 ? -1 : j + closeTag.length; };
+  /* 增量清单：每项＝一个「今版 Y」。要求：恰一处精确命中（含其前之空白节点）、其位紧随锚元素之后、剥去后余下与旧版逐位全等。 */
+  const DELTAS = {
+    "#/chronicle": [
+      { tag: "甲", X: "旧版：编年页首（自述 #chron-intro 之后）无账本句",
+        Y: "恰一个 " + "<p class=\"vs-ledger-note\" id=\"vs-note-chron\">，紧随 #chron-intro 之后，其文＝自 json 另路复算之覆盖句（数与日期不写死）",
+        Z: "r60-B（e5814bb，裁一百九十九⑤：「无记号不等于已核」须与记号同屏）；覆盖句二改与补语：r60-B 续（42f6b72）、r60-I（0e15a26，裁二百〇四 四③）",
+        html: LEDGER_P("vs-note-chron"), anchor: (old) => endOf(old, 'id="chron-intro"', "</p>") }],
+    "#/library": [
+      { tag: "甲", X: "旧版：资料库页首（标题 #library-title 之后）无账本句",
+        Y: "恰一个 <p class=\"vs-ledger-note\" id=\"vs-note-library\">，紧随 #library-title 之后，其文＝自 json 另路复算之覆盖句",
+        Z: "r60-B 续（42f6b72，裁二百〇三 五②：记号既将现于资料库，其句须随之至）；补语 r60-I（0e15a26）",
+        html: LEDGER_P("vs-note-library"), anchor: (old) => endOf(old, 'id="library-title"', "</h2>") }],
+    "#/p/P_WENJIANG/timeline": [
+      { tag: "甲", X: "旧版：人物时间线页首（姓名行 #timeline-nameline 之后）无账本句",
+        Y: "恰一个 <p class=\"vs-ledger-note\" id=\"vs-note-timeline\">，紧随 #timeline-nameline 之后，其文＝自 json 另路复算之覆盖句",
+        Z: "r60-B（e5814bb，裁一百九十九⑤：页首常驻句）；文字二改与补语同编年页",
+        html: LEDGER_P("vs-note-timeline"), anchor: (old) => endOf(old, 'id="timeline-nameline"', "</p>") }],
+    "#/about": [
+      { tag: "甲", X: "旧版：关于页「数据凡例」节于「……非考据疆界」一段之后无此条",
+        Y: "恰一个 " + ABOUT_P1 + "，紧随「非考据疆界」一段之后（先于乙）",
+        Z: "r60-I（0e15a26，笔一：去考据索引屏而缩留其凡例「只抽不断」；改写准于裁二百〇九）",
+        html: ABOUT_P1, anchor: (old) => endOf(old, "非考据疆界", "</p>") },
+      { tag: "乙", X: "旧版：关于页同节无此条（剥去甲后，其位仍紧随「非考据疆界」一段，故在甲之后）",
+        Y: "恰一个 " + ABOUT_P2 + "，紧随甲之后",
+        Z: "r60-I（0e15a26，笔一：缩留其凡例「索引是指路牌，不是替代品」；改写准于裁二百〇九）",
+        html: ABOUT_P2, anchor: (old) => endOf(old, "非考据疆界", "</p>") },
+    ],
+  };
+  /* 剥去一项：返回 { stripped, reasons }。reasons 空＝该项 Y 成立。不吞别的差异：命中须恰一处、位须精确。 */
+  function applyDelta(cur, oldS, d) {
+    const reasons = [];
+    const ms = [...cur.matchAll(new RegExp("(\\s*)" + escRe(d.html), "g"))];
+    if (ms.length !== 1) { reasons.push("今版中此元素（精确文字）命中 " + ms.length + " 处，应恰 1"); return { stripped: cur, reasons }; }
+    const m = ms[0], want = d.anchor(oldS);
+    if (want < 0) reasons.push("旧版中锚元素找不到");
+    else if (m.index !== want) reasons.push("其位应紧随锚元素之后（下标 " + want + "），实在 " + m.index);
+    return { stripped: cur.slice(0, m.index) + cur.slice(m.index + m[0].length), reasons };
+  }
+  /* 一页之判：依序剥去其全部 Y，余下须＝旧版。同锚二项（关于页）依序剥去，故其先后亦被断（颠倒则甲项位错而红）。 */
+  function judgePage(hash, newS, oldS) {
+    let cur = newS; const per = [];
+    for (const d of (DELTAS[hash] || [])) { const r = applyDelta(cur, oldS, d); per.push(r.reasons); cur = r.stripped; }
+    return { per, rest: cur === oldS, cur };
+  }
   const PAGES = [
     ["#/chronicle", "#view-chronicle"],
     ["#/library", "#view-library"],
@@ -654,21 +736,67 @@ async function snapshot(br, base, hash, sel, w, h) {
     ["#/p/P_WENJIANG/timeline", "#view-timeline"],
     ["#/p/P_WENJIANG/map", "#view-map"],
   ];
+  let gateErrs5 = 0;
+  const keep5 = {};   // 留一份快照供本节末之按类反证
   for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
     for (const [hash, sel] of PAGES) {
       const a = await snapshot(br, baseNew, hash, sel, w, h);
       const b = await snapshot(br, baseOld, hash, sel, w, h);
-      let where = "";
-      if (a.s !== b.s) {
-        const n = Math.min(a.s.length, b.s.length);
-        let i = 0; while (i < n && a.s[i] === b.s[i]) i++;
-        where = " 首异于第 " + i + " 字：新「" + a.s.slice(i, i + 60) + "」／旧「" + b.s.slice(i, i + 60) + "」";
+      if (w === W_WIDE) keep5[hash] = { a: a.s, b: b.s };
+      if (!DELTAS[hash]) {
+        let where = "";
+        if (a.s !== b.s) {
+          const n = Math.min(a.s.length, b.s.length);
+          let i = 0; while (i < n && a.s[i] === b.s[i]) i++;
+          where = " 首异于第 " + i + " 字：新「" + a.s.slice(i, i + 60) + "」／旧「" + b.s.slice(i, i + 60) + "」";
+        }
+        ok(a.s === b.s, w + "px " + hash + " → " + sel + " 逐位全等（未涉）", "长 " + a.s.length + " ／ " + b.s.length + where);
+      } else {
+        const jp = judgePage(hash, a.s, b.s);
+        DELTAS[hash].forEach((d, k) => {
+          ok(jp.per[k].length === 0, w + "px " + hash + " → " + sel + " 〔已涉·" + d.tag + "〕" + d.X + "；今版 " + d.Y + "；其由 " + d.Z,
+            jp.per[k].length ? "红：" + jp.per[k].join("；") : "命中恰一、位准、文准");
+        });
+        let where = "";
+        if (!jp.rest) {
+          const n = Math.min(jp.cur.length, b.s.length);
+          let i = 0; while (i < n && jp.cur[i] === b.s[i]) i++;
+          where = " 首异于第 " + i + " 字：剥后「" + jp.cur.slice(i, i + 60) + "」／旧「" + b.s.slice(i, i + 60) + "」";
+        }
+        ok(jp.rest, w + "px " + hash + " → " + sel + " 剥去上列已涉之变后，余下与旧版逐位全等（别处一字之变俱红）", "长 " + jp.cur.length + " ／ " + b.s.length + where);
       }
-      ok(a.s === b.s, w + "px " + hash + " → " + sel + " 逐位全等",
-        "长 " + a.s.length + " ／ " + b.s.length + where);
       ok(a.errs.length === 0 && a.cerrs.length === 0, w + "px " + hash + " 零 pageerror（beacon 噪音已剔）", "pageerror " + a.errs.length + "／console " + a.cerrs.length + (a.errs.concat(a.cerrs).length ? "：" + a.errs.concat(a.cerrs).join(" ; ") : ""));
     }
   }
+  /* ---- §五·按类反证（r56 款「绿须自证其能红」）：对已取之真快照注入同型之改，每类须使判红；不红＝门自身出错（exit 2） ---- */
+  console.log("  ── §五·按类反证：对真快照注入同型之改，各须当场红（不红即 exit 2）");
+  const proof = (label, hash, mut) => {
+    const { a, b } = keep5[hash];
+    const jp = judgePage(hash, mut(a), b);
+    const red = jp.per.some(r => r.length) || !jp.rest;
+    const why = jp.per.map((r, k) => r.length ? "〔" + DELTAS[hash][k].tag + "〕" + r.join("；") : "").filter(Boolean).join(" ｜ ") || (!jp.rest ? "剥去已列之变后余下与旧版不全等" : "");
+    if (!red) gateErrs5++;
+    console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕" + label + " —— " + (red ? "当场红：" + why : "★ 不红：门自身出错"));
+  };
+  for (const hash of Object.keys(DELTAS)) {   // 正验对照：未改动者须不红
+    const jp = judgePage(hash, keep5[hash].a, keep5[hash].b);
+    const clean = jp.per.every(r => !r.length) && jp.rest;
+    if (!clean) gateErrs5++;
+    console.log("    " + (clean ? "✓" : "⚠") + " 〔正验对照〕" + hash + " 真快照不红");
+  }
+  proof("(a) 编年页再注入一个多余元素（紧随账本句之后加 <p id=\"qa-extra\">）", "#/chronicle", s => s.replace(LEDGER_P("vs-note-chron"), LEDGER_P("vs-note-chron") + '<p id="qa-extra">x</p>'));
+  proof("(b) 资料库页删去应有的 vs-ledger-note", "#/library", s => s.replace(/\s*<p class="vs-ledger-note" id="vs-note-library">[^<]*<\/p>/, ""));
+  proof("(c) 时间线页其文改一字（「即是已核」→「即是未核」）", "#/p/P_WENJIANG/timeline", s => s.replace("并不因没有记号而即是已核", "并不因没有记号而即是未核"));
+  proof("(d) 关于页「只抽不断」一条改一字（「宁少勿假」→「宁少勿误」）", "#/about", s => s.replace("宁少勿假", "宁少勿误"));
+  proof("(e) 编年页其位移到别处（挪至 #chron-intro 之前）", "#/chronicle", s => {
+    const m = s.match(new RegExp("(\\s*)" + escRe(LEDGER_P("vs-note-chron"))));
+    const t = s.slice(0, m.index) + s.slice(m.index + m[0].length);
+    const i = t.indexOf('<p class="chron-intro"');
+    return t.slice(0, i) + m[0] + t.slice(i);
+  });
+  proof("(f) 关于页二条凡例颠倒先后", "#/about", s => s.replace(ABOUT_P1, "@@A@@").replace(ABOUT_P2, ABOUT_P1).replace("@@A@@", ABOUT_P2));
+  proof("(g) 吞别处之差：编年页于已列之变外另改别处一字（标题加 X）", "#/chronicle", s => s.replace("编年 · 大事年表", "编年 · 大事年表X"));
+  if (gateErrs5) { console.log("  ⚠ §五·按类反证有 " + gateErrs5 + " 项不红：本门自身出错（exit 2），今日这一跑不作数"); process.exitCode = 2; }
 
   /* ===== §六 二案之量（供裁，非断言；本节一行也不落改） ===== */
   head("§六 供裁之量（一）「编年之径」四案——任务书一节 3 三项：首屏可见性／点击之径长／窄屏之形");
@@ -947,6 +1075,7 @@ async function snapshot(br, base, hash, sel, w, h) {
   head("—— 共 " + checks + " 项断言，FAIL " + fails + " ——");
   console.log("（§六 为供裁之量，不计入断言；其改一行未落，照任务书一节 3／二节 2「停下上报、不自行落定」。）");
   if (fails) process.exitCode = 1;
+  if (gateErrs5) process.exitCode = 2;   // r60-K：§五按类反证有不红者＝门自身出错，压过 1
 })().catch(e => {
   console.error("门内抛错：" + (e && e.stack || e));
   /* ★ 【r54-7 改，留痕】原作 `process.exitCode = 2`——**不够**：抛错之时浏览器与二源端俱未关，
