@@ -11,6 +11,14 @@
   ★ **其果之写者只一个进程**：tools/csv_to_json.py——
       · site/data/kaodui.json、site/data/kaodui_notice.json（r54-5 起，裁七十七取甲-ii）；
       · docs/kaodui_index.md（**r55-D 起**，裁一百〇六准其写 docs/、裁一百一十一取甲）。
+  〔2026-10-10 EDT 就地加注·r60-M（只加注，不改上文一字，不动一行码；据 team/round59_prompts.md §四十三 裁二百一十二 二④）：
+    上列「site/data/kaodui.json、kaodui_notice.json」二写与本文件下文凡述「二 json」「读者页」「共用一源」者
+    （含 r54-5 就地加注、FANLI 诸常量与 STATUS_ORDER 之注、source_fingerprints 之注），皆系其时（r54-5 至 r60-I）之实：
+    读者页（考据索引屏）已于 r60-I 去，csv_to_json.py 已于 r60-J 去二 json 之写与 meta.tables 之 kaodui 键，今所写者只
+    docs/kaodui_index.md 与 site/data/verify_marks.json。★ public_records()／public_notice() 二函数原专为二 json 而设，
+    今已成孤——全仓无调用者（可复跑：grep -rnE "public_records|public_notice" tools site --include=*.py --include=*.js
+    仅得其定义与本注）；其注所云「site/data/…之形」「读者页」今无所指。依裁一百九十六 三① 取甲「留其器」，码不删；
+    择「并入器头之说明」而不逐函数改注，由：二函数之注同属上述其时之述，一处总说胜过两处各改，且不动函数体与其文档串。〕
   ★ **其由**：「两个写手一个文件」正是 r53 立「单一写手」所禁（裁一百〇六之二）。
     r55-D 之前，本文件与 csv_to_json.py **俱能据同一 render() 之果去动 docs/kaodui_index.md**，
     虽实际只本文件写之，其形已是二写手；今去本文件之写权，形与实同归一。
@@ -427,6 +435,7 @@ def source_fingerprints(stats):
     return out
 
 
+# 〔r60-M 注：本函数今已成孤、无调用者，其注所述「site/data/…」「读者页」今无所指，详见文件头 r60-M 就地加注；留器不删。〕
 def public_records(records):
     """把内部之条成 `site/data/kaodui.json` 之形。
 
@@ -460,6 +469,7 @@ def public_records(records):
     return out
 
 
+# 〔r60-M 注：本函数今已成孤、无调用者，其注所述「site/data/…」「读者页」今无所指，详见文件头 r60-M 就地加注；留器不删。〕
 def public_notice(records, stats):
     """`site/data/kaodui_notice.json` 之形：凡例、档序、记号、源栏指纹。
 

@@ -50,6 +50,9 @@
         `https://chunqiu.timechorus.com/data/meta.json`，得 `cache-control: public, max-age=0, must-revalidate`、
         `cf-cache-status: DYNAMIC`——**其据今日仍立**。**戳所治者是窗；窗为零，戳无所治。**
         ★ **读法**：此 `max-age=0` 系 **Cloudflare 侧今日之策，非我们所控之约**；其策一改，此判即翻。
+        〔2026-10-10 EDT 就地加注·r60-M（只加注、不改上文一字，亦不改本脚本之行为）：上「二问俱是／否」条括注「含 `kaodui.json`」
+          系裁九十一（2026-09-28）当日之实，属历史说明，故加注而不改文（r60-D 之议）。该档已于 r60-J 不复写，`site/data/` 今无之；
+          其余 `site/data/*.json`（含 `verify_marks.json`）之判不变。〕
 
   · **`assets/map/base_map.svg`：二问俱「是」，而本轮**未入戳**——其由是一**结构之碍**，非疏漏（登记候排、候裁）**：
       · **一问「是」**：其由 `site/app.js` 内 `fetch("assets/map/base_map.svg")` 取入而后**解析其结构**。

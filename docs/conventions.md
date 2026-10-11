@@ -71,7 +71,7 @@ tools/             管线脚本（仅 Python 标准库）
 tools/tenure_gate.py 任期表（office_tenures）之门，由 validate.py 每跑必调（见 §2「office_tenures 与 tenure_gate」）
 site/              静态站根目录，可整体部署到 GitHub Pages
 site/data/         生成的 JSON —— 生成物，禁止手改
-site/data/verify_marks.json  核对记号（r60-E 立，v1.52）：顶层数组，一记号一元；与 kaodui.json 同一次抽取之果；由 csv_to_json.py 写出，不入戳
+site/data/verify_marks.json  核对记号（r60-E 立，v1.52）：顶层数组，一记号一元；与 docs/kaodui_index.md 同一次抽取之果（r60-J 前并与 site/data/kaodui.json 同出，该档已去其写）；由 csv_to_json.py 写出，不入戳
 site/assets/       图标（icons/）与地图底图（map/）
 docs/              本文件与设计文档（design/）
 docs/changes/      各轮 CHANGES.md 原样归档（见 §10.1），命名 rXX_<批名>.md
@@ -722,7 +722,7 @@ delivery_<agent>_r<团队轮次>[a|b].md
 > **二问俱「是」方入戳。**
 
 - `.js`／`.css`：二问俱是 → **入戳**。
-- `site/data/*.json`（**含 `kaodui.json`**）：一问是、二问**否** → **不入戳**。其据系**实测** `max-age=0`、`cf-cache-status: DYNAMIC`（**其基准**：2026-09-28 裁时之实测，2026-09-29 r54-6 重戳之日复测仍立；二次之值与其详在下引之处）；★ **此据系 Cloudflare 侧今日之策、非我们所控之约——其策若变，此判须重裁。**
+- `site/data/*.json`（**含 `kaodui.json`**）：一问是、二问**否** → **不入戳**。〔2026-10-10 EDT 就地加注·r60-M：括注「含 `kaodui.json`」系裁九十一当日之实；该档已于 r60-J 不复写、`site/data/` 无之（`ls site/data/` 可验），其余 `site/data/*.json` 之判不变，上句括注一字不删。〕其据系**实测** `max-age=0`、`cf-cache-status: DYNAMIC`（**其基准**：2026-09-28 裁时之实测，2026-09-29 r54-6 重戳之日复测仍立；二次之值与其详在下引之处）；★ **此据系 Cloudflare 侧今日之策、非我们所控之约——其策若变，此判须重裁。**
 - ★ **其全文**（二问之由、诸物逐一之实测值与实测之日、`assets/map/base_map.svg` 一物之判）**在 `tools/stamp_assets.py` 之头**，r54-6 末件所落。**本节只引其要**；欲改此界、或欲知某物实测何值者，**读那一处**——**一处一说，此处只指路。**
 
 ★ **丙、md 与 json 同源之窗（裁九十）**：**其问未决，候次轮**——其条文俟解定后方写，`tools/csv_to_json.py` 之**只报之一行本轮照留**（裁九十明命），其答（`build_kaodui_index.py` 与 `csv_to_json.py` 能否一跑同出）与其据系本件（r54-6 续补）之**交件报告**所陈，**尚未入 `docs/delivery_skipper_r54.md`**——本件之界只许动本文件一物，故彼文本轮未及，**此系在册之一债**；**其条之文与其落点（§1 数据流抑或本节）俱俟裁**。
