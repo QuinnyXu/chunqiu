@@ -2,7 +2,7 @@
  *
  * 本门要回答四个问题，一个都不许用「截图看着不挤了」来答：
  *   ① **甲之改对任意长度成立**——全库最长之值（`E295`／`P_CHUWU`，486 字）在 1440／375 两宽下
- *      不溢出其容器；且不止此一值，**34 主角全部时间线卡之 role-chip 逐卡实测**，
+ *      不溢出其容器；且不止此一值，**35 主角全部时间线卡之 role-chip 逐卡实测**，
  *      判据取 `getBoundingClientRect()` 之右缘与 `scrollWidth <= clientWidth`，**不以截图目测代之**。
  *   ② **叔向零影响**——站长所举之正例，改前改后 DOM 逐位相同、1440px 下盒矩形逐位相同。
  *      此条不与「我觉得没动它」对读，而是**真把 r52 改动前那一版的 app.js/styles.css 另起一个源端跑起来**两版对读。
@@ -235,9 +235,9 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
   console.log("    首句长 最短 " + sw.heads[0] + " / 中位 " + sw.heads[sw.heads.length >> 1] + " / 最长 " + sw.heads[sw.heads.length - 1] + " 字（含尾「…」）");
 
   /* ================= §三 溢出实测（口径六①）================= */
-  console.log("\n【三】溢出实测：1440／375 两宽，34 主角逐卡量（getBoundingClientRect ＋ scrollWidth，不以截图代之）");
+  console.log("\n【三】溢出实测：1440／375 两宽，35 主角逐卡量（getBoundingClientRect ＋ scrollWidth，不以截图代之）");
   const PROTOS = await n1440.p.evaluate(() => PROTAGONISTS.map(p => p.id));
-  ok(PROTOS.length === 34, "主角 34 人（全数逐页量，不抽样）", String(PROTOS.length));
+  ok(PROTOS.length === 35, "主角 35 人（全数逐页量，不抽样）", String(PROTOS.length));
 
   const scan = async (p, base, width) => {
     const bad = [], stat = { chips: 0, pages: 0 };
@@ -253,7 +253,7 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
   };
   for (const [p, W] of [[n1440.p, 1440], [n375.p, 375]]) {
     const { bad, stat } = await scan(p, NEW, W);
-    ok(bad.length === 0, W + "px：34 页 " + stat.chips + " 枚 role-chip 无一溢出（卡右缘／summary.scrollWidth／页面横向三处俱不越）",
+    ok(bad.length === 0, W + "px：35 页 " + stat.chips + " 枚 role-chip 无一溢出（卡右缘／summary.scrollWidth／页面横向三处俱不越）",
       bad.length ? JSON.stringify(bad.slice(0, 5)) : "零溢出");
   }
 

@@ -134,13 +134,16 @@ const PROTAGONISTS = [
   { id: "P_JIZHONG",     color: "", badge: "badge_jizhong",     fallback: "祭仲" },
   { id: "P_ZICHAN",      color: "", badge: "badge_zichan",      fallback: "子产" },
   { id: "P_JINWEN",      color: "", badge: "badge_jinwen",      fallback: "晋文公" },
-  { id: "P_JIEZHITUI",   color: "", badge: "badge_jiezhitui",   fallback: "介之推" },
   { id: "P_QINMU",       color: "", badge: "badge_qinmu",       fallback: "秦穆公" },
   { id: "P_CHUCHENG",    color: "", badge: "badge_chucheng",    fallback: "楚成王" },
   { id: "P_CHUZHUANG",   color: "", badge: "badge_chuzhuang",   fallback: "楚庄王" },
   { id: "P_XIGUI",       color: "", badge: "badge_xigui",       fallback: "息妫", home: "楚" },
   { id: "P_LIJI",        color: "", badge: "badge_liji",        fallback: "骊姬" },
   { id: "P_SHUXIANG",    color: "", badge: "badge_shuxiang",    fallback: "叔向" },
+  /* r61-H（裁二百一十九）：介之推降二级（裁二百一十五 ④；badge_jiezhitui.svg 留档不删，只解其挂），祁奚、韩厥升一级。
+   * 晋组续于叔向之后，二人依主事年先后：韩厥（成公二年鞌之战）先、祁奚（襄公三年举贤）后。二人 state 只「晋」，无需 home。 */
+  { id: "P_HANJUE",      color: "", badge: "badge_hanjue",      fallback: "韩厥" },
+  { id: "P_QIXIDAFU",    color: "", badge: "badge_qixidafu",    fallback: "祁奚" },
   { id: "P_MUJI",        color: "", badge: "badge_muji",        fallback: "穆姬", home: "秦" },
   { id: "P_ZHUANGJIANG", color: "", badge: "badge_zhuangjiang", fallback: "庄姜", home: "卫" },
   { id: "P_XUANJIANG",   color: "", badge: "badge_xuanjiang",   fallback: "宣姜", home: "卫" },

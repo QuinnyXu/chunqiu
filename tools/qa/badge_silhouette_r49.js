@@ -1,4 +1,7 @@
-/* 经纬春秋 · r49 徽记撞形实测（Vision）——孔子·胡簋定稿复跑
+/* 〔r61-H 改〕名录 34→35：去介之推（降二级，徽记文件留档不删）、纳祁奚·一官三物与韩厥·觞承璧（NEW）；晋组改 5 人；点名逐对改为二枚对晋簇与同形近邻；
+ * 判据、三尺度、线宽一字未动。下为 r49 原头注。
+ *
+ * 经纬春秋 · r49 徽记撞形实测（Vision）——孔子·胡簋定稿复跑
  *
  * 口径一字照 design_notes §2.5.1（v2.10 现行本），只把名录扩到 34 枚、NEW 换成本轮一枚：
  *  ① **剥去外圈**（48×48 的 <circle r="21"> 是各枚共有的框，留着会把「都有个圆框」读成「像」）；
@@ -22,7 +25,7 @@ const ICONS = path.join(ROOT, "site", "assets", "icons");
 const KONGZI_SRC = path.join(ICONS, "badge_kongzi.svg");
 const OUT = path.resolve(__dirname, "screenshots");
 
-const NEW = ["badge_kongzi"];
+const NEW = ["badge_qixidafu", "badge_hanjue"];
 const NAMES = {
   badge_wenjiang: "文姜·涡纹", badge_qixiang: "齐襄公·雷纹", badge_qihuan: "齐桓公·连环三盟",
   badge_guanzhong: "管仲·衡轻重", badge_baoshuya: "鲍叔牙·税械", badge_qixi: "齐僖公·载书入坎",
@@ -30,14 +33,15 @@ const NAMES = {
   badge_luyin: "鲁隐公·鱼纹", badge_luhuan: "鲁桓公·圭璧", badge_luzhuang: "鲁庄公·鼓纹",
   badge_caogui: "曹刿·辙", badge_zhengzhuang: "郑庄公·蟠虺", badge_zhengzhao: "郑昭公·翎矢",
   badge_wujiang: "武姜·掘地及泉", badge_jizhong: "祭仲·执圭秉政", badge_zichan: "子产·壞館之垣",
-  badge_jinwen: "晋文公·济河之舟", badge_jiezhitui: "介之推·文之渐隐", badge_liji: "骊姬·觚鸩",
+  badge_jinwen: "晋文公·济河之舟", badge_liji: "骊姬·觚鸩",
   badge_shuxiang: "叔向·昧旦",
   badge_qinmu: "秦穆公·崤函之险", badge_muji: "穆姬·薪火", badge_chucheng: "楚成王·凤纹",
   badge_chuzhuang: "楚庄王·问鼎", badge_xigui: "息妫·桃花", badge_zhuangjiang: "庄姜·双燕",
   badge_xuanjiang: "宣姜·新台临河", badge_songxiang: "宋襄公·泓上之旆", badge_xiaji: "夏姬·四徙之途",
   badge_helu: "阖庐·鱼中之剑", badge_wuyuan: "伍员·耒",
   badge_fucha: "夫差·庭中之表", badge_goujian: "勾践·甲楯",
-  badge_kongzi: "孔子·胡簋（新）",
+  badge_kongzi: "孔子·胡簋",
+  badge_qixidafu: "祁奚·一官三物（新）", badge_hanjue: "韩厥·觞承璧（新）",
 };
 /* 24px 类别图标一并入表——跨尺度关系是第二位判据（design_notes §4），只留痕报数。
    本轮尤须留痕者：huimeng（会盟＝鼎），与新枚同为礼器同尺度。 */
@@ -47,7 +51,7 @@ const GRP = {
   "齐组 7 人": ["badge_wenjiang", "badge_qixiang", "badge_qihuan", "badge_guanzhong", "badge_baoshuya", "badge_qixi", "badge_yanying"],
   "鲁组 4→5 人": ["badge_luyin", "badge_luhuan", "badge_luzhuang", "badge_caogui"],
   "郑组 5 人": ["badge_zhengzhuang", "badge_zhengzhao", "badge_wujiang", "badge_jizhong", "badge_zichan"],
-  "晋组 4 人": ["badge_jinwen", "badge_jiezhitui", "badge_liji", "badge_shuxiang"],
+  "晋组 3→5 人": ["badge_jinwen", "badge_liji", "badge_shuxiang", "badge_qixidafu", "badge_hanjue"],
   "楚组 3 人": ["badge_chucheng", "badge_chuzhuang", "badge_xigui"],
   "吴组 3 人": ["badge_helu", "badge_wuyuan", "badge_fucha"],
 };
@@ -136,12 +140,10 @@ const LU = GRP["鲁组 4→5 人"];
      *  孔子×齐襄公「雷纹」／宣姜「新台临河」——探针阶段之近邻，定稿须复看；
      *  孔子×鲁桓公「圭璧」——同为「上有器、下有座」的纵向构图；
      *  孔子×管仲「衡轻重」／介之推「文之渐隐」／息妫「桃花」——三档中曾入最近 6 枚者。 */
-    const NAMED = [["badge_kongzi", "badge_chuzhuang"],
-                   ["badge_kongzi", "badge_luyin"], ["badge_kongzi", "badge_luhuan"],
-                   ["badge_kongzi", "badge_luzhuang"], ["badge_kongzi", "badge_caogui"],
-                   ["badge_kongzi", "badge_qixiang"], ["badge_kongzi", "badge_xuanjiang"],
-                   ["badge_kongzi", "badge_guanzhong"], ["badge_kongzi", "badge_jiezhitui"],
-                   ["badge_kongzi", "badge_xigui"]];
+    const NAMED = [];
+    const jin = ["badge_jinwen","badge_liji","badge_shuxiang"];
+    for (const n of NEW) for (const o of [...jin, "badge_zichan","badge_jizhong","badge_qixi","badge_luhuan","badge_chuzhuang","badge_guanzhong","badge_yanying","badge_fucha","badge_qixiang","badge_qihuan"]) NAMED.push([n,o]);
+    NAMED.push(["badge_qixidafu","badge_hanjue"]);
     console.log("\n  —— 点名逐对 ——");
     for (const [a, b] of NAMED) {
       const v = iou(masks[a], masks[b]);
@@ -161,12 +163,7 @@ const LU = GRP["鲁组 4→5 人"];
     };
     for (const [nm, grp] of Object.entries(GRP)) {
       const before = worstOf(grp);
-      const after = grp === LU ? worstOf([...grp, "badge_kongzi"]) : before;
-      const tag = grp === LU
-        ? (after.v > before.v + 1e-9
-            ? "⚠ 被抬高 " + before.v.toFixed(3) + " → " + after.v.toFixed(3)
-            : "不抬高（仍 " + after.v.toFixed(3) + "）")
-        : "（新枚不入本弧，不变）";
+      const after = before; const tag = "";
       console.log("   " + nm + "：" + NAMES[before.a] + " × " + NAMES[before.b] + " " +
                   before.v.toFixed(3) + "  → " + tag +
                   (grp === LU ? "；含新枚后最紧对＝" + NAMES[after.a] + " × " + NAMES[after.b] : ""));
@@ -187,7 +184,7 @@ const LU = GRP["鲁组 4→5 人"];
     const cells = badges.map(b => ({ b, name: NAMES[b] }));
     await p.setViewportSize({ width: 1180, height: 620 });
     await p.setContent(`<body style="margin:0;background:#F4EDDF;font:12px/1.6 system-ui,sans-serif;color:#2E2A24">
-      <div style="padding:14px 16px;font-size:14px">徽记 silhouette 对照 · ${sc.label} · 剥外圈 · r49（34 枚）</div>
+      <div style="padding:14px 16px;font-size:14px">徽记 silhouette 对照 · ${sc.label} · 剥外圈 · r61-H（35 枚）</div>
       <div style="display:flex;flex-wrap:wrap;gap:14px;padding:0 16px 16px">
       ${cells.map(c => `<div style="width:98px;text-align:center">
         <div style="height:${sc.size + 8}px;display:flex;align-items:center;justify-content:center;color:${NEW.includes(c.b) ? "#BC4433" : "#2E2A24"}">
@@ -195,8 +192,8 @@ const LU = GRP["鲁组 4→5 人"];
         </div>
         <div style="font-size:10px;color:#7A7166">${c.name}</div></div>`).join("")}
       </div></body>`);
-    await p.screenshot({ path: path.join(OUT, "r49_badges_" + sc.size + "px.png"), fullPage: true });
+    await p.screenshot({ path: path.join(OUT, "r61H_badges_" + sc.size + "px.png"), fullPage: true });
   }
-  console.log("\n对照图：screenshots/r49_badges_24px.png、r49_badges_22px.png、r49_badges_18px.png");
+  console.log("\n对照图：screenshots/r61H_badges_24px.png、r61H_badges_22px.png、r61H_badges_18px.png");
   await br.close();
 })().catch(e => { console.error(e); process.exit(1); });

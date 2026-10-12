@@ -1,4 +1,7 @@
 "use strict";
+// 〔r61-H 升降一笔·样本改代〕介之推降二级（裁二百一十五 ④），不再属 PROTAGONISTS，#/p/P_JIEZHITUI/… 已不可达。
+//   本脚本以 P_JIEZHITUI 为样本之处，一律改取晋一级之晋文公（P_JINWEN）：三贤样本、亲至轨迹、ego 图、时间线页（E093／E095／E185 俱挂晋文公）。
+//   只换样本，判据与阈值一字未动；介之推本人之 E095 等事之呈现，今由晋文公页之同事件卡承接。
 // r22 Vision 自验：三贤（鲍叔牙/曹刿/介之推）上线——三阶色/三徽记/分享卡国色点改造＋三线走查＋26主角回归
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
@@ -33,7 +36,7 @@ const H = (t) => say("\n===== " + t + " =====");
     const cs = getComputedStyle(document.documentElement);
     return {
       n: PROTAGONISTS.length,
-      newOnes: ["P_BAOSHUYA", "P_CAOGUI", "P_JIEZHITUI"].map(id => {
+      newOnes: ["P_BAOSHUYA", "P_CAOGUI", "P_JINWEN"].map(id => {
         const m = PROTAGONISTS.find(x => x.id === id);
         return { id, color: m && m.color, badge: m && m.badge, inData: !!PEOPLE[id], name: PEOPLE[id] && PEOPLE[id].name };
       }),
@@ -65,7 +68,7 @@ const H = (t) => say("\n===== " + t + " =====");
 
   // ---------- 2) 三人轨迹（站数与站序） ----------
   H("2) 三人亲至轨迹实测（站数·站序）");
-  for (const pid of ["P_BAOSHUYA", "P_CAOGUI", "P_JIEZHITUI"]) {
+  for (const pid of ["P_BAOSHUYA", "P_CAOGUI", "P_JINWEN"]) {
     await p.goto(origin + "/#/p/" + pid + "/map", { waitUntil: "load" }); await p.waitForTimeout(900);
     const t = await p.evaluate((pid) => {
       const tr = (typeof buildTraj === "function") ? buildTraj(pid) : null;
@@ -110,8 +113,8 @@ const H = (t) => say("\n===== " + t + " =====");
   if (e186el) { await e186el.scrollIntoViewIfNeeded(); await p.waitForTimeout(300); await e186el.screenshot({ path: path.join(OUT, "r22_E186_medium.png") }); }
 
   // ---------- 3b) 介之推 E095/E185 与焚山 Q227 ----------
-  H("3b) 介之推 E095/E185 拆分＋焚山 Q227 分层呈现");
-  await p.goto(origin + "/#/p/P_JIEZHITUI/timeline", { waitUntil: "load" }); await p.waitForTimeout(900);
+  H("3b) 介之推 E095/E185 拆分＋焚山 Q227 分层呈现（r61-H 起取晋文公页：E093／E095／E185 俱同挂）");
+  await p.goto(origin + "/#/p/P_JINWEN/timeline", { waitUntil: "load" }); await p.waitForTimeout(900);
   const jie = await p.evaluate(() => {
     const out = [];
     for (const eid of ["E093", "E095", "E185"]) {
@@ -166,7 +169,7 @@ const H = (t) => say("\n===== " + t + " =====");
   if (e052) { await e052.scrollIntoViewIfNeeded(); await p.waitForTimeout(300); await e052.screenshot({ path: path.join(OUT, "r22_E052_L001.png") }); }
 
   // ---------- 3d) flow-chip 与 ego 图 ----------
-  H("3d) flow-chip 复核（介之推单晋／鲍叔牙单齐）");
+  H("3d) flow-chip 复核（介之推单晋／鲍叔牙单齐；介之推已降二级，其卡仍在选人页之外，下表「未找到卡」属预期）");
   await p.goto(origin + "/#/?home=list", { waitUntil: "load" }); await p.waitForTimeout(800);
   const chips = await p.evaluate(() => {
     const out = {};
@@ -181,7 +184,7 @@ const H = (t) => say("\n===== " + t + " =====");
     const k = Object.keys(chips).find(x => x.indexOf(n) >= 0);
     say("  " + n + " → " + (k ? chips[k] : "未找到卡") + (k && chips[k] === "(无 chip)" ? "  ← state 单国，按规则不出 chip＝正确（无全链残留）" : ""));
   });
-  for (const pid of ["P_BAOSHUYA", "P_CAOGUI", "P_JIEZHITUI"]) {
+  for (const pid of ["P_BAOSHUYA", "P_CAOGUI", "P_JINWEN"]) {
     await p.goto(origin + "/#/p/" + pid + "/relations", { waitUntil: "load" }); await p.waitForTimeout(900);
     const ego = await p.evaluate(() => ({
       nodes: document.querySelectorAll("#rel-canvas .rel-node").length,
@@ -264,12 +267,12 @@ const H = (t) => say("\n===== " + t + " =====");
     await p.goto(origin + "/#/?home=list", { waitUntil: "load" }); await p.waitForTimeout(700);
     const ov = await p.evaluate(() => ({ over: document.documentElement.scrollWidth > document.documentElement.clientWidth, sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
     say("  " + w + "px 选人页 横向溢出=" + ov.over + " (" + ov.sw + "/" + ov.cw + ")");
-    await p.goto(origin + "/#/p/P_JIEZHITUI/timeline", { waitUntil: "load" }); await p.waitForTimeout(700);
+    await p.goto(origin + "/#/p/P_JINWEN/timeline", { waitUntil: "load" }); await p.waitForTimeout(700);
     const ov2 = await p.evaluate(() => {
       const det = document.querySelector('details[data-eid="E095"]'); if (det) det.open = true;
       return { over: document.documentElement.scrollWidth > document.documentElement.clientWidth, sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth };
     });
-    say("  " + w + "px 介之推时间线 横向溢出=" + ov2.over + " (" + ov2.sw + "/" + ov2.cw + ")");
+    say("  " + w + "px 晋文公时间线（E095 同挂）横向溢出=" + ov2.over + " (" + ov2.sw + "/" + ov2.cw + ")");
     await p.screenshot({ path: path.join(OUT, "r22_w" + w + ".png") });
   }
   await p.setViewportSize({ width: 1280, height: 900 });

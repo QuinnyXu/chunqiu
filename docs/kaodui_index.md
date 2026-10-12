@@ -15,7 +15,7 @@
 | `data/csv/places.csv` | 107 | `cc7d212b4c5e` |
 | `data/csv/sources.csv` | 231 | `78d787eb4d88` |
 | `data/csv/passages.csv` | 628 | `95b49917b700` |
-| `data/csv/people.csv` | 225 | `dafd24771502` |
+| `data/csv/people.csv` | 225 | `a1705bdf8bed` |
 | `data/csv/events.csv` | 314 | `1f3104b4c16f` |
 
 指纹相同则本文件可逐字重现（生成器不取墙钟时间，输出只系于输入）。

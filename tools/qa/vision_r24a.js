@@ -762,8 +762,9 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   OK(shareClosed, "分享卡对话框可关，不遗留浮层拦截其后操作");
 
   // ---------- 9) 27 人全流程抽查（每国一人）----------
+  // r61-H：晋之样本由 P_JIEZHITUI 改 P_JINWEN——介之推降二级已不在 PROTAGONISTS，旧链不可达；晋文公为晋一级之首，国色同源。
   H("9) 27 人回归抽查（每国一人 · 时间线/地图/ego 三视图）");
-  const sample = [["齐", "P_GUANZHONG"], ["鲁", "P_CAOGUI"], ["郑", "P_ZICHAN"], ["晋", "P_JIEZHITUI"],
+  const sample = [["齐", "P_GUANZHONG"], ["鲁", "P_CAOGUI"], ["郑", "P_ZICHAN"], ["晋", "P_JINWEN"],
                   ["秦", "P_MUJI"], ["楚", "P_XIGUI"], ["卫", "P_ZHUANGJIANG"], ["宋", "P_SONGXIANG"], ["陈", "P_XIAJI"]];
   for (const [st, id] of sample) {
     let bad = [];
@@ -1386,7 +1387,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
    * 故本门一律对账式：不问「是不是 29」，只问「六处呈现各自数出来的人，跟名册对不对得上」。 */
   H("17) r26b 晏婴（齐7）· 叔向（晋4）上线：名册对账与六处呈现");
   const NEWP = [{ id: "P_YANYING", name: "晏婴", state: "齐", badge: "badge_yanying", nth: 7 },
-                { id: "P_SHUXIANG", name: "叔向", state: "晋", badge: "badge_shuxiang", nth: 4 }];
+                { id: "P_SHUXIANG", name: "叔向", state: "晋", badge: "badge_shuxiang", nth: 3 }]; // r61-H：介之推降二级（原晋组第 2 位），叔向顺位 4→3；只随名单同步，断言不变
   await p.goto(origin + "/#/?home=list", { waitUntil: "load" }); await p.waitForTimeout(1200);
   const pick = await p.evaluate((NEWP) => {
     const r = protoRoster();
