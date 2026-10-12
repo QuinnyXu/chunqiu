@@ -1,0 +1,5 @@
+id,person_a,person_b,rel_type,rel_label,reliability,source_note
+R383,P_QIXIDAFU,P_QIWU,亲属-直系,父,high,《左传·襄公三年》「對曰．午也可」，君子之评「立其子．不為比」（E351）
+R384,P_QIXIDAFU,P_XIEHU,敌对,讎（而举之）,high,《左传·襄公三年》「稱解狐．其讎也．將立之而卒」（E351）
+R385,P_QIXIDAFU,P_YANGSHECHI,其他,举之以佐中军尉,high,《左传·襄公三年》「對曰．赤也可．於是使祁午為中軍尉．羊舌赤佐之」（E351）
+R386,P_JINDAOGONG,P_QIXIDAFU,君臣,君,high,《左传·襄公三年》「祁奚請老．晉侯問嗣焉」（E351）；晋侯即悼公，以在位之年定（前573 即位，前558 卒）

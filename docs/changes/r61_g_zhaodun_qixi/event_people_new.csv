@@ -1,0 +1,10 @@
+event_id,person_id,role_in_event,directness,presence
+E348,P_ZHAODUN,与齐侯、宋公、卫侯、郑伯、许男、曹伯「會晉趙盾，盟于扈」,direct,亲至
+E349,P_ZHAODUN,经「公子遂會晉趙盾，盟于衡雍」；传「襄仲會晉趙孟，盟于衡雍」,direct,亲至
+E350,P_ZHAODUN,经「晉趙盾，癸酉，同盟于新城」,direct,亲至
+E351,P_QIXIDAFU,请老；晋侯问嗣，「稱解狐」，又「對曰：午也可」「對曰：赤也可」——与晋侯对言,direct,亲至
+E351,P_JINDAOGONG,「晉侯問嗣焉」「晉侯曰：孰可以代之」——与祁奚对言；「晉侯」以年推为悼公,direct,亲至
+E351,P_QIWU,被举、受任：「午也可」「使祁午為中軍尉」——其身行无明文,direct,相关
+E351,P_YANGSHECHI,被举、受任：「赤也可」「羊舌赤佐之」——其身行无明文,direct,相关
+E351,P_XIEHU,被称：「稱解狐，其讎也，將立之而卒」,direct,相关
+E219,P_YANGSHECHI,伯华：「囚伯華、叔向、籍偃」——被囚，受事而无其人之文,direct,相关

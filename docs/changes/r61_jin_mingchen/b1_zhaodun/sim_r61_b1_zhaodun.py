@@ -1,0 +1,446 @@
+# -*- coding: utf-8 -*-
+"""
+r61-B1（赵盾事·宣公二年）合并模拟 —— Sophia 备料，team/round61_prompts.md「Task for Sophia · r61-B」第一事。
+来源标记：Sophia，2026-10-11 EDT，会话 session_01QhJ4hbubq1BVsxd8kjBSRA。
+
+用法（仓库根目录，★ 须在合入之前跑——以 data/csv/ 为「改前」，基线 HEAD c8b3b12）：
+    python data/incoming/r61_jin_mingchen/b1_zhaodun/sim_r61_b1_zhaodun.py
+
+做什么：
+  1. 复制 data/csv/ 与 tools/（去 node_modules）至临时目录；append 六个 *_new.csv；
+     fixes_sources.csv（S004、G014）、fixes_people.csv（P_ZHAODUN、P_SHIHUI）按 id 整行替换（只许纯追加）；
+  2. 副本上跑 tools/validate.py、tools/csv_to_json.py、tools/build_kaodui_index.py（台账「抽不出」不得增）；
+  3. 本件断言（check_all，十八类），正测须 0 违例；
+  4. ★ 按类反证（裁一百一十四）：本批可能犯的错，逐类注入同型之错于数据副本，须当场红（违例非空）；
+     任一反证未红 → exit 2。
+  5. 引文比字：passages 之 quote_original 须为 diben/ 底本摘录（剥韦注、去繁简标记后）之子串（「……」分段各自比）。
+
+★ r61-D（2026-10-11 EDT，Sophia，会话 session_01QhJ4hbubq1BVsxd8kjBSRA）：依 team/round61_prompts.md §三 裁二百一十六 复判 presence；
+  增三断言「受事者之亲至须有甲①之文」（白名单逐行书其途与引文）「处置／兵事之词单用不立亲至」「将然之辞不立亲至」，
+  presence 分布断言随新数，按类反证随增（见文末 r61-D 段）。
+
+退出码：0 全过；1 有 FAIL；2 反证未红。临时目录可用环境变量 CHUNQIU_SIM_TMP 覆写。本脚本不属数据。
+〔r61-E 入库注，Skipper，2026-10-11〕本脚本之入库副本（docs/changes/r61_jin_mingchen/b1_zhaodun/，归档先于清空，吸取 r59_jin_zhizheng 之训）：HERE＝本脚本所在目录，其深度与 data/incoming/r61_jin_mingchen/b1_zhaodun/ 同为 4，ROOT＝HERE/../../../.. 即仓库根，原字自正。本脚本以 ROOT/data/csv/ 为改前（非 git 对象），故欲复跑须令 ROOT/data/csv/ 为合入前之基线 c8b3b12（例：git archive c8b3b12 解出一份，再把本目录放进其 docs/changes/ 下跑，exit 0）；于合入后之仓上整跑，因所追加之 ID 已入主表而撞号、断言红，属其性质，非脚本之误（r61 合入于 c8b3b12 之上）。除本注外不改一字。
+"""
+import copy, csv, os, re, shutil, subprocess, sys, tempfile
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+csv.field_size_limit(10 ** 7)
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+CSV = os.path.join(ROOT, "data", "csv")
+TMP = os.path.join(os.environ.get("CHUNQIU_SIM_TMP") or tempfile.gettempdir(), "mergesim_r61b1")
+
+TABLES = ["events", "passages", "sources", "people", "event_people", "relations",
+          "places", "archaeology", "background", "office_tenures"]
+NEW = {"events": "events_new.csv", "passages": "passages_new.csv", "sources": "sources_new.csv",
+       "people": "people_new.csv", "event_people": "event_people_new.csv", "relations": "relations_new.csv"}
+FIX = {"sources": "fixes_sources.csv", "people": "fixes_people.csv"}
+BEFORE = {"events": 281, "passages": 531, "sources": 217, "people": 186, "event_people": 735,
+          "relations": 309, "places": 104, "archaeology": 8, "background": 11, "office_tenures": 16}
+ADD = {"events": 6, "passages": 18, "sources": 2, "people": 7, "event_people": 20, "relations": 8}
+TAIL = {"E": 318, "Q": 548, "Z": 153, "S": 15, "R": 326}
+RETIRED = {"E005", "E006", "Z098"}
+KAODUI_UNEXTRACTED_BEFORE = 1   # 2026-10-11 实跑 c8b3b12：passages 1（Q427 旧账），余源 0
+
+PASS = FAIL = 0
+
+
+def ck(cond, msg):
+    global PASS, FAIL
+    if cond:
+        PASS += 1
+    else:
+        FAIL += 1
+        print("  FAIL: " + msg)
+
+
+def rd(p):
+    with open(p, encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def hdr(p):
+    with open(p, encoding="utf-8", newline="") as f:
+        return next(csv.reader(f))
+
+
+PUNCT = re.compile(r"[「」『』，。：；、？！\s（）]")
+def norm(s):
+    return PUNCT.sub("", s)
+
+
+def diben():
+    out = {}
+    for fn in os.listdir(os.path.join(HERE, "diben")):
+        t = open(os.path.join(HERE, "diben", fn), encoding="utf-8").read()
+        s = "\n".join(l.split("\t", 1)[1] for l in t.split("\n") if l.startswith("L"))
+        s = re.sub(r"\{\{\*\|[^}]*\}\}", "", s)
+        s = re.sub(r"-\{(.*?)\}-", r"\1", s)
+        out[fn] = s
+    return out
+
+DIBEN = diben()
+SRC_DIBEN = {"Z154": "zuo_xuangong.txt", "G014": "guoyu_juan11.txt", "S004": "shiji_juan039.txt", "S016": "shiji_juan043.txt"}
+
+# ---------- 0. 表头与卫生 ----------
+print("== 0. 表头与文件卫生 ==")
+for t, fn in list(NEW.items()) + list(FIX.items()):
+    ck(hdr(os.path.join(CSV, t + ".csv")) == hdr(os.path.join(HERE, fn)), f"{fn} 表头与主表不同")
+    for r in rd(os.path.join(HERE, fn)):
+        for k, v in r.items():
+            ck(v is not None and "\n" not in v and "\t" not in v, f"{fn} 栏 {k} 含换行／制表符")
+            ck(not k.lower().startswith("novel"), f"{fn} 含 novel* 列")
+
+# ---------- 1. 合并 ----------
+print("== 1. 合并模拟 ==")
+if os.path.isdir(TMP):
+    shutil.rmtree(TMP)
+simcsv = os.path.join(TMP, "data", "csv")
+os.makedirs(simcsv)
+for t in TABLES:
+    shutil.copy(os.path.join(CSV, t + ".csv"), os.path.join(simcsv, t + ".csv"))
+main = {t: rd(os.path.join(CSV, t + ".csv")) for t in TABLES}
+for t, fn in NEW.items():
+    with open(os.path.join(simcsv, t + ".csv"), "a", encoding="utf-8", newline="") as f:
+        csv.DictWriter(f, fieldnames=hdr(os.path.join(CSV, t + ".csv")), lineterminator="\n").writerows(rd(os.path.join(HERE, fn)))
+for t, fn in FIX.items():
+    repl = {r["id"]: r for r in rd(os.path.join(HERE, fn))}
+    cur = rd(os.path.join(simcsv, t + ".csv"))
+    hit = 0
+    for i, r in enumerate(cur):
+        if r["id"] in repl:
+            old = r
+            new = repl[r["id"]]
+            for k in old:   # 只许纯追加
+                ck(new[k] == old[k] or new[k].startswith(old[k]), f"{fn} {r['id']}.{k} 非纯追加")
+            cur[i] = new
+            hit += 1
+    ck(hit == len(repl), f"{fn} 替换命中 {hit} != {len(repl)}")
+    with open(os.path.join(simcsv, t + ".csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=hdr(os.path.join(CSV, t + ".csv")), lineterminator="\n")
+        w.writeheader(); w.writerows(cur)
+shutil.copytree(os.path.join(ROOT, "tools"), os.path.join(TMP, "tools"), ignore=shutil.ignore_patterns("node_modules", "__pycache__"))
+os.makedirs(os.path.join(TMP, "site", "data")); os.makedirs(os.path.join(TMP, "docs"))
+merged = {t: rd(os.path.join(simcsv, t + ".csv")) for t in TABLES}
+print("   临时副本：" + TMP)
+
+# ---------- 2. 行数 ----------
+print("== 2. 逐表行数 ==")
+for t in TABLES:
+    exp = BEFORE[t] + ADD.get(t, 0)
+    print(f"   {t:<15}{BEFORE[t]:>6}{len(merged[t]):>6}{exp:>6}")
+    ck(len(main[t]) == BEFORE[t], f"{t} 主表基线 {len(main[t])} != {BEFORE[t]}（须合入前跑）")
+    ck(len(merged[t]) == exp, f"{t} 合入后 {len(merged[t])} != {exp}")
+for t in ("places", "archaeology", "background", "office_tenures"):
+    ck(merged[t] == main[t], f"{t} 被改动（本件不动）")
+for t in ("events", "passages", "event_people", "relations"):
+    ck(merged[t][:len(main[t])] == main[t], f"既有 {t} 行被改动（本件于此表只 append）")
+
+# ---------- 3. 副本跑三工具 ----------
+print("== 3. 副本上跑 validate／csv_to_json／kaodui ==")
+env = dict(os.environ, PYTHONIOENCODING="utf-8")
+v = subprocess.run([sys.executable, os.path.join(TMP, "tools", "validate.py")], capture_output=True, text=True, encoding="utf-8", env=env)
+print("   validate:", (v.stdout + v.stderr).strip().splitlines()[-1] if (v.stdout + v.stderr).strip() else "")
+ck(v.returncode == 0, "副本 validate 非 0：" + v.stdout + v.stderr)
+c = subprocess.run([sys.executable, os.path.join(TMP, "tools", "csv_to_json.py")], capture_output=True, text=True, encoding="utf-8", env=env)
+ck(c.returncode == 0, "副本 csv_to_json 失败：" + c.stderr[-500:])
+for line in c.stdout.splitlines():
+    if "verify_marks" in line or "kaodui" in line:
+        print("   " + line)
+k = subprocess.run([sys.executable, os.path.join(TMP, "tools", "build_kaodui_index.py")], capture_output=True, text=True, encoding="utf-8", env=env)
+unex = sum(int(m) for m in re.findall(r"抽不出\s+(\d+)", k.stdout))
+print("   kaodui 抽不出合计：", unex)
+ck(unex == KAODUI_UNEXTRACTED_BEFORE, f"kaodui 抽不出 {unex} != 基线 {KAODUI_UNEXTRACTED_BEFORE}（新写法逸出 21 档词表）")
+
+# ---------- 4. 本件断言 ----------
+NEWIDS = {t: [r.get("id") for r in rd(os.path.join(HERE, fn))] for t, fn in NEW.items() if t != "event_people"}
+IDS_USED = {}
+for line in open(os.path.join(HERE, "ids_used.txt"), encoding="utf-8"):
+    if line.strip() and not line.startswith("#"):
+        a, b = line.rstrip("\n").split("\t")
+        IDS_USED.setdefault(a, []).append(b)
+
+
+
+# r61-D 配置（B1）
+R61D_TOKS = {"P_ZHAOCHUAN": ["趙穿"], "P_JINLINGGONG": ["靈公", "晉侯", "公"], "P_ZHAODUN": ["趙盾", "宣子", "盾"],
+             "P_TIMIMING": ["提彌明", "明"], "P_CHUNI": ["鉏麑"], "P_LINGZHE": ["靈輒"], "P_DONGHU": ["大史", "董狐"],
+             "P_SHIHUI": ["士季"], "P_JINCHENGGONG": ["公子黑臀"], "P_KONGZI": ["孔子"]}
+R61D_PATIENT = re.compile(r"(攻|殺|弒|使|賊|逆|飲|嗾|見)[^。]{0,2}$")
+R61D_HEUR = False
+# 本线受事者之行（被谋刺、被攻、所书、被逆立、受使）
+R61D_RECEIVERS = {("E320", "P_ZHAODUN"), ("E322", "P_JINLINGGONG"), ("E323", "P_ZHAODUN"), ("E323", "P_JINLINGGONG"),
+                  ("E324", "P_JINCHENGGONG"), ("E324", "P_ZHAOCHUAN")}
+# 白名单：受事者而标亲至者，逐行书其途与引文片段
+R61D_RECEIVER_OK = {
+    ("E320", "P_ZHAODUN"): ("②", "坐而假寐"),                 # 所刺之人自有身行（型5 同理）
+    ("E322", "P_JINLINGGONG"): ("①", "攻靈公于桃園"),          # 「V 某人于某地」，型16
+    ("E323", "P_ZHAODUN"): ("②", "宣子曰：『不然。』對曰"),     # 所书之人与大史对言，型8
+    ("E324", "P_JINCHENGGONG"): ("①", "朝于武宮"),             # 被逆而立者自朝于武宫
+}
+
+# ---------- r61-D（裁二百一十六 亲至之准）三断言 —— Sophia，2026-10-11 EDT，会话 session_01QhJ4hbubq1BVsxd8kjBSRA ----------
+# 所据：team/round61_prompts.md §三 裁二百一十六 二（甲）（乙）、四表；本线事目落点俱阙 → （乙）只用其第二支：（甲）之①或②即足。
+# ① 「受事者之亲至，须有甲①之文」：受事者（被杀、被攻、被从、被逆立……）标亲至者，须入 R61D_RECEIVER_OK 白名单，
+#    逐行书其途与引文片段，片段须见于其 role_in_event 与同目经传（Z／G）引文。
+#    ★ 白名单中书「②」者：裁二百一十六 二（甲）原字为「受事者而无其人之文……须有①之文方立」，有其人自为主语之②文者
+#      （型5「被杀者有其身行」、型11「被劫者答拜」）不在此限——任务书 r61-D 一·3 之「须有甲①之文」是其省文，此处照裁文全句。
+# ② 「处置／兵事之词单用不立亲至」：亲至行之引文，凡其人作主语之句只有杀／放／讨／执／灭／伐／攻／弑／立／逐／劫／帅／使／斩／戮，
+#    而通行无一身行（甲②）之词、亦无及于其身之地（甲①，其人为所及者）——红。「以甲」「帅甲」之甲是他人之身，仍在此列。
+# ③ 「将然之辞不立亲至」：引文含 将／欲＋动词 者，去其将然之句段后，余文须有甲①②之文，否则红。
+R61D_DISP = re.compile(r"殺|弒|討|執|滅|伐|攻|立|逐|劫|帥|使|放|斬|戮")
+R61D_BODY = re.compile(r"曰|對|拜|稽首|趨|射|奉|盥|撫|登|扶|觸|御|為右|以戈|搏|鬥|鼓|馳|見|言於|言于|告|譖之|遊于|聘于|奔|朝于|朝於|盟|戰于|"
+                       r"如晉|還於|往|坐|假寐|嗾|禦|投|乘|縶|易位|呼|致賂|反自|入|求|畜于|祈死|田|主郤|道之|會[^。]{0,6}[于於]|傷於矢|并轡|援枹|飲|視之|問其故")
+R61D_PLACE = re.compile(r"[于於]|焉")
+R61D_FUT = re.compile(r"[將欲](?:攻|斬|謀|殺|戮|救|伐|朝|為亂|改|諫)[^。，、；]*")
+
+def r61d_quoted(s):
+    return re.findall(r"「([^」]+)」", s)
+
+def r61d_subj_disp(f, toks, patient_re):
+    for m in R61D_DISP.finditer(f):
+        pre, post = f[:m.start()], f[m.end():]
+        hits = [t for t in toks if t in pre]
+        if hits:
+            for t in hits:
+                k = pre.rfind(t)
+                if not patient_re.search(pre[:k]): return True
+        elif not any(t in post for t in toks):
+            return True          # 主语不书而句中亦无其名：视同其人为主语
+    return False
+
+def r61d_good(f, toks, patient_re):
+    return bool(R61D_BODY.search(f)) or (bool(R61D_PLACE.search(f)) and not r61d_subj_disp(f, toks, patient_re))
+
+def r61d_check(N, zg_pool, bad, toks_map, patient_re, receivers_static, receiver_ok, heuristic):
+    for r in N["event_people"]:
+        if r["presence"] not in ("亲至", ""): continue
+        k = (r["event_id"], r["person_id"])
+        toks = toks_map.get(r["person_id"], [])
+        frags = [f for f in r61d_quoted(r["role_in_event"]) if len(norm(f)) >= 3]
+        pool = zg_pool.get(r["event_id"], [])
+        # ① 受事者
+        is_recv = k in receivers_static
+        if heuristic and toks:
+            agent = False
+            for f in frags:
+                for t in toks:
+                    for m in re.finditer(re.escape(t), f):
+                        if not patient_re.search(f[:m.start()]): agent = True
+            if not agent: is_recv = True
+        if is_recv:
+            ok = receiver_ok.get(k)
+            if not ok:
+                bad("受事者之亲至须有甲①之文", f"{k[0]}/{k[1]} 不在白名单")
+            else:
+                frag = norm(ok[1])
+                if frag not in norm(r["role_in_event"]) or not any(frag in p for p in pool):
+                    bad("受事者之亲至须有甲①之文", f"{k[0]}/{k[1]} 白名单之文（{ok[0]}「{ok[1]}」）不见于其 role 或同目经传")
+        # ② 处置／兵事之词单用
+        if any(r61d_subj_disp(f, toks, patient_re) for f in frags) and not any(r61d_good(f, toks, patient_re) for f in frags):
+            bad("处置／兵事之词单用不立亲至", f"{k[0]}/{k[1]}")
+        # ③ 将然之辞
+        if any(R61D_FUT.search(f) for f in frags):
+            rest = [R61D_FUT.sub("", f) for f in frags]
+            if not any(r61d_good(f, toks, patient_re) for f in rest if norm(f)):
+                bad("将然之辞不立亲至", f"{k[0]}/{k[1]}")
+# ---------- r61-D 块终 ----------
+
+def check_all(T, N):
+    """T：合并后诸表；N：本件新增诸表（dict of lists）。返回 {类名: [违例]}。"""
+    V = {}
+    def bad(name, msg):
+        V.setdefault(name, []).append(msg)
+    V_KEYS = ["ID接续", "退役号", "ids_used对账", "外键", "比字", "后出层不作原文", "后出层层标",
+              "传内孔子语之层", "归罪话术不入叙述", "亲至须引同目经传身行明文", "后出层不立亲至",
+              "不在须引明文", "死者不作亲至", "新人二级", "每人俱挂其篇", "正向包含", "每事有经传骨架", "二叙相违须互指", "受事者之亲至须有甲①之文", "处置／兵事之词单用不立亲至", "将然之辞不立亲至"]
+    for kk in V_KEYS:
+        V[kk] = []
+    main_ids = {t: {r["id"] for r in main[t]} for t in ("events", "passages", "sources", "people", "relations")}
+    # ID 接续
+    def seq(ids, pre, start):
+        nums = [int(i[len(pre):]) for i in ids]
+        return nums == list(range(start + 1, start + 1 + len(nums)))
+    if not seq([r["id"] for r in N["events"]], "E", TAIL["E"]): bad("ID接续", "events 非接尾连号")
+    if not seq([r["id"] for r in N["passages"]], "Q", TAIL["Q"]): bad("ID接续", "passages 非接尾连号")
+    if not seq([r["id"] for r in N["relations"]], "R", TAIL["R"]): bad("ID接续", "relations 非接尾连号")
+    for r in N["sources"]:
+        p = r["id"][0]
+        if int(r["id"][1:]) != TAIL[p] + 1: bad("ID接续", f"{r['id']} 非 {p} 尾号之次")
+    for t in ("events", "passages", "sources", "people", "relations"):
+        for r in N[t]:
+            if r["id"] in main_ids[t]: bad("ID接续", f"{t} {r['id']} 与既有撞号")
+            if r["id"] in RETIRED: bad("退役号", r["id"])
+    for t in ("events", "passages", "sources", "people", "relations"):
+        if sorted(IDS_USED.get(t, [])) != sorted(r["id"] for r in N[t]):
+            bad("ids_used对账", f"{t}：ids_used.txt 与实件不符")
+    PID = {r["id"] for r in T["people"]}; EID = {r["id"] for r in T["events"]}; SID = {r["id"] for r in T["sources"]}
+    ev = {r["id"]: r for r in T["events"]}
+    for r in N["event_people"]:
+        if r["event_id"] not in EID or r["person_id"] not in PID: bad("外键", f"{r['event_id']}/{r['person_id']}")
+    for r in N["relations"]:
+        if r["person_a"] not in PID or r["person_b"] not in PID: bad("外键", r["id"])
+    for r in N["passages"]:
+        if r["event_id"] not in EID or r["source_id"] not in SID: bad("外键", r["id"])
+        fn = SRC_DIBEN.get(r["source_id"])
+        if not fn:
+            bad("比字", f"{r['id']} 来源无底本摘录")
+        else:
+            for seg in r["quote_original"].split("……"):
+                if seg not in DIBEN[fn]: bad("比字", f"{r['id']} 引文与底本不合：{seg[:20]}…")
+        layer = r["source_id"][0]
+        if layer == "S":
+            if r["quote_type"] != "后出叙事": bad("后出层不作原文", r["id"])
+            if not r["modern_note"].startswith("【后出叙事"): bad("后出层层标", r["id"])
+        if "孔子曰" in r["quote_original"] and layer == "Z":
+            if r["quote_type"] == "原文" or not r["modern_note"].startswith("【传内所引孔子之评"): bad("传内孔子语之层", r["id"])
+        # 正向包含
+        if r["source_id"] not in ev[r["event_id"]]["source_ids"].split(";"): bad("正向包含", r["id"])
+    # 归罪话术：events 之 title／summary、people 之 short_bio／role 内，「趙盾弒／赵盾弑」须在「」内
+    def unquoted(s):
+        depth = 0; out = []
+        for ch in s:
+            if ch == "「": depth += 1
+            elif ch == "」": depth = max(0, depth - 1)
+            elif depth == 0: out.append(ch)
+        return "".join(out)
+    texts = [(r["id"], r["title"] + "｜" + r["summary"]) for r in N["events"]] + \
+            [(r["id"], r["short_bio"] + "｜" + r["role"]) for r in N["people"]]
+    for i, s in texts:
+        u = unquoted(s)
+        if re.search(r"(赵盾|趙盾|盾)(弑|弒)", u): bad("归罪话术不入叙述", i)
+    # presence
+    zg = {}
+    for r in T["passages"]:
+        if r["source_id"][0] in "ZG":
+            zg.setdefault(r["event_id"], []).append(norm(r["quote_original"]))
+    s_only = {}
+    for r in T["passages"]:
+        if r["source_id"][0] == "S":
+            s_only.setdefault(r["event_id"], []).append(norm(r["quote_original"]))
+    for r in N["event_people"]:
+        frags = [norm(f) for f in re.findall(r"「([^」]+)」", r["role_in_event"])]
+        frags = [f for f in frags if len(f) >= 3]
+        pool = zg.get(r["event_id"], [])
+        if r["presence"] in ("亲至", ""):
+            if not frags or not all(any(f in p for p in pool) for f in frags):
+                bad("亲至须引同目经传身行明文", f"{r['event_id']}/{r['person_id']}")
+            if any(any(f in p for p in s_only.get(r["event_id"], [])) and not any(f in p for p in pool) for f in frags):
+                bad("后出层不立亲至", f"{r['event_id']}/{r['person_id']}")
+        if r["presence"] == "不在":
+            if not frags or not all(any(f in p for p in pool) for f in frags):
+                bad("不在须引明文", f"{r['event_id']}/{r['person_id']}")
+    death_sk = {"P_JINLINGGONG": 40, "P_TIMIMING": 30, "P_CHUNI": 20}
+    for r in N["event_people"]:
+        e = ev[r["event_id"]]
+        if r["person_id"] in death_sk and e["year_bce"] == "-607" and int(e["sort_key"] or 0) > death_sk[r["person_id"]]:
+            if r["presence"] in ("亲至", ""): bad("死者不作亲至", f"{r['event_id']}/{r['person_id']}")
+    for r in N["people"]:
+        if r["is_protagonist"] != "0": bad("新人二级", r["id"])
+        if not any(x["person_id"] == r["id"] for x in N["event_people"]): bad("每人俱挂其篇", r["id"])
+    for r in N["events"]:
+        if not any(p["event_id"] == r["id"] and p["source_id"][0] == "Z" for p in N["passages"]): bad("每事有经传骨架", r["id"])
+        if r["reliability"] != "high": bad("每事有经传骨架", r["id"] + " reliability")
+    # 二叙相违须互指：凡 S 层引文之注书「相抵」或「之异」者，其 Q 号须见于所挂事目之 summary
+    for r in N["passages"]:
+        if r["source_id"][0] == "S" and re.search(r"相抵|之异", r["modern_note"]):
+            if r["id"] not in ev[r["event_id"]]["summary"]: bad("二叙相违须互指", r["id"])
+    r61d_check(N, zg, bad, R61D_TOKS, R61D_PATIENT, R61D_RECEIVERS, R61D_RECEIVER_OK, R61D_HEUR)
+    return V
+
+N0 = {t: rd(os.path.join(HERE, fn)) for t, fn in NEW.items()}
+print("== 4. 本件断言（正测） ==")
+V0 = check_all(merged, N0)
+for kk, vv in V0.items():
+    ck(not vv, f"[{kk}] {vv}")
+    print(f"   {kk:<22} 违例 {len(vv)}")
+pres = {}
+for r in N0["event_people"]:
+    pres[r["presence"]] = pres.get(r["presence"], 0) + 1
+print("   presence 分布：", pres)
+ck(pres == {"亲至": 13, "相关": 6, "不在": 1}, f"presence 分布变动：{pres}")
+
+
+# ---------- 5. 按类反证 ----------
+print("== 5. 按类反证（注入本批可能犯之错，须红） ==")
+RED_FAIL = 0
+def inject(name, cls, fn):
+    global RED_FAIL
+    T = copy.deepcopy(merged); N = copy.deepcopy(N0)
+    fn(T, N)
+    # N 中之行与 T 中同 id 之行同改：以 N 为准回写 T
+    for t in N:
+        key = (lambda r: (r["event_id"], r["person_id"])) if t == "event_people" else (lambda r: r["id"])
+        nk = {key(r): r for r in N[t]}
+        T[t] = [nk.get(key(r), r) if key(r) in nk else r for r in T[t]]
+        have = {key(r) for r in T[t]}
+        T[t] += [r for r in N[t] if key(r) not in have]
+    V = check_all(T, N)
+    red = bool(V.get(cls))
+    print(f"   {'红' if red else '★未红'}  {name}  → [{cls}] {V.get(cls, [])[:2]}")
+    if not red:
+        RED_FAIL += 1
+
+def ep(N, e, p):
+    return next(r for r in N["event_people"] if r["event_id"] == e and r["person_id"] == p)
+def ps(N, i):
+    return next(r for r in N["passages"] if r["id"] == i)
+def evn(N, i):
+    return next(r for r in N["events"] if r["id"] == i)
+
+inject("以职推在场：赵盾于大史书事标亲至，所据只其「正卿」之职", "亲至须引同目经传身行明文",
+       lambda T, N: ep(N, "E323", "P_ZHAODUN").update(presence="亲至", role_in_event="正卿，所书之人"))
+inject("以后出层立亲至：提弥明之亲至改引晋世家「公宰示瞇明知之」", "后出层不立亲至",
+       lambda T, N: ep(N, "E321", "P_TIMIMING").update(role_in_event="「公宰示瞇明知之」"))
+inject("使者代行而标亲至：晋灵公于鉏麑事改亲至（所引「使鉏麑賊之」只是使令）", "亲至须引同目经传身行明文",
+       lambda T, N: ep(N, "E320", "P_JINLINGGONG").update(presence="亲至", role_in_event="使之"))
+inject("「不在」无明文：赵盾于桃园事之不在去其所引", "不在须引明文",
+       lambda T, N: ep(N, "E322", "P_ZHAODUN").update(role_in_event="出亡在外"))
+inject("死者作亲至：晋灵公于大史书事标亲至", "死者不作亲至",
+       lambda T, N: ep(N, "E323", "P_JINLINGGONG").update(presence="亲至", role_in_event="「趙盾弒其君」"))
+inject("归罪话术入叙述：E322 题作赵盾弑晋灵公", "归罪话术不入叙述",
+       lambda T, N: evn(N, "E322").update(title="赵盾弑晋灵公于桃园"))
+inject("归罪话术入人物小传：董狐小传改书「记赵盾弑君」不加引号", "归罪话术不入叙述",
+       lambda T, N: next(r for r in N["people"] if r["id"] == "P_DONGHU").update(short_bio="晋之大史，记赵盾弑君之事。"))
+inject("后出层混同经传：晋世家示瞇明一段 quote_type 改「原文」", "后出层不作原文",
+       lambda T, N: ps(N, "Q556").update(quote_type="原文"))
+inject("后出层缺层标：赵世家一段去其【后出叙事】层标", "后出层层标",
+       lambda T, N: ps(N, "Q561").update(modern_note=ps(N, "Q561")["modern_note"].split("】", 1)[1]))
+inject("传内孔子语作原文：Q563 quote_type 改「原文」", "传内孔子语之层",
+       lambda T, N: ps(N, "Q563").update(quote_type="原文"))
+inject("引文与底本不合：Q558「攻」误录为「弒」", "比字",
+       lambda T, N: ps(N, "Q558").update(quote_original=ps(N, "Q558")["quote_original"].replace("攻", "弒")))
+inject("引文混入韦昭注：Q552 末补「鉏麑，力士」", "比字",
+       lambda T, N: ps(N, "Q552").update(quote_original=ps(N, "Q552")["quote_original"] + "鉏麑，力士。"))
+inject("撞号：新事目改用既有 E318", "ID接续",
+       lambda T, N: evn(N, "E319").update(id="E318"))
+inject("用退役号：Z154 改 Z098", "退役号",
+       lambda T, N: next(r for r in N["sources"] if r["id"] == "Z154").update(id="Z098"))
+inject("ids_used.txt 漏登：新增一人而清单无之", "ids_used对账",
+       lambda T, N: N["people"].append(dict(N["people"][0], id="P_ZHAODUNSHI")))
+inject("新人入一级：赵穿 is_protagonist=1", "新人二级",
+       lambda T, N: next(r for r in N["people"] if r["id"] == "P_ZHAOCHUAN").update(is_protagonist="1"))
+inject("立人不挂篇：删灵辄唯一挂链", "每人俱挂其篇",
+       lambda T, N: N.update(event_people=[r for r in N["event_people"] if r["person_id"] != "P_LINGZHE"]))
+inject("正向包含断：E321 source_ids 去 S004 而 Q556 仍挂之", "正向包含",
+       lambda T, N: evn(N, "E321").update(source_ids="Z154"))
+inject("以后出层单立事目：E324 之 Z 层引文改挂 E323", "每事有经传骨架",
+       lambda T, N: ps(N, "Q565").update(event_id="E323"))
+inject("二叙相违只注一侧：E321 summary 去其对 Q556 之指", "二叙相违须互指",
+       lambda T, N: evn(N, "E321").update(summary=evn(N, "E321")["summary"].replace("（`Q556`）", "")))
+
+# ---------- r61-D 反证（裁二百一十六） ----------
+inject("处置／兵事之词单用立亲至：赵穿于桃园事目复标亲至，所据只「趙穿攻靈公于桃園」", "处置／兵事之词单用不立亲至",
+       lambda T, N: ep(N, "E322", "P_ZHAOCHUAN").update(presence="亲至"))
+inject("将然之辞立亲至：晋灵公于饮酒事目只据「伏甲將攻之」", "将然之辞不立亲至",
+       lambda T, N: ep(N, "E321", "P_JINLINGGONG").update(role_in_event="「伏甲將攻之」"))
+inject("受事者之亲至去其地之文：晋灵公于桃园事目 role 只留「趙穿攻靈公」", "受事者之亲至须有甲①之文",
+       lambda T, N: ep(N, "E322", "P_JINLINGGONG").update(role_in_event="「趙穿攻靈公」"))
+inject("受事者不在白名单而标亲至：赵穿于逆黑臀事目改亲至", "受事者之亲至须有甲①之文",
+       lambda T, N: ep(N, "E324", "P_ZHAOCHUAN").update(presence="亲至", role_in_event="「宣子使趙穿逆公子黑臀于周」"))
+
+print(f"\n合计：PASS {PASS}  FAIL {FAIL}  反证未红 {RED_FAIL}（反证 24 条，r61-D 增 4）")
+if RED_FAIL:
+    sys.exit(2)
+sys.exit(1 if FAIL else 0)

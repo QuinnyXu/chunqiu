@@ -1,0 +1,9 @@
+id,person_a,person_b,rel_type,rel_label,reliability,source_note
+R327,P_JINXIANGGONG,P_JINLINGGONG,亲属-直系,父,high,《左传·文公六年》「晉襄公卒。靈公少」；穆嬴抱大子啼曰「先君何罪，其嗣亦何罪，舍適嗣不立」——灵公为襄公之適嗣
+R328,P_JINLINGGONG,P_ZHAODUN,君臣,君,high,《左传·宣公二年》赵盾谏灵公（E319）；文公七年宣子立灵公（`Q531`）
+R329,P_ZHAOCHUAN,P_JINLINGGONG,敌对,攻之于桃园,high,《左传·宣公二年》「趙穿攻靈公于桃園」（E322）；经书「晉趙盾弒其君夷皋」系书法之辞，不据以改此边之主语
+R330,P_ZHAODUN,P_JINCHENGGONG,拥立,使赵穿逆于周而立之,high,《左传·宣公二年》「宣子使趙穿逆公子黑臀于周，而立之」（E324）
+R331,P_TIMIMING,P_ZHAODUN,其他,车右,high,《左传·宣公二年》「其右提彌明知之」（E321）
+R332,P_LINGZHE,P_ZHAODUN,其他,受翳桑之食，后倒戟御公徒而免之,high,《左传·宣公二年》追叙翳桑之事与「倒戟以禦公徒，而免之」（E321）
+R333,P_JINLINGGONG,P_CHUNI,君臣,君（使之贼赵盾）,high,《左传·宣公二年》「公患之，使鉏麑賊之」（E320）
+R334,P_DONGHU,P_ZHAODUN,其他,书其「弒其君」之大史,high,《左传·宣公二年》「大史書曰：『趙盾弒其君。』」（E323）；所书之辞为归罪之文本立场

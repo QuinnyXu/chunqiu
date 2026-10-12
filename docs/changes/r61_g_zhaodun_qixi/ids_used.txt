@@ -1,0 +1,33 @@
+# r61-G（赵盾补有地之事、祁奚补举贤）本件占用之 ID —— 机读清单
+# 来源标记：Sophia（史料研究员），2026-10-11 EDT，会话 session_01QhJ4hbubq1BVsxd8kjBSRA；目的：team/round61_prompts.md「Task for Sophia · r61-G」
+# 基线：HEAD c8b3b12＋r61-B 四线未合入之占用（B1：E319–E324／Q549–Q566／Z154／S016／R327–R334；B2：E325–E333／Q567–Q589／Y003／R335–R348；B3：E334–E338／Q590–Q606／Z155–Z156／S017／G016–G017／R349–R361；B4：E339–E347／Q607–Q637／Z157／L002／R362–R382）；本件自 B4 所标起号接续
+# 主表尾号（c8b3b12 实读）：E318／Q548／Z153／S015／G015／T010／R326；places 104 行，无 L_HU／L_HENGYONG／L_XINCHENG
+# 格式：表<TAB>ID；# 起首为注
+# 复用（不新占）：sources Z135（主表行，按 id 整行替换，notes 纯追加）；people P_ZHAODUN（以 B1 替换行为底）、P_QIXIDAFU（以 B3 替换行为底）、P_JINDAOGONG（以 B4 新行为底），relations／notes 纯追加
+# 未占：S、G、Y、L（sources 之穀梁）——S018／G018／Y004／L003 本件不用，后续件仍可自此起
+events	E348
+events	E349
+events	E350
+events	E351
+passages	Q638
+passages	Q639
+passages	Q640
+passages	Q641
+passages	Q642
+passages	Q643
+passages	Q644
+passages	Q645
+sources	Z158
+sources	Z159
+sources	Z160
+sources	T011
+people	P_QIWU
+people	P_XIEHU
+people	P_YANGSHECHI
+relations	R383
+relations	R384
+relations	R385
+relations	R386
+places	L_HU
+places	L_HENGYONG
+places	L_XINCHENG

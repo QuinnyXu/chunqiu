@@ -1,0 +1,67 @@
+# r61-B2（鞍之战·成公二年）本线占用之 ID —— 机读清单
+# 来源标记：Sophia（史料研究员），2026-10-11 EDT，会话 session_01QhJ4hbubq1BVsxd8kjBSRA；目的：r61-B 第二事备料（team/round61_prompts.md「Task for Sophia · r61-B」）
+# 基线：HEAD c8b3b12＋B1 未合入之占用（E319–E324／Q549–Q566／Z154／S016／R327–R334 及新人七）；本件自 B1 所标起号接续
+# 格式：表<TAB>ID；# 起首为注；后续件（B3、B4）须自 B1、B2 二清单各表最大号之次号起编
+# 复用（不新占）：sources Z076、S001（按 id 整行替换，notes 纯追加）、S004、G014（以 B1 替换行为底再纯追加）；people P_XIKE、P_HANJUE、P_LUANSHU（纯追加）、P_SHIHUI（以 B1 替换行为底再纯追加）
+# Z155、S017、G016 本件未占（无新 Z／S／G 行），后续件仍可自此起
+events	E325
+events	E326
+events	E327
+events	E328
+events	E329
+events	E330
+events	E331
+events	E332
+events	E333
+passages	Q567
+passages	Q568
+passages	Q569
+passages	Q570
+passages	Q571
+passages	Q572
+passages	Q573
+passages	Q574
+passages	Q575
+passages	Q576
+passages	Q577
+passages	Q578
+passages	Q579
+passages	Q580
+passages	Q581
+passages	Q582
+passages	Q583
+passages	Q584
+passages	Q585
+passages	Q586
+passages	Q587
+passages	Q588
+passages	Q589
+sources	Y003
+people	P_JINJINGGONG
+people	P_QIQINGGONG
+people	P_FENGCHOUFU
+people	P_XIEZHANG
+people	P_ZHENGQIUHUAN
+people	P_SHIXIE
+people	P_BINGXIA
+people	P_GAOGU
+people	P_GUOZUO
+people	P_QIWUZHANG
+people	P_SUNLIANGFU
+people	P_ZANGXUANSHU
+people	P_JIWENZI
+people	P_LUCHENGGONG
+relations	R335
+relations	R336
+relations	R337
+relations	R338
+relations	R339
+relations	R340
+relations	R341
+relations	R342
+relations	R343
+relations	R344
+relations	R345
+relations	R346
+relations	R347
+relations	R348

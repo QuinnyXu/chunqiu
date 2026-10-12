@@ -1,0 +1,14 @@
+id,person_a,person_b,rel_type,rel_label,reliability,source_note
+R349,P_ZHAOCUI,P_ZHAOTONG,亲属-直系,父,high,《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」；原同即赵同（成公八年谮辞「原屏將為亂」与「晉討趙同。趙括」同段对读）
+R350,P_ZHAOCUI,P_ZHAOKUO,亲属-直系,父,high,《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」；屏括即赵括（同上对读，并宣公二年「以括為公族」与「使屏季以其故族為公族大夫」）
+R351,P_ZHAOCUI,P_ZHAOYINGQI,亲属-直系,父,high,《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」；摟嬰即赵婴（成公五年「原屏放諸齊。嬰曰」「吾二昆」）
+R352,P_ZHAOTONG,P_ZHAOYINGQI,亲属-同辈,兄,high,《左传·成公五年》赵婴称原、屏为「吾二昆」；《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」
+R353,P_ZHAOKUO,P_ZHAOYINGQI,亲属-同辈,兄,high,《左传·成公五年》赵婴称原、屏为「吾二昆」；《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」
+R354,P_ZHAOTONG,P_ZHAOKUO,亲属-同辈,兄弟,high,《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」；二人长幼之次传无明文，列序不作长幼之据，故 label 只书兄弟
+R355,P_ZHAOTONG,P_ZHAOYINGQI,其他,放之于齐,high,《左传·成公五年》「原屏放諸齊」（E334）
+R356,P_ZHAOKUO,P_ZHAOYINGQI,其他,放之于齐,high,《左传·成公五年》「原屏放諸齊」（E334）
+R357,P_ZHAOZHUANGJI,P_ZHAOTONG,其他,谮之于晋侯,high,《左传·成公八年》「晉趙莊姬為趙嬰之亡故。譖之于晉侯。曰。原屏將為亂」（E335；谮辞为文本立场）
+R358,P_ZHAOZHUANGJI,P_ZHAOKUO,其他,谮之于晋侯,high,《左传·成公八年》「晉趙莊姬為趙嬰之亡故。譖之于晉侯。曰。原屏將為亂」（E335；谮辞为文本立场）
+R359,P_JINJINGGONG,P_HANJUE,君臣,君,high,《左传·成公八年》「韓厥言於晉侯曰」（E338；前583 在位者为景公）
+R360,P_HANJUE,P_ZHAOWU,其他,言于晋侯而立之,high,《左传·成公八年》「韓厥言於晉侯曰」……「乃立武而反其田焉」（E338）
+R361,P_ZHAOWU,P_ZHAOZHUANGJI,其他,从之畜于公宫,high,《左传·成公八年》「武從姬氏畜于公宮」（E337）；母子之属《左传》本文无直书，不织亲属之边

@@ -1,0 +1,49 @@
+# r61-B3（下宫之难·成公八年）本线占用之 ID —— 机读清单
+# 来源标记：Sophia（史料研究员），2026-10-11 EDT，会话 session_01QhJ4hbubq1BVsxd8kjBSRA；目的：r61-B 第三事备料（team/round61_prompts.md「Task for Sophia · r61-B」）
+# 基线：HEAD c8b3b12＋B1、B2 未合入之占用（B1：E319–E324／Q549–Q566／Z154／S016／R327–R334；B2：E325–E333／Q567–Q589／Y003／R335–R348）；本件自 B2 所标起号接续
+# 格式：表<TAB>ID；# 起首为注；后续件（B4）须自 B1、B2、B3 三清单各表最大号之次号起编
+# 复用（不新占）：sources Z139（主表行）、S016（以 B1 新行为底）、S004（以 B2 替换行为底），按 id 整行替换、notes 纯追加；people P_HANJUE（以 B2 替换行为底）、P_JINJINGGONG（以 B2 新行为底）、P_ZHAOWU、P_QIXIDAFU、P_ZHAOCUI（主表行），纯追加
+events	E334
+events	E335
+events	E336
+events	E337
+events	E338
+passages	Q590
+passages	Q591
+passages	Q592
+passages	Q593
+passages	Q594
+passages	Q595
+passages	Q596
+passages	Q597
+passages	Q598
+passages	Q599
+passages	Q600
+passages	Q601
+passages	Q602
+passages	Q603
+passages	Q604
+passages	Q605
+passages	Q606
+sources	Z155
+sources	Z156
+sources	S017
+sources	G016
+sources	G017
+people	P_ZHAOTONG
+people	P_ZHAOKUO
+people	P_ZHAOYINGQI
+people	P_ZHAOZHUANGJI
+relations	R349
+relations	R350
+relations	R351
+relations	R352
+relations	R353
+relations	R354
+relations	R355
+relations	R356
+relations	R357
+relations	R358
+relations	R359
+relations	R360
+relations	R361

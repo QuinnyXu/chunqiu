@@ -1,0 +1,21 @@
+event_id,person_id,role_in_event,directness,presence
+E319,P_JINLINGGONG,不君而受谏；士季「三進及溜，而後視之」，答「吾知所過矣，將改之」,direct,亲至
+E319,P_SHIHUI,先谏：「會請先」，「三進及溜」而稽首对,direct,亲至
+E319,P_ZHAODUN,与士季「見其手，問其故，而患之」；士季与之言「會請先，不入，則子繼之」——同场对言,direct,亲至
+E320,P_JINLINGGONG,「使鉏麑賊之」——使者代行，标「相关」,direct,相关
+E320,P_CHUNI,「晨往，寢門闢矣」，退而叹，「觸槐而死」,direct,亲至
+E320,P_ZHAODUN,所刺之人：「盛服將朝，尚早，坐而假寐」,direct,亲至
+E321,P_JINLINGGONG,「晉侯飲趙盾酒，伏甲將攻之」；「公嗾夫獒焉」,direct,亲至
+E321,P_ZHAODUN,受饮而遇伏：「盾曰：棄人用犬，雖猛何為」；「鬥且出」,direct,亲至
+E321,P_TIMIMING,「趨登」「遂扶以下」，「明搏而殺之」，「提彌明死之」,direct,亲至
+E321,P_LINGZHE,「既而與為公介，倒戟以禦公徒，而免之」,direct,亲至
+E322,P_ZHAOCHUAN,「趙穿攻靈公于桃園」——攻为兵事之词，名其责不名其手；其身行传无明文，标「相关」,direct,相关
+E322,P_JINLINGGONG,「趙穿攻靈公于桃園」——见攻于其地而卒（照 `E177`／`E202` 之例）,direct,亲至
+E322,P_ZHAODUN,「宣子未出山而復」——史文明书其时出亡在山，标「不在」；经以其名书「弒」，属书法之文本立场,indirect,不在
+E323,P_DONGHU,「大史書曰：『趙盾弒其君。』以示于朝」，对宣子之辩,direct,亲至
+E323,P_ZHAODUN,所书之人；与大史对言：「宣子曰：『不然。』對曰」，又曰「嗚呼，我之懷矣」,direct,亲至
+E323,P_JINLINGGONG,所书「弒其君」之「君」；已见弑，死者不作亲至,indirect,相关
+E323,P_KONGZI,《左传》系其评语：「董狐，古之良史也，書法不隱」（追评之言）,indirect,相关
+E324,P_ZHAODUN,「宣子使趙穿逆公子黑臀于周，而立之」——使令，标「相关」,direct,相关
+E324,P_ZHAOCHUAN,奉使逆公子黑臀于周；其行见于使令句，无独立之身行明文，从严标「相关」,direct,相关
+E324,P_JINCHENGGONG,被逆而立；「壬申，朝于武宮」,direct,亲至

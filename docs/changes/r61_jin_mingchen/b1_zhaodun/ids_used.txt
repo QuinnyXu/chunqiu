@@ -1,0 +1,46 @@
+# r61-B1（赵盾事·宣公二年）本线占用之 ID —— 机读清单
+# 来源标记：Sophia（史料研究员），2026-10-11 EDT，会话 session_01QhJ4hbubq1BVsxd8kjBSRA；目的：r61-B 第一事备料（team/round61_prompts.md「Task for Sophia · r61-B」）
+# 基线：HEAD c8b3b12；主表尾号 E318／Q548／Z153／S015／G015／R326
+# 格式：表<TAB>ID；# 起首为注；后续件（B2–B4）须自本清单各表最大号之次号起编
+# 复用（不新占）：sources S004、G014（按 id 整行替换，notes 纯追加）；people P_ZHAODUN、P_SHIHUI（按 id 整行替换，relations／notes 纯追加）；P_KONGZI、P_JINXIANGGONG 只被引用
+events	E319
+events	E320
+events	E321
+events	E322
+events	E323
+events	E324
+passages	Q549
+passages	Q550
+passages	Q551
+passages	Q552
+passages	Q553
+passages	Q554
+passages	Q555
+passages	Q556
+passages	Q557
+passages	Q558
+passages	Q559
+passages	Q560
+passages	Q561
+passages	Q562
+passages	Q563
+passages	Q564
+passages	Q565
+passages	Q566
+sources	Z154
+sources	S016
+people	P_JINLINGGONG
+people	P_ZHAOCHUAN
+people	P_DONGHU
+people	P_CHUNI
+people	P_TIMIMING
+people	P_LINGZHE
+people	P_JINCHENGGONG
+relations	R327
+relations	R328
+relations	R329
+relations	R330
+relations	R331
+relations	R332
+relations	R333
+relations	R334

@@ -1,0 +1,15 @@
+id,person_a,person_b,rel_type,rel_label,reliability,source_note
+R335,P_JINJINGGONG,P_XIKE,君臣,君,high,《左传·成公二年》「晉侯許之七百乘。郤子曰……請八百乘。許之」（E325）；「郤伯見公曰。子之力也夫」（E333）
+R336,P_QIQINGGONG,P_FENGCHOUFU,君臣,车右,high,《左传·成公二年》「邴夏御齊侯。逢丑父為右」（E328）
+R337,P_QIQINGGONG,P_BINGXIA,君臣,御者,high,《左传·成公二年》「邴夏御齊侯」（E328）
+R338,P_XIEZHANG,P_XIKE,其他,御者,high,《左传·成公二年》「晉解張御郤克」（E328）
+R339,P_ZHENGQIUHUAN,P_XIKE,其他,车右,high,《左传·成公二年》「晉解張御郤克。鄭丘緩為右」（E328）
+R340,P_XIKE,P_QIQINGGONG,敌对,鞍之战两军之主,high,《左传·成公二年》经「會晉郤克……及齊侯戰于鞍」（E328）
+R341,P_HANJUE,P_QIQINGGONG,敌对,逐之而执絷马前,high,《左传·成公二年》「中御而從齊侯」「韓厥執縶馬前」（E329）
+R342,P_XIKE,P_FENGCHOUFU,其他,将戮之而免之,high,《左传·成公二年》「郤獻子將戮之」「乃免之」（E329）；《公羊传》作「斮」，与之相抵，不据以改此边（`Q578`）
+R343,P_HANJUE,P_FENGCHOUFU,其他,获而献之,high,《左传·成公二年》「韓厥獻丑父」（E329）
+R344,P_XIKE,P_HANJUE,其他,分谤,high,《左传·成公二年》「韓獻子將斬人」「郤子使速以徇。告其僕曰。吾以分謗也」（E326）
+R345,P_QIQINGGONG,P_GUOZUO,君臣,君（使之致赂、如师）,high,《左传·成公二年》「齊侯使賓媚人」（E331）；经「齊侯使國佐如師」（E332）
+R346,P_QIWUZHANG,P_HANJUE,其他,寓乘其车,high,《左传·成公二年》「綦毋張喪車。從韓厥曰。請寓乘」（E329）
+R347,P_JINJINGGONG,P_SHIXIE,君臣,君,high,《左传·成公二年》「范叔見。勞之如郤伯」（E333）
+R348,P_JINJINGGONG,P_LUANSHU,君臣,君,high,《左传·成公二年》「欒伯見。公亦如之」（E333）
