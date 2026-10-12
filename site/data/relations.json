@@ -2779,5 +2779,545 @@
     "rel_label": "田赋之问：三不对而私语之",
     "reliability": "high",
     "source_note": "《左传·哀公十一年》：「季孫欲以田賦，**使冉有訪諸仲尼**。仲尼曰：丘不識也。三發……**仲尼不對，而私於冉有曰**：君子之行也，度於禮……」（库内 `Q503`，E299）；《国语·鲁语下》同事：「仲尼不對，**私於冉有曰：求來！女不聞乎**？……」（库内 `Q504`）——问、不对、私语三节，两书俱明文，high。**师弟之属本库不立**：《左传》《国语》正文无一处书其师事孔子；**《国语》韦昭注于此句下明书「冉有，孔子弟子冉求也，為季氏宰」，而注家之说依 §7 v1.21 不得作身份之据**——此为判据三在身份栏上最直白之一用例（同 `docs/kaoding_kongzi.md` §4.3 第四层司马牛之辨）。本边只录传所书之交会，`rel_type` 取「其他」。"
+  },
+  {
+    "id": "R327",
+    "person_a": "P_JINXIANGGONG",
+    "person_b": "P_JINLINGGONG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《左传·文公六年》「晉襄公卒。靈公少」；穆嬴抱大子啼曰「先君何罪，其嗣亦何罪，舍適嗣不立」——灵公为襄公之適嗣"
+  },
+  {
+    "id": "R328",
+    "person_a": "P_JINLINGGONG",
+    "person_b": "P_ZHAODUN",
+    "rel_type": "君臣",
+    "rel_label": "君",
+    "reliability": "high",
+    "source_note": "《左传·宣公二年》赵盾谏灵公（E319）；文公七年宣子立灵公（`Q531`）"
+  },
+  {
+    "id": "R329",
+    "person_a": "P_ZHAOCHUAN",
+    "person_b": "P_JINLINGGONG",
+    "rel_type": "敌对",
+    "rel_label": "攻之于桃园",
+    "reliability": "high",
+    "source_note": "《左传·宣公二年》「趙穿攻靈公于桃園」（E322）；经书「晉趙盾弒其君夷皋」系书法之辞，不据以改此边之主语"
+  },
+  {
+    "id": "R330",
+    "person_a": "P_ZHAODUN",
+    "person_b": "P_JINCHENGGONG",
+    "rel_type": "拥立",
+    "rel_label": "使赵穿逆于周而立之",
+    "reliability": "high",
+    "source_note": "《左传·宣公二年》「宣子使趙穿逆公子黑臀于周，而立之」（E324）"
+  },
+  {
+    "id": "R331",
+    "person_a": "P_TIMIMING",
+    "person_b": "P_ZHAODUN",
+    "rel_type": "其他",
+    "rel_label": "车右",
+    "reliability": "high",
+    "source_note": "《左传·宣公二年》「其右提彌明知之」（E321）"
+  },
+  {
+    "id": "R332",
+    "person_a": "P_LINGZHE",
+    "person_b": "P_ZHAODUN",
+    "rel_type": "其他",
+    "rel_label": "受翳桑之食，后倒戟御公徒而免之",
+    "reliability": "high",
+    "source_note": "《左传·宣公二年》追叙翳桑之事与「倒戟以禦公徒，而免之」（E321）"
+  },
+  {
+    "id": "R333",
+    "person_a": "P_JINLINGGONG",
+    "person_b": "P_CHUNI",
+    "rel_type": "君臣",
+    "rel_label": "君（使之贼赵盾）",
+    "reliability": "high",
+    "source_note": "《左传·宣公二年》「公患之，使鉏麑賊之」（E320）"
+  },
+  {
+    "id": "R334",
+    "person_a": "P_DONGHU",
+    "person_b": "P_ZHAODUN",
+    "rel_type": "其他",
+    "rel_label": "书其「弒其君」之大史",
+    "reliability": "high",
+    "source_note": "《左传·宣公二年》「大史書曰：『趙盾弒其君。』」（E323）；所书之辞为归罪之文本立场"
+  },
+  {
+    "id": "R335",
+    "person_a": "P_JINJINGGONG",
+    "person_b": "P_XIKE",
+    "rel_type": "君臣",
+    "rel_label": "君",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「晉侯許之七百乘。郤子曰……請八百乘。許之」（E325）；「郤伯見公曰。子之力也夫」（E333）"
+  },
+  {
+    "id": "R336",
+    "person_a": "P_QIQINGGONG",
+    "person_b": "P_FENGCHOUFU",
+    "rel_type": "君臣",
+    "rel_label": "车右",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「邴夏御齊侯。逢丑父為右」（E328）"
+  },
+  {
+    "id": "R337",
+    "person_a": "P_QIQINGGONG",
+    "person_b": "P_BINGXIA",
+    "rel_type": "君臣",
+    "rel_label": "御者",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「邴夏御齊侯」（E328）"
+  },
+  {
+    "id": "R338",
+    "person_a": "P_XIEZHANG",
+    "person_b": "P_XIKE",
+    "rel_type": "其他",
+    "rel_label": "御者",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「晉解張御郤克」（E328）"
+  },
+  {
+    "id": "R339",
+    "person_a": "P_ZHENGQIUHUAN",
+    "person_b": "P_XIKE",
+    "rel_type": "其他",
+    "rel_label": "车右",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「晉解張御郤克。鄭丘緩為右」（E328）"
+  },
+  {
+    "id": "R340",
+    "person_a": "P_XIKE",
+    "person_b": "P_QIQINGGONG",
+    "rel_type": "敌对",
+    "rel_label": "鞍之战两军之主",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》经「會晉郤克……及齊侯戰于鞍」（E328）"
+  },
+  {
+    "id": "R341",
+    "person_a": "P_HANJUE",
+    "person_b": "P_QIQINGGONG",
+    "rel_type": "敌对",
+    "rel_label": "逐之而执絷马前",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「中御而從齊侯」「韓厥執縶馬前」（E329）"
+  },
+  {
+    "id": "R342",
+    "person_a": "P_XIKE",
+    "person_b": "P_FENGCHOUFU",
+    "rel_type": "其他",
+    "rel_label": "将戮之而免之",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「郤獻子將戮之」「乃免之」（E329）；《公羊传》作「斮」，与之相抵，不据以改此边（`Q578`）"
+  },
+  {
+    "id": "R343",
+    "person_a": "P_HANJUE",
+    "person_b": "P_FENGCHOUFU",
+    "rel_type": "其他",
+    "rel_label": "获而献之",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「韓厥獻丑父」（E329）"
+  },
+  {
+    "id": "R344",
+    "person_a": "P_XIKE",
+    "person_b": "P_HANJUE",
+    "rel_type": "其他",
+    "rel_label": "分谤",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「韓獻子將斬人」「郤子使速以徇。告其僕曰。吾以分謗也」（E326）"
+  },
+  {
+    "id": "R345",
+    "person_a": "P_QIQINGGONG",
+    "person_b": "P_GUOZUO",
+    "rel_type": "君臣",
+    "rel_label": "君（使之致赂、如师）",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「齊侯使賓媚人」（E331）；经「齊侯使國佐如師」（E332）"
+  },
+  {
+    "id": "R346",
+    "person_a": "P_QIWUZHANG",
+    "person_b": "P_HANJUE",
+    "rel_type": "其他",
+    "rel_label": "寓乘其车",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「綦毋張喪車。從韓厥曰。請寓乘」（E329）"
+  },
+  {
+    "id": "R347",
+    "person_a": "P_JINJINGGONG",
+    "person_b": "P_SHIXIE",
+    "rel_type": "君臣",
+    "rel_label": "君",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「范叔見。勞之如郤伯」（E333）"
+  },
+  {
+    "id": "R348",
+    "person_a": "P_JINJINGGONG",
+    "person_b": "P_LUANSHU",
+    "rel_type": "君臣",
+    "rel_label": "君",
+    "reliability": "high",
+    "source_note": "《左传·成公二年》「欒伯見。公亦如之」（E333）"
+  },
+  {
+    "id": "R349",
+    "person_a": "P_ZHAOCUI",
+    "person_b": "P_ZHAOTONG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」；原同即赵同（成公八年谮辞「原屏將為亂」与「晉討趙同。趙括」同段对读）"
+  },
+  {
+    "id": "R350",
+    "person_a": "P_ZHAOCUI",
+    "person_b": "P_ZHAOKUO",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」；屏括即赵括（同上对读，并宣公二年「以括為公族」与「使屏季以其故族為公族大夫」）"
+  },
+  {
+    "id": "R351",
+    "person_a": "P_ZHAOCUI",
+    "person_b": "P_ZHAOYINGQI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」；摟嬰即赵婴（成公五年「原屏放諸齊。嬰曰」「吾二昆」）"
+  },
+  {
+    "id": "R352",
+    "person_a": "P_ZHAOTONG",
+    "person_b": "P_ZHAOYINGQI",
+    "rel_type": "亲属-同辈",
+    "rel_label": "兄",
+    "reliability": "high",
+    "source_note": "《左传·成公五年》赵婴称原、屏为「吾二昆」；《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」"
+  },
+  {
+    "id": "R353",
+    "person_a": "P_ZHAOKUO",
+    "person_b": "P_ZHAOYINGQI",
+    "rel_type": "亲属-同辈",
+    "rel_label": "兄",
+    "reliability": "high",
+    "source_note": "《左传·成公五年》赵婴称原、屏为「吾二昆」；《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」"
+  },
+  {
+    "id": "R354",
+    "person_a": "P_ZHAOTONG",
+    "person_b": "P_ZHAOKUO",
+    "rel_type": "亲属-同辈",
+    "rel_label": "兄弟",
+    "reliability": "high",
+    "source_note": "《左传·僖公二十四年》「文公妻趙衰，生原同、屏括、摟嬰」；二人长幼之次传无明文，列序不作长幼之据，故 label 只书兄弟"
+  },
+  {
+    "id": "R355",
+    "person_a": "P_ZHAOTONG",
+    "person_b": "P_ZHAOYINGQI",
+    "rel_type": "其他",
+    "rel_label": "放之于齐",
+    "reliability": "high",
+    "source_note": "《左传·成公五年》「原屏放諸齊」（E334）"
+  },
+  {
+    "id": "R356",
+    "person_a": "P_ZHAOKUO",
+    "person_b": "P_ZHAOYINGQI",
+    "rel_type": "其他",
+    "rel_label": "放之于齐",
+    "reliability": "high",
+    "source_note": "《左传·成公五年》「原屏放諸齊」（E334）"
+  },
+  {
+    "id": "R357",
+    "person_a": "P_ZHAOZHUANGJI",
+    "person_b": "P_ZHAOTONG",
+    "rel_type": "其他",
+    "rel_label": "谮之于晋侯",
+    "reliability": "high",
+    "source_note": "《左传·成公八年》「晉趙莊姬為趙嬰之亡故。譖之于晉侯。曰。原屏將為亂」（E335；谮辞为文本立场）"
+  },
+  {
+    "id": "R358",
+    "person_a": "P_ZHAOZHUANGJI",
+    "person_b": "P_ZHAOKUO",
+    "rel_type": "其他",
+    "rel_label": "谮之于晋侯",
+    "reliability": "high",
+    "source_note": "《左传·成公八年》「晉趙莊姬為趙嬰之亡故。譖之于晉侯。曰。原屏將為亂」（E335；谮辞为文本立场）"
+  },
+  {
+    "id": "R359",
+    "person_a": "P_JINJINGGONG",
+    "person_b": "P_HANJUE",
+    "rel_type": "君臣",
+    "rel_label": "君",
+    "reliability": "high",
+    "source_note": "《左传·成公八年》「韓厥言於晉侯曰」（E338；前583 在位者为景公）"
+  },
+  {
+    "id": "R360",
+    "person_a": "P_HANJUE",
+    "person_b": "P_ZHAOWU",
+    "rel_type": "其他",
+    "rel_label": "言于晋侯而立之",
+    "reliability": "high",
+    "source_note": "《左传·成公八年》「韓厥言於晉侯曰」……「乃立武而反其田焉」（E338）"
+  },
+  {
+    "id": "R361",
+    "person_a": "P_ZHAOWU",
+    "person_b": "P_ZHAOZHUANGJI",
+    "rel_type": "其他",
+    "rel_label": "从之畜于公宫",
+    "reliability": "high",
+    "source_note": "《左传·成公八年》「武從姬氏畜于公宮」（E337）；母子之属《左传》本文无直书，不织亲属之边"
+  },
+  {
+    "id": "R362",
+    "person_a": "P_JINJINGGONG",
+    "person_b": "P_JINLIGONG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《左传·成公十年》「五月。晉立大子州蒲以為君」——景公在位而立其大子州蒲；州蒲即厉公（经「晉弒其君州蒲」）"
+  },
+  {
+    "id": "R363",
+    "person_a": "P_JINLIGONG",
+    "person_b": "P_XUTONG",
+    "rel_type": "君臣",
+    "rel_label": "君（嬖之，使为卿）",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「而嬖於厲公」；「公使胥童為卿」"
+  },
+  {
+    "id": "R364",
+    "person_a": "P_JINLIGONG",
+    "person_b": "P_YIYANGWU",
+    "rel_type": "君臣",
+    "rel_label": "君（嬖之）",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「五亦嬖於厲公」"
+  },
+  {
+    "id": "R365",
+    "person_a": "P_JINLIGONG",
+    "person_b": "P_CHANGYUJIAO",
+    "rel_type": "君臣",
+    "rel_label": "君（嬖之）",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「既矯。亦嬖於厲公」"
+  },
+  {
+    "id": "R366",
+    "person_a": "P_XIQI",
+    "person_b": "P_YIYANGWU",
+    "rel_type": "敌对",
+    "rel_label": "夺其田",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「郤錡奪夷陽五田」"
+  },
+  {
+    "id": "R367",
+    "person_a": "P_XICHOU",
+    "person_b": "P_CHANGYUJIAO",
+    "rel_type": "敌对",
+    "rel_label": "与之争田，执而梏之；后为其以戈所杀",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「郤犨與長魚矯爭田。執而梏之」；「矯以戈殺駒伯苦成叔於其位」"
+  },
+  {
+    "id": "R368",
+    "person_a": "P_LUANSHU",
+    "person_b": "P_XIZHI",
+    "rel_type": "敌对",
+    "rel_label": "怨之，使楚公子茷告公",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「欒書怨郤至。以其不從己而敗楚師也。欲廢之。使楚公子茷告公曰」（告辞为谮，属文本立场）"
+  },
+  {
+    "id": "R369",
+    "person_a": "P_CHANGYUJIAO",
+    "person_b": "P_XIQI",
+    "rel_type": "敌对",
+    "rel_label": "以戈杀之",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「矯以戈殺駒伯苦成叔於其位」"
+  },
+  {
+    "id": "R370",
+    "person_a": "P_XUTONG",
+    "person_b": "P_YIYANGWU",
+    "rel_type": "其他",
+    "rel_label": "同帅甲攻郤氏",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「壬午。胥童。夷羊五。帥甲八百。將攻郤氏」"
+  },
+  {
+    "id": "R371",
+    "person_a": "P_CHANGYUJIAO",
+    "person_b": "P_XIZHI",
+    "rel_type": "敌对",
+    "rel_label": "追及其车，以戈杀之",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「溫季曰。逃威也。遂趨。矯及諸其車。以戈殺之」"
+  },
+  {
+    "id": "R372",
+    "person_a": "P_JINLIGONG",
+    "person_b": "P_XIZHI",
+    "rel_type": "敌对",
+    "rel_label": "怨之",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「公使覘之信。遂怨郤至」；「公曰。季子欺余」"
+  },
+  {
+    "id": "R373",
+    "person_a": "P_XUTONG",
+    "person_b": "P_LUANSHU",
+    "rel_type": "敌对",
+    "rel_label": "以甲劫之；闰月为其所杀",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「胥童以甲劫欒書中行偃於朝」；「閏月。乙卯。晦。欒書中行偃殺胥童」"
+  },
+  {
+    "id": "R374",
+    "person_a": "P_XUTONG",
+    "person_b": "P_XUNYAN",
+    "rel_type": "敌对",
+    "rel_label": "以甲劫之；闰月为其所杀",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「胥童以甲劫欒書中行偃於朝」；「閏月。乙卯。晦。欒書中行偃殺胥童」"
+  },
+  {
+    "id": "R375",
+    "person_a": "P_LUANSHU",
+    "person_b": "P_JINLIGONG",
+    "rel_type": "敌对",
+    "rel_label": "执之；使程滑弑之",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「欒書。中行偃。遂執公焉」；成公十八年「晉欒書。中行偃。使程滑弒厲公」（「弒」字照录传文）"
+  },
+  {
+    "id": "R376",
+    "person_a": "P_XUNYAN",
+    "person_b": "P_JINLIGONG",
+    "rel_type": "敌对",
+    "rel_label": "执之；使程滑弑之",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「欒書。中行偃。遂執公焉」；成公十八年「晉欒書。中行偃。使程滑弒厲公」（「弒」字照录传文）"
+  },
+  {
+    "id": "R377",
+    "person_a": "P_CHENGHUA",
+    "person_b": "P_JINLIGONG",
+    "rel_type": "敌对",
+    "rel_label": "受使弑之",
+    "reliability": "high",
+    "source_note": "《左传·成公十八年》「使程滑弒厲公」（「弒」字照录传文）"
+  },
+  {
+    "id": "R378",
+    "person_a": "P_LUANSHU",
+    "person_b": "P_JINDAOGONG",
+    "rel_type": "拥立",
+    "rel_label": "使荀罃、士鲂逆而立之",
+    "reliability": "high",
+    "source_note": "《左传·成公十八年》「晉欒書。中行偃。使程滑弒厲公……使荀罃。士魴。逆周子于京師而立之」（「使荀罃」之主语承上）"
+  },
+  {
+    "id": "R379",
+    "person_a": "P_XUNYAN",
+    "person_b": "P_JINDAOGONG",
+    "rel_type": "拥立",
+    "rel_label": "使荀罃、士鲂逆而立之",
+    "reliability": "high",
+    "source_note": "《左传·成公十八年》「晉欒書。中行偃。使程滑弒厲公……使荀罃。士魴。逆周子于京師而立之」（「使荀罃」之主语承上）"
+  },
+  {
+    "id": "R380",
+    "person_a": "P_XUNYING",
+    "person_b": "P_JINDAOGONG",
+    "rel_type": "其他",
+    "rel_label": "受使逆之于京师",
+    "reliability": "high",
+    "source_note": "《左传·成公十八年》「使荀罃。士魴。逆周子于京師而立之」"
+  },
+  {
+    "id": "R381",
+    "person_a": "P_SHIFANG",
+    "person_b": "P_JINDAOGONG",
+    "rel_type": "其他",
+    "rel_label": "受使逆之于京师",
+    "reliability": "high",
+    "source_note": "《左传·成公十八年》「使荀罃。士魴。逆周子于京師而立之」"
+  },
+  {
+    "id": "R382",
+    "person_a": "P_JINLIGONG",
+    "person_b": "P_QINGFEITUI",
+    "rel_type": "君臣",
+    "rel_label": "君（使之助攻郤氏）",
+    "reliability": "high",
+    "source_note": "《左传·成公十七年》「公使清沸魋助之」"
+  },
+  {
+    "id": "R383",
+    "person_a": "P_QIXIDAFU",
+    "person_b": "P_QIWU",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《左传·襄公三年》「對曰．午也可」，君子之评「立其子．不為比」（E351）"
+  },
+  {
+    "id": "R384",
+    "person_a": "P_QIXIDAFU",
+    "person_b": "P_XIEHU",
+    "rel_type": "敌对",
+    "rel_label": "讎（而举之）",
+    "reliability": "high",
+    "source_note": "《左传·襄公三年》「稱解狐．其讎也．將立之而卒」（E351）"
+  },
+  {
+    "id": "R385",
+    "person_a": "P_QIXIDAFU",
+    "person_b": "P_YANGSHECHI",
+    "rel_type": "其他",
+    "rel_label": "举之以佐中军尉",
+    "reliability": "high",
+    "source_note": "《左传·襄公三年》「對曰．赤也可．於是使祁午為中軍尉．羊舌赤佐之」（E351）"
+  },
+  {
+    "id": "R386",
+    "person_a": "P_JINDAOGONG",
+    "person_b": "P_QIXIDAFU",
+    "rel_type": "君臣",
+    "rel_label": "君",
+    "reliability": "high",
+    "source_note": "《左传·襄公三年》「祁奚請老．晉侯問嗣焉」（E351）；晋侯即悼公，以在位之年定（前573 即位，前558 卒）"
   }
 ]

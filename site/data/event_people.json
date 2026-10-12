@@ -5143,5 +5143,957 @@
     "role_in_event": "子产寓书之所致者（「以告宣子」），时「范宣子為政，諸侯之幣重」。受书于晋，非与子产同地，标「相关」",
     "directness": "direct",
     "presence": "相关"
+  },
+  {
+    "event_id": "E319",
+    "person_id": "P_JINLINGGONG",
+    "role_in_event": "不君而受谏；士季「三進及溜，而後視之」，答「吾知所過矣，將改之」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E319",
+    "person_id": "P_SHIHUI",
+    "role_in_event": "先谏：「會請先」，「三進及溜」而稽首对",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E319",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "与士季「見其手，問其故，而患之」；士季与之言「會請先，不入，則子繼之」——同场对言",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E320",
+    "person_id": "P_JINLINGGONG",
+    "role_in_event": "「使鉏麑賊之」——使者代行，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E320",
+    "person_id": "P_CHUNI",
+    "role_in_event": "「晨往，寢門闢矣」，退而叹，「觸槐而死」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E320",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "所刺之人：「盛服將朝，尚早，坐而假寐」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E321",
+    "person_id": "P_JINLINGGONG",
+    "role_in_event": "「晉侯飲趙盾酒，伏甲將攻之」；「公嗾夫獒焉」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E321",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "受饮而遇伏：「盾曰：棄人用犬，雖猛何為」；「鬥且出」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E321",
+    "person_id": "P_TIMIMING",
+    "role_in_event": "「趨登」「遂扶以下」，「明搏而殺之」，「提彌明死之」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E321",
+    "person_id": "P_LINGZHE",
+    "role_in_event": "「既而與為公介，倒戟以禦公徒，而免之」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E322",
+    "person_id": "P_ZHAOCHUAN",
+    "role_in_event": "「趙穿攻靈公于桃園」——攻为兵事之词，名其责不名其手；其身行传无明文，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E322",
+    "person_id": "P_JINLINGGONG",
+    "role_in_event": "「趙穿攻靈公于桃園」——见攻于其地而卒（照 `E177`／`E202` 之例）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E322",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "「宣子未出山而復」——史文明书其时出亡在山，标「不在」；经以其名书「弒」，属书法之文本立场",
+    "directness": "indirect",
+    "presence": "不在"
+  },
+  {
+    "event_id": "E323",
+    "person_id": "P_DONGHU",
+    "role_in_event": "「大史書曰：『趙盾弒其君。』以示于朝」，对宣子之辩",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E323",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "所书之人；与大史对言：「宣子曰：『不然。』對曰」，又曰「嗚呼，我之懷矣」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E323",
+    "person_id": "P_JINLINGGONG",
+    "role_in_event": "所书「弒其君」之「君」；已见弑，死者不作亲至",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E323",
+    "person_id": "P_KONGZI",
+    "role_in_event": "《左传》系其评语：「董狐，古之良史也，書法不隱」（追评之言）",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E324",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "「宣子使趙穿逆公子黑臀于周，而立之」——使令，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E324",
+    "person_id": "P_ZHAOCHUAN",
+    "role_in_event": "奉使逆公子黑臀于周；其行见于使令句，无独立之身行明文，从严标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E324",
+    "person_id": "P_JINCHENGGONG",
+    "role_in_event": "被逆而立；「壬申，朝于武宮」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E325",
+    "person_id": "P_SUNLIANGFU",
+    "role_in_event": "「孫桓子還於新築」「遂如晉乞師」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E325",
+    "person_id": "P_ZANGXUANSHU",
+    "role_in_event": "「臧宣叔亦如晉乞師」；「臧宣叔逆晉師，且道之」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E325",
+    "person_id": "P_JIWENZI",
+    "role_in_event": "「季文子帥師會之」——帅师为兵事之词，会之之地传无文，其身行无明文，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E325",
+    "person_id": "P_XIKE",
+    "role_in_event": "乞师者「皆主郤獻子」；对晋侯「郤子曰。此城濮之賦也」，「請八百乘」——对面之言（军序「郤克將中軍」为职，不以为据）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E325",
+    "person_id": "P_JINJINGGONG",
+    "role_in_event": "「晉侯許之七百乘」，又许八百乘；许之之地无明文，从严标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E325",
+    "person_id": "P_SHIXIE",
+    "role_in_event": "军序「士燮將上軍」（底本字，见呈裁），职之明文，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E325",
+    "person_id": "P_LUANSHU",
+    "role_in_event": "军序「欒書將下軍」，职之明文，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E325",
+    "person_id": "P_HANJUE",
+    "role_in_event": "军序「韓厥為司馬」，职之明文，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E326",
+    "person_id": "P_HANJUE",
+    "role_in_event": "「韓獻子將斬人」——将然之辞；「則既斬之矣」为处置之词；俱不立其身在场，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E326",
+    "person_id": "P_XIKE",
+    "role_in_event": "「郤獻子馳將救之」「至，則既斬之矣」；「郤子使速以徇」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E327",
+    "person_id": "P_QIQINGGONG",
+    "role_in_event": "「齊侯使請戰」——使者代行，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E327",
+    "person_id": "P_GAOGU",
+    "role_in_event": "「齊高固入晉師」「桀石以投人」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_XIKE",
+    "role_in_event": "「郤克傷於矢，流血及屨，未絕鼓音」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_XIEZHANG",
+    "role_in_event": "「晉解張御郤克」；「左并轡，右援枹而鼓」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_ZHENGQIUHUAN",
+    "role_in_event": "「鄭丘緩為右」；「緩曰：自始合，苟有險，余必下推車」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_QIQINGGONG",
+    "role_in_event": "「齊侯曰：余姑翦滅此而朝食」「不介馬而馳之」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_BINGXIA",
+    "role_in_event": "「邴夏御齊侯」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_FENGCHOUFU",
+    "role_in_event": "「師陳于鞍，邴夏御齊侯，逢丑父為右」——为右是本战车上之位，即其身之所在",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_JIWENZI",
+    "role_in_event": "经书「季孫行父。臧孫許。叔孫僑如。公孫嬰齊。帥師會晉郤克」而「及齊侯戰于鞍」——战且书地",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_ZANGXUANSHU",
+    "role_in_event": "经书「臧孫許」等「帥師會晉郤克」而「及齊侯戰于鞍」——战且书地",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E328",
+    "person_id": "P_SUNLIANGFU",
+    "role_in_event": "经书「會晉郤克。衛孫良夫」而「及齊侯戰于鞍」——战且书地",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E329",
+    "person_id": "P_HANJUE",
+    "role_in_event": "「中御而從齊侯」；「韓厥執縶馬前，再拜稽首」；「韓厥獻丑父」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E329",
+    "person_id": "P_QIQINGGONG",
+    "role_in_event": "「公曰：謂之君子而射之，非禮也」；「逢丑父與公易位」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E329",
+    "person_id": "P_FENGCHOUFU",
+    "role_in_event": "「逢丑父與公易位」；「丑父使公下如華泉取飲」；「呼曰：自今無有代其君任患者」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E329",
+    "person_id": "P_BINGXIA",
+    "role_in_event": "「邴夏曰：射其御者，君子也」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E329",
+    "person_id": "P_QIWUZHANG",
+    "role_in_event": "「綦毋張喪車，從韓厥曰：請寓乘」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E329",
+    "person_id": "P_XIKE",
+    "role_in_event": "「郤獻子將戮之」；「郤子曰：人不難以死免其君」「乃免之」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E330",
+    "person_id": "P_QIQINGGONG",
+    "role_in_event": "「求丑父，三入三出」；「遂自徐關入」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E330",
+    "person_id": "P_FENGCHOUFU",
+    "role_in_event": "所求之人；其时之所在传无文，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E331",
+    "person_id": "P_GUOZUO",
+    "role_in_event": "「賓媚人致賂」；「對曰：蕭同叔子非他，寡君之母也」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E331",
+    "person_id": "P_QIQINGGONG",
+    "role_in_event": "「齊侯使賓媚人」——使令，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E331",
+    "person_id": "P_XIKE",
+    "role_in_event": "《左传》书「晉人不可」，不书其人；《史记》二世家以其求出郤克（后出层），不据以立在场，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E332",
+    "person_id": "P_GUOZUO",
+    "role_in_event": "经「及國佐盟于袁婁」；传「晉師及齊國佐盟于爰婁」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E332",
+    "person_id": "P_LUCHENGGONG",
+    "role_in_event": "「公會晉師于上鄍」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E332",
+    "person_id": "P_QIQINGGONG",
+    "role_in_event": "经「齊侯使國佐如師」——使令，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E332",
+    "person_id": "P_XIKE",
+    "role_in_event": "「三帥先路三命之服」——三帅之名与晋之盟者传俱不书，不以军序代填，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E333",
+    "person_id": "P_SHIXIE",
+    "role_in_event": "「范文子後入」；「范叔見」，对曰「燮何力之有焉」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E333",
+    "person_id": "P_SHIHUI",
+    "role_in_event": "范文子后入，「武子曰。無為吾望爾也乎」，范文子「對曰」——对面之言",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E333",
+    "person_id": "P_XIKE",
+    "role_in_event": "「郤伯見」，对曰「君之訓也，二三子之力也」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E333",
+    "person_id": "P_LUANSHU",
+    "role_in_event": "「欒伯見」，对曰「書何力之有焉」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E333",
+    "person_id": "P_JINJINGGONG",
+    "role_in_event": "郤伯见而「子之力也夫」；「勞之如郤伯」「公亦如之」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E334",
+    "person_id": "P_ZHAOYINGQI",
+    "role_in_event": "被放者；「嬰曰。我在」「祭之之明日而亡」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E334",
+    "person_id": "P_ZHAOTONG",
+    "role_in_event": "「原屏放諸齊」之原；放之为处置之文，「弗聽」亦无其所在，身行与地俱无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E334",
+    "person_id": "P_ZHAOKUO",
+    "role_in_event": "「原屏放諸齊」之屏；放之为处置之文，「弗聽」亦无其所在，身行与地俱无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E334",
+    "person_id": "P_ZHAOZHUANGJI",
+    "role_in_event": "成公四年冬传末书其与赵婴之事（`Q590`，跨年）；放逐之事传不书其与",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E335",
+    "person_id": "P_ZHAOZHUANGJI",
+    "role_in_event": "谮者；「晉趙莊姬為趙嬰之亡故。譖之于晉侯」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E335",
+    "person_id": "P_JINJINGGONG",
+    "role_in_event": "受谮之「晉侯」；受谮非其身行，所在无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E335",
+    "person_id": "P_ZHAOTONG",
+    "role_in_event": "被谮者（谮辞「原屏將為亂」，文本立场）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E335",
+    "person_id": "P_ZHAOKUO",
+    "role_in_event": "被谮者（谮辞「原屏將為亂」，文本立场）",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E335",
+    "person_id": "P_ZHAOYINGQI",
+    "role_in_event": "「為趙嬰之亡故」——谮之所由；其人已于成公五年出亡",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E336",
+    "person_id": "P_ZHAOTONG",
+    "role_in_event": "被讨、被杀（传「晉討趙同。趙括」、经「晉殺其大夫趙同。趙括」）；其身所在与身行无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E336",
+    "person_id": "P_ZHAOKUO",
+    "role_in_event": "被讨、被杀（传「晉討趙同。趙括」、经「晉殺其大夫趙同。趙括」）；其身所在与身行无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E336",
+    "person_id": "P_JINJINGGONG",
+    "role_in_event": "传书「晉討」、经书「晉殺」，以国为主语，君亲无文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E336",
+    "person_id": "P_HANJUE",
+    "role_in_event": "《国语·晋语六》成公十八年追述「趙孟姬之讒，吾能違兵」（`Q596`）；《左传》本事无其文",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E337",
+    "person_id": "P_ZHAOWU",
+    "role_in_event": "「武從姬氏畜于公宮」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E337",
+    "person_id": "P_ZHAOZHUANGJI",
+    "role_in_event": "「武從姬氏畜于公宮」之姬氏——所从者与从者偕，其地即公宫",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E337",
+    "person_id": "P_QIXIDAFU",
+    "role_in_event": "「以其田與祁奚」——受田者，其身行无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E337",
+    "person_id": "P_JINJINGGONG",
+    "role_in_event": "与田之主语传不书",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E338",
+    "person_id": "P_HANJUE",
+    "role_in_event": "「韓厥言於晉侯曰」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E338",
+    "person_id": "P_JINJINGGONG",
+    "role_in_event": "受言之「晉侯」；「乃立武而反其田焉」之主语传不书；只受言者，所在无明文，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E338",
+    "person_id": "P_ZHAOWU",
+    "role_in_event": "「乃立武」——被立者，其身行无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E338",
+    "person_id": "P_QIXIDAFU",
+    "role_in_event": "「反其田」——其田见反，传不书其人之行",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E339",
+    "person_id": "P_SHIXIE",
+    "role_in_event": "「晉范文子反自鄢陵」「使其祝宗祈死曰」；「六月。戊辰。士燮卒」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_JINLIGONG",
+    "role_in_event": "「公告欒書」；「公使覘之信。遂怨郤至」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_LUANSHU",
+    "role_in_event": "「欒書怨郤至」，使楚公子茷告公；「書曰。其有焉」——其答公之言为身行（同 B3 韩厥进言于晋侯之例）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_XIZHI",
+    "role_in_event": "被谮者；「郤至聘于周」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_JINDAOGONG",
+    "role_in_event": "「欒書使孫周見之」——见于使令句，无独立之身行明文（同 B1 `E324` 赵穿之例），标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_XUTONG",
+    "role_in_event": "「以胥克之廢也。怨郤氏。而嬖於厲公」——结怨之由，追叙，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_XIQI",
+    "role_in_event": "「郤錡奪夷陽五田」——前事追叙，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_XICHOU",
+    "role_in_event": "「郤犨與長魚矯爭田。執而梏之」——前事追叙，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_YIYANGWU",
+    "role_in_event": "「五亦嬖於厲公」——其田见夺，追叙，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E340",
+    "person_id": "P_CHANGYUJIAO",
+    "role_in_event": "「亦嬖於厲公」——与郤犨争田而被执梏，追叙，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E341",
+    "person_id": "P_JINLIGONG",
+    "role_in_event": "「厲公田」；「公曰。季子欺余」；「公曰。然」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E341",
+    "person_id": "P_XIZHI",
+    "role_in_event": "「郤至奉豕」「射而殺之」；「郤至曰。人所以立」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E341",
+    "person_id": "P_XUTONG",
+    "role_in_event": "「胥童曰。必先三郤」——劝公之言为身行（同 B3 韩厥之例）",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E341",
+    "person_id": "P_XIQI",
+    "role_in_event": "「郤錡欲攻公。曰雖死。君必危」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E341",
+    "person_id": "P_XICHOU",
+    "role_in_event": "「郤氏聞之」——集称，其本人之言行无明文，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E342",
+    "person_id": "P_XUTONG",
+    "role_in_event": "「胥童。夷羊五。帥甲八百。將攻郤氏」——帅甲为兵事之词（甲是他人之身），将攻为将然之辞，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E342",
+    "person_id": "P_YIYANGWU",
+    "role_in_event": "「胥童。夷羊五。帥甲八百。將攻郤氏」——同胥童，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E342",
+    "person_id": "P_CHANGYUJIAO",
+    "role_in_event": "「長魚矯請無用眾」；「矯以戈殺駒伯苦成叔於其位」「矯及諸其車。以戈殺之」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E342",
+    "person_id": "P_XIZHI",
+    "role_in_event": "「溫季曰。逃威也。遂趨」——被杀者而有其身行明文，标「亲至」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E342",
+    "person_id": "P_XIQI",
+    "role_in_event": "被杀者（「駒伯」）；「矯以戈殺駒伯苦成叔於其位」——史文书其被杀于其位",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E342",
+    "person_id": "P_XICHOU",
+    "role_in_event": "被杀者（「苦成叔」）；「矯以戈殺駒伯苦成叔於其位」——同郤锜",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E342",
+    "person_id": "P_QINGFEITUI",
+    "role_in_event": "「公使清沸魋助之」——见于使令句；其后「抽戈結衽而偽訟者」主语不书，从严标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E342",
+    "person_id": "P_JINLIGONG",
+    "role_in_event": "「公使清沸魋助之」——使令，君亲无文，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E343",
+    "person_id": "P_XUTONG",
+    "role_in_event": "「胥童以甲劫欒書中行偃於朝」——以甲劫为兵事之词（甲是他人之身）；「於朝」及于所劫者之身，不及其身，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E343",
+    "person_id": "P_LUANSHU",
+    "role_in_event": "被劫者；公使辞于二子，「皆再拜稽首曰」「乃皆歸」——其答拜为身行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E343",
+    "person_id": "P_XUNYAN",
+    "role_in_event": "被劫者；公使辞于二子，「皆再拜稽首曰」「乃皆歸」——其答拜为身行",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E343",
+    "person_id": "P_CHANGYUJIAO",
+    "role_in_event": "「矯曰。不殺二子。憂必及君」；「遂出奔狄」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E343",
+    "person_id": "P_JINLIGONG",
+    "role_in_event": "「公曰。一朝而尸三卿」；「公使辭於二子曰」；「公使胥童為卿」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E344",
+    "person_id": "P_JINLIGONG",
+    "role_in_event": "「公遊于匠麗氏」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E344",
+    "person_id": "P_LUANSHU",
+    "role_in_event": "《国语·晋语六》「中行偃欲伐之，欒書曰：不可」——栾书答中行偃之议，同场对面之言，标「亲至」；《左传》「欒書。中行偃。遂執公焉」之执为处置之词，不据以立",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E344",
+    "person_id": "P_XUNYAN",
+    "role_in_event": "「欒書。中行偃。遂執公焉」——执为处置之词，「焉」及于公之身；《国语·晋语六》「中行偃欲伐之」——欲伐之为意欲之辞，受言之一方而无己身之动作，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E344",
+    "person_id": "P_SHIGAI",
+    "role_in_event": "「召士匄。士匄辭」——辞召不从，照 conventions 称疾不往、不从之例标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E344",
+    "person_id": "P_HANJUE",
+    "role_in_event": "「召韓厥。韓厥辭」，辞中称「孟姬之讒」——辞召不往，其言在场外，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E345",
+    "person_id": "P_LUANSHU",
+    "role_in_event": "「欒書中行偃殺胥童」——杀为处置之词，名其责不名其手，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E345",
+    "person_id": "P_XUNYAN",
+    "role_in_event": "「欒書中行偃殺胥童」——同栾书，从严标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E345",
+    "person_id": "P_XUTONG",
+    "role_in_event": "被杀者；受事而无其人之文，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E346",
+    "person_id": "P_JINLIGONG",
+    "role_in_event": "被弑者；受事而无其人之文，弑之地传无文（翼为葬地），标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E346",
+    "person_id": "P_LUANSHU",
+    "role_in_event": "「晉欒書。中行偃。使程滑弒厲公」——使令，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E346",
+    "person_id": "P_XUNYAN",
+    "role_in_event": "「晉欒書。中行偃。使程滑弒厲公」——使令，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E346",
+    "person_id": "P_CHENGHUA",
+    "role_in_event": "「使程滑弒厲公」——受使者，其行只见使令句，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E347",
+    "person_id": "P_JINDAOGONG",
+    "role_in_event": "「周子曰。孤始願不及此」；「庚午。盟而入」；「朝于武宮」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E347",
+    "person_id": "P_XUNYING",
+    "role_in_event": "「使荀罃。士魴。逆周子于京師而立之」——见于使令句（同 B1 `E324` 赵穿之例），标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E347",
+    "person_id": "P_SHIFANG",
+    "role_in_event": "「使荀罃。士魴。逆周子于京師而立之」——同荀罃，标「相关」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E347",
+    "person_id": "P_LUANSHU",
+    "role_in_event": "「使荀罃。士魴」之主语承上「晉欒書。中行偃」——使令，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E347",
+    "person_id": "P_XUNYAN",
+    "role_in_event": "同栾书——使令，标「相关」",
+    "directness": "indirect",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E348",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "与齐侯、宋公、卫侯、郑伯、许男、曹伯「會晉趙盾，盟于扈」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E349",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "经「公子遂會晉趙盾，盟于衡雍」；传「襄仲會晉趙孟，盟于衡雍」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E350",
+    "person_id": "P_ZHAODUN",
+    "role_in_event": "经「晉趙盾，癸酉，同盟于新城」",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E351",
+    "person_id": "P_QIXIDAFU",
+    "role_in_event": "请老；晋侯问嗣，「稱解狐」，又「對曰：午也可」「對曰：赤也可」——与晋侯对言",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E351",
+    "person_id": "P_JINDAOGONG",
+    "role_in_event": "「晉侯問嗣焉」「晉侯曰：孰可以代之」——与祁奚对言；「晉侯」以年推为悼公",
+    "directness": "direct",
+    "presence": "亲至"
+  },
+  {
+    "event_id": "E351",
+    "person_id": "P_QIWU",
+    "role_in_event": "被举、受任：「午也可」「使祁午為中軍尉」——其身行无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E351",
+    "person_id": "P_YANGSHECHI",
+    "role_in_event": "被举、受任：「赤也可」「羊舌赤佐之」——其身行无明文",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E351",
+    "person_id": "P_XIEHU",
+    "role_in_event": "被称：「稱解狐，其讎也，將立之而卒」",
+    "directness": "direct",
+    "presence": "相关"
+  },
+  {
+    "event_id": "E219",
+    "person_id": "P_YANGSHECHI",
+    "role_in_event": "伯华：「囚伯華、叔向、籍偃」——被囚，受事而无其人之文",
+    "directness": "direct",
+    "presence": "相关"
   }
 ]

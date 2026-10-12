@@ -230,7 +230,7 @@ const negOnly = PASS.filter(q => q.event_id && allSt(q.id).some(e => e.status.so
   }
   // people.notes：其栏之文未渲染，故不挂；「不挂」是被测过的
   const pplTrig = PPL.filter(r => expF("people", r.id).size);
-  ok(pplTrig.map(r => r.id).sort().join() === "P_GOUJIAN,P_QINGJI,P_WEISHU,P_XIKE", "people 三态非 negated 之行恰为 P_GOUJIAN／P_QINGJI／P_WEISHU／P_XIKE（共 " + pplTrig.length + "）");
+  ok(pplTrig.map(r => r.id).sort().join() === "P_GAOGU,P_GOUJIAN,P_GUOZUO,P_JIWENZI,P_QINGJI,P_QIWUZHANG,P_WEISHU,P_XICHOU,P_XIKE,P_XIQI,P_XIZHI,P_ZANGXUANSHU,P_ZHAOKUO,P_ZHAOTONG", "people 三态非 negated 之行恰为 P_GAOGU／P_GOUJIAN／P_GUOZUO／P_JIWENZI／P_QINGJI／P_QIWUZHANG／P_WEISHU／P_XICHOU／P_XIKE／P_XIQI／P_XIZHI／P_ZANGXUANSHU／P_ZHAOKUO／P_ZHAOTONG（共 " + pplTrig.length + "；〔r61-E 随扩库同步〕原为 P_GOUJIAN／P_QINGJI／P_WEISHU／P_XIKE 共 4，r61-B 四线新人 notes 带电子本「纸本未核」类核对状态语而入此集，断言仍为精确集合相等）");
   for (const r of pplTrig) {
     const f = field.people[r.id];
     ok(!!r.short_bio && !!r.notes && !f.text.includes(r.notes.slice(0, 12)), "  " + r.id + "：有 short_bio，人卡不渲染其 notes（卡文中无 notes 前 12 字），故不挂", "挂得上＝否");
