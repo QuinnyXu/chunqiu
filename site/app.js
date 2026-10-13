@@ -142,7 +142,14 @@ const PROTAGONISTS = [
   { id: "P_SHUXIANG",    color: "", badge: "badge_shuxiang",    fallback: "叔向" },
   /* r61-H（裁二百一十九）：介之推降二级（裁二百一十五 ④；badge_jiezhitui.svg 留档不删，只解其挂），祁奚、韩厥升一级。
    * 晋组续于叔向之后，二人依主事年先后：韩厥（成公二年鞌之战）先、祁奚（襄公三年举贤）后。二人 state 只「晋」，无需 home。 */
+  /* r61-M（裁二百二十二，2026-10-12）：赵盾、郤克、栾书升一级，晋分区一级 5→8。三人 state 只「晋」，无需 home。
+   * 晋组之序依各人主事年先后，前接叔向、后连韩厥与祁奚（H 已定二人之序，一字不动）：
+   * 赵盾（宣公二年，弑灵公·董狐直笔）→ 郤克（成公二年鞌之战，与韩厥同年，郤克为主帅，故先）→ 韩厥（成公二年）
+   * → 栾书（成公十六年鄢陵，尾及襄前）→ 祁奚（襄公三年举贤）。 */
+  { id: "P_ZHAODUN",     color: "", badge: "badge_zhaodun",     fallback: "赵盾" },
+  { id: "P_XIKE",        color: "", badge: "badge_xike",        fallback: "郤克" },
   { id: "P_HANJUE",      color: "", badge: "badge_hanjue",      fallback: "韩厥" },
+  { id: "P_LUANSHU",     color: "", badge: "badge_luanshu",     fallback: "栾书" },
   { id: "P_QIXIDAFU",    color: "", badge: "badge_qixidafu",    fallback: "祁奚" },
   { id: "P_MUJI",        color: "", badge: "badge_muji",        fallback: "穆姬", home: "秦" },
   { id: "P_ZHUANGJIANG", color: "", badge: "badge_zhuangjiang", fallback: "庄姜", home: "卫" },
@@ -256,8 +263,9 @@ const STATE_EPITHET = {
 /* r28 越分区（第 11 分区）：底图新增 layer-states-southeast 的越色块（中心 1094,660 半径 52,30，
  * 覆宁绍平原），簇心落其块内偏右下、避开「越」国名（1050,652）；与吴簇心（1086,556）相距 113px，
  * 远过两簇各自的直径，一南一北分属两块，不相犯。 */
+/* r61-M（裁二百二十三 二，站长择定）：晋簇升八枚折两行，簇心 [474,237]→[474,243]（下移 6），免上行压「晋」字下半；只动晋一簇。 */
 const HOME_BADGE_POS = {
-  "齐": [930, 176], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 237],
+  "齐": [930, 176], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 243],
   "秦": [152, 300], "楚": [510, 610], "卫": [692, 214],
   "宋": [770, 340], "陈": [732, 384], "吴": [1086, 556], "越": [1104, 668],
 };

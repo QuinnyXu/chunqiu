@@ -1,4 +1,7 @@
-/* 〔r61-H 改〕名录 34→35：去介之推（降二级，徽记文件留档不删）、纳祁奚·一官三物与韩厥·觞承璧（NEW）；晋组改 5 人；点名逐对改为二枚对晋簇与同形近邻；
+/* 〔r61-M 改〕名录 35→38：纳赵盾·取橐（badge_zhaodun，r61F 备选「取橐」稿）、郤克·鼓与双枹、栾书·三军之营（NEW）；晋组改 8 人；
+ * 点名逐对改为三枚对晋簇其余五枚及同形近邻；判据、三尺度、线宽一字未动。祁奚、韩厥自此不再标「新」。
+ *
+ * 〔r61-H 改〕名录 34→35：去介之推（降二级，徽记文件留档不删）、纳祁奚·一官三物与韩厥·觞承璧（NEW）；晋组改 5 人；点名逐对改为二枚对晋簇与同形近邻；
  * 判据、三尺度、线宽一字未动。下为 r49 原头注。
  *
  * 经纬春秋 · r49 徽记撞形实测（Vision）——孔子·胡簋定稿复跑
@@ -25,7 +28,7 @@ const ICONS = path.join(ROOT, "site", "assets", "icons");
 const KONGZI_SRC = path.join(ICONS, "badge_kongzi.svg");
 const OUT = path.resolve(__dirname, "screenshots");
 
-const NEW = ["badge_qixidafu", "badge_hanjue"];
+const NEW = ["badge_zhaodun", "badge_xike", "badge_luanshu"];
 const NAMES = {
   badge_wenjiang: "文姜·涡纹", badge_qixiang: "齐襄公·雷纹", badge_qihuan: "齐桓公·连环三盟",
   badge_guanzhong: "管仲·衡轻重", badge_baoshuya: "鲍叔牙·税械", badge_qixi: "齐僖公·载书入坎",
@@ -41,7 +44,8 @@ const NAMES = {
   badge_helu: "阖庐·鱼中之剑", badge_wuyuan: "伍员·耒",
   badge_fucha: "夫差·庭中之表", badge_goujian: "勾践·甲楯",
   badge_kongzi: "孔子·胡簋",
-  badge_qixidafu: "祁奚·一官三物（新）", badge_hanjue: "韩厥·觞承璧（新）",
+  badge_qixidafu: "祁奚·一官三物", badge_hanjue: "韩厥·觞承璧",
+  badge_zhaodun: "赵盾·取橐（新）", badge_xike: "郤克·鼓与双枹（新）", badge_luanshu: "栾书·三军之营（新）",
 };
 /* 24px 类别图标一并入表——跨尺度关系是第二位判据（design_notes §4），只留痕报数。
    本轮尤须留痕者：huimeng（会盟＝鼎），与新枚同为礼器同尺度。 */
@@ -51,7 +55,7 @@ const GRP = {
   "齐组 7 人": ["badge_wenjiang", "badge_qixiang", "badge_qihuan", "badge_guanzhong", "badge_baoshuya", "badge_qixi", "badge_yanying"],
   "鲁组 4→5 人": ["badge_luyin", "badge_luhuan", "badge_luzhuang", "badge_caogui"],
   "郑组 5 人": ["badge_zhengzhuang", "badge_zhengzhao", "badge_wujiang", "badge_jizhong", "badge_zichan"],
-  "晋组 3→5 人": ["badge_jinwen", "badge_liji", "badge_shuxiang", "badge_qixidafu", "badge_hanjue"],
+  "晋组 5→8 人": ["badge_jinwen", "badge_liji", "badge_shuxiang", "badge_qixidafu", "badge_hanjue", "badge_zhaodun", "badge_xike", "badge_luanshu"],
   "楚组 3 人": ["badge_chucheng", "badge_chuzhuang", "badge_xigui"],
   "吴组 3 人": ["badge_helu", "badge_wuyuan", "badge_fucha"],
 };
@@ -141,9 +145,9 @@ const LU = GRP["鲁组 4→5 人"];
      *  孔子×鲁桓公「圭璧」——同为「上有器、下有座」的纵向构图；
      *  孔子×管仲「衡轻重」／介之推「文之渐隐」／息妫「桃花」——三档中曾入最近 6 枚者。 */
     const NAMED = [];
-    const jin = ["badge_jinwen","badge_liji","badge_shuxiang"];
+    const jin = ["badge_jinwen","badge_liji","badge_shuxiang","badge_qixidafu","badge_hanjue"];
     for (const n of NEW) for (const o of [...jin, "badge_zichan","badge_jizhong","badge_qixi","badge_luhuan","badge_chuzhuang","badge_guanzhong","badge_yanying","badge_fucha","badge_qixiang","badge_qihuan"]) NAMED.push([n,o]);
-    NAMED.push(["badge_qixidafu","badge_hanjue"]);
+    NAMED.push(["badge_zhaodun","badge_xike"], ["badge_zhaodun","badge_luanshu"], ["badge_xike","badge_luanshu"]);
     console.log("\n  —— 点名逐对 ——");
     for (const [a, b] of NAMED) {
       const v = iou(masks[a], masks[b]);
@@ -184,7 +188,7 @@ const LU = GRP["鲁组 4→5 人"];
     const cells = badges.map(b => ({ b, name: NAMES[b] }));
     await p.setViewportSize({ width: 1180, height: 620 });
     await p.setContent(`<body style="margin:0;background:#F4EDDF;font:12px/1.6 system-ui,sans-serif;color:#2E2A24">
-      <div style="padding:14px 16px;font-size:14px">徽记 silhouette 对照 · ${sc.label} · 剥外圈 · r61-H（35 枚）</div>
+      <div style="padding:14px 16px;font-size:14px">徽记 silhouette 对照 · ${sc.label} · 剥外圈 · r61-M（38 枚）</div>
       <div style="display:flex;flex-wrap:wrap;gap:14px;padding:0 16px 16px">
       ${cells.map(c => `<div style="width:98px;text-align:center">
         <div style="height:${sc.size + 8}px;display:flex;align-items:center;justify-content:center;color:${NEW.includes(c.b) ? "#BC4433" : "#2E2A24"}">
@@ -192,8 +196,8 @@ const LU = GRP["鲁组 4→5 人"];
         </div>
         <div style="font-size:10px;color:#7A7166">${c.name}</div></div>`).join("")}
       </div></body>`);
-    await p.screenshot({ path: path.join(OUT, "r61H_badges_" + sc.size + "px.png"), fullPage: true });
+    await p.screenshot({ path: path.join(OUT, "r61M_badges_" + sc.size + "px.png"), fullPage: true });
   }
-  console.log("\n对照图：screenshots/r61H_badges_24px.png、r61H_badges_22px.png、r61H_badges_18px.png");
+  console.log("\n对照图：screenshots/r61M_badges_24px.png、r61M_badges_22px.png、r61M_badges_18px.png");
   await br.close();
 })().catch(e => { console.error(e); process.exit(1); });
