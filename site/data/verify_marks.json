@@ -1505,10 +1505,49 @@
   },
   {
     "table": "places",
+    "row_id": "L_HU",
+    "col": "coord_basis",
+    "offset": 239,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HU",
+    "col": "coord_basis",
+    "offset": 691,
+    "status": []
+  },
+  {
+    "table": "places",
     "row_id": "L_HENGYONG",
     "col": "coord_basis",
     "offset": 0,
     "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_HENGYONG",
+    "col": "coord_basis",
+    "offset": 239,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
       {
         "name": "本轮无从核",
         "negated": false
@@ -1526,6 +1565,29 @@
         "negated": false
       }
     ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_XINCHENG",
+    "col": "coord_basis",
+    "offset": 239,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_XINCHENG",
+    "col": "coord_basis",
+    "offset": 735,
+    "status": []
   },
   {
     "table": "sources",
