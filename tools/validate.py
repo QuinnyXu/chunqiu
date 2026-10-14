@@ -154,6 +154,71 @@ def check_no_writing_columns():
                     f"该类列不得进入公开数据，应存 private/writing_notes.csv（conventions v1.4）")
 
 
+# ---- 一级可显底线（r61-R；裁二百二十六）----
+# conventions §6.7 甲案；准之常数，非基线数；改之须裁（裁二百一十九 ①）。
+PROTAG_MIN_LINKS = 3   # 挂链：event_people 中其行数
+PROTAG_MIN_YEARS = 2   # 涉年：所挂事目 year_bce 去重数
+PROTAG_MIN_PLACES = 1  # 可落图之亲至地：presence ∈ {亲至, 空} 之行所系事目 place_id，非空且该地 lat/lng 俱有者，去重数
+# 注：库中 presence 现仅有 亲至／相关／不在 三值、无空值；空值按 site/app.js 缺省视同亲至（presence || "亲至"）。
+
+
+def protagonist_counts(people_rows, ep_rows, event_rows, place_rows):
+    """返回 [(id, 名, 挂链, 涉年, 可落图亲至地)]，仅 is_protagonist == 1 者。"""
+    ev = {(e.get("id") or "").strip(): e for e in event_rows}
+    pl = {(x.get("id") or "").strip(): x for x in place_rows}
+    out = []
+    for p in people_rows:
+        if (p.get("is_protagonist") or "").strip() != "1":
+            continue
+        pid = (p.get("id") or "").strip()
+        rows = [r for r in ep_rows if (r.get("person_id") or "").strip() == pid]
+        years, places = set(), set()
+        for r in rows:
+            e = ev.get((r.get("event_id") or "").strip())
+            if not e:
+                continue
+            years.add((e.get("year_bce") or "").strip())
+            if (r.get("presence") or "").strip() in ("亲至", ""):
+                q = pl.get((e.get("place_id") or "").strip())
+                if q and (q.get("lat") or "").strip() and (q.get("lng") or "").strip():
+                    places.add((q.get("id") or "").strip())
+        out.append((pid, (p.get("name") or "").strip(), len(rows), len(years), len(places)))
+    return out
+
+
+def protagonist_floor(people_rows, ep_rows, event_rows, place_rows):
+    """返回违例列表 [(id, 文)]；任一数不及 3／2／1 即违例。"""
+    v = []
+    for pid, name, n, y, c in protagonist_counts(people_rows, ep_rows, event_rows, place_rows):
+        if n < PROTAG_MIN_LINKS or y < PROTAG_MIN_YEARS or c < PROTAG_MIN_PLACES:
+            v.append((pid, f"一级人物 {name}（{pid}）不及可显底线：挂链 {n}（须≥{PROTAG_MIN_LINKS}）、"
+                           f"涉年 {y}（须≥{PROTAG_MIN_YEARS}）、可落图亲至地 {c}（须≥{PROTAG_MIN_PLACES}）"
+                           f"——降否、补料否，由站长定（§6.7）"))
+    return v
+
+
+def protagonist_selftest(people_rows, ep_rows, event_rows, place_rows):
+    """反证：三类各令一级之一数落线下，须各红；返回 [(名, 是否红)]。不动传入之表（浅拷再改）。"""
+    out = []
+    ev = {e["id"]: e for e in event_rows}
+    # 类一（可落图亲至地）：抹赵盾所挂亲至事目之全部地点坐标
+    zd = {ev[r["event_id"]]["place_id"] for r in ep_rows if r["person_id"] == "P_ZHAODUN"
+          and r["presence"] in ("亲至", "") and r["event_id"] in ev}
+    pl2 = [dict(x, lat="", lng="") if x["id"] in zd else x for x in place_rows]
+    out.append(("抹赵盾亲至诸地坐标", any(i == "P_ZHAODUN" for i, _ in protagonist_floor(people_rows, ep_rows, event_rows, pl2))))
+    # 类二（挂链）：删曹刿一行挂链（其链数正在线上）
+    cg = [r for r in ep_rows if r["person_id"] == "P_CAOGUI"]
+    ep2 = [r for r in ep_rows if r is not cg[0]] if cg else ep_rows
+    out.append(("删曹刿一行挂链", any(i == "P_CAOGUI" for i, _ in protagonist_floor(people_rows, ep2, event_rows, place_rows))))
+    # 类三（涉年）：鲍叔牙只留一年之挂链（其涉年正在线上）
+    bs = [r for r in ep_rows if r["person_id"] == "P_BAOSHUYA" and r["event_id"] in ev]
+    y0 = ev[bs[0]["event_id"]]["year_bce"] if bs else None
+    ep3 = [r for r in ep_rows if not (r["person_id"] == "P_BAOSHUYA" and r["event_id"] in ev
+                                      and ev[r["event_id"]]["year_bce"] != y0)]
+    out.append(("鲍叔牙只留一年挂链", any(i == "P_BAOSHUYA" for i, _ in protagonist_floor(people_rows, ep3, event_rows, place_rows))))
+    return out
+
+
 def main():
     check_no_writing_columns()
     tables = {
@@ -333,6 +398,15 @@ def main():
                 print(f"反证未红：「{name}」（所取史料之形：{shape}）——量具不能自证其能红，"
                       f"门不可信（tools/tenure_gate.py selftest，裁一百一十四）", file=sys.stderr)
 
+    # ---- 一级可显底线（r61-R）----
+    if not errors:
+        for _, msg in protagonist_floor(tables["people"], tables["event_people"], tables["events"], tables["places"]):
+            err(msg)
+        for name, red in protagonist_selftest(tables["people"], tables["event_people"], tables["events"], tables["places"]):
+            if not red:
+                selftest_failed = True
+                print(f"反证未红：「{name}」（一级可显底线，r61-R）——量具不能自证其能红，门不可信", file=sys.stderr)
+
     report(selftest_failed)
     if selftest_failed:
         return 2
@@ -342,7 +416,7 @@ def main():
 def report(selftest_failed=False):
     if selftest_failed:
         # 反证未红：门不能自证其能红，不得印「OK」（exit 2，裁一百一十四）
-        print("校验未通过：任期表之门有反证未红（exit 2）；" + (f"另有 {len(errors)} 处问题" if errors else "数据本身无违例，但量具失灵"),
+        print("校验未通过：自证之门（任期表／一级可显底线）有反证未红（exit 2）；" + (f"另有 {len(errors)} 处问题" if errors else "数据本身无违例，但量具失灵"),
               file=sys.stderr)
     if errors:
         print(f"校验失败，共 {len(errors)} 处问题：", file=sys.stderr)
