@@ -197,25 +197,37 @@ def protagonist_floor(people_rows, ep_rows, event_rows, place_rows):
     return v
 
 
-def protagonist_selftest(people_rows, ep_rows, event_rows, place_rows):
-    """反证：三类各令一级之一数落线下，须各红；返回 [(名, 是否红)]。不动传入之表（浅拷再改）。"""
+def protagonist_selftest(people_rows, ep_rows, event_rows, place_rows, target=None):
+    """反证（r61-S 去写死）：取 is_protagonist == 1 名册之任一（缺省按 id 排序之首人；target 可指定，
+    供自证「不系于现数」用），构造必落线下之形，三类各须红；返回 [(名, 是否红)]。不动传入之表（浅拷再改）。
+    名册为空 → 反证不可施，返回一条必红失败项（调用方据以 exit 2，不静默通过）。"""
+    roster = sorted((p.get("id") or "").strip() for p in people_rows
+                    if (p.get("is_protagonist") or "").strip() == "1")
+    if not roster:
+        return [("名册为空（无一级人物可施反证）", False)]
+    pid = target if target is not None else roster[0]
     out = []
-    ev = {e["id"]: e for e in event_rows}
-    # 类一（可落图亲至地）：抹赵盾所挂亲至事目之全部地点坐标
-    zd = {ev[r["event_id"]]["place_id"] for r in ep_rows if r["person_id"] == "P_ZHAODUN"
-          and r["presence"] in ("亲至", "") and r["event_id"] in ev}
-    pl2 = [dict(x, lat="", lng="") if x["id"] in zd else x for x in place_rows]
-    out.append(("抹赵盾亲至诸地坐标", any(i == "P_ZHAODUN" for i, _ in protagonist_floor(people_rows, ep_rows, event_rows, pl2))))
-    # 类二（挂链）：删曹刿一行挂链（其链数正在线上）
-    cg = [r for r in ep_rows if r["person_id"] == "P_CAOGUI"]
-    ep2 = [r for r in ep_rows if r is not cg[0]] if cg else ep_rows
-    out.append(("删曹刿一行挂链", any(i == "P_CAOGUI" for i, _ in protagonist_floor(people_rows, ep2, event_rows, place_rows))))
-    # 类三（涉年）：鲍叔牙只留一年之挂链（其涉年正在线上）
-    bs = [r for r in ep_rows if r["person_id"] == "P_BAOSHUYA" and r["event_id"] in ev]
+    ev = {(e.get("id") or "").strip(): e for e in event_rows}
+    mine = [r for r in ep_rows if (r.get("person_id") or "").strip() == pid]
+    mine_ids = {id(r) for r in mine}
+
+    def red(ep, pl):
+        return any(i == pid for i, _ in protagonist_floor(people_rows, ep, event_rows, pl))
+
+    # 类一（可落图亲至地）：抹其所挂亲至事目之全部地点坐标 → 可落图亲至地 0
+    zd = {(ev[r["event_id"]].get("place_id") or "").strip() for r in mine
+          if (r.get("presence") or "").strip() in ("亲至", "") and r["event_id"] in ev}
+    pl2 = [dict(x, lat="", lng="") if (x.get("id") or "").strip() in zd else x for x in place_rows]
+    out.append((f"{pid}：抹其亲至诸地坐标", red(ep_rows, pl2)))
+    # 类二（挂链）：删其挂链至只余 2 行（不论原有几行）
+    keep = {id(r) for r in mine[:PROTAG_MIN_LINKS - 1]}
+    ep2 = [r for r in ep_rows if id(r) not in mine_ids or id(r) in keep]
+    out.append((f"{pid}：删挂链至只余 {PROTAG_MIN_LINKS - 1} 行", red(ep2, place_rows)))
+    # 类三（涉年）：只留其一年之挂链
+    bs = [r for r in mine if r["event_id"] in ev]
     y0 = ev[bs[0]["event_id"]]["year_bce"] if bs else None
-    ep3 = [r for r in ep_rows if not (r["person_id"] == "P_BAOSHUYA" and r["event_id"] in ev
-                                      and ev[r["event_id"]]["year_bce"] != y0)]
-    out.append(("鲍叔牙只留一年挂链", any(i == "P_BAOSHUYA" for i, _ in protagonist_floor(people_rows, ep3, event_rows, place_rows))))
+    ep3 = [r for r in ep_rows if not (id(r) in mine_ids and r["event_id"] in ev and ev[r["event_id"]]["year_bce"] != y0)]
+    out.append((f"{pid}：只留一年挂链", red(ep3, place_rows)))
     return out
 
 
