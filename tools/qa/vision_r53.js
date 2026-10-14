@@ -104,6 +104,62 @@ const COLS = [
   ["people.relations", 3, 1, 6, 2, "第十栏·不渲", 3],
 ];
 
+/* ---------- r61-Q 校基线（裁二百二十五 ②㈠，2026-10-13）：规模之数改取自 site/data/*.json 另路复算 ----------
+ *   上表 COLS 之数（628／48／550／44……、3045／406、2602／352、242）是 **2026-09-25、基线 ce708df 当日之账**；
+ *   库其后增长（passages 509→628、places 104→107、people 174→225、events 265→314、sources 195→231、relations 309→369），
+ *   各栏之数随之而增，门遂红——红在量具之数，不在站之行（r61-P 之辨：规模联动）。
+ *   治法（裁二百二十五 ②㈠）：期望一律由本节 `refScan` 自 `site/data/*.json` 另路算出，**不取自被测之页**
+ *   （页内数由 `mdInlineMarks`／`mdBoldMarks`／`mdInlineFrag` 算出——若以页自算其期望则恒真，门死）。
+ *   `refScan` 是依 conventions §7 ⚑H ⑤款口径写的独立实现：反引号顺序两两成对；星号只计长度恰为 2 之游程、顺序两两成对；
+ *   「施反引号优先后」者，落于 code span 内之星号游程不计；行数按栏去重；『粗体内含 code span』＝整个 code span 落在某星号对之内。
+ *   ★ 独立实现须自证：下 `refScan` 施于 ce708df 当日之 site/data，**须逐栏复现上表 COLS 全十行及 3045／406／2602／352／242**
+ *     （见 §二 之『测具互验』）——复现不了，说明本实现与当日口径不同，则不得用它立断言。
+ *   旧→新（轮次与所由皆为：r53 立门于 09-25，今 r61-Q 于 10-13 同步；所由＝库增长）：
+ *     passages.modern_note 反引号 699 对／119 行→791／176；places.coord_basis 星号 628／48→669／51，反引号 550／44→591／47；
+ *     sources.notes 反引号 315／31→651／70；people.notes 反引号 497／42→735／92；events.summary 星号 172／39→174／41，反引号 222／42→378／91；
+ *     event_people.role_in_event 反引号 91／25→100／33；places.description 星号 116／24→129／27，反引号 173／27→208／31；
+ *     relations.source_note 反引号 47／19→49／21；people.relations 反引号 6／2→8／4；
+ *     合计 星号 3045／406→3101／414（施反引号优先后 3044→3100），反引号 2602／352→3513／566；粗体内含 code span 242→248。 */
+const TABLES53 = ["passages", "places", "sources", "people", "events", "event_people", "relations", "archaeology", "background"];
+function refMarks(v) {
+  const ticks = [], runs = [];
+  for (let i = 0; i < v.length; i++) {
+    if (v[i] === "`") ticks.push(i);
+    else if (v[i] === "*") { let j = i; while (j < v.length && v[j] === "*") j++; if (j - i === 2) runs.push(i); i = j - 1; }
+  }
+  const spans = []; for (let k = 0; k + 1 < ticks.length; k += 2) spans.push([ticks[k], ticks[k + 1]]);
+  const pairUp = (arr) => { const o = []; for (let k = 0; k + 1 < arr.length; k += 2) o.push([arr[k], arr[k + 1]]); return o; };
+  const inCode = (i) => spans.some(([a, b]) => i > a && i < b);
+  return { spans, rawPairs: pairUp(runs), pairs: pairUp(runs.filter(i => !inCode(i))) };
+}
+function refScan(readTable) {
+  const per = {}; let codeInBold = 0; const tick = [];
+  for (const t of TABLES53) {
+    let rows; try { rows = readTable(t); } catch (e) { continue; }
+    for (const r of rows) for (const [k, v] of Object.entries(r)) {
+      if (typeof v !== "string" || !v) continue;
+      const m = refMarks(v);
+      if (!m.spans.length && !m.rawPairs.length && !m.pairs.length) continue;
+      const key = t + "." + k;
+      const q = per[key] || (per[key] = { rawPairs: 0, rawRows: 0, starPairs: 0, starRows: 0, codePairs: 0, codeRows: 0 });
+      if (m.rawPairs.length) { q.rawPairs += m.rawPairs.length; q.rawRows++; }
+      if (m.pairs.length) { q.starPairs += m.pairs.length; q.starRows++; }
+      if (m.spans.length) { q.codePairs += m.spans.length; q.codeRows++; }
+      if (m.rawPairs.length !== m.pairs.length) tick.push(key + "|" + (r.id || (r.event_id + "/" + r.person_id)));
+      for (const [i, j] of m.pairs) for (const [a, b] of m.spans) if (a > i && b < j) codeInBold++;
+    }
+  }
+  const sum = (f) => Object.values(per).reduce((a, q) => a + q[f], 0);
+  return { per, codeInBold, tick, sumRP: sum("rawPairs"), sumRR: sum("rawRows"), sumSP: sum("starPairs"), sumCP: sum("codePairs"), sumCR: sum("codeRows") };
+}
+const readSite = (t) => JSON.parse(fs.readFileSync(path.join(SITE, "data", t + ".json"), "utf8"));
+const REF = refScan(readSite);
+const REF_OLD = refScan(t => JSON.parse(execFileSync("git", ["show", OLD_REF + ":site/data/" + t + ".json"], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString()));
+const PASSAGES_N = readSite("passages").length;
+const PASSAGES = readSite("passages"), PEOPLE53 = readSite("people");
+const hasBT = (v) => !!(v && refMarks(v).spans.length);
+const hasStar = (v) => !!(v && refMarks(v).rawPairs.length);
+
 /* 全库十栏逐值复扫（在页面内跑，用的是生产之 mdInlineMarks／mdInlineFrag） */
 const SWEEP = `(cols) => {
   const back = ${BACK};
@@ -294,29 +350,43 @@ const SWEEP = `(cols) => {
   ok(sw.plain === sw.plainOneNode, "二记法俱无之值 " + sw.plain + " 个**逐个**落成恰好一个文本节点（零影响之机械之证，非抽样）",
     sw.plainOneNode + " / " + sw.plain);
   /* ★ 重求其集合，不只重数其成员 */
+  /* 测具互验（r61-Q）：独立实现 refScan 施于 ce708df 当日之 site/data，须逐栏复现 COLS 原账 + 合计——复现不了即不得用它立断言 */
+  {
+    const bad = [];
+    for (const [col, sp, sr, cp, cr, kuan, spAfter] of COLS) {
+      const g = REF_OLD.per[col] || {};
+      if (!(g.rawPairs === sp && g.rawRows === sr && g.starPairs === spAfter && g.codePairs === cp && g.codeRows === cr)) bad.push(col + " " + JSON.stringify(g));
+    }
+    ok(bad.length === 0 && REF_OLD.sumRP === 3045 && REF_OLD.sumRR === 406 && REF_OLD.sumSP === 3044 && REF_OLD.sumCP === 2602 && REF_OLD.sumCR === 352 && REF_OLD.codeInBold === 242,
+      "测具互验：独立实现 refScan 施于 " + OLD_REF + " 当日之 site/data，逐栏复现原账 COLS 十行，合计 3045／406／3044／2602／352，粗体内含 code span 242",
+      bad.length ? bad.join(" ｜ ") : "十行全中；合计 " + [REF_OLD.sumRP, REF_OLD.sumRR, REF_OLD.sumSP, REF_OLD.sumCP, REF_OLD.sumCR, REF_OLD.codeInBold].join("／"));
+  }
   const wantCols = COLS.map(c => c[0]).sort();
+  ok(JSON.stringify(Object.keys(REF.per).sort()) === JSON.stringify(wantCols), "另路（refScan）自 json 重求之有记法之栏集合＝十栏（与页内重求者互证）", Object.keys(REF.per).length + " 栏");
   ok(JSON.stringify(sw.allCols) === JSON.stringify(wantCols),
     "自 `site/data/` 重求「有记法之栏」之集合＝十栏，与 conventions §7 ⚑H 所载逐栏相符（**重求集合，不只重数成员**）",
     sw.allCols.length + " 栏" + (JSON.stringify(sw.allCols) === JSON.stringify(wantCols) ? "" : "：" + JSON.stringify(sw.allCols)));
   let sumRP = 0, sumRR = 0, sumSP = 0, sumCP = 0, sumCR = 0;
-  for (const [col, sp, sr, cp, cr, kuan, spAfter] of COLS) {
+  for (const [col, spOld, srOld, cpOld, crOld, kuan, spAfterOld] of COLS) {
     const g = sw.per[col] || { starPairs: 0, starRows: 0, codePairs: 0, codeRows: 0, rawPairs: 0, rawRows: 0 };
+    const e = REF.per[col] || { starPairs: 0, starRows: 0, codePairs: 0, codeRows: 0, rawPairs: 0, rawRows: 0 };
     sumRP += g.rawPairs; sumRR += g.rawRows; sumSP += g.starPairs; sumCP += g.codePairs; sumCR += g.codeRows;
-    ok(g.rawPairs === sp && g.rawRows === sr && g.starPairs === spAfter && g.codePairs === cp && g.codeRows === cr,
-      "⚑H " + kuan + "款 `" + col + "`：星号 " + sp + " 对／" + sr + " 行（原口径）"
-      + (spAfter === sp ? "" : "、**" + spAfter + " 对（施反引号优先之后）**") + "，反引号 " + cp + " 对／" + cr + " 行",
+    ok(g.rawPairs === e.rawPairs && g.rawRows === e.rawRows && g.starPairs === e.starPairs && g.codePairs === e.codePairs && g.codeRows === e.codeRows,
+      "⚑H " + kuan + "款 `" + col + "`：星号 " + e.rawPairs + " 对／" + e.rawRows + " 行（原口径）"
+      + (e.starPairs === e.rawPairs ? "" : "、**" + e.starPairs + " 对（施反引号优先之后）**") + "，反引号 " + e.codePairs + " 对／" + e.codeRows + " 行"
+      + "〔期望＝refScan 自 json 另路算出；旧写死 " + spOld + "／" + srOld + (spAfterOld === spOld ? "" : "、后 " + spAfterOld) + "，反引号 " + cpOld + "／" + crOld + "（" + OLD_REF + " 当日账），r61-Q 同步〕",
       g.rawPairs + "/" + g.rawRows + " · 后 " + g.starPairs + " · " + g.codePairs + "/" + g.codeRows);
   }
-  ok(sumRP === 3045 && sumRR === 406, "十栏星号合计 **3045 对／406 行次**〔谓词：**原口径，不问反引号**；算法同 `mdBoldMarks`，"
-    + "＝conventions §7 ⚑H ⑤款现行所载之数；基线 " + OLD_REF + "〕", sumRP + " / " + sumRR);
-  ok(sumSP === 3044, "十栏星号合计 **3044 对**〔谓词：**施反引号优先之后**，即真渲成 `<strong>` 者〕"
-    + " —— ★ 与上条差恰 1 对，此差是裁四十八之实效，非数据之变", String(sumSP));
+  ok(sumRP === REF.sumRP && sumRR === REF.sumRR, "十栏星号合计 **" + REF.sumRP + " 对／" + REF.sumRR + " 行次**〔谓词：**原口径，不问反引号**；算法同 `mdBoldMarks`；"
+    + "期望＝refScan 自 json 另路算出；旧写死 3045／406〔" + OLD_REF + " 当日账〕，r61-Q 同步，所由：库增长〕", sumRP + " / " + sumRR);
+  ok(sumSP === REF.sumSP && REF.sumRP - REF.sumSP === 1, "十栏星号合计 **" + REF.sumSP + " 对**〔谓词：**施反引号优先之后**，即真渲成 `<strong>` 者〕"
+    + " —— ★ 与上条差恰 1 对（此差是裁四十八之实效，非数据之变；旧写死 3044，r61-Q 同步）", sumSP + "；差 " + (REF.sumRP - REF.sumSP));
   ok(sw.tickWins.length === 1 && sw.tickWins[0].key === "people.notes" && sw.tickWins[0].id === "P_JILIANG",
     "★ 两口径之差**逐条定位到唯一一处**：`people.notes` 之 `P_JILIANG`（季梁）行，"
     + "18 对 → 17 对 —— 其 `` `is_protagonist=**0**` `` 内之星号照裁四十八不解析",
     JSON.stringify(sw.tickWins));
-  ok(sumCP === 2602 && sumCR === 352, "十栏反引号合计 2602 对／352 行次（裁四十一之实数，本轮复跑相符）", sumCP + " / " + sumCR);
-  ok(sw.nest.codeInBold === 242, "二记法相遇·粗体内含 code span：DOM 实形 **242 处**（裁四十八之实数）", String(sw.nest.codeInBold));
+  ok(sumCP === REF.sumCP && sumCR === REF.sumCR, "十栏反引号合计 " + REF.sumCP + " 对／" + REF.sumCR + " 行次（期望＝refScan 自 json 另路算出；旧写死 2602／352〔裁四十一之实数，" + OLD_REF + " 当日账〕，r61-Q 同步）", sumCP + " / " + sumCR);
+  ok(sw.nest.codeInBold === REF.codeInBold, "二记法相遇·粗体内含 code span：DOM 实形 **" + REF.codeInBold + " 处**（期望＝refScan 自 json 另路算出：整个 code span 落在某星号对之内者；旧写死 242〔裁四十八之实数〕，r61-Q 同步为 248，所由：K 所入三地之 coord_basis 新文多粗体夹库内之名）", String(sw.nest.codeInBold));
   ok(sw.nest.boldInCodeData === 1 && sw.nest.boldInCodeDom === 0,
     "二记法相遇·code span 内含成对星号：**数据 1 处，而 DOM 里 0 处** —— ★ 二数之别即裁四十八①之落地之证"
     + "（那一处不解析、字面照出，故 DOM 内无 `code > strong`）",
@@ -481,8 +551,10 @@ const SWEEP = `(cols) => {
     + "` 句内作 `+ name +`，而其调用处 `item(cmp.colorA, \"A\", personName(cmp.A), …)` 传入之正是人名"
     + " —— 故**拼数据者实共 3 处**（2 直见 ＋ 1 经参数），与交付文档 §五所列同",
     ih3379 ? "行 " + ih3379[0] + "；调用处可核 " + ihCaller : "未见");
-  ok(pnReach.marked === 42 && pnReach.noBio === 0,
-    "★ `people.notes` 之实读：含记法者 42 行，其中**无 `short_bio` 者 0 行** —— 故 `:838` 之落点今日"
+  const pnMarked = PEOPLE53.filter(r => r.notes && (r.notes.indexOf("`") >= 0 || /\*\*/.test(r.notes)));
+  const pnNoBio = pnMarked.filter(r => !(r.short_bio || "").trim()).length;
+  ok(pnReach.marked === pnMarked.length && pnReach.noBio === pnNoBio && pnNoBio === 0,
+    "★ `people.notes` 之实读：含记法者 " + pnMarked.length + " 行（期望自 people.json 另路数；旧写死 42，r61-Q 同步），其中**无 `short_bio` 者 " + pnNoBio + " 行（须仍为 0）** —— 故 `:838` 之落点今日"
     + "**一行也渲不出**（该分支只在小传阙如时出）。已治其路，然**今日无读者可见之改善**；"
     + "此与 design_notes §3.6.1「读者可见者…people.notes 28 行 175 处」不符，已就地加注并上报",
     pnReach.marked + " 行含记法 / " + pnReach.noBio + " 行无小传");
@@ -556,14 +628,15 @@ const SWEEP = `(cols) => {
     for (const e of DATA.events) {
       const host = document.createElement("div");
       host.appendChild(eventQuotesFrag(e));
-      for (const bq of host.querySelectorAll("blockquote.quote")) out.push({ qid: bq.dataset.qid, html: bq.outerHTML });
+      for (const bq of host.querySelectorAll("blockquote.quote")) out.push({ qid: bq.dataset.qid, html: bq.outerHTML, vs: [...bq.querySelectorAll(".vs-row")].map(r => r.outerHTML) });
     }
     return out;
   }`;
   const newCards = await N.p.evaluate(eval("(" + COLLECT + ")"));
   const oldCards = await O.p.evaluate(eval("(" + COLLECT + ")"));
-  ok(newCards.length === 509 && oldCards.length === 509, "两版各渲出 509 张引文卡", newCards.length + " / " + oldCards.length);
+  ok(newCards.length === PASSAGES_N && oldCards.length === PASSAGES_N, "两版各渲出 " + PASSAGES_N + " 张引文卡＝passages.json 行数（旧写死 509，r61-Q 同步）", newCards.length + " / " + oldCards.length);
   ok(oldCards.every(c => !/<code/i.test(c.html)), "旧版卡内本无 `<code>`（对读之前提成立）");
+  ok(oldCards.every(c => c.vs.length === 0), "旧版卡内本无核对记号行（r61-Q 所增期望差异之前提成立）");
   /* ★ 分桶之判据取**反引号之有无**，不取「二记法之有无」——此处易错，故记其所以：
    *   `OLD_REF`（`ce708df`＝r52 收官）**已含 r51 之 `mdBoldFrag`**，故旧版卡内本就有 `<strong>`。
    *   若照 r51 门之式把新版 `<strong>` 也还原成 `**` 去比旧版，比的是「新版之星号记法」对
@@ -574,34 +647,68 @@ const SWEEP = `(cols) => {
     const { caveat, rest } = splitCaveat(q.modern_note);
     return mdCodeMarks(caveat).length || mdCodeMarks(rest).length;
   }).map(q => q.id)));
-  const unback = (h) => h.replace(/<code class="md-name">/g, "`").replace(/<\/code>/g, "`");
+  /* ★ r61-Q 校基线·一项期望差异（裁二百二十五 ①，2026-10-13）：旧版（ce708df，r52 收官）卡内无核对记号行；
+   *   今版于若干卡内多出一枚 `<div class="vs-row" data-vs-col="modern_note">…</div>`。
+   *   旧版 X；今版 Y；其由 r60-B／r60-H（核对记号现于引文卡，裁一百九十九⑤、裁二百〇三、裁二百〇六）。
+   *   原断言『无反引号之卡与旧版逐位全等』『含反引号之卡之差只有 `x`→<code> 一式』因此于 26 卡转红（其红恰为此卡集，下『期望之核』证之）。
+   *   治：对读前先**逆施**此一项（去其记号行）；期望卡集＝verify_marks.json 中 passages 表、modern_note 栏、有非否定触发态者（另路，不读 DOM）；
+   *   逆施之外一字之差俱红——零容忍未松；下方〔反证〕各注一病，须当场红。 */
+  const VS_TRIG = new Set(["本轮无从核", "未见", "未核"]);
+  const VS_EXPECT = new Set(readSite("verify_marks").filter(e => e.table === "passages" && e.col === "modern_note" && e.status.some(x => !x.negated && VS_TRIG.has(x.name))).map(e => e.row_id));
+  const noVs = (c) => {
+    let h = c.html;
+    for (const row of c.vs) { const k = h.split(row).length - 1; if (k !== 1) return null; h = h.replace(row, () => ""); }
+    return h;
+  };
+  const unback = (h) => h == null ? null : h.replace(/<code class="md-name">/g, "`").replace(/<\/code>/g, "`");
   let same = 0, folded = 0; const plainDiff = [], markDiff = [];
   for (let i = 0; i < newCards.length; i++) {
     const a = oldCards[i], b = newCards[i];
     if (a.qid !== b.qid) { markDiff.push({ qid: a.qid + "≠" + b.qid, why: "次序不一致" }); continue; }
+    const bh = noVs(b);
     if (markSet.has(b.qid)) {
-      if (unback(b.html) === a.html) folded++; else markDiff.push({ qid: b.qid, len: [a.html.length, unback(b.html).length] });
+      if (unback(bh) === a.html) folded++; else markDiff.push({ qid: b.qid, len: [a.html.length, bh && unback(bh).length] });
     } else {
-      if (a.html === b.html) same++; else plainDiff.push({ qid: b.qid });
+      if (bh === a.html) same++; else plainDiff.push({ qid: b.qid });
     }
   }
-  ok(plainDiff.length === 0, "**无反引号之卡 " + same + " 张：`outerHTML` 与旧版逐位全等**（零影响之证；"
+  ok(plainDiff.length === 0, "**无反引号之卡 " + same + " 张：逆施『核对记号行』一项期望差异后，`outerHTML` 与旧版逐位全等**（零影响之证；"
     + "★ 其中含只有星号者——那一路两版全同，故正该落此桶）",
     plainDiff.length ? JSON.stringify(plainDiff.slice(0, 5)) : "零差异");
-  ok(markDiff.length === 0, "含反引号之卡 " + folded + " 张：两版之差**只有** `` `x` ``→`<code class=\"md-name\">x</code>` **一式**，无他差",
+  ok(markDiff.length === 0, "含反引号之卡 " + folded + " 张：逆施『核对记号行』后，两版之差**只有** `` `x` ``→`<code class=\"md-name\">x</code>` **一式**，无他差",
     markDiff.length ? JSON.stringify(markDiff.slice(0, 5)) : "无他差");
-  ok(same + folded === 509, "两类相加＝509，无卡漏检", same + "+" + folded);
-  ok(markSet.size === 119, "含反引号之卡 **119 张**（＝`modern_note` 反引号之行次）；另 137 行含星号，"
-    + "二者交 108 行、并 148 行 —— ★ 并集须实求，不得以两数相加代之", String(markSet.size));
-  ok(same === 390, "无反引号之卡 **390 张**（509－119），逐张实比、无抽样", String(same));
+  ok(same + folded === PASSAGES_N, "两类相加＝" + PASSAGES_N + "（passages.json 行数），无卡漏检（旧写死 509，r61-Q 同步）", same + "+" + folded);
+  const btRows = PASSAGES.filter(q => hasBT(q.modern_note)).map(q => q.id), starRows = PASSAGES.filter(q => hasStar(q.modern_note)).map(q => q.id);
+  const inter = btRows.filter(x => starRows.includes(x)).length, uni = new Set([...btRows, ...starRows]).size;
+  ok(markSet.size === btRows.length && btRows.every(x => markSet.has(x)), "含反引号之卡 **" + btRows.length + " 张**（＝`modern_note` 反引号之行次，期望自 passages.json 另路数；旧写死 119）；另 " + starRows.length + " 行含星号，"
+    + "二者交 " + inter + " 行、并 " + uni + " 行 —— ★ 并集须实求，不得以两数相加代之", String(markSet.size));
+  ok(same === PASSAGES_N - btRows.length, "无反引号之卡 **" + (PASSAGES_N - btRows.length) + " 张**（" + PASSAGES_N + "－" + btRows.length + "），逐张实比、无抽样（旧写死 390＝509－119）", String(same));
+  {
+    const vsCards = new Set(newCards.filter(c => c.vs.length).map(c => c.qid));
+    ok(vsCards.size === VS_EXPECT.size && [...VS_EXPECT].every(x => vsCards.has(x)) && newCards.every(c => c.vs.length <= 1),
+      "期望之核：今版现核对记号行之卡集＝verify_marks.json 推得之卡集（" + VS_EXPECT.size + " 卡），且每卡至多一枚", vsCards.size + " ／ " + VS_EXPECT.size);
+    const proof = (label, pick, mut) => {
+      const i = newCards.findIndex(pick), b = newCards[i], a = oldCards[i], mc = mut(b);
+      const h = noVs(mc), isMark = markSet.has(b.qid);
+      const red = (isMark ? unback(h) : h) !== a.html;
+      ok(red, "〔反证〕" + label + "——对读须当场红（r56 款）", red ? "红（卡 " + b.qid + "）" : "★ 不红：量具作假");
+    };
+    proof("普通卡末多一字『X』", c => !markSet.has(c.qid) && !c.vs.length, c => ({ ...c, html: c.html.replace(/<\/blockquote>$/, "X</blockquote>") }));
+    proof("含反引号之卡 <code> 类名改一字", c => markSet.has(c.qid) && !c.vs.length, c => ({ ...c, html: c.html.replace('<code class="md-name">', '<code class="md-nam">') }));
+    proof("记号行删去而仍报其在（命中 0 处）", c => c.vs.length > 0, c => ({ ...c, html: c.html.replace(c.vs[0], "") }));
+    const k = newCards.findIndex(c => !c.vs.length && !VS_EXPECT.has(c.qid));
+    const fake = newCards.map((c, n) => n === k ? { ...c, vs: ['<div class="vs-row">x</div>'] } : c);
+    const fv = new Set(fake.filter(c => c.vs.length).map(c => c.qid));
+    ok(!(fv.size === VS_EXPECT.size && [...VS_EXPECT].every(x => fv.has(x))), "〔反证〕记号行现于不该有的卡（卡 " + newCards[k].qid + "）——期望之核须当场红（r56 款）", "红：" + fv.size + " ／ " + VS_EXPECT.size);
+  }
   /* ★ r51／r52 两门转红之量化归因（本门不治其红，只把「红在何处」量清，供下轮排期）：
    *   二门之逆函数只识 `**`，故凡含反引号之卡，其还原必不等。所差之数须恰等于反引号之行数。 */
   const tickOnly = new Set(await N.p.evaluate(() => DATA.passages.filter(q => {
     const { caveat, rest } = splitCaveat(q.modern_note);
     return mdCodeMarks(caveat).length || mdCodeMarks(rest).length;
   }).map(q => q.id)));
-  ok(tickOnly.size === 119, "★ `modern_note` 含反引号者 119 行 —— r51 门 §四转红之 11＋108＝119 张恰是此数，"
-    + "**其红全由二门之逆函数只识 `**` 所致，一张不多、一张不少**（归因之证，非推测）", String(tickOnly.size));
+  ok(tickOnly.size === btRows.length, "★ `modern_note` 含反引号者 " + btRows.length + " 行（期望自 passages.json 另路数；旧写死 119）—— r53 当日 r51 门 §四转红之 11＋108＝119 张恰是此数，"
+    + "**其红全由二门之逆函数只识 `**` 所致，一张不多、一张不少**（归因之证，非推测；该红 r61-Q 已治，见 vision_r51.js §四）", String(tickOnly.size));
 
   /* ================= §五 二案之量（供裁，非断言）================= */
   console.log("\n【五】反引号渲法二案之量（★ 供裁之实据；渲法系设计之决，Vision 不自行落定）");
@@ -752,9 +859,34 @@ const SWEEP = `(cols) => {
   ok(untouched.text === untouchedOld.text, "`quote_original` 一路一字未碰：Q442 引文正文两版 `outerHTML` 全等（r44d 之训）", untouched.text.length + " 字符");
   ok(untouched.swap && untouchedOld.swap, "释文原貌切换钮两版俱在（通行字视图之限域判据仍读 `caveat` 原串）");
   const meta = await N.p.evaluate(() => ({ ep: DATA.event_people.length, ev: DATA.events.length, ps: DATA.passages.length, pl: DATA.places.length, pe: DATA.people.length, so: DATA.sources.length, rl: DATA.relations.length, ar: DATA.archaeology.length }));
-  ok(meta.ep === 694 && meta.ev === 265 && meta.ps === 509 && meta.pl === 104 && meta.pe === 174 && meta.so === 195 && meta.rl === 309 && meta.ar === 8,
-    "数据一字未动：event_people 694／events 265／passages 509／places 104／people 174／sources 195／relations 309／archaeology 8",
-    Object.values(meta).join("/"));
+  /* ★ r61-Q 校基线·类㈡『历史断言』（裁二百二十五 ②㈡，2026-10-13；先于 r53:755）：
+   *   原：以今日 DATA 行数断『数据一字未动：694／265／509／104／174／195／309／8』。此是**对 r53 那一笔提交（27717c3）之断言**，
+   *   在今 HEAD 上本就不该成立（库已增至 871／314／628／107／225／231／369／8）；若改成今数即成『r53 之后数据未动』，假。
+   *   新：不改其数，改书为对其提交之断言——① 该提交自身未动 data/ 与 site/data/（git diff --name-only 27717c3^ 27717c3）；
+   *        ② 该提交时点 site/data 八表行数仍是 694／265／509／104／174／195／309／8（git show 27717c3:site/data/…）。
+   *   其义（『r53 件一字未动数据』）不变，其数不漂。 */
+  const R53 = "27717c3";
+  const touched53 = execFileSync("git", ["diff", "--name-only", R53 + "^", R53, "--", "data", "site/data"], { cwd: ROOT }).toString().trim();
+  ok(touched53 === "", "数据一字未动（对 r53 提交 " + R53 + " 之断言）：该提交未触 data/ 与 site/data/", touched53 ? "触及：" + touched53 : "git diff --name-only 无输出");
+  const cnt53 = ["event_people", "events", "passages", "places", "people", "sources", "relations", "archaeology"].map(n => JSON.parse(execFileSync("git", ["show", R53 + ":site/data/" + n + ".json"], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString()).length);
+  ok(cnt53.join("/") === "694/265/509/104/174/195/309/8", "该提交时点 site/data 八表行数：event_people 694／events 265／passages 509／places 104／people 174／sources 195／relations 309／archaeology 8（对该提交的断言，不随今日之库漂）", cnt53.join("/"));
+  { /* 〔反证〕r56 款：换一个确实动过 site/data 的提交，同一断言法须得非空（即会红） */
+    const other = execFileSync("git", ["log", "-1", "--format=%h", "--", "site/data/passages.json"], { cwd: ROOT }).toString().trim();
+    const t2 = execFileSync("git", ["diff", "--name-only", other + "^", other, "--", "data", "site/data"], { cwd: ROOT }).toString().trim();
+    ok(t2 !== "", "〔反证〕换用动过 site/data 之提交 " + other + "，同一断言法须得非空（即会红）", t2.split("\n")[0] || "★ 空：量具作假");
+  }
+  { /* 〔反证〕refScan 咬得住：对真数据注入同型之病，各须使期望变 */
+    const mut = refScan(t => t === "places" ? [{ id: "X", coord_basis: "**a** `b`" }] : []);
+    const q = mut.per["places.coord_basis"] || {};
+    ok(q.rawPairs === 1 && q.starPairs === 1 && q.codePairs === 1 && q.codeRows === 1 && mut.codeInBold === 0,
+      "〔反证〕对 refScan 喂一行合成之『**a** `b`』——须得星号 1 对、反引号 1 对、『粗体内含 code』0（二者不相含）", JSON.stringify(q) + " 含 " + mut.codeInBold);
+    const mut3 = refScan(t => t === "places" ? readSite("places").concat([{ id: "X", coord_basis: "**a** `b`" }]) : []);
+    const q3 = mut3.per["places.coord_basis"], q0 = REF.per["places.coord_basis"];
+    ok(q3.rawPairs === q0.rawPairs + 1 && q3.codePairs === q0.codePairs + 1 && q3.rawRows === q0.rawRows + 1 && JSON.stringify(q3) !== JSON.stringify(q0),
+      "〔反证〕真数据之上再加一行——期望数须随之各 +1（量具咬得住数据之变）", JSON.stringify(q0) + " → " + JSON.stringify(q3));
+    const mut2 = refScan(t => t === "places" ? [{ id: "Y", coord_basis: "**见 `Q1`**" }] : []);
+    ok(mut2.codeInBold === 1, "〔反证〕注入『**见 `Q1`**』——『粗体内含 code span』期望须为 1", String(mut2.codeInBold));
+  }
   /* 移动端：375px 下含库内之名之处不横向撑页 */
   await N375.p.goto(NEW + "/#/chronicle", { waitUntil: "load" });
   await N375.p.waitForTimeout(1500);

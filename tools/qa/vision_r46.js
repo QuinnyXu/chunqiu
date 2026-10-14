@@ -350,7 +350,12 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
   console.log("    检索索引引文组 " + sq.total + " 条；命中数 息媯:" + sq.xiGui + " 息侯:" + sq.xiHou +
     " 賽息:" + sq.saiXi + " 戰于韓:" + sq.han);
   console.log("    Q442 下拉摘要仍作释文原貌：「" + sq.label + "」");
-  ok(sq.total === 509, "检索引文组仍收全库 509 条（r51 round51_peijue 批丙合入后基线，+3 系本批扩表所致之预期内联动，非本件所生）", String(sq.total));
+  /* ★ r61-Q 校基线（裁二百二十五 ②㈠，2026-10-13）：规模之数。
+   *   旧：`sq.total === 509`（r51 round51_peijue 批丙合入后基线）；新：期望取自 `site/data/passages.json` 之行数（Node 端直读，
+   *   **不取自被测之页**——检索索引由页内 `DATA.passages` 建成，若以页自算其期望则恒真）。
+   *   所由：库自 509 增至 628，其间无一次改此门；本门断言之意「检索引文组收全库、不多不少」不变，只是『全库』之数不再写死。 */
+  const passagesN = JSON.parse(require("fs").readFileSync(path.join(__dirname, "..", "..", "site", "data", "passages.json"), "utf8")).length;
+  ok(sq.total === passagesN, "检索引文组仍收全库 " + passagesN + " 条（期望＝site/data/passages.json 行数，另路读；旧写死 509，r61-Q 同步）", String(sq.total));
   ok(sq.xiGui > 0 && sq.han > 0, "检索照常可用（「息媯」「戰于韓」俱有命中）");
   ok(sq.saiXi === 0, "「賽息」不命中——丙档既有代价，非本件所生（任务书明记不必修）");
   ok(sq.label !== null && sq.label.indexOf("郶（蔡）") === 0, "★ 检索下拉摘要未改，仍取 quote_original 首 24 字（留作待裁）", sq.label);
@@ -443,14 +448,46 @@ const EID = { Q167: "E082", Q442: "E146", Q448: "E084" };
   await page.locator(BTN).click();
   await page.waitForTimeout(300);
 
-  const tabStops = await page.evaluate(() => {
+  /* ★ r61-Q 校基线（裁二百二十五 ②㈠；先辨其类，2026-10-13）：Tab 位。
+   *   旧：`focusables === 1`——选择器 `button, [href], input, [tabindex]…` 作用于整条 blockquote。
+   *   辨：今 blockquote 内多出 8 枚 `<a href=…passages.csv>`（「在仓库中查看 data/csv/passages.csv →」），
+   *       皆在核对记号（r60-B／裁二百〇三，`details.vs-mark > div.vs-pop`）**未展开**之弹层内——
+   *       **闭合 details 之内容不可聚焦，Tab 键根本到不了**，故这 8 个是**量具之选择器过宽**（数了到不了的），
+   *       非站之行为变（切换钮仍是唯一的『整条引文自己的』Tab 位；记号之 summary 是 r60 另立的独立控件）。
+   *   治：量具改为**只数 Tab 真能到的**——排除「闭合 details 之内容」（summary 本身除外，它可聚焦），
+   *       且把核对记号 `.vs-mark` 之 summary 另数、另断（枚数＝页内 `.vs-mark` 数，不吞）。
+   *       「整条引文自己」之 Tab 位仍断 **恰为 1（切换钮）**、`.q-seg[tabindex]` 仍断 **0**——**判据未松一分**。
+   *   自证能红：对同一量法注入两种同型之病（见下『反证』），各须红。 */
+  const tabMeasure = (inject) => page.evaluate((inj) => {
     const bq = document.querySelector("#view-chronicle blockquote[data-qid='Q442']");
-    return { segTabbable: bq.querySelectorAll(".q-seg[tabindex]").length,
-      focusables: bq.querySelectorAll("button, [href], input, [tabindex]:not([tabindex='-1'])").length,
+    let undo = null;
+    if (inj === "seg-tabindex") { const g = bq.querySelector(".q-seg"); g.setAttribute("tabindex", "0"); undo = () => g.removeAttribute("tabindex"); }
+    if (inj === "extra-button") { const b = document.createElement("button"); b.textContent = "x"; bq.appendChild(b); undo = () => b.remove(); }
+    const reach = e => { const d = e.closest("details:not([open])"); return !d || !!e.closest("summary") && e.closest("summary").parentNode === d; };
+    const all = [...bq.querySelectorAll("button, [href], input, summary, [tabindex]:not([tabindex='-1'])")];
+    const tabbable = all.filter(reach);
+    const own = tabbable.filter(e => !e.closest(".vs-mark"));
+    const marks = tabbable.filter(e => e.closest(".vs-mark"));
+    const r = { segTabbable: bq.querySelectorAll(".q-seg[tabindex]").length,
+      focusables: own.length, ownKinds: own.map(e => e.tagName + (e.className ? "." + e.className : "")),
+      markStops: marks.length, markNodes: bq.querySelectorAll(".vs-mark").length,
+      unreachableDropped: all.length - tabbable.length,
       segTitled: bq.querySelectorAll(".q-seg[title]").length };
-  });
-  ok(tabStops.segTabbable === 0 && tabStops.focusables === 1,
-    "整条引文只占 1 个 Tab 位（即切换钮），可换段不各占一位", JSON.stringify(tabStops));
+    if (undo) undo();
+    return r;
+  }, inject || null);
+  const tabStops = await tabMeasure(null);
+  ok(tabStops.segTabbable === 0 && tabStops.focusables === 1 && /q-diplo-toggle/.test(tabStops.ownKinds[0] || ""),
+    "整条引文自己只占 1 个 Tab 位（即切换钮），可换段不各占一位（量具已排除闭合记号弹层内到不了的链接；记号 summary 另断）", JSON.stringify(tabStops));
+  ok(tabStops.markStops === tabStops.markNodes, "核对记号之 Tab 位＝记号枚数（每枚一个 summary，不多不少）", tabStops.markStops + " ／ " + tabStops.markNodes);
+  console.log("    （记录）量具排除之『闭合 details 内到不了者』枚数 = " + tabStops.unreachableDropped);
+  for (const [inj, why] of [["seg-tabindex", "给一可换段加 tabindex=0（各占一位之病）"], ["extra-button", "引文内多塞一枚按钮（多占 Tab 位之病）"]]) {
+    const m = await tabMeasure(inj);
+    const red = !(m.segTabbable === 0 && m.focusables === 1);
+    ok(red, "〔反证〕" + why + "——同一量法须当场红（r56 款）", "红文：segTabbable=" + m.segTabbable + " focusables=" + m.focusables);
+  }
+  const tabAfter = await tabMeasure(null);
+  ok(tabAfter.segTabbable === 0 && tabAfter.focusables === 1, "反证撤注后复绿（注入已还原）", JSON.stringify([tabAfter.segTabbable, tabAfter.focusables]));
   ok(tabStops.segTitled === 4, "四处可换段各带 title 原生浮字（鼠标一路之补充）", String(tabStops.segTitled));
 
   await browser.close();

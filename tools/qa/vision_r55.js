@@ -124,6 +124,16 @@ const W_WIDE = 1440, H_WIDE = 900, W_NARROW = 375, H_NARROW = 780;
 
 const NEW_APP = fs.readFileSync(path.join(SITE, "app.js"), "utf8");
 const OLD_APP = gitShow("site/app.js");
+/* ★ r61-Q 校基线（裁二百二十五 ③，2026-10-13；辨 r55 旧版败形何以异于门所期）：
+ *   原：旧版源端『只覆 /app.js 一物』（单变量），index.html 取今日者。实测旧码（f611b81，r54 收官）配**今日 index.html**，
+ *   于 boot 即抛 `Cannot read properties of null (reading 'addEventListener')`——**不是浏览器之版所致**，而是
+ *   r60-I（0e15a26，2026-10-09）外科切除了 `#view-kaodui` 等考据索引屏之 DOM，旧 app.js 仍在 boot 时对其绑事件，遇 null 即败；
+ *   boot().catch 将其吞为页脚『加载失败：…』（此即 r61-P 所见『pageerror 0 ｜ 页脚＝加载失败』之形）。
+ *   故『旧版全然无声／抛 TypeError』之门所期，于今皆**未及发生**——旧版根本没跑到地图那一步。
+ *   治（只修旧版之取法，不动任何断言）：旧版之 `index.html`／`styles.css` 亦取自 OLD_REF（同一提交之 site/ 页壳全取），
+ *   使旧码配其当日之 HTML 而启动；**数据与底图仍取今日**（新旧两版逐数相等之断须同一份数据；底图一字不差由【约·乙】机械证之）。 */
+const OLD_HTML = gitShow("site/index.html"), OLD_CSS = gitShow("site/styles.css");
+const OLD_SHELL = { "/app.js": OLD_APP, "/index.html": OLD_HTML, "/styles.css": OLD_CSS };
 const NEW_MAP = fs.readFileSync(path.join(SITE, "assets", "map", "base_map.svg"), "utf8");
 const OLD_MAP = gitShow("site/assets/map/base_map.svg");
 
@@ -381,7 +391,7 @@ async function measure(br, base, hash, w, h, nav) {
   /* ===== 跑 §二～§三 ===== */
   const br = await chromium.launch();
   const sNew = await srv(SITE, null);
-  const sOld = await srv(SITE, { "/app.js": OLD_APP });
+  const sOld = await srv(SITE, OLD_SHELL);
   const baseNew = "http://127.0.0.1:" + sNew.address().port;
   const baseOld = "http://127.0.0.1:" + sOld.address().port;
 
@@ -445,7 +455,7 @@ async function measure(br, base, hash, w, h, nav) {
     const w = wh[0], h = wh[1];
     for (const c of CASES) {
       const ovN = {}; ovN[MUT_PATH] = c.mut;
-      const ovO = {}; ovO[MUT_PATH] = c.mut; ovO["/app.js"] = OLD_APP;
+      const ovO = Object.assign({}, OLD_SHELL); ovO[MUT_PATH] = c.mut;
       const mNew = await srv(SITE, ovN);
       const mOld = await srv(SITE, ovO);
       const bN = "http://127.0.0.1:" + mNew.address().port;

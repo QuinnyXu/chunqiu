@@ -63,6 +63,38 @@ function srv(root, override) {
 const OLD_REF = "ae3e800";
 const gitShow = (p) => execFileSync("git", ["show", OLD_REF + ":" + p], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
 
+/* ---- r61-Q 校基线（裁二百二十五 ③，2026-10-13）：『旧版连其当日数据一并取』 ----
+ *   原『旧版源端』＝旧码（app.js／styles.css）＋**今日**之 site/data/——故凡『旧版某数』（如孔子 25 行溢出其 N）
+ *   随数据之增而漂（实测：1440px 18→19、375px 24→25），**漂的是数据，不是旧码之病变了**。
+ *   治：另起一个『旧版整站』源端，由 `git show OLD_REF:site/<路径>` **逐请求现取**（同一提交之 site/ 全取，码与数据同源，
+ *   不落盘、不用 worktree／junction），其数即定于当日、永不漂。凡『旧版有病』之数断言一律改用它。
+ *   而『新旧同一份数据逐位对读』（叔向 DOM 零影响）仍须同一份数据，故仍用上面的『旧码＋今数据』源端——二者各有其用，不混。 */
+const GIT_MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
+function srvGit(ref) {
+  const cache = new Map();
+  return new Promise((res, rej) => {
+    const s = http.createServer((rq, rs) => {
+      let u = decodeURIComponent(rq.url.split("?")[0].split("#")[0]);
+      if (u === "/") u = "/index.html";
+      const ct = GIT_MIME[path.extname(u).toLowerCase()] || "application/octet-stream";
+      let buf = cache.get(u);
+      if (buf === undefined) {
+        try { buf = execFileSync("git", ["show", ref + ":site" + u], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] }); } catch (e) { buf = null; }
+        cache.set(u, buf);
+      }
+      if (buf === null) { rs.writeHead(404); rs.end(); return; }
+      rs.writeHead(200, { "Content-Type": ct }); rs.end(buf);
+    });
+    s.on("error", rej); s.listen(0, "127.0.0.1", () => res(s));
+  });
+}
+/* ---- r61-Q 校基线：规模之数一律取自 site/data/*.json，不写死（裁二百二十五 ②㈠）；期望另路读文件，不取自被测页 ---- */
+const readJSON = (n) => JSON.parse(fs.readFileSync(path.join(SITE, "data", n + ".json"), "utf8"));
+const EP = readJSON("event_people"), EVS = readJSON("events"), PASS = readJSON("passages"), PEOPLE = readJSON("people");
+const ROLE_ROWS = EP.filter(l => l.role_in_event);
+const ROLE_GATE = 60;   // 胶囊门槛（§一 CASES 以 60 字不分、61 字分钉住其界，故『分否』可自长度另路推出）
+const BT_PAIR = /`[^`]+`/g, STAR_PAIR = /\*\*[^*]+\*\*/g;
+
 /* ---------- 页面内：全库 694 行逐行经生产之 roleParts()／mdBoldFrag() 渲出 ----------
  * 不靠逐人逐卡展开——那既慢又必漏；直调生产函数覆盖面反而是全的。 */
 const SWEEP = `() => {
@@ -228,8 +260,9 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
   const sw = await n1440.p.evaluate(eval("(" + SWEEP + ")"));
   ok(sw.bad.length === 0, "逐行断言零不符（往返还原逐字全等／首句为真前缀／无裸星号／不分者单一文本节点）",
     sw.bad.length ? JSON.stringify(sw.bad.slice(0, 4)) : "零不符（" + sw.n + " 行）");
-  ok(sw.n === 694, "`role_in_event` 非空行数 694（对任务书 §五实读值）", String(sw.n));
-  ok(sw.kept === 591 && sw.clipped === 103, "不分 591 行（DOM 与旧版全等）／分 103 行", sw.kept + " / " + sw.clipped);
+  ok(sw.n === ROLE_ROWS.length, "`role_in_event` 非空行数＝event_people.json 中该栏非空行数（旧写死 694〔对任务书 §五实读值〕，r61-Q 同步；期望另路读文件）", sw.n + " ／ " + ROLE_ROWS.length);
+  const wantClip = ROLE_ROWS.filter(l => l.role_in_event.length > ROLE_GATE).length;
+  ok(sw.kept === ROLE_ROWS.length - wantClip && sw.clipped === wantClip, "不分 " + (ROLE_ROWS.length - wantClip) + " 行（DOM 与旧版全等）／分 " + wantClip + " 行（期望＝以 " + ROLE_GATE + " 字门槛自 json 另路切出；旧写死 591／103，r61-Q 同步）", sw.kept + " / " + sw.clipped);
   ok(sw.starRows === 51 && sw.starPairs === 118, "含成对 `**` 者 51 行 118 处（⚑H②款所登记之本栏之数，对任务书 §五实读值）",
     sw.starRows + " 行 " + sw.starPairs + " 处");
   console.log("    首句长 最短 " + sw.heads[0] + " / 中位 " + sw.heads[sw.heads.length >> 1] + " / 最长 " + sw.heads[sw.heads.length - 1] + " 字（含尾「…」）");
@@ -237,7 +270,8 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
   /* ================= §三 溢出实测（口径六①）================= */
   console.log("\n【三】溢出实测：1440／375 两宽，38 主角逐卡量（getBoundingClientRect ＋ scrollWidth，不以截图代之）");
   const PROTOS = await n1440.p.evaluate(() => PROTAGONISTS.map(p => p.id));
-  ok(PROTOS.length === 38, "主角 38 人（全数逐页量，不抽样）", String(PROTOS.length));
+  const PROTO_N = PEOPLE.filter(p => Number(p.is_protagonist) === 1).length;
+  ok(PROTOS.length === PROTO_N, "主角 " + PROTO_N + " 人＝people.json 中 is_protagonist=1 之数（全数逐页量，不抽样；旧写死 38，r61-Q 改取 json）", PROTOS.length + " ／ " + PROTO_N);
 
   const scan = async (p, base, width) => {
     const bad = [], stat = { chips: 0, pages: 0 };
@@ -278,26 +312,54 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
       d.open = true;
       const note = d.querySelector(".evt-role-note");
       const raw = DATA.event_people.find(l => l.event_id === "E295" && l.person_id === "P_CHUWU").role_in_event;
-      const back = note ? [...note.childNodes].filter(n => !(n.nodeType === 1 && n.classList && n.classList.contains("evt-role-label")))
-        .map(n => n.nodeType === 3 ? n.textContent : (n.nodeName === "STRONG" ? "**" + n.textContent + "**" : "?")).join("") : null;
-      return { has: !!note, label: note ? note.querySelector(".evt-role-label").textContent : "", same: back === raw, visible: note ? note.getBoundingClientRect().width > 0 : false };
+      /* ★ r61-Q 补测具（裁二百二十五，2026-10-13；非放判据）：往返还原原只认文本与 STRONG，余者记「?」。
+       *   r53（27717c3，2026-09-26，后于本门立于 09-20）起，反引号记法渲为 <code class="md-name">——
+       *   486 字之值内有反引号 8 对，故今卡内有 8 枚 <code>，旧还原法遇之记「?」而红。
+       *   辨：此是**测具未随 r53 之记法**，非站之退（卡内全文逐字俱在，只是反引号二字变成了 <code> 的包裹）。
+       *   治：还原法增认 `CODE.md-name` → 反引号包裹，**其余一概仍记「?」**——故仍是逐字全等之断，一字不松；
+       *   且下以〔反证〕注入二病（<code> 换成别的元素／少一字），各须使还原不等。 */
+      const restore = (nt) => [...nt.childNodes].filter(n => !(n.nodeType === 1 && n.classList && n.classList.contains("evt-role-label")))
+        .map(n => n.nodeType === 3 ? n.textContent
+          : (n.nodeName === "STRONG" ? "**" + n.textContent + "**"
+            : (n.nodeName === "CODE" && n.classList.contains("md-name") ? "`" + n.textContent + "`" : "?"))).join("");
+      const back = note ? restore(note) : null;
+      let proofSwap = null, proofDrop = null, codeN = 0;
+      if (note) {
+        codeN = note.querySelectorAll("code.md-name").length;
+        const c1 = note.cloneNode(true), cd = c1.querySelector("code.md-name");
+        if (cd) { const sp = document.createElement("span"); sp.textContent = cd.textContent; cd.replaceWith(sp); proofSwap = restore(c1) === raw; }
+        const c2 = note.cloneNode(true), tn = [...c2.childNodes].find(n => n.nodeType === 3 && n.textContent.length > 3);
+        if (tn) { tn.textContent = tn.textContent.slice(0, -1); proofDrop = restore(c2) === raw; }
+      }
+      return { has: !!note, label: note ? note.querySelector(".evt-role-label").textContent : "", same: back === raw, visible: note ? note.getBoundingClientRect().width > 0 : false, codeN, proofSwap, proofDrop, rawPairs: (raw.match(/`[^`]+`/g) || []).length };
     });
     ok(inCard && inCard.has && inCard.same && inCard.visible,
-      W + "px：486 字之全文落卡内「" + (inCard ? inCard.label : "") + "」一节，往返还原逐字全等且可见", inCard ? "" : "未见该节");
+      W + "px：486 字之全文落卡内「" + (inCard ? inCard.label : "") + "」一节，往返还原逐字全等且可见（还原法已认 <code.md-name>，见上注）", inCard ? "卡内 <code> " + inCard.codeN + " 枚／值内反引号 " + inCard.rawPairs + " 对" : "未见该节");
+    ok(inCard && inCard.codeN === inCard.rawPairs && inCard.codeN > 0, W + "px：486 字之值内反引号对数（" + (inCard && inCard.rawPairs) + "，自 DATA 值数）＝卡内 <code.md-name> 枚数——不多不少", inCard ? String(inCard.codeN) : "");
+    ok(inCard && inCard.proofSwap === false && inCard.proofDrop === false, W + "px：〔反证〕<code> 换成 <span> 或卡内少一字，还原须不等（测具仍咬得住）", inCard ? "换元素→" + inCard.proofSwap + "；少一字→" + inCard.proofDrop + "（false＝已红）" : "");
   }
 
   /* ★ 按类反证：同一套量法施于**旧版**须当场红——否则跑绿只证明脚本会打印 ✓ */
   console.log("\n【三之二】按类反证：同一量法施于旧版（" + OLD_REF + "）须测出溢出，否则本门测的不是溢出");
   const o1440 = await mkPage(OLD, 1440);
   const o375 = await mkPage(OLD, 375);
-  for (const [p, W, wantKz, wantSx] of [[o1440.p, 1440, 18, 0], [o375.p, 375, 24, 8]]) {
+  /* r61-Q：『旧版有病』之数断言改取旧版整站（旧码＋其当日数据，同一提交 ae3e800 之 site/ 全取），数即定于当日、不随今日之库漂。
+   *   旧：旧码配今数据，1440px 得 19、375px 得 25（库增而漂）；新：旧版整站，复得 2026-09-20 实读之 18／24。 */
+  const sOldD = await srvGit(OLD_REF);
+  const OLDD = "http://127.0.0.1:" + sOldD.address().port;
+  const oD1440 = await mkPage(OLDD, 1440);
+  const oD375 = await mkPage(OLDD, 375);
+  const dOld = await oD1440.p.evaluate(() => ({ ep: DATA.event_people.length, ev: DATA.events.length, ps: DATA.passages.length }));
+  console.log("  · 旧版整站（" + OLD_REF + " 之 site/ 全取）自带之数据：event_people " + dOld.ep + "／events " + dOld.ev + "／passages " + dOld.ps + "（即 r52 当日之 694／265／509）");
+  ok(dOld.ep === 694 && dOld.ev === 265 && dOld.ps === 509, "旧版整站之数据＝r52 当日基线 694／265／509（钉住旧版数据；此三数是对该提交的断言，不随今日之库漂）", dOld.ep + "／" + dOld.ev + "／" + dOld.ps);
+  for (const [p, W, wantKz, wantSx] of [[oD1440.p, 1440, 18, 0], [oD375.p, 375, 24, 8]]) {
     const res = {};
     for (const pid of ["P_KONGZI", "P_SHUXIANG"]) {
-      await goPerson(p, OLD, pid);
+      await goPerson(p, OLDD, pid);
       const rows = await p.evaluate(eval("(" + MEASURE + ")"));
       res[pid] = rows.filter(r => r.over > 0.5).length;
     }
-    ok(res.P_KONGZI === wantKz, "旧版 " + W + "px 孔子 25 行溢出其 " + wantKz + "（2026-09-20 实读基线）", String(res.P_KONGZI));
+    ok(res.P_KONGZI === wantKz, "旧版（旧码＋其当日数据）" + W + "px 孔子 25 行溢出其 " + wantKz + "（2026-09-20 实读基线；r61-Q 改取旧版整站，旧版连其当日数据一并取）", String(res.P_KONGZI));
     ok(res.P_SHUXIANG === wantSx, "旧版 " + W + "px 叔向 9 行溢出其 " + wantSx
       + (wantSx ? "（★ 正例自身亦是甲之受害者，故『逐像素相同』一语在 375px 下不成立，见交付文档验收偏差上报）" : "（1440px 下本不溢出）"),
       String(res.P_SHUXIANG));
@@ -317,6 +379,7 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
         chipHTML: chip ? chip.outerHTML : null,
         bodyHTML: body ? body.outerHTML : null,
         hasNote: !!d.querySelector(".evt-role-note"),
+        sum: (() => { const sp = d.querySelector(".event-body > p"); return sp ? sp.outerHTML : null; })(),
         rect: cb ? [+(cb.left - db.left).toFixed(2), +(cb.top - db.top).toFixed(2), +cb.width.toFixed(2), +cb.height.toFixed(2)] : null,
       });
     }
@@ -327,9 +390,49 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
     const a = await op.evaluate(eval("(" + grab + ")"));
     const b = await np.evaluate(eval("(" + grab + ")"));
     ok(a.length === 9 && b.length === 9, W + "px：叔向两版各 9 卡", a.length + " / " + b.length);
-    const domDiff = b.filter((x, i) => x.chipHTML !== a[i].chipHTML || x.bodyHTML !== a[i].bodyHTML || x.eid !== a[i].eid);
-    ok(domDiff.length === 0, W + "px：叔向 9 行胶囊与卡体 outerHTML **逐位相同**（DOM 零影响之证）",
+    /* ★ r61-Q 校基线·二项期望差异（裁二百二十五 ①，2026-10-13；先查明差在何处，不放判据）
+     *   本条原断言『叔向 9 行胶囊与卡体 outerHTML 逐位相同』。今实测 9 卡中 4 卡（E206／E210／E221／E271）卡体不同，
+     *   逐处剖开，差异**恰为 r53（27717c3，2026-09-26「⚑H 扩施七栏＋反引号一路」）所致二项、别无他项**：
+     *   ① 反引号记法：旧版 `X` 为纯文字；今版 `<code class="md-name">X</code>`。
+     *      旧版 X；今版 Y；其由 r53。E206 卡体之反引号**不在其摘要里**（摘要 0 对），而在其所挂引文之 modern_note 注文中（6 对）——
+     *      故『E206 无反引号』仅指摘要，卡体内有；E271＝摘要 5 对＋引文注 8 对；E221＝20 对。
+     *   ② 事件摘要之成对星号：旧版摘要里 `**x**` 为裸星号；今版 `<strong>x</strong>`（⚑H 扩施至 events.summary）。
+     *      旧版 X；今版 Y；其由 r53。惟 E210 摘要含一对（`**本条为晏婴、叔向共用事件**`）。
+     *   期望之数皆另路自 events.json／passages.json 数出（不读 DOM）：每卡 <code> 枚数＝摘要与其引文注文之反引号对数之和；
+     *   摘要 <strong> 枚数＝摘要内成对星号数。
+     *   对读之法：把今版卡体**逆施**此二项（<code>→反引号；仅摘要段内 <strong>→**），须与旧版**逐位全等**；逆施之外一字之差俱红。
+     *   〔胶囊（.role-chip）不在差异之列〕仍断逐位相同。 */
+    const sxExpect = (eid) => {
+      const e = EVS.find(x => x.id === eid);
+      const codeN = (e.summary.match(BT_PAIR) || []).length + PASS.filter(q => q.event_id === eid).reduce((n, q) => n + ((q.modern_note || "").match(BT_PAIR) || []).length, 0);
+      return { codeN, sumStrong: (e.summary.match(STAR_PAIR) || []).length };
+    };
+    const sxInverse = (html) => {
+      if (html == null) return html;
+      let h = html.replace(/<code class="md-name">([\s\S]*?)<\/code>/g, (_, x) => "`" + x + "`");
+      const i = h.indexOf('<p style="margin: 0px;">'), j = i < 0 ? -1 : h.indexOf("</p>", i);
+      if (i >= 0 && j > i) h = h.slice(0, i) + h.slice(i, j).replace(/<strong>/g, "**").replace(/<\/strong>/g, "**") + h.slice(j);
+      return h;
+    };
+    const domDiff = b.filter((x, i) => x.chipHTML !== a[i].chipHTML || sxInverse(x.bodyHTML) !== a[i].bodyHTML || x.eid !== a[i].eid);
+    ok(domDiff.length === 0, W + "px：叔向 9 行胶囊 outerHTML 逐位相同；卡体逆施『①<code>→反引号、②摘要内 <strong>→**』二项期望差异后与旧版逐位全等（DOM 零影响之证；逆施之外零差异）",
       domDiff.length ? JSON.stringify(domDiff.slice(0, 2).map(x => x.eid)) : "零差异");
+    const nDiffCards = b.filter((x, i) => x.bodyHTML !== a[i].bodyHTML).map(x => x.eid);
+    const sxBad = b.filter(x => {
+      const ex = sxExpect(x.eid);
+      const codeN = (x.bodyHTML.match(/<code class="md-name">/g) || []).length;
+      const sumStrong = ((x.sum || "").match(/<strong>/g) || []).length;
+      return codeN !== ex.codeN || sumStrong !== ex.sumStrong;
+    }).map(x => x.eid);
+    ok(sxBad.length === 0, W + "px：期望之核——每卡 <code.md-name> 枚数＝摘要＋引文注文之反引号对数（自 json 另路数）、摘要 <strong> 枚数＝摘要成对星号数",
+      sxBad.length ? JSON.stringify(sxBad) : "九卡俱合；有差之卡 " + nDiffCards.join("、"));
+    { /* 〔反证〕r56 款：对今版之真卡注入同型之病，逆施后对读须红 */
+      const k = b.findIndex(x => /<code class="md-name">/.test(x.bodyHTML)), k2 = b.findIndex(x => /<strong>/.test(x.sum || ""));
+      const r1 = sxInverse(b[k].bodyHTML.replace('<code class="md-name">', '<code class="md-nam">')) !== a[k].bodyHTML;
+      const r2 = sxInverse(b[k].bodyHTML.replace("</p>", "X</p>")) !== a[k].bodyHTML;
+      const r3 = sxInverse(b[k2].bodyHTML.replace("<strong>", "<strong>Y")) !== a[k2].bodyHTML;
+      ok(r1 && r2 && r3, W + "px：〔反证〕<code> 类名改一字／卡体多一字／摘要粗体内多一字——逆施后对读须各自当场红（r56 款）", "类名→" + r1 + "；多字→" + r2 + "；粗体内→" + r3 + "（true＝已红）");
+    }
     ok(b.every(x => !x.hasNote), W + "px：叔向 9 行一律不出卡内「所任之役」一节（其值本短，不当受任何影响）");
     const rectDiff = b.filter((x, i) => JSON.stringify(x.rect) !== JSON.stringify(a[i].rect));
     if (W === 1440) {
@@ -366,13 +469,26 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
   });
   ok(untouched.text === untouchedOld.text, "`quote_original` 一路一字未碰：Q442 引文正文两版 outerHTML 全等（r44d 之训）", untouched.text.length + " 字符");
   ok(untouched.swap && untouchedOld.swap, "释文原貌切换钮两版俱在");
-  const meta = await n1440.p.evaluate(() => ({ ep: DATA.event_people.length, ev: DATA.events.length, ps: DATA.passages.length }));
-  ok(meta.ep === 694 && meta.ev === 265 && meta.ps === 509, "数据一字未动：event_people 694／events 265／passages 509（裁六①）",
-    meta.ep + " / " + meta.ev + " / " + meta.ps);
+  /* ★ r61-Q 校基线·类㈡『历史断言』（裁二百二十五 ②㈡，2026-10-13）：
+   *   原：以今日 DATA 之行数断『数据一字未动：694／265／509』。此是**对 r52 那一笔提交（3b5f38a）之断言**，在今 HEAD 上本就不该成立
+   *   （库已增至 871／314／628）；若改成今数即成『r52 之后数据未动』，假。
+   *   新：不改其数，改书为对其提交之断言——① 该提交自身未动 data/ 与 site/data/（git diff --name-only 3b5f38a^ 3b5f38a）；
+   *        ② 该提交时点之 site/data 行数仍是 694／265／509（git show 3b5f38a:site/data/…）。
+   *   其义（『r52 件一字未动数据』）不变，其数不漂。 */
+  const R52 = "3b5f38a";
+  const touched = execFileSync("git", ["diff", "--name-only", R52 + "^", R52, "--", "data", "site/data"], { cwd: ROOT }).toString().trim();
+  ok(touched === "", "数据一字未动（对 r52 提交 " + R52 + " 之断言）：该提交未触 data/ 与 site/data/（裁六①）", touched ? "触及：" + touched : "git diff --name-only 无输出");
+  const cnt52 = ["event_people", "events", "passages"].map(n => JSON.parse(execFileSync("git", ["show", R52 + ":site/data/" + n + ".json"], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString()).length);
+  ok(cnt52[0] === 694 && cnt52[1] === 265 && cnt52[2] === 509, "该提交时点 site/data 行数：event_people 694／events 265／passages 509（裁六①；此三数是对该提交的断言，不随今日之库漂）", cnt52.join(" / "));
+  { /* 〔反证〕r56 款：本断言咬得住——换一个确实动过 site/data 的提交，同法须得非空 */
+    const other = execFileSync("git", ["log", "-1", "--format=%h", "--", "site/data/passages.json"], { cwd: ROOT }).toString().trim();
+    const t2 = execFileSync("git", ["diff", "--name-only", other + "^", other, "--", "data", "site/data"], { cwd: ROOT }).toString().trim();
+    ok(t2 !== "", "〔反证〕换用动过 site/data 之提交 " + other + "，同一断言法须得非空（即会红）", t2.split("\n")[0] || "★ 空：量具作假");
+  }
   ok(errs.length === 0, "两版四页零 pageerror", errs.slice(0, 3).join(" | ") || "零");
 
-  for (const c of [n1440, n375, o1440, o375]) await c.ctx.close();
-  await browser.close(); sNew.close(); sOld.close();
+  for (const c of [n1440, n375, o1440, o375, oD1440, oD375]) await c.ctx.close();
+  await browser.close(); sNew.close(); sOld.close(); sOldD.close();
 
   console.log("\n=== 合计 " + checks + " 项，FAIL " + fails + " ===");
   process.exit(fails ? 1 : 0);

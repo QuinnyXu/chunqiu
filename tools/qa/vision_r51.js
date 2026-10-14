@@ -62,6 +62,24 @@ function srv(root, override) {
 const OLD_REF = "bf4242c";
 const gitShow = (p) => execFileSync("git", ["show", OLD_REF + ":" + p], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
 
+/* ---------- r61-Q 校基线（裁二百二十五 ②㈠，2026-10-13）：规模之数一律取自 site/data/*.json，不写死 ----------
+ *   旧：passages 总量 === 509（506→509，r51 round51_peijue 批丙）、events 总量 === 265、两版各渲 509 张、两类相加 === 509；
+ *   新：期望＝`site/data/passages.json`／`events.json` 之行数（Node 端 fs 直读，**不取自被测之页**——页内 `DATA` 由同一 json 载入，
+ *       若以页自算其期望则恒真）。
+ *   所由：库自 509 条增至 628、事件自 265 增至 314，其间此门未随之同步；本门之意「全库每条都渲、不漏不多」不变，只是『全库』之数不再写死。 */
+const DATA_DIR = path.join(SITE, "data");
+const readJSON = (n) => JSON.parse(fs.readFileSync(path.join(DATA_DIR, n + ".json"), "utf8"));
+const PASSAGES = readJSON("passages"), EVENTS_N = readJSON("events").length, VMARKS = readJSON("verify_marks");
+const PASSAGES_N = PASSAGES.length;
+/* 『核对记号行』应现于哪些卡：另路自 verify_marks.json 推（passages 表、modern_note 栏、有非否定之触发态）。
+ *   触发态三名同 app.js 之 `vsFieldRow` 所认（「本轮无从核」「未见」「未核」，见 r54 门 `TRIG` 同款）。 */
+const VS_TRIG = new Set(["本轮无从核", "未见", "未核"]);
+const VS_EXPECT = new Set(VMARKS.filter(e => e.table === "passages" && e.col === "modern_note" && e.status.some(x => !x.negated && VS_TRIG.has(x.name))).map(e => e.row_id));
+/* 『反引号记法』应现于哪些卡：modern_note 内成对反引号者（r53，27717c3，起以 <code class="md-name"> 渲之） */
+const BT_RE = /`[^`]+`/g;
+const BT_EXPECT = new Set(PASSAGES.filter(q => (q.modern_note || "").match(BT_RE)).map(q => q.id));
+const BT_SPANS = PASSAGES.reduce((a, q) => a + ((q.modern_note || "").match(BT_RE) || []).length, 0);
+
 /* ---------- PNG 解码与墨量（只为「加粗可辨」出一个数，不看截图反推） ---------- */
 function decodePNG(buf) {
   let pos = 8, w = 0, h = 0, bd = 0, ct = 0; const idat = [];
@@ -109,7 +127,7 @@ const COLLECT = `() => {
     const frag = eventQuotesFrag(e);
     const host = document.createElement("div");
     host.appendChild(frag);
-    for (const bq of host.querySelectorAll("blockquote.quote")) out.push({ qid: bq.dataset.qid, html: bq.outerHTML });
+    for (const bq of host.querySelectorAll("blockquote.quote")) out.push({ qid: bq.dataset.qid, html: bq.outerHTML, vs: [...bq.querySelectorAll(".vs-row")].map(r => r.outerHTML) });
   }
   return out;
 }`;
@@ -153,8 +171,8 @@ const COLLECT = `() => {
     n: DATA.passages.length, ne: DATA.events.length,
   }));
   ok(env.md === "function" && env.mk === "function", "mdBoldFrag / mdBoldMarks 已在位", env.md + " / " + env.mk);
-  ok(env.n === 509, "passages 总量（r51 round51_peijue 批丙合入后基线，506→509，+3 系本批扩表所致之预期内联动，非本件所生）", String(env.n));
-  ok(env.ne === 265, "events 总量", String(env.ne));
+  ok(env.n === PASSAGES_N, "passages 总量＝site/data/passages.json 行数（旧写死 509，r61-Q 同步；期望另路读文件，不取自被测页）", env.n + " ／ " + PASSAGES_N);
+  ok(env.ne === EVENTS_N, "events 总量＝site/data/events.json 行数（旧写死 265，r61-Q 同步）", env.ne + " ／ " + EVENTS_N);
 
   /* ================= §一 纯函数断言：只认成对 ** ================= */
   console.log("\n【一】mdBoldFrag 切分断言（裁五口径二：奇数、跨段不闭合、*** 之属一律原样照出）");
@@ -243,7 +261,7 @@ const COLLECT = `() => {
   ok(!r2.pwned, "注入串未触发任何脚本执行（window.__pwned 未被置位）");
 
   /* ================= §三 全库复扫：往返还原逐字全等 ================= */
-  console.log("\n【三】全库复扫 509 条：渲染后把 <strong> 两侧 `**` 补回，须逐字还原成原串（r51 round51_peijue 批丙合入后基线，506→509）");
+  console.log("\n【三】全库复扫 " + PASSAGES_N + " 条：渲染后把 <strong> 两侧 `**` 补回，须逐字还原成原串");
   const r3 = await page.evaluate(() => {
     const restore = (el) => [...el.childNodes].map(n => n.nodeType === 3 ? n.textContent : (n.nodeName === "STRONG" ? "**" + n.textContent + "**" : "?" + n.textContent)).join("");
     const bad = [], stat = { cavRows: 0, cavPairs: 0, restRows: 0, restPairs: 0, rows: new Set() };
@@ -261,7 +279,7 @@ const COLLECT = `() => {
     }
     return { bad, cavRows: stat.cavRows, cavPairs: stat.cavPairs, restRows: stat.restRows, restPairs: stat.restPairs, rows: stat.rows.size };
   });
-  ok(r3.bad.length === 0, "509 条 × 两半（层标／页脚）往返还原逐字全等（r51 round51_peijue 批丙合入后基线，506→509）", r3.bad.length ? JSON.stringify(r3.bad.slice(0, 3)) : "零不符");
+  ok(r3.bad.length === 0, PASSAGES_N + " 条 × 两半（层标／页脚）往返还原逐字全等（期望取 passages.json 行数；旧写死 509）", r3.bad.length ? JSON.stringify(r3.bad.slice(0, 3)) : "零不符");
   ok(r3.cavRows === 9 && r3.cavPairs === 20, "层标落点：9 行 20 处（对任务书 §六实读值）", r3.cavRows + " 行 " + r3.cavPairs + " 处");
   ok(r3.restRows === 137 && r3.restPairs === 1201, "页脚落点：137 行 1201 处（任务书 §六实读值 134 行 1197 处系合入 round51_peijue 批丙〔+3 passages，Q524–Q526〕之前之基线；该三行 modern_note 亦含成对 `**`〔各 1／1／2 对〕，合入后一并实渲，+3 行 +4 处系本批扩表所致之预期内联动，非本件所生）", r3.restRows + " 行 " + r3.restPairs + " 处");
   ok(r3.cavRows + r3.restRows === 146 && r3.cavPairs + r3.restPairs === 1221, "本轮范围合计 146 落点 1221 处（任务书 §六原记 143 落点 1217 处，+3／+4 系批丙合入后之预期内联动，见上条）", (r3.cavRows + r3.restRows) + " / " + (r3.cavPairs + r3.restPairs));
@@ -274,8 +292,9 @@ const COLLECT = `() => {
   await pageOld.waitForTimeout(1200);
   const oldCards = await pageOld.evaluate(eval("(" + COLLECT + ")"));
   const newCards = await page.evaluate(eval("(" + COLLECT + ")"));
-  ok(oldCards.length === 509 && newCards.length === 509, "两版各渲出 509 张引文卡（r51 round51_peijue 批丙合入后基线，506→509，+3 系本批扩表所致之预期内联动，非本件所生）", oldCards.length + " / " + newCards.length);
+  ok(oldCards.length === PASSAGES_N && newCards.length === PASSAGES_N, "两版各渲出 " + PASSAGES_N + " 张引文卡＝passages.json 行数（旧写死 509，r61-Q 同步）", oldCards.length + " / " + newCards.length);
   ok(oldCards.every(c => !/<strong/i.test(c.html)), "旧版卡内本无 <strong>（对读之前提成立）");
+  ok(oldCards.every(c => !/<code/i.test(c.html) && c.vs.length === 0), "旧版卡内本无 <code>、无核对记号行（后二者之『期望差异』对读之前提成立）");
 
   const starSet = await page.evaluate(() => {
     const s = [];
@@ -286,22 +305,72 @@ const COLLECT = `() => {
     return s;
   });
   const starIds = new Set(starSet);
+
+  /* ★★ r61-Q 校基线·三项期望差异（裁二百二十五 ①③，2026-10-13；先查明差在何处，不放判据）
+   *   本节原断言：『不含星号之卡与旧版 outerHTML 逐位全等』『含星号之卡两版之差只有 **x**→<strong>x</strong>』。
+   *   今实测 206 卡不全等，逐类剖开后，差异**恰为三类、别无他类**（下三条各自带数，且数皆另路自 json 推，不读 DOM）：
+   *   ① 〔本件本题〕`**x**`→`<strong>x</strong>`（r51，⚑H 丙案）——仅限含星号之卡，原断言照留；
+   *   ② 〔反引号记法〕旧版 `X` 为纯文字；今版 `<code class="md-name">X</code>`。
+   *      旧版 X；今版 Y；其由 r53（27717c3，2026-09-26，『二记法相遇』：以 <code> 渲反引号记法）。
+   *      期望：含此记法之卡集＝passages.json 中 modern_note 含成对反引号者（BT_EXPECT），<code> 总枚数＝其反引号对数（BT_SPANS）；
+   *   ③ 〔核对记号行〕旧版无；今版于若干卡内多出一枚 `<div class="vs-row" data-vs-col="modern_note">…</div>`。
+   *      旧版 X；今版 Y；其由 r60-B／r60-H（核对记号现于引文卡，裁一百九十九⑤、裁二百〇三、裁二百〇六）。
+   *      期望：现记号行之卡集＝verify_marks.json 中 passages 表、modern_note 栏、有非否定触发态者（VS_EXPECT）。
+   *   对读之法：把今版卡**逆施**上列差异（去其记号行、<code> 还为反引号、含星号之卡再 <strong> 还为 **），须与旧版**逐位全等**；
+   *   逆施之外**一字之差俱红**——零容忍未松。下方〔反证〕各注入一病，须当场红。 */
+  const inverse = (card, isStar) => {
+    let h = card.html;
+    for (const row of card.vs) { const k = h.split(row).length - 1; if (k !== 1) return { html: null, why: "记号行命中 " + k + " 处，应恰 1" }; h = h.replace(row, () => ""); }
+    h = h.replace(/<code class="md-name">([\s\S]*?)<\/code>/g, (_, x) => "`" + x + "`");
+    if (isStar) h = h.replace(/<strong>/g, "**").replace(/<\/strong>/g, "**");
+    return { html: h };
+  };
   let sameCnt = 0, diffCnt = 0; const plainDiff = [], starDiff = [];
   for (let i = 0; i < newCards.length; i++) {
     const a = oldCards[i], b = newCards[i];
     if (a.qid !== b.qid) { starDiff.push({ qid: a.qid + "≠" + b.qid, why: "次序不一致" }); continue; }
-    if (starIds.has(b.qid)) {
-      // 有星号之卡：新版 <strong>x</strong> 还原成 **x** 后须与旧版逐位相同
-      const back = b.html.replace(/<strong>/g, "**").replace(/<\/strong>/g, "**");
-      if (back === a.html) diffCnt++; else starDiff.push({ qid: b.qid, len: [a.html.length, back.length] });
-    } else {
-      if (a.html === b.html) sameCnt++; else plainDiff.push({ qid: b.qid });
-    }
+    const isStar = starIds.has(b.qid), inv = inverse(b, isStar);
+    if (inv.html === a.html) { if (isStar) diffCnt++; else sameCnt++; }
+    else (isStar ? starDiff : plainDiff).push(isStar ? { qid: b.qid, len: [a.html.length, inv.html && inv.html.length], why: inv.why } : { qid: b.qid, why: inv.why });
   }
-  ok(plainDiff.length === 0, "不含成对星号之卡 " + sameCnt + " 张，outerHTML 与旧版逐位全等（零影响之证）", plainDiff.length ? JSON.stringify(plainDiff.slice(0, 5)) : "零差异");
-  ok(starDiff.length === 0, "含成对星号之卡 " + diffCnt + " 张，两版之差**只有** `**x**`→`<strong>x</strong>`", starDiff.length ? JSON.stringify(starDiff.slice(0, 5)) : "无他差");
-  ok(sameCnt + diffCnt === 509, "两类相加＝509，无卡漏检（r51 round51_peijue 批丙合入后基线，506→509，+3 系本批扩表所致之预期内联动，非本件所生）", sameCnt + "+" + diffCnt);
+  ok(plainDiff.length === 0, "不含成对星号之卡 " + sameCnt + " 张，逆施『②反引号→<code>、③核对记号行』二项期望差异后，与旧版 outerHTML 逐位全等（零影响之证）", plainDiff.length ? JSON.stringify(plainDiff.slice(0, 5)) : "零差异");
+  ok(starDiff.length === 0, "含成对星号之卡 " + diffCnt + " 张，逆施『①<strong>→**、②、③』三项后与旧版逐位全等（即两版之差只有此三项）", starDiff.length ? JSON.stringify(starDiff.slice(0, 5)) : "无他差");
+  ok(sameCnt + diffCnt === PASSAGES_N, "两类相加＝" + PASSAGES_N + "（passages.json 行数），无卡漏检（旧写死 509，r61-Q 同步）", sameCnt + "+" + diffCnt);
+  const codeSetOK = (cards) => {
+    const cs = new Set(cards.filter(c => c.html.includes('<code class="md-name">')).map(c => c.qid));
+    const sp = cards.reduce((a, c) => a + (c.html.split('<code class="md-name">').length - 1), 0);
+    return { cards: cs.size, spans: sp, ok: cs.size === BT_EXPECT.size && [...BT_EXPECT].every(x => cs.has(x)) && sp === BT_SPANS };
+  };
+  const vsSetOK = (cards) => {
+    const vs = new Set(cards.filter(c => c.vs.length).map(c => c.qid));
+    return { cards: vs.size, ok: vs.size === VS_EXPECT.size && [...VS_EXPECT].every(x => vs.has(x)) && cards.every(c => c.vs.length <= 1) };
+  };
+  const cOK = codeSetOK(newCards), vOK = vsSetOK(newCards);
+  ok(cOK.ok, "②期望之核：今版现 <code class=md-name> 之卡集＝passages.json 中 modern_note 含成对反引号之卡集（" + BT_EXPECT.size + " 卡），总枚数＝其反引号总对数（" + BT_SPANS + "）", cOK.cards + " 卡／" + cOK.spans + " 枚");
+  ok(vOK.ok, "③期望之核：今版现核对记号行之卡集＝verify_marks.json 推得之卡集（" + VS_EXPECT.size + " 卡），且每卡至多一枚", vOK.cards + " ／ " + VS_EXPECT.size);
   ok(starIds.size === 137, "含星号之卡（按行计）137 张（批丙 Q524–Q526 三行 modern_note 亦含成对 `**`，+3 系本批扩表所致之预期内联动，非本件所生）", String(starIds.size));
+
+  /* ---- 〔反证〕r56 款：对已取之真数据注入同型之病，每类须使对读当场红；不红＝量具作假 ---- */
+  const proofCard = (label, pick, mut) => {
+    const i = newCards.findIndex(pick); const b = newCards[i], a = oldCards[i];
+    const isStar = starIds.has(b.qid); const inv = inverse(mut(b), isStar);
+    const red = inv.html !== a.html;
+    ok(red, "〔反证〕" + label + "——须当场红（r56 款）", red ? "红：" + (inv.why || "逆施后与旧版不全等（卡 " + b.qid + "）") : "★ 不红：量具作假");
+  };
+  proofCard("普通卡末多一字『X』", c => !starIds.has(c.qid) && !c.vs.length, c => ({ ...c, html: c.html.replace(/<\/blockquote>$/, "X</blockquote>") }));
+  { /* 集合之核之反证：记号行现于不该有的卡 → ③红；少一枚 <code> → ②红（逆施法不管记号行之内容，故此二病只由集合之核捕获） */
+    const k = newCards.findIndex(c => !c.vs.length && !VS_EXPECT.has(c.qid));
+    const fake = newCards.map((c, n) => n === k ? { ...c, vs: ['<div class="vs-row">x</div>'] } : c);
+    const r1 = vsSetOK(fake);
+    ok(!r1.ok, "〔反证〕记号行现于不该有的卡（卡 " + newCards[k].qid + "）——③期望之核须当场红（r56 款）", r1.ok ? "★ 不红：量具作假" : "红：" + r1.cards + " ／ " + VS_EXPECT.size);
+    const k2 = newCards.findIndex(c => c.html.includes('<code class="md-name">'));
+    const less = newCards.map((c, n) => n === k2 ? { ...c, html: c.html.replace('<code class="md-name">', "<i>") } : c);
+    const r2 = codeSetOK(less);
+    ok(!r2.ok, "〔反证〕少一枚 <code class=md-name>（卡 " + newCards[k2].qid + "）——②期望之核须当场红（r56 款）", r2.ok ? "★ 不红：量具作假" : "红：" + r2.spans + " ／ " + BT_SPANS);
+  }
+  proofCard("<code> 之类名改一字（md-name→md-nam）", c => c.html.includes('<code class="md-name">'), c => ({ ...c, html: c.html.replace('<code class="md-name">', '<code class="md-nam">') }));
+  proofCard("含星号之卡里 <strong> 多出一枚", c => starIds.has(c.qid), c => ({ ...c, html: c.html.replace("</blockquote>", "<strong>y</strong></blockquote>") }));
+  proofCard("记号行缺失之对位：卡内删去记号行而仍报其在（命中 0 处）", c => c.vs.length > 0, c => ({ ...c, html: c.html.replace(c.vs[0], "") }));
 
   /* quote_original 未改道之证：正文节点两版全等已含在上文 509 张对读内（r51 round51_peijue 批丙合入后基线，506→509），此处另取通行字视图一卡明记 */
   const diploCmp = await page.evaluate(() => {

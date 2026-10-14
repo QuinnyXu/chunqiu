@@ -500,6 +500,12 @@ async function snapshot(br, base, hash, sel, w, h) {
   const srvOld = await srv(SITE, { "/app.js": oldApp, "/index.html": oldHtml, "/styles.css": oldCss });
   const baseNew = "http://127.0.0.1:" + srvNew.address().port + "/";
   const baseOld = "http://127.0.0.1:" + srvOld.address().port + "/";
+  /* r61-Q·控制变量（见 §五 之注）：旧版码、仅把 `PROTAGONISTS` 名册块换成今版者，专供关系全景页之对读 */
+  const rosterBlock = (t) => { const i = t.indexOf("const PROTAGONISTS = ["), j = t.indexOf("];", i); if (i < 0 || j < 0) throw new Error("PROTAGONISTS 块找不到，停门"); return [i, j + 2]; };
+  const [ni0, ni1] = rosterBlock(newApp), [oi0, oi1] = rosterBlock(oldApp);
+  const oldAppRoster = oldApp.slice(0, oi0) + newApp.slice(ni0, ni1) + oldApp.slice(oi1);
+  const srvOldR = await srv(SITE, { "/app.js": oldAppRoster, "/index.html": oldHtml, "/styles.css": oldCss });
+  const baseOldR = "http://127.0.0.1:" + srvOldR.address().port + "/";
   const br = await chromium.launch();
 
   /* ===== §一 本件之前提（任务书〇节三条，逐条附求法｜所期｜读法） ===== */
@@ -684,13 +690,60 @@ async function snapshot(br, base, hash, sel, w, h) {
   const ABOUT_P2 = "<p><strong>索引是指路牌，不是替代品</strong>：记号只告诉你仓库里哪一栏、第几个字处有核对状态之语；凡须凭以论断者，一律回原栏读全文。</p>";
   /* 锚元素末尾之下标（插入点＝紧随其后）；找不到返 -1 */
   const endOf = (old, startMark, closeTag) => { const i = old.indexOf(startMark); if (i < 0) return -1; const j = old.indexOf(closeTag, i); return j < 0 ? -1 : j + closeTag.length; };
+  /* ---- r61-Q·校基线（裁二百二十五 ①，2026-10-13）：三项「名册联动」之期望差异 ----
+   * 缘起：r61-H（c787c70）、r61-M（01206f4）升晋之主角，新增 `app.js` 内 `PROTAGONISTS` 名册；
+   *   旧版（OLD_REF）码内名册固定 34 人，故「以旧码配今之数据」时，凡**读主角名册**之处，新旧即不再逐位全等：
+   *   ① 编年页自述「其中 N 条未系于任何主角」；② 关系全景面包屑「N 主角 · M 条关系」；③ 关于页「当前版本」行。
+   *   三者皆**非站之坏**（站行为无退），而是 H、M 两件有意之改——故照 r60-K 之例，**不换基线、不放判据，显式列期望差异**，
+   *   三段式「旧版 X；今版 Y；其由 Z」，一项一条，不并一句。
+   * ★ 期望之数**不取自被测之 DOM**（取之即「以被测之物自算其期望」，恒真，门死）：
+   *   · 新版名册＝`site/data/people.json` 中 `is_protagonist=1` 者；
+   *   · 旧版名册＝`git show OLD_REF:site/app.js` 内 `const PROTAGONISTS = [ … ]` 块之 id（另路，不读页面）；
+   *   · 「未系」数＝`events.json` 中不在 `event_people.json` 里与该名册任一人相联之事件数；
+   *   · 「M 条关系」＝`relations.json` 中两端皆在该名册者（口径同 `renderRelations` 面包屑，默认态）；
+   *   · 版本行＝新旧 `index.html` 内 `当前版本 vX.Y（…）。` 句之源文（静态 HTML，不读 DOM）。 */
+  const rosterStat = (() => {
+    const J = (n) => JSON.parse(fs.readFileSync(path.join(SITE, "data", n + ".json"), "utf8"));
+    const ppl = J("people"), evs = J("events"), eps = J("event_people"), rels = J("relations");
+    const newSet = new Set(ppl.filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
+    const i0 = oldApp.indexOf("const PROTAGONISTS = ["), i1 = oldApp.indexOf("];", i0);
+    if (i0 < 0 || i1 < 0) throw new Error("旧版 app.js 内找不到 PROTAGONISTS 名册块：锚失效，停门");
+    const oldSet = new Set([...oldApp.slice(i0, i1).matchAll(/id:\s*"(P_[A-Z0-9_]+)"/g)].map(m => m[1]));
+    const stat = (set) => {
+      const linked = new Set(eps.filter(l => set.has(l.person_id)).map(l => l.event_id));
+      return { n: set.size, orphan: evs.filter(e => !linked.has(e.id)).length,
+               edges: rels.filter(r => set.has(r.person_a) && set.has(r.person_b)).length };
+    };
+    const verRe = /当前版本 (v\d+\.\d+)（[^）]*）。/;
+    const vo = oldHtml.match(verRe), vn = newHtml.match(verRe);
+    if (!vo || !vn) throw new Error("index.html 内找不到『当前版本 vX.Y（…）。』句：锚失效，停门");
+    const liRe = /<li>(v\d+\.\d+) —— [^\n]*<\/li>/g;
+    const liOld = [...oldHtml.matchAll(liRe)].map(m => m[0]), liNew = [...newHtml.matchAll(liRe)].map(m => ({ html: m[0], ver: m[1] }));
+    const addedLi = liNew.filter(x => !liOld.includes(x.html));
+    const firstOldLiHead = liOld[0].slice(4, 4 + 12);
+    const [n0, n1] = [newApp.indexOf("const PROTAGONISTS = ["), newApp.indexOf("];", newApp.indexOf("const PROTAGONISTS = ["))];
+    const newAppIds = new Set([...newApp.slice(n0, n1).matchAll(/id:\s*"(P_[A-Z0-9_]+)"/g)].map(m => m[1]));
+    return { newAppIds, newSetIds: newSet, addedLi, firstOldLiHead, oldS: stat(oldSet), newS: stat(newSet), verOld: vo[0], verNew: vn[0],
+             vnOld: vo[1], vnNew: vn[1], oldOnly: [...oldSet].filter(x => !newSet.has(x)), newOnly: [...newSet].filter(x => !oldSet.has(x)) };
+  })();
+  const vkey = (v) => v.slice(1).split(".").map(Number);
+  ok((() => { const a = vkey(rosterStat.vnNew), b = vkey(rosterStat.vnOld); return a[0] > b[0] || (a[0] === b[0] && a[1] > b[1]); })(),
+    "关于页版本号自旧到今严格递增（" + rosterStat.vnOld + "→" + rosterStat.vnNew + "）——升版方许此句异", rosterStat.verOld.slice(0, 30) + " ／ " + rosterStat.verNew.slice(0, 30));
+  console.log("  · r61-Q 名册联动之期望（另路自 json／旧 app.js／index.html 源算出，不读 DOM）：旧 " + JSON.stringify(rosterStat.oldS) +
+    "；今 " + JSON.stringify(rosterStat.newS) + "；旧有今无 " + rosterStat.oldOnly.join(",") + "；今有旧无 " + rosterStat.newOnly.join(",") +
+    "；版本 " + rosterStat.vnOld + "→" + rosterStat.vnNew);
+  ok(rosterStat.newS.orphan === rc.orphan, "名册联动之『今』值与 §一 独立复算之『未系事件数』同数（两路互验）", rosterStat.newS.orphan + " ／ " + rc.orphan);
   /* 增量清单：每项＝一个「今版 Y」。要求：恰一处精确命中（含其前之空白节点）、其位紧随锚元素之后、剥去后余下与旧版逐位全等。 */
   const DELTAS = {
     "#/chronicle": [
       { tag: "甲", X: "旧版：编年页首（自述 #chron-intro 之后）无账本句",
         Y: "恰一个 " + "<p class=\"vs-ledger-note\" id=\"vs-note-chron\">，紧随 #chron-intro 之后，其文＝自 json 另路复算之覆盖句（数与日期不写死）",
         Z: "r60-B（e5814bb，裁一百九十九⑤：「无记号不等于已核」须与记号同屏）；覆盖句二改与补语：r60-B 续（42f6b72）、r60-I（0e15a26，裁二百〇四 四③）",
-        html: LEDGER_P("vs-note-chron"), anchor: (old) => endOf(old, 'id="chron-intro"', "</p>") }],
+        html: LEDGER_P("vs-note-chron"), anchor: (old) => endOf(old, 'id="chron-intro"', "</p>") },
+      { tag: "乙", X: "旧版：编年页自述「其中 " + rosterStat.oldS.orphan + " 条未系于任何主角」（旧码名册 " + rosterStat.oldS.n + " 人）",
+        Y: "「其中 " + rosterStat.newS.orphan + " 条未系于任何主角」，恰一处，仅此数异（今名册 " + rosterStat.newS.n + " 人；两数皆另路自 json 与旧 app.js 名册算出，不读 DOM）",
+        Z: "r61-H（c787c70，裁二百一十九：祁奚、韩厥升一级、介之推降二级）、r61-M（01206f4，裁二百二十二：赵盾、郤克、栾书升一级）——名册自 34 增至 38，未系于主角之事件相应由 72 减至 41",
+        subs: [["其中 " + rosterStat.newS.orphan + " 条未系于任何主角", "其中 " + rosterStat.oldS.orphan + " 条未系于任何主角"]] }],
     "#/library": [
       { tag: "甲", X: "旧版：资料库页首（标题 #library-title 之后）无账本句",
         Y: "恰一个 <p class=\"vs-ledger-note\" id=\"vs-note-library\">，紧随 #library-title 之后，其文＝自 json 另路复算之覆盖句",
@@ -710,11 +763,29 @@ async function snapshot(br, base, hash, sel, w, h) {
         Y: "恰一个 " + ABOUT_P2 + "，紧随甲之后",
         Z: "r60-I（0e15a26，笔一：缩留其凡例「索引是指路牌，不是替代品」；改写准于裁二百〇九）",
         html: ABOUT_P2, anchor: (old) => endOf(old, "非考据疆界", "</p>") },
+      { tag: "丙", X: "旧版：关于页「版本与反馈」节之版本句为「" + rosterStat.verOld + "」",
+        Y: "「" + rosterStat.verNew + "」，恰一处、全句替换（新旧句皆自各自 index.html 源文取，版本号 " + rosterStat.vnOld + "→" + rosterStat.vnNew + " 严格递增）",
+        Z: "每次升版必异：r61-H（c787c70）升 v0.20、r61-M（01206f4）升 v0.21；基线钉在 r53 收官（v0.19），故其间每升一版此句即不同——是升版，非坏",
+        subs: [[rosterStat.verNew, rosterStat.verOld]] },
+      { tag: "丁", X: "旧版：关于页版本记录（<ul> 首项 v0.19 之前）无 " + rosterStat.addedLi.map(x => x.ver).join("、") + " 之条目",
+        Y: "多出 " + rosterStat.addedLi.length + " 条 <li>（" + rosterStat.addedLi.map(x => x.ver).join("、") + "），各恰一处、其文精确（自新旧 index.html 源文之差取，不读 DOM），紧居旧首项 v0.19 之前、依新到旧",
+        Z: "r61-H（c787c70）添 v0.20 条、r61-M（01206f4）添 v0.21 条——每次升版皆于版本记录顶端添一条",
+        html: rosterStat.addedLi.map(x => x.html).join("\n          "),
+        anchor: (old) => { const k = old.indexOf("<li>" + rosterStat.firstOldLiHead); return k < 0 ? -1 : k - "\n          ".length; } },
     ],
   };
   /* 剥去一项：返回 { stripped, reasons }。reasons 空＝该项 Y 成立。不吞别的差异：命中须恰一处、位须精确。 */
   function applyDelta(cur, oldS, d) {
     const reasons = [];
+    if (d.subs) {   // r61-Q：替换型期望差异——新文须恰一处，换回旧文；位置不变，故「余下与旧版逐位全等」仍断其位
+      let out = cur;
+      for (const [nw, od] of d.subs) {
+        const k = out.split(nw).length - 1;
+        if (k !== 1) { reasons.push("今版中「" + nw.slice(0, 40) + "」命中 " + k + " 处，应恰 1"); continue; }
+        out = out.replace(nw, () => od);
+      }
+      return { stripped: out, reasons };
+    }
     const ms = [...cur.matchAll(new RegExp("(\\s*)" + escRe(d.html), "g"))];
     if (ms.length !== 1) { reasons.push("今版中此元素（精确文字）命中 " + ms.length + " 处，应恰 1"); return { stripped: cur, reasons }; }
     const m = ms[0], want = d.anchor(oldS);
@@ -741,8 +812,24 @@ async function snapshot(br, base, hash, sel, w, h) {
   for (const [w, h] of [[W_WIDE, H_WIDE], [W_NARROW, H_NARROW]]) {
     for (const [hash, sel] of PAGES) {
       const a = await snapshot(br, baseNew, hash, sel, w, h);
-      const b = await snapshot(br, baseOld, hash, sel, w, h);
+      const b = await snapshot(br, hash === "#/relations" ? baseOldR : baseOld, hash, sel, w, h);
       if (w === W_WIDE) keep5[hash] = { a: a.s, b: b.s };
+      if (hash === "#/relations") {
+        /* 关系全景（r61-Q，三差之 c；★ 比报所述者大得多）：名册由 34 增至 38，环上节点、扇形光晕、每条边之曲线坐标
+         *   全部重排（实测 132 处差异，非仅面包屑二数）——故不可逐处列『旧 X；今 Y』。治法＝**控制变量**，分两件：
+         *   ① 逐项期望（三段式）：旧版原样之面包屑＝「全景 · 34 主角 · 50 条关系」；今版＝「全景 · 38 主角 · 51 条关系」，
+         *      二者之数皆另路（旧 app.js 名册块 × relations.json；people.json × relations.json）算出，不读 DOM；
+         *      其由：r61-H（c787c70）、r61-M（01206f4）升晋之主角（名册 34→38；边数 50→51）。
+         *   ② 控制：旧版码、**仅把 PROTAGONISTS 名册块换成今版者**（其余一字不动，OLD_REF 不换），对今版整页**逐位全等**——
+         *      证『除名册所致之重排外，关系页自 r53 收官至今无一处别的改动』。零容忍：多一笔、少一笔、挪一位俱红。
+         *   ③ 名册块之换入不得掩盖名册本身之错：今版 app.js 名册 id 集须＝people.json 中 is_protagonist=1 之集（另路互验）。 */
+        const bRaw = await snapshot(br, baseOld, hash, sel, w, h);
+        const crumb = (t) => { const m = t.match(/全景 · (\d+) 主角 · (\d+) 条关系（默认/); return m ? [Number(m[1]), Number(m[2])] : null; };
+        const co = crumb(bRaw.s), cn = crumb(a.s);
+        ok(co && co[0] === rosterStat.oldS.n && co[1] === rosterStat.oldS.edges, w + "px #/relations 〔已涉·甲〕旧版 " + rosterStat.oldS.n + " 主角·" + rosterStat.oldS.edges + " 条关系；今版 " + rosterStat.newS.n + " 主角·" + rosterStat.newS.edges + " 条关系；其由 r61-H（c787c70）、r61-M（01206f4）升晋之主角（旧版面包屑一侧）", "旧版实读 " + JSON.stringify(co));
+        ok(cn && cn[0] === rosterStat.newS.n && cn[1] === rosterStat.newS.edges, w + "px #/relations 〔已涉·甲〕（今版一侧；期望取 people.json×relations.json，不取 DOM）", "今版实读 " + JSON.stringify(cn));
+        ok(rosterStat.newAppIds.size === rosterStat.newS.n && [...rosterStat.newAppIds].every(x => rosterStat.newSetIds.has(x)), w + "px #/relations 〔控制·互验〕今版 app.js 名册 id 集＝people.json 之 is_protagonist 集（换入名册不掩盖名册之错）", rosterStat.newAppIds.size + " ／ " + rosterStat.newSetIds.size);
+      }
       if (!DELTAS[hash]) {
         let where = "";
         if (a.s !== b.s) {
@@ -750,7 +837,7 @@ async function snapshot(br, base, hash, sel, w, h) {
           let i = 0; while (i < n && a.s[i] === b.s[i]) i++;
           where = " 首异于第 " + i + " 字：新「" + a.s.slice(i, i + 60) + "」／旧「" + b.s.slice(i, i + 60) + "」";
         }
-        ok(a.s === b.s, w + "px " + hash + " → " + sel + " 逐位全等（未涉）", "长 " + a.s.length + " ／ " + b.s.length + where);
+        ok(a.s === b.s, w + "px " + hash + " → " + sel + (hash === "#/relations" ? " 逐位全等（控制：旧版码＋今名册；零容忍）" : " 逐位全等（未涉）"), "长 " + a.s.length + " ／ " + b.s.length + where);
       } else {
         const jp = judgePage(hash, a.s, b.s);
         DELTAS[hash].forEach((d, k) => {
@@ -795,6 +882,11 @@ async function snapshot(br, base, hash, sel, w, h) {
     return t.slice(0, i) + m[0] + t.slice(i);
   });
   proof("(f) 关于页二条凡例颠倒先后", "#/about", s => s.replace(ABOUT_P1, "@@A@@").replace(ABOUT_P2, ABOUT_P1).replace("@@A@@", ABOUT_P2));
+  proof("(h) 编年页自述之未系数改一数（今值 +1）", "#/chronicle", s => s.replace("其中 " + rosterStat.newS.orphan + " 条未系于任何主角", "其中 " + (rosterStat.newS.orphan + 1) + " 条未系于任何主角"));
+  proof("(i) 关于页版本句改一字（句末「。」→「！」）", "#/about", s => s.replace(rosterStat.verNew, rosterStat.verNew.replace(/。$/, "！")));
+  proof("(j) 关系全景面包屑之主角数改一数（今值 +1）", "#/relations", s => s.replace("全景 · " + rosterStat.newS.n + " 主角", "全景 · " + (rosterStat.newS.n + 1) + " 主角"));
+  proof("(k) 关系全景面包屑之边数改一数（今值 +1）", "#/relations", s => s.replace(rosterStat.newS.edges + " 条关系（默认", (rosterStat.newS.edges + 1) + " 条关系（默认"));
+  proof("(l) 关系全景于已列之变外另改别处一字（全景加 X）", "#/relations", s => s.replace("全景 · ", "全景X · "));
   proof("(g) 吞别处之差：编年页于已列之变外另改别处一字（标题加 X）", "#/chronicle", s => s.replace("编年 · 大事年表", "编年 · 大事年表X"));
   if (gateErrs5) { console.log("  ⚠ §五·按类反证有 " + gateErrs5 + " 项不红：本门自身出错（exit 2），今日这一跑不作数"); process.exitCode = 2; }
 
@@ -1071,7 +1163,7 @@ async function snapshot(br, base, hash, sel, w, h) {
    *   惟 §三、§七之三 中三处「句三之链」之断言随该链之去而再反转，见各处之注。
    * =================================================================================== */
 
-  await br.close(); srvNew.close(); srvOld.close();
+  await br.close(); srvNew.close(); srvOld.close(); srvOldR.close();
   head("—— 共 " + checks + " 项断言，FAIL " + fails + " ——");
   console.log("（§六 为供裁之量，不计入断言；其改一行未落，照任务书一节 3／二节 2「停下上报、不自行落定」。）");
   if (fails) process.exitCode = 1;
