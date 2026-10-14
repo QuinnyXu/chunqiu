@@ -282,6 +282,25 @@ const FLOW_CHIP_NOTE = "人物线所历之国（据 people.state 出身→归宿
 /* 地图状态行补注（r21）：某人若另有「相关」落点，在轨迹句后交代一句，
  * 使「史文所系之地」与「亲至可考之地」在同一行里可分。 */
 const RELATED_PLACE_NOTE = (n) => "另有 " + n + " 处相关地点（史文无其在场明文），空心示之、不入轨迹。";
+/* 「不在」之地之补注（r61-U）：其人于此地所系之事俱为「不在」（史文正面明书其不在），无一亲至、亦无「相关」。 */
+const ABSENT_PLACE_NOTE = (n) => "另有 " + n + " 处史文正面明书其不在之地，空心示之、不入轨迹。";
+
+/* ---------- presence 三值：全站一谓词、一提示表（r61-U；裁二百二十八 二） ----------
+ * conventions §6：presence ∈ {亲至, 相关, 不在}，**空视同亲至**。
+ * ★ 在场之谓词只此一处：在场＝presence ∈ {亲至, 空}。轨迹、到访（实心锚）、并观交会、签之虚实，一律问它，
+ *   **不得再以「非相关」代「在场」**——旧码八处以 `=== "相关"` 二分，致「不在」落入亲至（孔子 E285、赵盾 E322 等），
+ *   正与 v1.27 c「前端展示暂同相关」相反。
+ * ★ 签之字取数据之值（亲至／相关／不在），不改写；「不在」之样式同「相关」（虚：rel-low／is-related），
+ *   照 v1.27 c；其提示之句出此一表（原在 r61-N 抽屉，移为全站共用，不另写）。
+ * ★ 措辞分寸（§6／§7）：「相关」＝史文无其在场明文，**不得写成或暗示「不在场」**；「不在」＝史文正面明书其不在。
+ * 声明为顶层 function（非 const），门 tools/qa/vision_r61u.js 之按类反证于页内换此谓词以证判据能红。 */
+function presenceOf(v) { return v || "亲至"; }
+function isPresent(v) { return presenceOf(v) === "亲至"; }
+const PRESENCE_TIP = {
+  "亲至": "亲至：史文明书其在事发地",
+  "相关": "相关：史文无其在场明文",
+  "不在": "不在：史文正面明书其不在事发地",
+};
 /* 设置单人/并观播放控件的降级态：degraded=true 时隐藏播放按钮、改显静态说明，
  * 并令按钮 disabled（全屏浮层控件据此不建，见 mountOverlayControls）。 */
 function setPlayDegrade(mode, degraded) {
@@ -1359,7 +1378,8 @@ function eventChipsNode(evt, opts) {
   if (evt.category) addChip(chips, evt.category, "");
   if (evt.reliability) addChip(chips, REL_LABEL[evt.reliability] || evt.reliability, "rel-" + evt.reliability);
   if (evt.importance) addChip(chips, "重要度 " + evt.importance, "");
-  if (opts && opts.personal) addChip(chips, evt.presence, evt.presence === "相关" ? "rel-low" : "rel-high");
+  // r61-U：字取数据之值；样式问在场之谓词——「不在」同「相关」（虚，rel-low）
+  if (opts && opts.personal) addChip(chips, presenceOf(evt.presence), isPresent(evt.presence) ? "rel-high" : "rel-low");
   return chips;
 }
 /* ---------- 核对状态之记号（r60-B；裁一百九十四一、裁一百九十九、裁二百〇一、裁二百〇二） ----------
@@ -1644,15 +1664,16 @@ function eventPeopleNode(evt) {
   lab.className = "evt-people-label";
   lab.textContent = "所系人物";
   wrap.appendChild(lab);
-  // 亲至在前、主角在前，其余按 id——与全站「排序须可复算」的口径一致，不靠数据行序
+  // 在场（亲至）在前、主角在前，其余按 id——与全站「排序须可复算」的口径一致，不靠数据行序（r61-U：「不在」与「相关」同居后）
   links.sort((a, b) =>
-    (((a.presence || "亲至") === "相关") - ((b.presence || "亲至") === "相关")) ||
+    ((!isPresent(a.presence)) - (!isPresent(b.presence))) ||
     (protoRank(a.person_id) - protoRank(b.person_id)) ||
     a.person_id.localeCompare(b.person_id));
   for (const l of links) {
     const p = PEOPLE[l.person_id];
     const meta = PROTAGONISTS.find(m => m.id === l.person_id);
-    const related = (l.presence || "亲至") === "相关";
+    const pv = presenceOf(l.presence);
+    const related = !isPresent(pv);   // r61-U：「相关」「不在」俱作虚签（v1.27 c 之样式），字各如实书
     const b = document.createElement("button");
     b.type = "button";
     b.className = "evt-person" + (meta ? " is-proto" : "") + (related ? " is-related" : "");
@@ -1670,10 +1691,10 @@ function eventPeopleNode(evt) {
     nm.textContent = p.name;
     b.appendChild(nm);
     const pr = document.createElement("small");
-    pr.textContent = related ? "相关" : "亲至";
+    pr.textContent = pv;
     b.appendChild(pr);
     b.title = p.name + (l.role_in_event ? " · " + l.role_in_event : "") +
-      (related ? "（相关：史文无其在场明文）" : "（亲至：史文明书其在事发地）") +
+      "（" + (PRESENCE_TIP[pv] || pv) + "）" +
       " —— 点开" + (meta ? "其时间线并定位此事" : "其关系图");
     b.addEventListener("click", (ev) => {
       ev.preventDefault();
@@ -1736,12 +1757,12 @@ function renderTimeline() {
        * 不分者（591/694，含叔向全 9 行）走同一条路而 `clipped === false`，
        * `mdBoldFrag()` 对无星号之串返回**恰好一个文本节点**，DOM 与旧版 `textContent` 全等。
        * 〔r53 扩：改走 `mdInlineFrag`，反引号同施；「二记法俱无者返回恰好一个文本节点」之保证不变。
-       *   ★ `" · 相关"` 是写死之文字、不含记法，接在 `rp.head` 之后不改其解析——
+       *   ★ `" · 相关"`／`" · 不在"`（r61-U：取 presence 之值）是写死之文字、不含记法，接在 `rp.head` 之后不改其解析——
        *     `rp.head` 之末尾不可能留下未闭之记号（截点已避二类区间，见 `roleParts()`）。〕 */
       const rp = roleParts(evt.role);
       const role = document.createElement("span");
       role.className = "role-chip" + (rp.clipped ? " is-clipped" : "");
-      role.appendChild(mdInlineFrag(rp.head + (evt.presence === "相关" ? " · 相关" : "")));
+      role.appendChild(mdInlineFrag(rp.head + (isPresent(evt.presence) ? "" : " · " + presenceOf(evt.presence))));
       sum.appendChild(role);
     }
     // 可点暗示：右下角常驻「原文 ▾ / 详情 ▾」，展开转「收起 ▴」（文案由 CSS 依 has-quote/open 切换）
@@ -2142,16 +2163,17 @@ function renderMap() {
   const related = new Map();
   for (const e of events) {
     if (!e.place_id) continue;
-    if (!related.has(e.place_id)) related.set(e.place_id, { events: [], hasVisit: false });
+    if (!related.has(e.place_id)) related.set(e.place_id, { events: [], hasVisit: false, hasRelated: false });
     const slot = related.get(e.place_id);
     slot.events.push(e);
-    if (e.presence !== "相关") slot.hasVisit = true;
+    if (isPresent(e.presence)) slot.hasVisit = true;              // r61-U：在场之谓词，「不在」不计到访
+    else if (presenceOf(e.presence) === "相关") slot.hasRelated = true;
   }
 
-  // 轨迹：仅亲至；连续同地或同坐标聚合为一站（杜绝零长度段）
+  // 轨迹：仅亲至（r61-U：「相关」「不在」俱不入）；连续同地或同坐标聚合为一站（杜绝零长度段）
   const traj = [];
   for (const e of events) {
-    if (e.presence === "相关") continue;
+    if (!isPresent(e.presence)) continue;
     const pl = e.place_id ? PLACES[e.place_id] : null;
     if (!pl || pl.lat == null || pl.lng == null) continue;
     const [px, py] = project(pl.lng, pl.lat);
@@ -2205,7 +2227,10 @@ function renderMap() {
       dot.setAttribute("stroke", theme);
       dot.setAttribute("stroke-width", "2.2");
       // presence 措辞分寸（r21）：「相关」＝史文无其在场明文，非「史文书其不在场」，不得写成断言
-      g.setAttribute("aria-label", pl.ancient_name + "（相关地点，史文无其在场明文）");
+      // r61-U：其地所系俱为「不在」者（无一「相关」），如实书史文正面明书其不在
+      g.setAttribute("aria-label", pl.ancient_name + (slot.hasRelated
+        ? "（相关地点，史文无其在场明文）"
+        : "（史文正面明书其不在之地）"));
     } else {
       baseR = 3.5;
       dot.setAttribute("fill", "#F4EDDF");
@@ -2289,16 +2314,17 @@ function renderMap() {
 
   /* 状态行：轨迹句 ＋（若另有「相关」落点）一句补注，令「史文所系之地」与「亲至可考之地」同行可分。
    * 相关落点数＝有事件、无任一亲至、且有坐标的地点数（与锚点空心口径一致）。 */
-  let relOnly = 0;
+  let relOnly = 0, absOnly = 0;   // r61-U：空心之地分「相关」与纯「不在」二类，各书其句
   for (const [pid, slot] of related) {
     const pl = PLACES[pid];
-    if (!slot.hasVisit && pl && pl.lat != null && pl.lng != null) relOnly++;
+    if (!slot.hasVisit && pl && pl.lat != null && pl.lng != null) { if (slot.hasRelated) relOnly++; else absOnly++; }
   }
   $("#map-status").textContent = (traj.length >= 2
     ? "亲至轨迹共 " + traj.length + " 站，" + yearLabel(traj[0].events[0].year_bce) + " 起。"
     : traj.length === 1
       ? "亲至可考一地：" + traj[0].placeNames.join("、") + "。"
-      : "该人物暂无可落图的亲至地点。") + (relOnly ? RELATED_PLACE_NOTE(relOnly) : "");
+      : "该人物暂无可落图的亲至地点。") + (relOnly ? RELATED_PLACE_NOTE(relOnly) : "") +
+    (absOnly ? ABSENT_PLACE_NOTE(absOnly) : "");
   const btn = $("#btn-play");
   setPlayDegrade("single", traj.length < 2); // 落点<2：播放按钮替换为静态降级说明
   btn.onclick = () => toggleSinglePlay(traj, anchors, theme);
@@ -2455,7 +2481,7 @@ function buildPlaceContent(pl, evts) {
     const ul = document.createElement("ul");
     for (const e of evts) {
       const li = document.createElement("li");
-      li.textContent = yearLabel(e.year_bce) + " " + e.title + (e.presence === "相关" ? "（相关）" : "");
+      li.textContent = yearLabel(e.year_bce) + " " + e.title + (isPresent(e.presence) ? "" : "（" + presenceOf(e.presence) + "）");
       ul.appendChild(li);
     }
     const d = document.createElement("dd"); d.appendChild(ul); dl.appendChild(d);
@@ -3140,13 +3166,13 @@ function initComparePicker(btnSel, pickSel) {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pick.hidden) close(); });
 }
 
-/* 某人「亲至且在世」的事件（供检测与轨迹）：presence≠相关；并按 person 生卒年做生死过滤
+/* 某人「亲至且在世」的事件（供检测与轨迹）：在场之谓词 isPresent（r61-U：「相关」「不在」俱不计）；并按 person 生卒年做生死过滤
  * ——护栏①：生死过滤以 person 生卒年为准（子文卒后被追叙者，death_year 之后的记载不计）。 */
 function personParts(pid) {
   const p = PEOPLE[pid] || {};
   const d = p.death_year_bce, b = p.birth_year_bce;
   return personEvents(pid).filter(e => {
-    if (e.presence === "相关") return false;
+    if (!isPresent(e.presence)) return false;
     if (d != null && e.year_bce > d) return false; // 已卒之后：追叙，不在场
     if (b != null && e.year_bce < b) return false; // 未生
     return true;
@@ -5080,12 +5106,8 @@ function relDetailBody(rels, pid, beforeNav) {
  *   日后两处必分叉；且一级挂链多至数十条，抽屉会被它淹掉而关系反居其后。其时间线之钮已在操作行，不重设。
  * ★ presence 之签：形同时间线 eventChipsNode 之 personal 签（亲至 rel-high；「相关」rel-low），字取数据之值；
  *   「不在」照 conventions §6（v1.27 c）「前端展示暂同相关」取 rel-low。提示之语照 eventPeopleNode 既有之注：
- *   「相关」＝史文无其在场明文——**不得写成或暗示「不在场」**（§6／§7）。 */
-const PRESENCE_TIP = {
-  "亲至": "亲至：史文明书其在事发地",
-  "相关": "相关：史文无其在场明文",
-  "不在": "不在：史文正面明书其不在事发地",
-};
+ *   「相关」＝史文无其在场明文——**不得写成或暗示「不在场」**（§6／§7）。
+ *   〔r61-U：PRESENCE_TIP 一表与在场之谓词 isPresent 已移至文件前部「presence 三值」一节，全站共用。〕 */
 function relEventsNode(pid, beforeNav) {
   const evts = personEvents(pid);
   const sec = document.createElement("section");
@@ -5120,7 +5142,7 @@ function relEventsNode(pid, beforeNav) {
     t.textContent = e.title;
     b.appendChild(y);
     b.appendChild(t);
-    addChip(b, e.presence, e.presence === "亲至" ? "rel-high" : "rel-low");
+    addChip(b, e.presence, isPresent(e.presence) ? "rel-high" : "rel-low");
     b.lastChild.title = PRESENCE_TIP[e.presence] || e.presence;
     b.addEventListener("click", () => { if (beforeNav) beforeNav(); goSearchEvent(e.id, null); });
     li.appendChild(b);
