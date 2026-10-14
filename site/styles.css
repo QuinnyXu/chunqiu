@@ -1713,6 +1713,20 @@ button.chron-chip[aria-pressed="true"] {
 .lib-item strong { display: block; font-family: var(--serif); }
 .lib-sub { font-size: 0.75rem; color: var(--ink-soft); }
 .lib-empty { padding: 0.8rem; color: var(--ink-soft); }
+/* r61-N 资料库「人物」签：一级之标——暖赭细框小签，与 .chip 同一胶囊语言而更小，不用徽记（徽记是一级「人」之锚，此处只标其级） */
+.lib-proto-mark {
+  display: inline-block;
+  margin-left: 0.45rem;
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  font-weight: normal;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--ochre);
+  color: var(--ochre);
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  vertical-align: 0.12em;
+}
 .lib-detail { flex: 1 1 auto; min-width: 0; }
 .lib-detail a { color: var(--ochre); }
 /* 手机端资料详情「返回列表」（桌面双栏隐藏，布局零变化，Xiangtao 反馈 4） */
@@ -1902,6 +1916,32 @@ button.chron-chip[aria-pressed="true"] {
 .rel-meta { margin-top: 0.2rem; }
 .rel-note { font-size: 0.72rem; color: var(--ink-soft); }
 .rel-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.7rem 0 0; }
+/* r61-N 关系详情「所系之事」：内嵌右卡与全屏抽屉共用（relEventsNode） */
+.rel-evts { margin-top: 0.8rem; border-top: 1px solid var(--line); padding-top: 0.5rem; }
+.rel-evts h4 { margin: 0 0 0.3rem; font-family: var(--serif); font-size: 0.9rem; letter-spacing: 0.06em; }
+.rel-evts-note { font-size: 0.8rem; color: var(--ink-soft); margin: 0; }
+.rel-evt-list { list-style: none; margin: 0; padding: 0; }
+.rel-evt-list li + li { border-top: 1px dashed var(--line); }
+.rel-evt {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 34px;
+  font: inherit;
+  font-size: 0.84rem;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--ink);
+  padding: 0.35rem 0.2rem;
+  cursor: pointer;
+}
+.rel-evt:hover { background: rgba(180, 101, 47, 0.07); }
+.rel-evt-year { flex: 0 0 auto; min-width: 3.4em; font-size: 0.74rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.rel-evt-title { flex: 1 1 auto; min-width: 0; font-family: var(--serif); }
+.rel-evt .chip { flex: 0 0 auto; margin: 0; }
+.rel-evt[data-presence="相关"] .chip, .rel-evt[data-presence="不在"] .chip { border-style: dashed; }
 .rel-actions button {
   font: inherit;
   font-size: 0.8rem;
@@ -2128,6 +2168,8 @@ button.chron-chip[aria-pressed="true"] {
   .lib-layout { flex-direction: column; }
   .lib-list { flex-basis: auto; width: 100%; max-height: 45vh; }
   #lib-search { flex: 1 1 auto; min-width: 0; width: 100%; }
+  /* r61-N：四签于 375 宽一行容不下（实测），许其折行，不横溢 */
+  .lib-tabs { flex-wrap: wrap; }
   /* 手机端详情内「返回列表」：醒目、吸顶于详情区，点击滚回原卡片 */
   .lib-back {
     display: block;

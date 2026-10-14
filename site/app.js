@@ -363,7 +363,9 @@ const PERSON_VIEWS = ["timeline", "map", "relations"];
  *   `buildHash` 三处各写一遍，添一个视图即须三处同改——漏一处之果是**旧链不通或新链读不回**，
  *   且三处皆不报错，静默失效。今三处同取此一本，新增视图只入一次。 */
 const GLOBAL_VIEWS = ["relations", "about", "chronicle", "tenures"];
-const LIB_TABS = ["background", "archaeology", "sources"];
+/* r61-N：增「people」一签（裁二百二十二 ①-2：站长所命「资料库显示二级」即此）。
+ * 置于末位：默认签仍是 background（buildHash 省其段），旧链 `#/library`、`#/library/sources` 一字不变。 */
+const LIB_TABS = ["background", "archaeology", "sources", "people"];
 
 function legacyToNewHash(h) {
   const o = {};
@@ -4016,10 +4018,62 @@ function renderLibrary() {
   });
   const input = $("#lib-search");
   if (input.value !== state.q) input.value = state.q;
+  input.placeholder = state.tab === "people" ? LIB_PEOPLE_PLACEHOLDER : "关键词过滤…";
   renderLibList();
+}
+/* ---------- 资料库「人物」签（r61-N；裁二百二十二 ①-2） ----------
+ * 全库一表：名、国（people.state）、身份（people.role）、所系事数、一级之标。
+ * ★ 点入即走，不开详情：一级 → 其时间线；二级 → 其关系页（ego），其「所系之事」列在关系详情之末
+ *   （见 relEventsNode）。落法一律调 goSearchPerson——全站搜索人物组、考据之链已用此式，**不另立一判**。
+ * ★ 检索面收窄为名、别名、国、身份四栏：他签逐栏全文检，而人物行之 notes／relations 是长篇考订，
+ *   检「晋」会把只在注文里提到晋的齐人、楚人一并捞出——「按国筛」即于此框书国名，故须只检这四栏。
+ * ★ 事数＝其人 event_people 行数（与抽屉「所系之事」之条数同一出处，见 libPeopleEvtN）。
+ * 次序：分区（panoStateKey，与首页分区、全景环同一函数）依 STATE_ORDER，未列之国随后按字序；
+ *   区内一级在前（依名册序）、二级随后（依 id）——一律可复算，不靠数据行序。 */
+const LIB_PEOPLE_PLACEHOLDER = "名、国或身份，如「晋」";
+function libPeopleEvtN() {
+  const n = new Map();
+  for (const l of DATA.event_people) n.set(l.person_id, (n.get(l.person_id) || 0) + 1);
+  return n;
+}
+function libPeopleRows(q) {
+  const ord = (p) => { const k = panoStateKey(p), i = STATE_ORDER.indexOf(k); return [i < 0 ? STATE_ORDER.length : i, k]; };
+  const rows = [...DATA.people].sort((a, b) => {
+    const [ia, ka] = ord(a), [ib, kb] = ord(b);
+    return (ia - ib) || ka.localeCompare(kb) ||
+      (isProto(b.id) - isProto(a.id)) || (protoRank(a.id) - protoRank(b.id)) || a.id.localeCompare(b.id);
+  });
+  if (!q) return rows;
+  return rows.filter(p => [p.name, p.alt_names, p.state, p.role].filter(Boolean).join(" ").toLowerCase().includes(q));
+}
+/* 自人物签切回他签：说明栏复归 index.html 之静态初态（其文与之逐字同），不留人物签之说明 */
+function libDetailReset(panel) {
+  delete panel.dataset.hint;
+  panel.textContent = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = "条目详情";
+  const p = document.createElement("p");
+  p.className = "map-status";
+  p.textContent = "从左侧选一条资料。";
+  panel.appendChild(h3);
+  panel.appendChild(p);
+}
+function libPeopleHint(panel) {
+  panel.dataset.hint = "people";
+  panel.textContent = "";
+  const h3 = document.createElement("h3");
+  h3.textContent = "人物";
+  const p = document.createElement("p");
+  p.className = "map-status";
+  const n1 = DATA.people.filter(r => isProto(r.id)).length;
+  p.textContent = "全库 " + DATA.people.length + " 人：一级 " + n1 + "、二级 " + (DATA.people.length - n1) + "。" +
+    "点一人即入——一级入其时间线；二级入其关系页，其所系之事列于关系详情之末。";
+  panel.appendChild(h3);
+  panel.appendChild(p);
 }
 function libRows() {
   const q = state.q.trim().toLowerCase();
+  if (state.tab === "people") return libPeopleRows(q);
   const rows = DATA[state.tab] || [];
   if (!q) return rows;
   return rows.filter(r =>
@@ -4032,6 +4086,8 @@ function renderLibList() {
   const list = $("#lib-list");
   list.textContent = "";
   const rows = libRows();
+  if (state.tab === "people") libPeopleHint($("#lib-detail"));
+  else if ($("#lib-detail").dataset.hint === "people") libDetailReset($("#lib-detail"));
   if (!rows.length) {
     const li = document.createElement("li");
     li.className = "lib-empty";
@@ -4039,6 +4095,7 @@ function renderLibList() {
     list.appendChild(li);
     return;
   }
+  let evtN = null;   // 人物签之事数表，惰性建一次
   for (const r of rows) {
     const li = document.createElement("li");
     const b = document.createElement("button");
@@ -4053,6 +4110,19 @@ function renderLibList() {
     } else if (state.tab === "archaeology") {
       title.textContent = r.site;
       sub.textContent = [r.related_state, r.period, r.certainty].filter(Boolean).join(" · ");
+    } else if (state.tab === "people") {
+      const n = (evtN || (evtN = libPeopleEvtN())).get(r.id) || 0;
+      b.classList.add("lib-person");
+      b.dataset.proto = isProto(r.id) ? "1" : "0";
+      title.textContent = r.name;
+      if (isProto(r.id)) {
+        const mk = document.createElement("span");
+        mk.className = "lib-proto-mark";
+        mk.textContent = "一级";
+        title.appendChild(mk);
+      }
+      sub.textContent = [r.state, r.role, "所系之事 " + n].filter(Boolean).join(" · ");
+      b.title = isProto(r.id) ? "入其时间线" : "入其关系页（二级人物无个人时间线与地图，所系之事列于关系详情）";
     } else {
       title.textContent = r.title;
       sub.textContent = [srcTypeOf(r.id), r.section].filter(Boolean).join(" · ");
@@ -4060,7 +4130,8 @@ function renderLibList() {
     b.appendChild(title);
     b.appendChild(sub);
     b.dataset.libId = r.id;               // 身份标记：供搜索落锚按 id 取节点（design_notes §7.1 相一）
-    b.addEventListener("click", () => showLibDetail(r, b));
+    if (state.tab === "people") b.addEventListener("click", () => goSearchPerson(r.id));
+    else b.addEventListener("click", () => showLibDetail(r, b));
     li.appendChild(b);
     list.appendChild(li);
   }
@@ -4945,7 +5016,7 @@ function relDetailTitle(rels, pid) {
 /* 关系详情正文（姓名行＋小传＋关系列表＋并线说明），不含标题与操作按钮。
  * 内嵌右侧卡片（#rel-panel）与全屏底部抽屉共用此函数，确保两处内容严格一致：
  * 多重关系全部列出、rel_label、可靠度、依据（source_note）。 */
-function relDetailBody(rels, pid) {
+function relDetailBody(rels, pid, beforeNav) {
   const frag = document.createDocumentFragment();
   if (pid && PEOPLE[pid]) {
     // 人物详情姓名行：完整形式（如 管仲 → 姬姓管氏，名夷吾，字仲）
@@ -4995,7 +5066,68 @@ function relDetailBody(rels, pid) {
     note.textContent = "两人的多重关系在图上并为一线、以数字徽记标记；连线虚线表示所列关系可靠度皆为中/低，实线表示至少一条为 high。";
     frag.appendChild(note);
   }
+  if (pid && PEOPLE[pid]) frag.appendChild(relEventsNode(pid, beforeNav));
   return frag;
+}
+/* 「所系之事」（r61-N；裁二百二十二 ①-3：补「点二级只见关系、不见其事」之缺）。
+ * 内嵌右卡与全屏抽屉同经 relDetailBody 而至，故两处同形；beforeNav 只在抽屉一路传入（先退全屏再跳）。
+ * ★ 二级：列其所挂之事——年、题、presence 之签，按全站同一 evtCompare（year_bce, sort_key, id）排；
+ *   条数＝其 event_people 行数。⚠ personEvents 以事去重，而 validate.py **不禁**同一（事, 人）二行——今库重对为 0
+ *   （2026-10-14 实测）；他日若有，此处并为一条而资料库人物签之事数计二，tools/qa/vision_r61n.js 断二数相等，当场报差。
+ *   点一事落编年并展开其卡
+ *   （goSearchEvent，全站搜索事件组之落法，不另立）。
+ * ★ 一级：**只书其数、不列**——一级之事自有时间线（含原文、地图之亲至轨迹），抽屉再列一遍是第二份呈现，
+ *   日后两处必分叉；且一级挂链多至数十条，抽屉会被它淹掉而关系反居其后。其时间线之钮已在操作行，不重设。
+ * ★ presence 之签：形同时间线 eventChipsNode 之 personal 签（亲至 rel-high；「相关」rel-low），字取数据之值；
+ *   「不在」照 conventions §6（v1.27 c）「前端展示暂同相关」取 rel-low。提示之语照 eventPeopleNode 既有之注：
+ *   「相关」＝史文无其在场明文——**不得写成或暗示「不在场」**（§6／§7）。 */
+const PRESENCE_TIP = {
+  "亲至": "亲至：史文明书其在事发地",
+  "相关": "相关：史文无其在场明文",
+  "不在": "不在：史文正面明书其不在事发地",
+};
+function relEventsNode(pid, beforeNav) {
+  const evts = personEvents(pid);
+  const sec = document.createElement("section");
+  sec.className = "rel-evts";
+  sec.dataset.pid = pid;
+  const h4 = document.createElement("h4");
+  h4.textContent = "所系之事（" + evts.length + "）";
+  sec.appendChild(h4);
+  if (isProto(pid)) {
+    sec.classList.add("is-proto");
+    const p = document.createElement("p");
+    p.className = "rel-evts-note";
+    p.textContent = "一级人物之事按年铺于其时间线，亲至者并落其地图。";
+    sec.appendChild(p);
+    return sec;
+  }
+  if (!evts.length) return sec;
+  const ul = document.createElement("ul");
+  ul.className = "rel-evt-list";
+  for (const e of evts) {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "rel-evt";
+    b.dataset.eid = e.id;
+    b.dataset.presence = e.presence;
+    const y = document.createElement("span");
+    y.className = "rel-evt-year";
+    y.textContent = yearLabel(e.year_bce);
+    const t = document.createElement("span");
+    t.className = "rel-evt-title";
+    t.textContent = e.title;
+    b.appendChild(y);
+    b.appendChild(t);
+    addChip(b, e.presence, e.presence === "亲至" ? "rel-high" : "rel-low");
+    b.lastChild.title = PRESENCE_TIP[e.presence] || e.presence;
+    b.addEventListener("click", () => { if (beforeNav) beforeNav(); goSearchEvent(e.id, null); });
+    li.appendChild(b);
+    ul.appendChild(li);
+  }
+  sec.appendChild(ul);
+  return sec;
 }
 function showRelDetail(rels, pid) {
   rels = sortRelsByType(rels);
@@ -5044,7 +5176,7 @@ function showRelDetail(rels, pid) {
 function showRelDetailDrawer(rels, pid) {
   rels = sortRelsByType(rels);
   const wrap = document.createElement("div");
-  wrap.appendChild(relDetailBody(rels, pid));
+  wrap.appendChild(relDetailBody(rels, pid, () => { closeDrawer(); closeRelOverlay(); }));
   const acts = document.createElement("p");
   acts.className = "rel-actions";
   // 并观入口（r16）：全屏抽屉内的成对卡同样提供「并观其迹」（先退出全屏再进并观）

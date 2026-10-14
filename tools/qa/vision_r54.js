@@ -748,7 +748,12 @@ async function snapshot(br, base, hash, sel, w, h) {
       { tag: "甲", X: "旧版：资料库页首（标题 #library-title 之后）无账本句",
         Y: "恰一个 <p class=\"vs-ledger-note\" id=\"vs-note-library\">，紧随 #library-title 之后，其文＝自 json 另路复算之覆盖句",
         Z: "r60-B 续（42f6b72，裁二百〇三 五②：记号既将现于资料库，其句须随之至）；补语 r60-I（0e15a26）",
-        html: LEDGER_P("vs-note-library"), anchor: (old) => endOf(old, 'id="library-title"', "</h2>") }],
+        html: LEDGER_P("vs-note-library"), anchor: (old) => endOf(old, 'id="library-title"', "</h2>") },
+      { tag: "乙", X: "旧版：资料库页签三枚（历史背景、考古线索、来源文献），「来源文献」钮为末枚",
+        Y: "恰一个 <button type=\"button\" role=\"tab\" data-tab=\"people\" aria-selected=\"false\">人物</button>，紧随「来源文献」钮之后（默认签仍为历史背景，故其 aria-selected 为 false）",
+        Z: "r61-N（裁二百二十二 ①-2：站长所命「资料库显示二级」即资料库加「人物」一签）",
+        html: '<button type="button" role="tab" data-tab="people" aria-selected="false">人物</button>',
+        anchor: (old) => endOf(old, 'data-tab="sources"', "</button>") }],
     "#/p/P_WENJIANG/timeline": [
       { tag: "甲", X: "旧版：人物时间线页首（姓名行 #timeline-nameline 之后）无账本句",
         Y: "恰一个 <p class=\"vs-ledger-note\" id=\"vs-note-timeline\">，紧随 #timeline-nameline 之后，其文＝自 json 另路复算之覆盖句",
