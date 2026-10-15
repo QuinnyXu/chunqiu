@@ -1,3 +1,6 @@
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 报成——★ 本门只报不判（无断言），故**无退出码 1**；2 ＝ 本门自身出错（`.catch` 出）。★ r61-T 改：`.catch` 原以 1 退，今改 2。
+ */
 "use strict";
 // 〔r61-H 升降一笔·样本改代〕介之推降二级（裁二百一十五 ④），不再属 PROTAGONISTS，#/p/P_JIEZHITUI/… 已不可达。
 //   本脚本以 P_JIEZHITUI 为样本之处，一律改取晋一级之晋文公（P_JINWEN）：三贤样本、亲至轨迹、ego 图、时间线页（E093／E095／E185 俱挂晋文公）。
@@ -283,4 +286,4 @@ const H = (t) => say("\n===== " + t + " =====");
 
   fs.writeFileSync(path.join(OUT, "r22_report.txt"), log.join("\n"), "utf8");
   await b.close(); if (s) s.close();
-})().catch(e => { console.error(e); process.exit(1); });
+})().catch(e => { console.error(e); process.exit(2); });

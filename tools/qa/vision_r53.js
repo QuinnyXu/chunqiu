@@ -26,6 +26,9 @@
  *
  * 用法：node tools/qa/vision_r53.js
  */
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过；1 ＝ 判红（任一 ✗）；2 ＝ 本门自身出错（锚定失效之 throw、页面驱动抛错，`.catch` 出）。★ r61-T 改：`.catch` 原以 1 退，与判红混同——今改 2。
+ */
 "use strict";
 const http = require("http"), fs = require("fs"), path = require("path");
 const { execFileSync } = require("child_process");
@@ -911,4 +914,4 @@ const SWEEP = `(cols) => {
 
   console.log("\n=== 合计 " + checks + " 项，FAIL " + fails + " ===");
   process.exit(fails ? 1 : 0);
-})().catch(e => { console.error(e); process.exit(1); });
+})().catch(e => { console.error(e); process.exit(2); });

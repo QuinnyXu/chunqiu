@@ -21,6 +21,9 @@
  * 用法：node tools/qa/vision_r51.js [--shots]
  *   --shots  另存截图入 tools/qa/screenshots/（Q442 一卡 ＋ 143 个落点之逐屏走查底片）
  */
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过；1 ＝ 判红（任一 ✗）；2 ＝ 本门自身出错（锚定失效、页面驱动抛错，`.catch` 出）。★ r61-T 改：`.catch` 原以 1 退，与判红混同——今改 2。
+ */
 "use strict";
 const http = require("http"), fs = require("fs"), path = require("path"), zlib = require("zlib");
 const { execFileSync } = require("child_process");
@@ -79,6 +82,31 @@ const VS_EXPECT = new Set(VMARKS.filter(e => e.table === "passages" && e.col ===
 const BT_RE = /`[^`]+`/g;
 const BT_EXPECT = new Set(PASSAGES.filter(q => (q.modern_note || "").match(BT_RE)).map(q => q.id));
 const BT_SPANS = PASSAGES.reduce((a, q) => a + ((q.modern_note || "").match(BT_RE) || []).length, 0);
+
+/* ---------- r61-T 校基线（裁二百二十七 三3、裁二百二十五 ②㈠）：暂绿之写死数改为另路之期 ----------
+ *   旧：层标 9 行 20 处、页脚 137 行 1201 处、合计 146／1221、含星号之卡 137、粗体段总数 1221——俱 r51 当日（5f87d39）之数，
+ *       至今恰等（passages 之星号未增）故绿；库一增星号即红，红的是量具之数，不是站。
+ *   新：期望由本节 `starScan` 自 site/data/passages.json 算出（Node 端，不取被测页之 mdBoldFrag／splitCaveat）：
+ *       · 星号成对之口径照 conventions §7 ⚑H ⑤款——**只计长度恰为 2 之星号游程，顺序两两成对，奇数之末一枚弃**；
+ *       · 层标之切照 r32 层标之文例：注文以「【…】」起首者，其括内为层标、括后（去其后空白）为页脚；否则全为页脚。
+ *   ★ 独立实现须自证（测具互验，同 r53 refScan 之例）：施于 r51 提交 5f87d39 当日之 passages.json，须逐项复现
+ *     r51 所立之数 9／20、137／1201、146／1221、137——此数是**对该提交之断言**（裁二百二十五 ②㈡），不漂。 */
+function starScan(passages) {
+  const pairs = (s) => Math.floor([...(s || "").matchAll(/\*+/g)].filter(m => m[0].length === 2).length / 2);
+  const st = { cavRows: 0, cavPairs: 0, restRows: 0, restPairs: 0, rows: new Set() };
+  for (const q of passages) {
+    const note = q.modern_note || "", m = /^【([^】]+)】\s*/.exec(note);
+    const cav = m ? m[1] : "", rest = m ? note.slice(m[0].length) : note;
+    const a = pairs(cav), b = pairs(rest);
+    if (a) { st.cavRows++; st.cavPairs += a; st.rows.add(q.id); }
+    if (b) { st.restRows++; st.restPairs += b; st.rows.add(q.id); }
+  }
+  return { cavRows: st.cavRows, cavPairs: st.cavPairs, restRows: st.restRows, restPairs: st.restPairs, rows: st.rows.size, total: st.cavPairs + st.restPairs };
+}
+const STAR = starScan(PASSAGES);
+let Q504_STARS = null, Q504_PAIRS = null, Q504_ODD_ROWS = null;
+const STAR_R51_REF = "5f87d39";   // r51 之提交（⚑H 丙案落地），其当日之数为 r51 所立
+const STAR_R51 = starScan(JSON.parse(execFileSync("git", ["show", STAR_R51_REF + ":site/data/passages.json"], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString("utf8")));
 
 /* ---------- PNG 解码与墨量（只为「加粗可辨」出一个数，不看截图反推） ---------- */
 function decodePNG(buf) {
@@ -219,8 +247,12 @@ const COLLECT = `() => {
       cav: caveat.slice(0, 12),
     };
   });
-  ok(q504.stars === 13, "Q504 原串星号共 13 个（奇数，现库唯一）", String(q504.stars));
-  ok(q504.strongs === 3, "其中成对者 3 对成粗体", String(q504.strongs));
+  // r61-T：样本之数改另路——Q504 之星号总数与成对之数自 passages.json 算（Node 端，口径同 starScan），旧写死 13／3（r51 当日）
+  { const n504 = (PASSAGES.find(p => p.id === "Q504") || {}).modern_note || "", m504 = /^【([^】]+)】\s*/.exec(n504), r504 = m504 ? n504.slice(m504[0].length) : n504;
+    Q504_STARS = (n504.match(/\*/g) || []).length; Q504_PAIRS = Math.floor([...r504.matchAll(/\*+/g)].filter(m => m[0].length === 2).length / 2);
+    Q504_ODD_ROWS = PASSAGES.filter(p => ((p.modern_note || "").match(/\*/g) || []).length % 2).length; }
+  ok(q504.stars === Q504_STARS && Q504_STARS % 2 === 1, "Q504 原串星号共 " + Q504_STARS + " 个（奇数；现库星号奇数之条 " + Q504_ODD_ROWS + "）", String(q504.stars));
+  ok(q504.strongs === Q504_PAIRS, "其中成对者 " + Q504_PAIRS + " 对成粗体", String(q504.strongs));
   ok(q504.keepsLone, "落单之单星原样留在文本里（`{{*|…}}` 未被吃掉）");
   ok(q504.back, "Q504 往返还原逐字全等");
 
@@ -280,9 +312,14 @@ const COLLECT = `() => {
     return { bad, cavRows: stat.cavRows, cavPairs: stat.cavPairs, restRows: stat.restRows, restPairs: stat.restPairs, rows: stat.rows.size };
   });
   ok(r3.bad.length === 0, PASSAGES_N + " 条 × 两半（层标／页脚）往返还原逐字全等（期望取 passages.json 行数；旧写死 509）", r3.bad.length ? JSON.stringify(r3.bad.slice(0, 3)) : "零不符");
-  ok(r3.cavRows === 9 && r3.cavPairs === 20, "层标落点：9 行 20 处（对任务书 §六实读值）", r3.cavRows + " 行 " + r3.cavPairs + " 处");
-  ok(r3.restRows === 137 && r3.restPairs === 1201, "页脚落点：137 行 1201 处（任务书 §六实读值 134 行 1197 处系合入 round51_peijue 批丙〔+3 passages，Q524–Q526〕之前之基线；该三行 modern_note 亦含成对 `**`〔各 1／1／2 对〕，合入后一并实渲，+3 行 +4 处系本批扩表所致之预期内联动，非本件所生）", r3.restRows + " 行 " + r3.restPairs + " 处");
-  ok(r3.cavRows + r3.restRows === 146 && r3.cavPairs + r3.restPairs === 1221, "本轮范围合计 146 落点 1221 处（任务书 §六原记 143 落点 1217 处，+3／+4 系批丙合入后之预期内联动，见上条）", (r3.cavRows + r3.restRows) + " / " + (r3.cavPairs + r3.restPairs));
+  // r61-T：测具互验——starScan 施于 r51 当日之 passages.json，须复现 r51 所立之数（对该提交之断言，不漂）
+  ok(STAR_R51.cavRows === 9 && STAR_R51.cavPairs === 20 && STAR_R51.restRows === 137 && STAR_R51.restPairs === 1201 &&
+     STAR_R51.rows === 137 && STAR_R51.total === 1221,
+     "〔测具互验〕另路之 starScan 施于 r51 提交 " + STAR_R51_REF + " 当日之 passages.json，复现 r51 所立之 9／20、137／1201、146／1221、137",
+     JSON.stringify(STAR_R51));
+  ok(r3.cavRows === STAR.cavRows && r3.cavPairs === STAR.cavPairs, "层标落点：" + STAR.cavRows + " 行 " + STAR.cavPairs + " 处（期望另路自 passages.json 算；旧写死 9／20，r51 当日之数）", r3.cavRows + " 行 " + r3.cavPairs + " 处");
+  ok(r3.restRows === STAR.restRows && r3.restPairs === STAR.restPairs, "页脚落点：" + STAR.restRows + " 行 " + STAR.restPairs + " 处（期望另路自 passages.json 算；旧写死 137／1201，r51 当日之数，其前史：任务书 §六 134／1197 系批丙合入前之基线）", r3.restRows + " 行 " + r3.restPairs + " 处");
+  ok(r3.cavRows + r3.restRows === STAR.cavRows + STAR.restRows && r3.cavPairs + r3.restPairs === STAR.total, "本轮范围合计 " + (STAR.cavRows + STAR.restRows) + " 落点 " + STAR.total + " 处（期望另路；旧写死 146／1221）", (r3.cavRows + r3.restRows) + " / " + (r3.cavPairs + r3.restPairs));
 
   /* ================= §四 新旧两版逐卡对读 ================= */
   console.log("\n【四】新旧两版逐卡对读（旧版＝" + OLD_REF + " 之 app.js/styles.css，同一份 site/data/）");
@@ -348,7 +385,7 @@ const COLLECT = `() => {
   const cOK = codeSetOK(newCards), vOK = vsSetOK(newCards);
   ok(cOK.ok, "②期望之核：今版现 <code class=md-name> 之卡集＝passages.json 中 modern_note 含成对反引号之卡集（" + BT_EXPECT.size + " 卡），总枚数＝其反引号总对数（" + BT_SPANS + "）", cOK.cards + " 卡／" + cOK.spans + " 枚");
   ok(vOK.ok, "③期望之核：今版现核对记号行之卡集＝verify_marks.json 推得之卡集（" + VS_EXPECT.size + " 卡），且每卡至多一枚", vOK.cards + " ／ " + VS_EXPECT.size);
-  ok(starIds.size === 137, "含星号之卡（按行计）137 张（批丙 Q524–Q526 三行 modern_note 亦含成对 `**`，+3 系本批扩表所致之预期内联动，非本件所生）", String(starIds.size));
+  ok(starIds.size === STAR.rows, "含星号之卡（按行计）" + STAR.rows + " 张（期望另路自 passages.json 算；旧写死 137）", String(starIds.size));
 
   /* ---- 〔反证〕r56 款：对已取之真数据注入同型之病，每类须使对读当场红；不红＝量具作假 ---- */
   const proofCard = (label, pick, mut) => {
@@ -437,7 +474,7 @@ const COLLECT = `() => {
    * （粗体覆盖率逼近满格＝页面上一整条注文全是粗的，那才是真「喧宾」）。
    * 三样俱零，加上 §三之往返还原，146 个落点就是逐个核过的，不是抽样看过的
    * （任务书原记 143 落点 1217 处系合入 round51_peijue 批丙之前之基线，+3／+4 系该批扩表所致之预期内联动）。 */
-  console.log("\n【五之二】全库粗体段普查（1221 处逐处，不抽样）");
+  console.log("\n【五之二】全库粗体段普查（" + STAR.total + " 处逐处，不抽样）");
   const cen = await page.evaluate(() => {
     const lens = [], empty = [], resid = [], hot = [];
     for (const q of DATA.passages) {
@@ -461,7 +498,7 @@ const COLLECT = `() => {
     return { n: lens.length, min: lens[0], med: lens[lens.length >> 1], max: lens[lens.length - 1], empty, resid, hot };
   });
   console.log("    段长 最短 " + cen.min + " / 中位 " + cen.med + " / 最长 " + cen.max + " 字");
-  ok(cen.n === 1221, "粗体段总数 1221（任务书原记 1217 处系合入 round51_peijue 批丙之前之基线，+4 系该批三行 Q524–Q526 modern_note 亦含成对 `**` 所致之预期内联动，非本件所生）", String(cen.n));
+  ok(cen.n === STAR.total, "粗体段总数 " + STAR.total + "（期望另路自 passages.json 算；旧写死 1221）", String(cen.n));
   ok(cen.empty.length === 0, "无空粗体段（`****` 不造空 strong）", cen.empty.slice(0, 5).join("、") || "零");
   ok(cen.resid.length === 0, "无粗体段内残留单星（切分未把星号吞进内容）", cen.resid.slice(0, 5).join("、") || "零");
   ok(cen.hot.length === 0, "无「整段皆粗」之落点（粗体覆盖率 >75% 者）", cen.hot.length ? JSON.stringify(cen.hot.slice(0, 5)) : "零；最重者为九条层标，实测 62%（Q447）");
@@ -579,4 +616,4 @@ const COLLECT = `() => {
   console.log("\n=== 合计 " + checks + " 项，红 " + fails + " 项 ===");
   await browser.close(); sNew.close(); sOld.close();
   process.exit(fails ? 1 : 0);
-})().catch(e => { console.error(e); process.exit(1); });
+})().catch(e => { console.error(e); process.exit(2); });

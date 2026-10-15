@@ -1,3 +1,6 @@
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 报成——★ 本门只报不判（无断言），故**无退出码 1**；2 ＝ 本门自身出错（`.catch` 出）。★ r61-T 改：`.catch` 原以 1 退，今改 2。
+ */
 "use strict";
 // r21 补测：夏姬 2 站轨迹的播放实跑、并观回归、资料库新来源、宋襄公×楚成王并观
 const http = require("http"), fs = require("fs"), path = require("path");
@@ -76,4 +79,4 @@ function srv(root) { return new Promise((res, rej) => { const s = http.createSer
   console.log("[关于页措辞]", JSON.stringify(about));
   console.log("页面错误：", errs.length ? errs.join(" | ") : "无");
   await b.close(); s.close();
-})().catch(e => { console.error(e); process.exit(1); });
+})().catch(e => { console.error(e); process.exit(2); });

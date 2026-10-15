@@ -16,6 +16,9 @@
  *
  * 用法：node tools/qa/vision_r46.js [baseURL]   默认 http://127.0.0.1:8791
  */
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过；1 ＝ 判红（任一 ✗）；2 ＝ 本门自身出错（`.catch` 出；已知之因：未先于 8791 起 `python -m http.server`〔ERR_CONNECTION_REFUSED〕、浏览器起不来）。
+ */
 "use strict";
 const { chromium } = require("playwright");
 /* r51 顺带修正：下文两处截图原写相对路径 "tools/qa/screenshots/…"，那只有在**仓库根**

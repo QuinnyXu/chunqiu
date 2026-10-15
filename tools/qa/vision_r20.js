@@ -1,3 +1,6 @@
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 报成——★ 本门只报不判（印所量之数与截图，无断言），故**无退出码 1**；2 ＝ 本门自身出错（`.catch` 出）。★ r61-T 改：`.catch` 原以 1 退——只报之门以 1 退，读者即读作「判红」，今改 2。
+ */
 "use strict";
 // r20 Vision 自验：管仲上线（徽记/齐五阶/时间线T层/轨迹/ego/并观）＋21主角回归
 const http=require("http"),fs=require("fs"),path=require("path");
@@ -100,4 +103,4 @@ const PROTS=["P_WENJIANG","P_QIXIANG","P_QIHUAN","P_GUANZHONG","P_QIXI","P_LUYIN
   console.log("回归渲染=",rendered.length,"人；降级清单=",degraded.join("、")||"（无）");
   console.log("页面错误：",errs.length?errs.join(" | "):"无");
   await b.close();if(s)s.close();
-})().catch(e=>{console.error(e);process.exit(1);});
+})().catch(e=>{console.error(e);process.exit(2);});

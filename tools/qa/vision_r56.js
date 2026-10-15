@@ -170,6 +170,9 @@
  * 用法：node tools/qa/vision_r56.js
  *   · 不设 QA_BASE_URL → 自生产站 https://chunqiu.timechorus.com 取 `app.js`
  */
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过；1 ＝ 判红（任一 ✗）；2 ＝ 本门自身出错（`gatedie`：门之手抄解不开、取生产 `app.js` 不得——★ 已知之例：本机一时解析不到生产域名〔ENOTFOUND〕，复跑即过，勿补重试；及 `.catch` 出之余抛错）。
+ */
 "use strict";
 const http = require("http"), https = require("https"), fs = require("fs"), path = require("path");
 const crypto = require("crypto");

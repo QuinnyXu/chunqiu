@@ -68,6 +68,9 @@
  *
  * 用法：node tools/qa/vision_r55.js
  */
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过；1 ＝ 判红（任一 ✗）；2 ＝ 本门自身出错（门自检 `gateErrs`：前提不成、反证不红；锚定失效之 throw；`.catch` 出之余抛错）。
+ */
 "use strict";
 const http = require("http"), fs = require("fs"), path = require("path");
 const { execFileSync } = require("child_process");

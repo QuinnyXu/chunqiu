@@ -48,6 +48,9 @@
  *
  * 用法：node tools/qa/vision_r54.js
  */
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过；1 ＝ 判红（任一 ✗）；2 ＝ 本门自身出错——三路：① §五 按类反证有不红者（量具空转，压过 1）；② 锚定失效之 throw（OLD_REF 已非本件之前一版、名册块／版本句／图例源块找不到）；③ 余抛错（`process.exit(2)` 强退，免浏览器与源端未关而挂住，见文末 r54-7 之注）。
+ */
 "use strict";
 const http = require("http"), fs = require("fs"), path = require("path");
 const { execFileSync } = require("child_process");
@@ -98,8 +101,22 @@ function recomputeFromData() {
   const proto = new Set(people.filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
   const linked = new Set(links.filter(l => proto.has(l.person_id)).map(l => l.event_id));
   const orphan = events.filter(e => !linked.has(e.id)).length;
-  return { total: events.length, orphan, meta };
+  /* r61-T 校基线（裁二百二十五 ②㈠）：编年筛选条之二数，旧写死「按国 13／按类 17」——规模之数，库增一国一类即红。
+   *   今另路自 json 算：按类＝events.category 去重（空者归「其他」，同 app.js CHRON_OTHER）；
+   *   按国＝每事之地之 state 按字符序取首个国色家族名为组，无地或其地无 state 者归「无地望」，有 state 而无家族者归「其他」。
+   *   国色家族之名表系设计之常（design_notes §2.1 之十一族），于此另书；并于 §一 与 app.js 之 STATE_FAMILY_VAR 键集互验，
+   *   二者不合即红（名表不得默然脱节）。 */
+  const places = J("places"), PL = new Map(places.map(p => [p.id, p]));
+  const cats = new Set(events.map(e => e.category || "其他"));
+  const groups = new Set(events.map(e => {
+    const pl = e.place_id ? PL.get(e.place_id) : null, raw = pl ? (pl.state || "") : "";
+    if (!raw) return "无地望";
+    for (const ch of raw) if (STATE_FAMILIES.includes(ch)) return ch;
+    return "其他";
+  }));
+  return { total: events.length, orphan, meta, nCats: cats.size, nStates: groups.size };
 }
+const STATE_FAMILIES = ["齐", "鲁", "郑", "晋", "秦", "楚", "卫", "宋", "陈", "吴", "越"];
 
 async function pageOf(br, base, opts) {
   const o = opts || {};
@@ -135,6 +152,17 @@ async function pageOf(br, base, opts) {
   if (o.seed !== undefined) {   // 先落地同源，才写得进 localStorage
     await pg.goto(base, { waitUntil: "domcontentloaded" });
     await pg.evaluate((v) => { try { if (v === null) localStorage.removeItem("chunqiu_tour_v1"); else localStorage.setItem("chunqiu_tour_v1", v); } catch {} }, o.seed);
+    /* ★ r61-T 治 375 宽 `xs-note-N` 跑间不稳（裁二百二十八 五；r61-N 首跑见红 1、复跑绿）——其根在此一步之后：
+     *   旧式落根（domcontentloaded，boot 尚在 await 取数）之后**直接** goto `base + hash`——二址只差 hash，
+     *   故那一 goto 是**同文档**导航，不重载：boot 未毕而 hash 已改。若 hash 之改与 boot 末一 await
+     *   （`mapResp.text()`）之续落在同一任务，boot 先挂 hashchange 之听、再 `render()` 读到新 hash，
+     *   随后排队之 hashchange 又 `render()` 一次——时间线遂建两回姓名行，「姓氏有别」小注之 id 计数器
+     *   `xsSeq` 走到 2（`xs-note-2`），与旧版之 `xs-note-1` 逐位不等。
+     *   机制以确定之序复现过（令 hash 之改与 `text()` 之续同一任务：恒得 `xs-note-2`；整页新载：恒 `xs-note-1`），
+     *   见 `team/delivery_vision_r61-T.md`。自然发生须恰中其窗，故罕见（N 见一回；本轮探针 180 次未见）。
+     *   治其根：落记之后先离到 about:blank，再整页新载 `base + hash`——hash 自始即在，boot 期间不再有同文档之改，
+     *   竞态无从发生。断言一字不改；非重试、非把 id 归一（归一即掩其病）。 */
+    await pg.goto("about:blank");
   }
   await pg.goto(base + (o.hash || ""), { waitUntil: "networkidle" });
   await pg.waitForTimeout(o.settle == null ? 700 : o.settle);
@@ -504,6 +532,22 @@ async function snapshot(br, base, hash, sel, w, h) {
   const rosterBlock = (t) => { const i = t.indexOf("const PROTAGONISTS = ["), j = t.indexOf("];", i); if (i < 0 || j < 0) throw new Error("PROTAGONISTS 块找不到，停门"); return [i, j + 2]; };
   const [ni0, ni1] = rosterBlock(newApp), [oi0, oi1] = rosterBlock(oldApp);
   const oldAppRoster = oldApp.slice(0, oi0) + newApp.slice(ni0, ni1) + oldApp.slice(oi1);
+  /* r61-T 补断（裁二百二十七 三1 之条件：「只换名册一块」须机械可证）——换后之码与 OLD_REF 之码，除该块外逐字同；
+   *   且二块俱是纯名册（以 `const PROTAGONISTS = [` 起、以 `];` 止，块内无他语句之起首），免「块」之界划错而夹带他码。
+   *   并当场自证能红：于块外改一字，同一判须红；不红即门自身出错（exit 2）。 */
+  {
+    const nb = newApp.slice(ni0, ni1);
+    const pure = (b) => /^const PROTAGONISTS = \[[\s\S]*\];$/.test(b) && !/\n(?:const|let|var|function|async function|class)\s/.test(b);
+    const onlyBlock = (x) => x.slice(0, oi0) === oldApp.slice(0, oi0) && x.slice(oi0, oi0 + nb.length) === nb &&
+      x.slice(oi0 + nb.length) === oldApp.slice(oi1) && x.length === oldApp.length - (oi1 - oi0) + nb.length;
+    ok(onlyBlock(oldAppRoster) && pure(oldApp.slice(oi0, oi1)) && pure(nb),
+      "§〇〔(c) 控制变量之补断〕换名册后之码与 OLD_REF 之码，除 PROTAGONISTS 一块外逐字同（块外 " + (oldApp.length - (oi1 - oi0)) + " 字俱等；二块俱纯名册）",
+      "旧块 " + (oi1 - oi0) + " 字 → 今块 " + nb.length + " 字");
+    const k = oi0 + nb.length + 10, tampered = oldAppRoster.slice(0, oi0 + nb.length + 10) + (oldAppRoster[oi0 + nb.length + 10] === "x" ? "y" : "x") + oldAppRoster.slice(oi0 + nb.length + 11);
+    const red = !onlyBlock(tampered);
+    console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(c) 补断：块外改一字（第 " + k + " 字一带）→ " + (red ? "当场红" : "★ 不红：门自身出错"));
+    if (!red) process.exitCode = 2;
+  }
   const srvOldR = await srv(SITE, { "/app.js": oldAppRoster, "/index.html": oldHtml, "/styles.css": oldCss });
   const baseOldR = "http://127.0.0.1:" + srvOldR.address().port + "/";
   const br = await chromium.launch();
@@ -519,8 +563,13 @@ async function snapshot(br, base, hash, sel, w, h) {
       intro: document.getElementById("chron-intro").textContent,
       rows: Number(document.getElementById("chron-list").dataset.rows),
     }));
-    ok(r.states.length === 13, "按国之目 13", "实测 " + r.states.length + " 目：" + r.states.join(" | "));
-    ok(r.cats.length === 17, "按类 17 类", "实测 " + r.cats.length + " 类：" + r.cats.join(" | "));
+    // r61-T：旧写死 13／17（r54 当日之数，今仍恰等），改取 recomputeFromData 另路之数；并互验国色家族名表
+    const famApp = ((newApp.match(/const STATE_FAMILY_VAR = \{([\s\S]*?)\};/) || [])[1] || "").match(/"([^"]+)":/g) || [];
+    const famAppSet = famApp.map(x => x.slice(1, -2));
+    ok(famAppSet.length === STATE_FAMILIES.length && STATE_FAMILIES.every(f => famAppSet.includes(f)),
+      "〔互验〕本门之国色家族名表＝app.js STATE_FAMILY_VAR 之键集", famAppSet.join("") + " ／ " + STATE_FAMILIES.join(""));
+    ok(r.states.length === rc.nStates, "按国之目＝另路自 events／places.json 算得之组数 " + rc.nStates + "（旧写死 13）", "实测 " + r.states.length + " 目：" + r.states.join(" | "));
+    ok(r.cats.length === rc.nCats, "按类＝另路自 events.json 算得之类数 " + rc.nCats + "（旧写死 17）", "实测 " + r.cats.length + " 类：" + r.cats.join(" | "));
     const mTotal = r.intro.match(/全库\s*(\d+)\s*条事件/);
     const mOrph = r.intro.match(/其中\s*(\d+)\s*条未系于任何主角/);
     ok(!!mTotal && !!mOrph, "编年自述之二数可取", r.intro.slice(0, 40) + "…");

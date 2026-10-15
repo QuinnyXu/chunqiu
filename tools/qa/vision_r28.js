@@ -1,3 +1,6 @@
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过；1 ＝ 判红（任一 `[FAIL]`，`nFail` ≥1）；2 ＝ 本门自身出错（页面驱动抛错：浏览器起不来、选择器超时等，由末尾 `.catch` 出；其时通过／未过之数不可尽信）。
+ */
 "use strict";
 /* 经纬春秋 · r28 Vision 走查（吴越终章：越分区／38 人／夫差·勾践两枚徽记／属镂三节层标）
  *
@@ -39,6 +42,13 @@ const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
 function srv(root) { return new Promise((res, rej) => { const s = http.createServer((rq, rs) => { let u = decodeURIComponent(rq.url.split("?")[0].split("#")[0]); if (u === "/") u = "/index.html"; const fp = path.join(root, u); if (!fp.startsWith(root)) { rs.writeHead(403); rs.end(); return; } fs.readFile(fp, (e, d) => { if (e) { rs.writeHead(404); rs.end(); return; } rs.writeHead(200, { "Content-Type": MIME[path.extname(fp).toLowerCase()] || "application/octet-stream" }); rs.end(d); }); }); s.on("error", rej); s.listen(0, "127.0.0.1", () => res(s)); }); }
+/* r61-T 校基线（裁二百二十七 三3、裁二百二十五 ②㈠）：主角之数与夫差／勾践之事数，旧写死 38／11——规模之数，
+ *   每升降一人即须逐处同改（r49、r61-H、r61-M 三回如是），漏一处即红。今另路自 site/data/*.json 取（Node 端，不取被测页）：
+ *   主角数＝people.json 中 is_protagonist=1 者之数；某人之时间线事数＝event_people.json 中其挂链行数。判据、阈值一字未动。 */
+const RJ = (n) => JSON.parse(fs.readFileSync(path.join(SITE_DIR, "data", n + ".json"), "utf8"));
+const PROTO_N = RJ("people").filter(p => Number(p.is_protagonist) === 1).length;
+const EP_ALL = RJ("event_people");
+const linksOf = (pid) => EP_ALL.filter(l => l.person_id === pid).length;
 let nFail = 0;
 const say = (...a) => console.log(a.join(" "));
 const H = (t) => say("\n===== " + t + " =====");
@@ -144,16 +154,16 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
     };
   });
   say("  数据侧 is_protagonist=1 共 " + roster.dataPro.length + " 人");
-  OK(roster.dataPro.length === 38, "数据侧主角 38 人");
-  OK(pick.n === 38, "选人页 38 张人物卡（实测 " + pick.n + "）");
-  OK(pick.enabled === 38, "38 张卡皆可点入（实测可点 " + pick.enabled + "）");
+  OK(roster.dataPro.length === PROTO_N, "数据侧主角 " + PROTO_N + " 人（期望另路自 people.json；旧写死 38）");
+  OK(pick.n === PROTO_N, "选人页 " + PROTO_N + " 张人物卡（实测 " + pick.n + "）");
+  OK(pick.enabled === PROTO_N, PROTO_N + " 张卡皆可点入（实测可点 " + pick.enabled + "）");
   OK(pick.has.fucha && pick.has.goujian, "选人页含夫差、勾践");
   say("  选人页分组：" + pick.groups.join(" / "));
   say("  勾践卡：" + pick.yueCard.replace(/\s+/g, " ").slice(0, 110));
   await p.screenshot({ path: path.join(OUT, "r28_03_pick_38.png"), fullPage: true });
   const brand = await p.evaluate(() => (document.querySelector("#brand-caption") || {}).textContent || "");
   say("  页脚品牌语：" + brand);
-  OK(/38\s*条人物线/.test(brand), "页脚品牌语报 38 条人物线（取实际可进者）");
+  OK(new RegExp(PROTO_N + "\\s*条人物线").test(brand), "页脚品牌语报 " + PROTO_N + " 条人物线（取实际可进者）");
 
   for (const [pid, nm] of [["P_FUCHA", "夫差"], ["P_GOUJIAN", "勾践"]]) {
     await p.goto(origin + "/#/p/" + pid + "/timeline", { waitUntil: "load" }); await p.waitForTimeout(1100);
@@ -163,7 +173,7 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
       theme: getComputedStyle(document.documentElement).getPropertyValue("--theme").trim(),
     }));
     OK(new RegExp(nm).test(t.title), nm + " 时间线可入（姓名行「" + t.title.replace(/\s+/g, " ").trim().slice(0, 40) + "」）");
-    OK(t.events === 11, nm + " 时间线 11 条事件（实测 " + t.events + "）");
+    OK(t.events === linksOf(pid), nm + " 时间线 " + linksOf(pid) + " 条事件（期望另路自 event_people.json；旧写死 11；实测 " + t.events + "）");
     say("    --theme " + t.theme);
     await p.screenshot({ path: path.join(OUT, "r28_04_timeline_" + pid + ".png"), fullPage: true });
   }
@@ -180,7 +190,7 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
              badges: document.querySelectorAll("#rel-canvas svg").length };
   });
   say("  全景默认环节点数：" + pano.n);
-  OK(pano.n === 38, "全景默认环 38 槽（38 主角）");
+  OK(pano.n === PROTO_N, "全景默认环 " + PROTO_N + " 槽（" + PROTO_N + " 主角）");
   if (pano.pts.length > 2) {
     const cx = pano.pts.reduce((s, q) => s + q.x, 0) / pano.pts.length;
     const cy = pano.pts.reduce((s, q) => s + q.y, 0) / pano.pts.length;

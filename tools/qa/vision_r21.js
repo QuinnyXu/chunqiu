@@ -1,3 +1,7 @@
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 报成且无判红；1 ＝ 判红——本门余皆只报，唯「[10] 回归」一项印 ✓／✗（地图无 SVG 者印「✗无图」），任一「✗无图」即 1；
+ *   2 ＝ 本门自身出错（`.catch` 出）。★ r61-T 改：此前印 ✗ 而恒 exit 0、抛错以 1 退——门说「无图」而退出码说「过」，二者相违，今三分如上。
+ */
 "use strict";
 // r21 Vision 自验：陈/宋两国色家族＋夏姬/宋襄公上线（九分区/归罪层前端呈现/两线全流程）＋23主角回归
 const http = require("http"), fs = require("fs"), path = require("path");
@@ -353,4 +357,6 @@ const say = (...a) => { const s = a.join(" "); log.push(s); console.log(s); };
   say("页面错误：" + (errs.length ? errs.join(" | ") : "无"));
   fs.writeFileSync(path.join(OUT, "r21_report.txt"), log.join("\n"), "utf8");
   await b.close(); if (s) s.close();
-})().catch(e => { console.error(e); process.exit(1); });
+  const noSvg = reg.filter(r => !r.hasSvg).length;   // r61-T：「✗无图」即判红
+  process.exit(noSvg ? 1 : 0);
+})().catch(e => { console.error(e); process.exit(2); });

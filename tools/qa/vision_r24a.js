@@ -56,11 +56,27 @@
 //   §21 新立「关于页版本一致性」门——「当前版本」行 ⇔ changelog 列表首项，两处写死的同一个数由本门对账。
 //       DOM 对读，前端一行不改（站长裁定方案 ①）；病类见 design_notes §7.5、病例为 v0.18 漏改版本行，
 //       俱写在该节注释里。构造式断言，咬合力由注入反证证明（§7.2）。
+//
+// 【退出码】（r61-T 补，裁二百二十七 三③、旧书裁二百〇五 三②；照 prod_freshness.js 门头之式）
+//   0 ＝ 全过（汇总「N 项通过，0 项未过」）；
+//   1 ＝ 判红——汇总之「未过」≥1，即任一 `[FAIL]` 行（门说「未过」，退出码即不得说「过」）；
+//   2 ＝ 本门自身出错——页面驱动抛错（浏览器起不来、选择器超时、端口等），此时其「通过／未过」之数不可尽信。
+//   ★ 此前本门只印 `[FAIL]` 而恒 exit 0（且无 .catch，抛错时 Node 以 1 退，与判红混同）——自 r61-T 起三分如上。
+//
+// r61-T 校基线（裁二百二十七 三；二条期值随裁而旧、一条量具过宽，俱不松——详见各处注）：
+//   §10 首访标记：期值由 `"1"` 改为 r54-1 之记形（JSON，`v:1`、`done:true`）；
+//   §11 主导航「编年」：其钮自 r54-4b（裁七十一 丁）带全库条数，期值改为「编年」＋events.json 行数（另路读文件）；
+//   §19／§⑥ 时间线条数：选择器 `#timeline-list > li details` 过宽——r60-B 之核对记号（`details.vs-mark`）亦为 details，
+//       今改取 `details[data-eid]`（事件卡之专属），断言「条数＝挂链数、无缺」一字不变。
+//   ★ §11「无地望事件 N 条一律中性签」之红**未治**：门对，站之标签有误（E274 之地 L_JIAGU 有坐标而 state 空，
+//       编年之签书「无地望」），系站之旧病（r45 起），呈裁，不以改门了之。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
 function srv(root) { return new Promise((res, rej) => { const s = http.createServer((rq, rs) => { let u = decodeURIComponent(rq.url.split("?")[0].split("#")[0]); if (u === "/") u = "/index.html"; const fp = path.join(root, u); if (!fp.startsWith(root)) { rs.writeHead(403); rs.end(); return; } fs.readFile(fp, (e, d) => { if (e) { rs.writeHead(404); rs.end(); return; } rs.writeHead(200, { "Content-Type": MIME[path.extname(fp).toLowerCase()] || "application/octet-stream" }); rs.end(d); }); }); s.on("error", rej); s.listen(0, "127.0.0.1", () => res(s)); }); }
+/* r61-T：期值之另路——site/data/*.json 由 Node 端直读，不取自被测页 */
+const EVENTS_N_FILE = JSON.parse(fs.readFileSync(path.join(SITE_DIR, "data", "events.json"), "utf8")).length;
 const log = [];
 const say = (...a) => { const s = a.join(" "); log.push(s); console.log(s); };
 const H = (t) => say("\n===== " + t + " =====");
@@ -816,7 +832,11 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   say("  收尾态：" + JSON.stringify(done));
   OK(done.hidden && done.views.includes("home") && done.navHidden,
      "「开始探索」收尾：遮罩收起、回首页、人物子导航清空");
-  OK(done.seen === "1", "首访标记已写入 localStorage（不再复弹）");
+  /* r61-T：期值随裁而旧——r54-1（f20ea95，裁七十二 记·丁「其记书明 step／done」）起导览之记为 JSON
+   *   `{v:1, step, done}`，旧期 `"1"` 是 r15 之记形（今只作「向后兼容读为已走完」之输入，见 tourRead）。
+   *   今断其新形：可解析、v＝1、done＝true——较旧断言多断二项，不松。 */
+  const seenObj = (() => { try { return JSON.parse(done.seen); } catch (e) { return null; } })();
+  OK(!!seenObj && seenObj.v === 1 && seenObj.done === true, "首访标记已写入 localStorage（不再复弹）");
   await tp.close();
 
   // ---------- 11) r25 编年视图：全库事件人人可达 ----------
@@ -845,6 +865,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
       renderMs: +list.dataset.renderMs,
       theme: getComputedStyle(document.querySelector("#view-chronicle")).getPropertyValue("--theme").trim(),
       navCur: [...document.querySelectorAll(".main-nav button")].filter(b => b.getAttribute("aria-current") === "true").map(b => b.textContent),
+      navCurView: ([...document.querySelectorAll(".main-nav button")].find(b => b.getAttribute("aria-current") === "true") || { dataset: {} }).dataset.view,
       hasNavBtn: !!document.querySelector('.main-nav button[data-view="chronicle"]'),
       // 索引覆盖面：事件组与原文组必须各自等于全表条数（r25 取消了「无主角挂链即跳过」）
       idxEvents: SEARCH_INDEX.filter(s => s.group === "events").length,
@@ -861,7 +882,11 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   say("  首三条 " + chr.firstThree.join(",") + " … 末三条 " + chr.lastThree.join(","));
   say("  无主角挂链 " + chr.orphan.length + " 条：" + chr.orphan.join("/"));
   OK(chr.view === "chronicle" && chr.hash === "#/chronicle" && chr.shown, "路由 #/chronicle 直达编年视图");
-  OK(chr.hasNavBtn && chr.navCur.length === 1 && chr.navCur[0] === "编年", "主导航「编年」已就位并高亮");
+  /* r61-T：期值随裁而旧——r54-4b（f20ea95，裁七十一 丁）起主导航「编年」钮带全库条数（`#nav-chron-count`），
+   *   其 textContent 遂为「编年」＋N。N 另路取自 site/data/events.json 之行数（Node 端直读，不取自被测页）；
+   *   并加断所高亮者即 data-view="chronicle" 之钮——较旧断言多一断，不松。 */
+  OK(chr.hasNavBtn && chr.navCur.length === 1 && chr.navCur[0] === "编年" + EVENTS_N_FILE && chr.navCurView === "chronicle",
+     "主导航「编年」已就位并高亮");
   OK(chr.nRows === chr.nEvents, "全库 " + chr.nEvents + " 条事件一条不漏地上表（实绘 " + chr.nRows + " 行）");
   OK(chr.orphan.length > 0 && chr.orphanOnTable.length === chr.orphan.length,
      "13 条无主角挂链事件全部在表（" + chr.orphanOnTable.length + "/" + chr.orphan.length + "）——r24a 缺口闭合");
@@ -1465,7 +1490,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     await p.goto(origin + "/#/p/" + n.id + "/timeline", { waitUntil: "load" }); await p.waitForTimeout(1300);
     const tl = await p.evaluate((id) => {
       const own = DATA.event_people.filter(l => l.person_id === id).map(l => l.event_id);
-      const rows = [...document.querySelectorAll("#timeline-list > li details")].map(d => d.dataset.eid);
+      const rows = [...document.querySelectorAll("#timeline-list > li details[data-eid]")].map(d => d.dataset.eid);   // r61-T：只取事件卡（核对记号之 details 无 data-eid）
       return { navName: (document.querySelector("#pn-name") || {}).textContent,
                navBadge: !!document.querySelector("#pn-badge svg"),
                rows, own, missing: own.filter(e => !rows.includes(e)) };
@@ -1734,7 +1759,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     await p.goto(origin + "/#/p/" + n.id + "/timeline", { waitUntil: "load" }); await p.waitForTimeout(1300);
     const tl = await p.evaluate((id) => {
       const own = DATA.event_people.filter(l => l.person_id === id).map(l => l.event_id);
-      const rows = [...document.querySelectorAll("#timeline-list > li details")].map(d => d.dataset.eid);
+      const rows = [...document.querySelectorAll("#timeline-list > li details[data-eid]")].map(d => d.dataset.eid);   // r61-T：只取事件卡（核对记号之 details 无 data-eid）
       return { navName: (document.querySelector("#pn-name") || {}).textContent,
                navBadge: !!document.querySelector("#pn-badge svg"),
                theme: getComputedStyle(document.documentElement).getPropertyValue("--theme").trim(),
@@ -2161,4 +2186,5 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   fails.forEach(f => say(f));
   await b.close(); if (s) s.close();
   fs.writeFileSync(path.join(OUT, "r24a_log.txt"), log.join("\n"), "utf8");
-})();
+  process.exit(fails.length ? 1 : 0);   // r61-T：门说「未过」即 exit 1（见门头【退出码】）
+})().catch(e => { console.error("本门自身出错（exit 2）：", e); process.exit(2); });

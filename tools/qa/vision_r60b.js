@@ -13,6 +13,9 @@
  *  (5) 反证：把一条已核之引文注入为未核，记号当现；注入 negated／8 档宽口／sources 表之条，记号不现。
  * 严口径：status.name ∈ {本轮无从核, 未见, 未核} 且 negated=false 触发。
  * 读者面三句在此独立再书一遍（若 app.js 改其字，本门当场红）。 */
+/* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过；1 ＝ 判红（任一 ✗）；2 ＝ 本门自身出错（前提不成、门自检 `gateErrs` 有出错者、`.catch` 出之抛错）。
+ */
 "use strict";
 const fs = require("fs"), path = require("path"), http = require("http");
 const { requireBrowser } = require("./require_browser.js");

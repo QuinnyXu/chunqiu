@@ -210,7 +210,9 @@ function judgeLegend(got) {
   const pg = await mkPage(1440, 900);
   // 每次皆整页新载：同页只换 hash 之 goto 是同文档导航（不重载），前一反证之页内注入会漏入下一验——先落 about:blank 断之
   const go = async (p, h, sel) => { await p.goto("about:blank"); await p.goto(base + h, { waitUntil: "networkidle" }); if (sel) await p.waitForSelector(sel); };
-  const waitHash = (p, h) => p.waitForFunction((x) => location.hash === x, h, { timeout: 4000 }).then(() => true, () => false);
+  /* r61-T：候「render 已据此址跑完」，不只候「址已变」——setHash 之 hash 同步即变，hashchange→render 在其后之一任务；
+   *   render 末置 `prevHash = location.hash`（relSyncHash 之 pushState 亦置之），故以二者相等为其完成之号（同 r61n §三 之治）。 */
+  const waitHash = (p, h) => p.waitForFunction((x) => location.hash === x && prevHash === x, h, { timeout: 4000 }).then(() => true, () => false);
   const settle = (p) => p.waitForTimeout(250);
   const clickNode = (p, pid) => p.evaluate((id) => {
     const n = document.querySelector('#rel-canvas [data-node="' + id + '"]'); if (!n) return false;

@@ -245,11 +245,16 @@ const readEvts = (root) => [...root.querySelectorAll(".rel-evts .rel-evt")].map(
     await p3.goto(base + "#view=library&tab=people", { waitUntil: "networkidle" }); await p3.waitForSelector("#lib-list li");
     ok(await p3.evaluate(() => location.hash) === "#/library/people", "旧式 #view=library&tab=people 就地改写为 #/library/people");
     await libLoad(p3, "#/library");
+    /* r61-T 治跑间不稳（裁二百三十 四；改前 `eb4e1aa` 12 跑红 1、本探针 30 次原式红 2）：
+     *   旧候「location.hash 已变」即数行——而点签走 setHash → `location.hash = …`，hash **同步**即变，
+     *   hashchange → render() 却是其后之一任务；waitForFunction 之轮询若落在二者之间，所数是**未重绘**之旧表。
+     *   故改候「render 已据此 hash 读入之 state」（state 由 render 起手之 parseHash 所设，renderLibrary 与之同一任务内同步跑完）
+     *   ——候的是断言所系之物本身。断言一字不变；非重试、非放宽。 */
     await p3.click('.lib-tabs button[data-tab="people"]');
-    await p3.waitForFunction(() => location.hash === "#/library/people");
+    await p3.waitForFunction(() => location.hash === "#/library/people" && state.view === "library" && state.tab === "people");
     ok(await p3.$$eval("#lib-list button.lib-person", a => a.length) === PPL.length, "点「人物」签 → hash 写 #/library/people、列全库");
     await p3.click('.lib-tabs button[data-tab="background"]');
-    await p3.waitForFunction(() => location.hash === "#/library");
+    await p3.waitForFunction(() => location.hash === "#/library" && state.view === "library" && state.tab === "background");
     ok(await p3.$$eval("#lib-list button.lib-person", a => a.length) === 0, "回「历史背景」签 → hash 回 #/library、人物行俱去");
   }
 
