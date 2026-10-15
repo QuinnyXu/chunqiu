@@ -10,7 +10,8 @@
  * 验四事（期值一律自 site/data/*.json 独立复算，不读 app.js 之索引与函数）：
  *  §一 资料库「人物」签：行数＝people 总数；行之 id 集＝people id 集；「一级」之标恰落 is_protagonist=1 者；
  *      每行所书事数＝其 event_people 行数；以国名检（「晋」）之所余＝独立复算之集；1440／375 二宽俱无横溢。
- *      点入：一级 → `#/p/<id>/timeline`；二级 → `#/relations` 且其 ego 以其人为中心。
+ *      点入：一级 → `#/p/<id>/timeline`；二级 → `#/relations?ego=<id>` 且其 ego 以其人为中心
+ *      （r61-V 校基线：原期 `#/relations`，二级之关系页今带其人之址）。
  *  §二 关系页抽屉「所系之事」：取三位二级（★ 名册外择：赵盾今已一级，故样本自不含之；其一为女性
  *      赵庄姬；其一含 presence「不在」之行；其一为二级中挂链最多者）——内嵌右卡与全屏抽屉二处，
  *      事数＝其 event_people 行数、次序＝(year_bce, sort_key, id)、年与题逐条对读、presence 之签逐条对读；
@@ -157,10 +158,13 @@ const readEvts = (root) => [...root.querySelectorAll(".rel-evts .rel-evt")].map(
       // 点入：二级 → 关系页 ego
       await libLoad(pg, "#/library/people");
       await pg.click('#lib-list button.lib-person[data-lib-id="' + female.id + '"]');
-      await pg.waitForFunction(() => location.hash === "#/relations");
+      // r61-V 校基线（裁二百二十八 三）：二级之关系页今带其人之址 `#/relations?ego=<pid>`，旧期 `#/relations` 随改——
+      // 期值另路书之（不取 app.js 之 buildHash），且较旧断言更严：址须记其人，不只落关系页。
+      const wantEgo = "#/relations?ego=" + encodeURIComponent(female.id);
+      await pg.waitForFunction((h) => location.hash === h, wantEgo).catch(() => {});
       await pg.waitForSelector("#rel-panel .rel-evts");
-      const ego = await pg.evaluate(() => ({ mode: relView.mode, center: relView.center }));
-      ok(ego.mode === "ego" && ego.center === female.id, "点二级「" + female.name + "」→ #/relations，ego 以其为中心", JSON.stringify(ego));
+      const ego = await pg.evaluate(() => ({ mode: relView.mode, center: relView.center, hash: location.hash }));
+      ok(ego.mode === "ego" && ego.center === female.id && ego.hash === wantEgo, "点二级「" + female.name + "」→ " + wantEgo + "，ego 以其为中心", JSON.stringify(ego));
     }
   }
 

@@ -1285,6 +1285,9 @@ footer.site-footer {
   pointer-events: none;
 }
 .map-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+/* r61-V：图例增「不在」一行并附二空心锚之释语，可折行而不出图框 */
+.map-legend { flex-wrap: wrap; row-gap: 0.15rem; max-width: calc(100% - 20px); box-sizing: border-box; }
+.map-legend .lg-gloss { display: inline; color: var(--ink-soft); font-size: 0.68rem; margin-left: -0.15rem; }
 .lg-dot {
   display: inline-block;
   width: 10px;
@@ -2165,6 +2168,12 @@ button.chron-chip[aria-pressed="true"] {
   .map-side { flex-basis: auto; width: 100%; }
   /* r13：内嵌人物地图 fit-to-width（不再横滚强撑）；细看走「⛶ 放大查看」全屏浮层 */
   .map-legend { position: static; margin-top: 0.4rem; width: max-content; max-width: 100%; }
+  /* r61-V：图例增「不在」一行与释语后，其 max-content 宽逾窄屏之图框，反把图框撑出视口（375 宽实测 552px）；
+   * 窄屏改随框宽而折行（宽由框定，不由内容定）。 */
+  .map-legend { width: auto; }
+  /* r61-V 顺带：窄屏图例本为 static（居图下），而「N 条事件无地望」仍绝对定位于图框右下，恰压图例之末行
+   * （改前即压「轨迹」一项，今图例折两行、压及「不在」之释）；窄屏令其随图例之后静排，不再叠压。 */
+  .map-nogeo { position: static; margin-top: 0.4rem; width: max-content; max-width: 100%; }
   .lib-layout { flex-direction: column; }
   .lib-list { flex-basis: auto; width: 100%; max-height: 45vh; }
   #lib-search { flex: 1 1 auto; min-width: 0; width: 100%; }

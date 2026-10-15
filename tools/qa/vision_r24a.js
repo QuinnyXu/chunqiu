@@ -1008,12 +1008,16 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     d.querySelector("summary").click(); await new Promise(r => setTimeout(r, 250));
     const btn = [...d.querySelectorAll(".evt-person")].find(e => e.dataset.pid === "P_CUIZHU");
     if (!btn) return { err: "无崔杼签" };
+    const pid = btn.dataset.pid;   // r61-V：期值以所点之签之 data-pid 书之（裁二百三十 二1），不另写死
     btn.click(); await new Promise(r => setTimeout(r, 1400));
-    return { hash: location.hash, view: state.view,
-             focus: !!document.querySelector('#rel-canvas [data-node="P_CUIZHU"]') };
+    return { pid, hash: location.hash, view: state.view, center: relView.mode === "ego" ? relView.center : null,
+             focus: !!document.querySelector('#rel-canvas [data-node="' + pid + '"]') };
   });
   say("  非主角签往返：" + JSON.stringify(trip2));
-  OK(trip2.hash === "#/relations" && trip2.view === "relations" && trip2.focus,
+  // r61-V 期值随裁而旧（裁二百二十八 三令关系页记其人；裁二百三十 二1 准改）：期值由 `#/relations` 改为
+  // `#/relations?ego=<所点之签之 data-pid>`，并加「以其为中心」一断——较旧断言更严，不松。
+  OK(!!trip2.pid && trip2.hash === "#/relations?ego=" + encodeURIComponent(trip2.pid) && trip2.view === "relations" &&
+     trip2.focus && trip2.center === trip2.pid,
      "编年卡非主角签（崔杼，本库无其时间线）→ 落其关系图，人在图上——全库事件的人也一并可达");
 
   // 轻筛选：按国／按分类／交集／清除／空态

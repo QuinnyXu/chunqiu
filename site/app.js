@@ -301,6 +301,22 @@ const PRESENCE_TIP = {
   "相关": "相关：史文无其在场明文",
   "不在": "不在：史文正面明书其不在事发地",
 };
+/* 地图图例之「相关」「不在」二行（r61-V；裁二百二十九 二③）：二者同为空心之锚，故各附其释语以别之。
+ * ★ 恒列二行，不视当图有无「不在」之地而增删——图例不当随数据而对错（今库无纯「不在」之地，他日或有）。
+ * ★ 其语只取 PRESENCE_TIP 冒号后之句，不另写：「相关」＝史文无其在场明文（不得读作不在），「不在」＝史文正面明书其不在。
+ * 「亲至」一行照旧只书其名（实心锚自明，r21 以来之形不动）。 */
+function fillMapLegend() {
+  for (const k of ["相关", "不在"]) {
+    const s = document.querySelector('#map-legend [data-presence="' + k + '"]');
+    if (!s) continue;
+    const tip = PRESENCE_TIP[k];
+    const gloss = tip.slice(tip.indexOf("：") + 1);
+    let g = s.querySelector(".lg-gloss");
+    if (!g) { g = document.createElement("span"); g.className = "lg-gloss"; s.appendChild(g); }
+    g.textContent = "（" + gloss + "）";
+    s.title = tip;
+  }
+}
 /* 设置单人/并观播放控件的降级态：degraded=true 时隐藏播放按钮、改显静态说明，
  * 并令按钮 disabled（全屏浮层控件据此不建，见 mountOverlayControls）。 */
 function setPlayDegrade(mode, degraded) {
@@ -367,6 +383,7 @@ async function fetchSVG(name) {
  *   #/                        选人（首页）
  *   #/p/<PID>/timeline|map|relations   人物视图（relations=以其为中心的 ego 图）
  *   #/relations               全景关系图谱（默认主角环，勾「显示全部」回全库）
+ *   #/relations?ego=<PID>     关系图以 PID 为中心（任一库中人，一级二级同式；r61-V）
  *   #/chronicle               编年（全库事件大事年表，r25）
  *   #/tenures                 晋中军将历任（office_tenures 之读者页，r60-A）
  *   #/library[/<tab>][?q=…]   资料库
@@ -448,7 +465,17 @@ function parseHash() {
     }
     return st;
   }
-  if (GLOBAL_VIEWS.includes(segs[0])) { st.view = segs[0]; return st; }
+  if (GLOBAL_VIEWS.includes(segs[0])) {
+    st.view = segs[0];
+    // r61-V：关系页之中心人记于 `?ego=`（裁二百二十八 三）。只认库中之人；不识者不设 ego（落全景，
+    // renderRelations 就地改写其址为 `#/relations`，不留一个说是某人而所示是全景之址）。
+    if (segs[0] === "relations" && params.ego) {
+      let id = params.ego;
+      try { id = decodeURIComponent(id); } catch { /* 原样 */ }
+      if (PEOPLE && PEOPLE[id]) st.ego = id;
+    }
+    return st;
+  }
   if (segs[0] === "library") {
     st.view = "library";
     if (LIB_TABS.includes(segs[1])) st.tab = segs[1];
@@ -458,8 +485,10 @@ function parseHash() {
 }
 /* 首页模式（map|list）：内存值随 hash 同步，回首页时沿用（选择记忆即 hash 本身） */
 let homeMode = "map";
-function buildHash(person, view, tab, q) {
+/* r61-V：第五参 ego 只为关系页用——无人物段时 `#/relations?ego=<PID>`；有人物段者（`#/p/<一级>/relations`）一字不变。 */
+function buildHash(person, view, tab, q, ego) {
   if (person && PERSON_VIEWS.includes(view)) return "#/p/" + person + "/" + view;
+  if (view === "relations" && ego) return "#/relations?ego=" + encodeURIComponent(ego);
   if (GLOBAL_VIEWS.includes(view)) return "#/" + view;
   if (view === "library") {
     let h = "#/library";
@@ -469,8 +498,8 @@ function buildHash(person, view, tab, q) {
   }
   return homeMode === "list" ? "#/?home=list" : "#/";
 }
-function setHash(person, view, tab, q) {
-  const next = buildHash(person, view, tab, q);
+function setHash(person, view, tab, q, ego) {
+  const next = buildHash(person, view, tab, q, ego);
   if (next === location.hash || (next === "#/" && !location.hash)) render();
   else location.hash = next;
 }
@@ -4345,19 +4374,52 @@ function renderRelations() {
       for (const t of SIDE_TYPES) relView.collapsed.add(t);
     }
   }
-  // 路由即语义：#/p/X/relations → 以 X 为中心 ego；#/relations → 全景（带「仅主角边」过滤器）
+  // 路由即语义：#/p/X/relations → 以 X 为中心 ego；#/relations?ego=Y → 以 Y 为中心（r61-V）；
+  // #/relations → 全景（带「仅主角边」过滤器）。
   if (state.person) { relView.mode = "ego"; relView.center = state.person; relView.stack = []; }
-  else relView.mode = "pano";
-  // 搜索直达：非主角人物落其 ego 图（hash 保持全景 #/relations，语义同「以人为中心」游走态）
-  if (pendingSpot && pendingSpot.type === "ego") {
-    if (PEOPLE[pendingSpot.pid]) {
-      relView.mode = "ego";
-      relView.center = pendingSpot.pid;
-      relView.stack = [];
+  else if (state.ego) {
+    /* 面包屑之续：址之中心即今中心者（同址重绘）照留其屑；在屑中者（后退至游走之前一人）截至其前；
+     * 余者（直开、自他页来）屑归空。 */
+    if (!(relView.mode === "ego" && relView.center === state.ego)) {
+      const k = relView.mode === "ego" ? relView.stack.lastIndexOf(state.ego) : -1;
+      relView.stack = k >= 0 ? relView.stack.slice(0, k) : [];
+      relView.center = state.ego;
     }
-    pendingSpot = null;
+    relView.mode = "ego";
+  }
+  else relView.mode = "pano";
+  pendingSpot = null; // 旧式「搜索直达 ego」之 pendingSpot 已由 `?ego=` 代之（r61-V），此处只清残留
+  // 不识之 ego（`#/relations?ego=<库中无此人>`）落全景，址就地改为所示（不增历史条目）
+  if (!state.person) {
+    const want = relHashNow();
+    if (want !== location.hash) history.replaceState(null, "", want);
   }
   drawRel();
+}
+/* r61-V：关系页之址＝其所示（裁二百二十八 三）。
+ * - 以人为中心：所在为 `#/p/X/relations` 且中心仍是 X → 其址一字不变（一级之路由不动）；
+ *   余者一律 `#/relations?ego=<中心>`——一级二级同式，故其人日后升降，旧链仍落其人。
+ * - 全景：`#/relations`。 */
+function relHashNow() {
+  if (relView.mode === "ego" && relView.center) {
+    if (state.person && relView.center === state.person) return buildHash(state.person, "relations");
+    return buildHash(null, "relations", null, null, relView.center);
+  }
+  return buildHash(null, "relations");
+}
+/* 页内游走（点节点重绘、面包屑、◀ 返回、全景⇄以人为中心）之后，把今之所示记入历史：
+ * 用 pushState 而不走 setHash——后者经 hashchange→render，会关抽屉与全屏浮层、回顶，改了游走之手感；
+ * pushState 不触 hashchange，图已由 drawRel 画好，只补其址。浏览器「后退」则照常经 popstate→render，
+ * 由 renderRelations 按址复其中心。滚动之记照 render 之例：离址前存其 scrollY，prevHash 随之。 */
+function relSyncHash() {
+  if (state.view !== "relations") return;
+  const next = relHashNow();
+  if (next === location.hash) return;
+  if (prevHash !== null) scrollMem.set(prevHash, window.scrollY);
+  history.pushState(null, "", next);
+  prevHash = location.hash;
+  state = parseHash();
+  renderPersonNav(PROTAGONISTS.find(p => p.id === personCtx));
 }
 function drawRel() {
   if (relView.mode === "ego" && !relView.center) relView.mode = "pano";
@@ -4375,6 +4437,7 @@ function relRecenter(pid) {
   relView.center = pid;
   relView.mode = "ego";
   drawRel();
+  relSyncHash();
 }
 function updateRelToolbar() {
   const ego = relView.mode === "ego";
@@ -4437,6 +4500,7 @@ function updateRelToolbar() {
         relView.center = trail[k];
         relView.mode = "ego";
         drawRel();
+        relSyncHash();
       });
       crumbs.appendChild(b);
     }
@@ -5347,8 +5411,7 @@ function goSearchSource(sid) {
 }
 function goSearchPerson(pid) {
   if (isProto(pid) && PEOPLE[pid]) { setHash(pid, "timeline"); return; }
-  pendingSpot = { view: "relations", type: "ego", pid };
-  setHash(null, "relations");
+  setHash(null, "relations", null, null, pid); // r61-V：址记其人（旧式落 `#/relations`＋pendingSpot，后退即失其人）
 }
 function goSearchPlace(plid) {
   const cands = PLACE_PROTOS.get(plid) || [];
@@ -6157,7 +6220,7 @@ function renderTenures() {
     head.appendChild(mk("span", "tn-ord", "第 " + (i + 1) + " 任"));
     const pe = PEOPLE[r.person_id];
     const a = mk("a", "tn-person", pe ? pe.name : r.person_id);
-    a.href = isProto(r.person_id) ? buildHash(r.person_id, "timeline") : "#/relations";
+    a.href = isProto(r.person_id) ? buildHash(r.person_id, "timeline") : buildHash(null, "relations", null, null, r.person_id);
     a.title = "查看其人物（关系图）";
     a.addEventListener("click", (ev) => {
       if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button === 1) return;
@@ -6277,6 +6340,7 @@ async function boot() {
   PLACES = byId(DATA.places);
   SOURCES = byId(DATA.sources);
   EVENTS = byId(DATA.events);
+  fillMapLegend();      // r61-V：地图图例「相关」「不在」二行之释语（取 PRESENCE_TIP）
   resolveProtoColors(); // 国色制：按人物所属国从 styles.css :root 读入国色（须在 PEOPLE 赋值之后）
   const mapResp = await fetch("assets/map/base_map.svg");
   baseMapText = await mapResp.text();
@@ -6343,6 +6407,7 @@ async function boot() {
       relView.center = relView.stack.pop();
       relView.mode = "ego";
       drawRel();
+      relSyncHash();
     }
   });
   $("#btn-rel-mode").addEventListener("click", () => {
@@ -6356,6 +6421,7 @@ async function boot() {
       relView.mode = relView.center ? "ego" : "pano";
     }
     drawRel();
+    relSyncHash();
   });
   $("#rel-proto-only").addEventListener("change", (e) => {
     relView.protoOnly = e.target.checked;

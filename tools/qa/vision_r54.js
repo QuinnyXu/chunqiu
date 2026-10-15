@@ -734,7 +734,36 @@ async function snapshot(br, base, hash, sel, w, h) {
     "；版本 " + rosterStat.vnOld + "→" + rosterStat.vnNew);
   ok(rosterStat.newS.orphan === rc.orphan, "名册联动之『今』值与 §一 独立复算之『未系事件数』同数（两路互验）", rosterStat.newS.orphan + " ／ " + rc.orphan);
   /* 增量清单：每项＝一个「今版 Y」。要求：恰一处精确命中（含其前之空白节点）、其位紧随锚元素之后、剥去后余下与旧版逐位全等。 */
+  /* ---- r61-V·校基线（裁二百三十 二2，2026-10-15）：地图页之图例一枝 ----
+   * 缘起：r61-V ⑤（裁二百二十九 二③）令地图图例恒列「相关」「不在」二行、各附释语；`#map-legend` 遂与旧版不同。
+   *   照裁二百一十之例：**不换基线、不放判据**，只把 `#map-legend` 一枝自「未涉」移入「已涉」，三段式列其变；
+   *   地图页其余仍逐位全等（零容忍）。
+   * ★ 期望之文**不取自被测之 DOM**：旧枝＝旧版 index.html 源文之 `<div class="map-legend" …>…</div>`；
+   *   今枝＝今版 index.html 源文之「r61-V 注＋图例 div」，再施 app.js `fillMapLegend()` 之二改——其释语由本门**照裁文另书**
+   *   （「相关」＝史文无其在场明文；「不在」＝史文正面明书其不在事发地），不读页面、不读 PRESENCE_TIP。
+   * ★ `.map-nogeo`（375 宽之静排）**只改 CSS，DOM 一字未动**——快照取 outerHTML，故二宽其枝俱与旧版逐位全等，
+   *   **不移出**（移出即放松；见交付文档之验收偏差）。 */
+  const legendDelta = (() => {
+    const cut = (html, startMark) => { const i = html.indexOf(startMark); if (i < 0) return null; const j = html.indexOf("</div>", i); return j < 0 ? null : html.slice(i, j + 6); };
+    const oldBlk = cut(oldHtml, '<div class="map-legend" id="map-legend">');
+    const cmt = newHtml.indexOf("<!-- r61-V（裁二百二十九 二③）");
+    const divAt = newHtml.indexOf('<div class="map-legend" id="map-legend">', cmt);
+    if (!oldBlk || cmt < 0 || divAt < 0) throw new Error("index.html 内找不到地图图例之源块：锚失效，停门");
+    let nw = newHtml.slice(cmt, divAt) + cut(newHtml.slice(divAt), '<div class="map-legend" id="map-legend">');
+    const GLOSS = { "相关": "史文无其在场明文", "不在": "史文正面明书其不在事发地" };   // 照裁二百二十九 二③ 之语另书
+    for (const [k, g] of Object.entries(GLOSS)) {
+      nw = nw.replace('<span data-presence="' + k + '"><i class="lg-dot lg-hollow"></i>' + k + "</span>",
+        '<span data-presence="' + k + '" title="' + k + "：" + g + '"><i class="lg-dot lg-hollow"></i>' + k + '<span class="lg-gloss">（' + g + "）</span></span>");
+    }
+    return { nw, oldBlk };
+  })();
   const DELTAS = {
+    "#/p/P_WENJIANG/map": [
+      { tag: "甲", X: "旧版：地图图例 #map-legend 三项（亲至 实心／相关 空心／轨迹），「相关」无释语",
+        Y: "其枝恰一处、全枝替换为：r61-V 注一行＋四项（亲至／相关〔释：史文无其在场明文〕／不在〔释：史文正面明书其不在事发地〕／轨迹），" +
+           "「相关」「不在」二项带 data-presence 与 title、俱空心锚（今枝自今版 index.html 源文＋本门另书之释语合成，不读 DOM）",
+        Z: "r61-V ⑤（裁二百二十九 二③：图例恒列「相关」「不在」，其语守分寸；裁二百三十 二2 准移此枝入已涉）",
+        subs: [[legendDelta.nw, legendDelta.oldBlk]] }],
     "#/chronicle": [
       { tag: "甲", X: "旧版：编年页首（自述 #chron-intro 之后）无账本句",
         Y: "恰一个 " + "<p class=\"vs-ledger-note\" id=\"vs-note-chron\">，紧随 #chron-intro 之后，其文＝自 json 另路复算之覆盖句（数与日期不写死）",
@@ -893,6 +922,9 @@ async function snapshot(br, base, hash, sel, w, h) {
   proof("(k) 关系全景面包屑之边数改一数（今值 +1）", "#/relations", s => s.replace(rosterStat.newS.edges + " 条关系（默认", (rosterStat.newS.edges + 1) + " 条关系（默认"));
   proof("(l) 关系全景于已列之变外另改别处一字（全景加 X）", "#/relations", s => s.replace("全景 · ", "全景X · "));
   proof("(g) 吞别处之差：编年页于已列之变外另改别处一字（标题加 X）", "#/chronicle", s => s.replace("编年 · 大事年表", "编年 · 大事年表X"));
+  proof("(m) 地图页于图例之外另改一字（「示意底图」→「示意底圖」）", "#/p/P_WENJIANG/map", s => s.replace("示意底图", "示意底圖"));
+  proof("(n) 地图图例「相关」之释改一字（「无其在场明文」→「无其在场明书」）", "#/p/P_WENJIANG/map", s => s.replace("（史文无其在场明文）", "（史文无其在场明书）"));
+  proof("(o) 地图图例删去「不在」一行", "#/p/P_WENJIANG/map", s => s.replace(/\s*<span data-presence="不在"[\s\S]*?<\/span><\/span>/, ""));
   if (gateErrs5) { console.log("  ⚠ §五·按类反证有 " + gateErrs5 + " 项不红：本门自身出错（exit 2），今日这一跑不作数"); process.exitCode = 2; }
 
   /* ===== §六 二案之量（供裁，非断言；本节一行也不落改） ===== */
