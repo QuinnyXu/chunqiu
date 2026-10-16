@@ -1902,18 +1902,29 @@ function renderRuler(events) {
  * 代码里不写死任何一条史料；新事件入库即自动上表，前端不需再动一行（B2 合入后编年自动长大）。
  * 排序一律走全站同一个 evtCompare —— (year_bce, sort_key, id)，不另立口径。 */
 const chronView = { states: new Set(), cats: new Set() };
-const CHRON_NO_PLACE = "无地望";     // 事件无 place_id
+const CHRON_NO_PLACE = "无地望";     // 事件无 place_id（编年之「无地望」＝无落点；地图「N 条事件无地望」以坐标计，一词二义，见 design_notes §6.15）
 const CHRON_OTHER = "其他";          // 有地望，但其国未立国色家族
+const CHRON_UNDET = "国属未定";      // 有其地而库中未书其国属（places.state 空，不论坐标）——r61-W，裁二百三十二
 /* 事件的国色签：色取事件**地点所属国**（places.state）的国色，签文一律显示 state 字段原文。
  * places.state 存在复合写法（「齐鲁间」「晋/秦晋间」「周畿内」「申/楚」「郑/鲁」），
  * 故按字符序取首个可识别的国色家族名作**色键**——只用于着色与筛选归组，
  * 不改写、不简化、不替史料决定「这地究竟属谁」：签文照显原文，读者见「齐鲁间」即知其为边地。
  * 无地望者中性签；有地望而其国未立国色家族者（周/曹/邢/蔡/莒…）亦中性，但签文照显其国名——
- * 中性只表「本站未为其立色」，不表「不知其国」。 */
+ * 中性只表「本站未为其立色」，不表「不知其国」。
+ *
+ * r61-W（裁二百三十一 二1、裁二百三十二 取乙）：旧码以 `!raw` 一判，把「无其地」与「有其地而国属未书」
+ * 并作「无地望」——夹谷（`L_JIAGU`，有坐标而 state 空，`E274`）遂被说成无地望，**此语是假的**。今分三类：
+ *   ① 无 `place_id` →「无地望」（事不系于一地，或地望无考）；
+ *   ② 有其地而 `state` 空（**不论坐标**）→「国属未定」——中性签，**不著任何一国之色、不归任何一国之组**；
+ *      字取「国属未定」而不取「齐鲁间」「边地」之类：后者已是对其属之一种说法，而库中 state 之空正是「经传无属国之文」，
+ *      签只说「未定」，不替史料作答（conventions 地望之例；`L_JIAGU.state` 照旧留空，不以数据迁就站）；
+ *   ③ 余照旧书其国（含有其国而无坐标者，如连谷之楚、舒州之齐、随——编年之签答「属何国」，不答「能否落图」）。
+ * 按国之筛：「国属未定」自成一组，居「其他」之后、「无地望」之前——它有其地（异于无地望），而无其国（异于其他）。 */
 function chronStateOf(evt, pal) {
   const pl = evt.place_id ? PLACES[evt.place_id] : null;
   const raw = pl ? (pl.state || "") : "";
-  if (!raw) return { key: null, group: CHRON_NO_PLACE, label: CHRON_NO_PLACE, color: null };
+  if (!pl) return { key: null, group: CHRON_NO_PLACE, label: CHRON_NO_PLACE, color: null };
+  if (!raw) return { key: null, group: CHRON_UNDET, label: CHRON_UNDET, color: null, undet: true };
   let key = null;
   for (const ch of raw) { if (STATE_FAMILY_VAR[ch]) { key = ch; break; } }
   return { key, group: key || CHRON_OTHER, label: raw,
@@ -2012,7 +2023,7 @@ function chronRow(r, prevYear) {
   sum.appendChild(when);
 
   const tag = document.createElement("span");
-  tag.className = "chron-state" + (r.st.color ? "" : " is-neutral");
+  tag.className = "chron-state" + (r.st.color ? "" : " is-neutral") + (r.st.undet ? " is-undet" : "");
   if (r.st.color) tag.style.setProperty("--tag", r.st.color);
   const dot = document.createElement("i");
   dot.setAttribute("aria-hidden", "true");
@@ -2020,7 +2031,9 @@ function chronRow(r, prevYear) {
   tag.appendChild(document.createTextNode(r.st.label));
   tag.title = r.st.group === CHRON_NO_PLACE
     ? "本条无地望（事不系于一地，或地望无考）"
-    : "事发地属「" + r.st.label + "」" + (r.st.color ? "，签色即其国色" : "（该国未立国色，作中性签）");
+    : r.st.undet
+      ? "事发地「" + ((PLACES[e.place_id] || {}).ancient_name || e.place_id) + "」国属未定：库中未书其所属之国（经传无属国之文），故不著国色、不归任何一国"
+      : "事发地属「" + r.st.label + "」" + (r.st.color ? "，签色即其国色" : "（该国未立国色，作中性签）");
   sum.appendChild(tag);
 
   const title = document.createElement("span");
@@ -2082,7 +2095,7 @@ function renderChronFilters(rows) {
   const pal = Object.fromEntries(Object.keys(STATE_FAMILY_VAR).map(k => [k, familyColor(k)]));
   const cnt = (fn) => rows.reduce((m, r) => { const k = fn(r); m[k] = (m[k] || 0) + 1; return m; }, {});
   const sc = cnt(r => r.st.group);
-  const stateItems = [...Object.keys(STATE_FAMILY_VAR), CHRON_OTHER, CHRON_NO_PLACE]
+  const stateItems = [...Object.keys(STATE_FAMILY_VAR), CHRON_OTHER, CHRON_UNDET, CHRON_NO_PLACE]
     .filter(k => sc[k]).map(k => ({ key: k, n: sc[k], color: pal[k] || null }));
   const cc = cnt(r => r.e.category || CHRON_OTHER);
   const catItems = Object.keys(CAT_ICON).filter(k => cc[k]).map(k => ({ key: k, n: cc[k], color: null }));

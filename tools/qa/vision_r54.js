@@ -110,7 +110,9 @@ function recomputeFromData() {
   const cats = new Set(events.map(e => e.category || "其他"));
   const groups = new Set(events.map(e => {
     const pl = e.place_id ? PL.get(e.place_id) : null, raw = pl ? (pl.state || "") : "";
-    if (!raw) return "无地望";
+    // r61-W（裁二百三十二 取乙）：无地（无 place_id）归「无地望」；有其地而 state 空归「国属未定」（期值随裁而改）
+    if (!pl) return "无地望";
+    if (!raw) return "国属未定";
     for (const ch of raw) if (STATE_FAMILIES.includes(ch)) return ch;
     return "其他";
   }));
@@ -806,6 +808,21 @@ async function snapshot(br, base, hash, sel, w, h) {
     }
     return { nw, oldBlk };
   })();
+  /* r61-W 校基线（裁二百三十二 取乙）：编年页之二项期望差异（丙：按国之筛；丁：「国属未定」之行与签）。
+   *   其事之集与其数俱另路自 events.json＋places.json 取，不读 DOM；签之 title 系本件所定之文，照书于此为 Y。 */
+  const chronW = (() => {
+    const J = (n) => JSON.parse(fs.readFileSync(path.join(SITE, "data", n + ".json"), "utf8"));
+    const evs = J("events"), PLx = new Map(J("places").map(p => [p.id, p]));
+    const noPlace = evs.filter(e => !e.place_id).length;
+    const undetE = evs.filter(e => e.place_id && PLx.has(e.place_id) && !(PLx.get(e.place_id).state || ""));
+    const chip = (k, n) => '<button type="button" class="chip chron-chip" data-key="' + k + '" aria-pressed="false">' + k + " " + n + "</button>";
+    const row = (e, st) => 'data-eid="' + e.id + '" data-year="' + e.year_bce + '" data-state="' + st + '"';
+    return { noPlace, old: noPlace + undetE.length, chip,
+      undet: undetE.map(e => ({ id: e.id, rowNew: row(e, "国属未定"), rowOld: row(e, "无地望"),
+        tagNew: '<span class="chron-state is-neutral is-undet" title="事发地「' + (PLx.get(e.place_id).ancient_name || e.place_id) +
+          '」国属未定：库中未书其所属之国（经传无属国之文），故不著国色、不归任何一国"><i aria-hidden="true"></i>国属未定</span>',
+        tagOld: '<span class="chron-state is-neutral" title="本条无地望（事不系于一地，或地望无考）"><i aria-hidden="true"></i>无地望</span>' })) };
+  })();
   const DELTAS = {
     "#/p/P_WENJIANG/map": [
       { tag: "甲", X: "旧版：地图图例 #map-legend 三项（亲至 实心／相关 空心／轨迹），「相关」无释语",
@@ -821,7 +838,17 @@ async function snapshot(br, base, hash, sel, w, h) {
       { tag: "乙", X: "旧版：编年页自述「其中 " + rosterStat.oldS.orphan + " 条未系于任何主角」（旧码名册 " + rosterStat.oldS.n + " 人）",
         Y: "「其中 " + rosterStat.newS.orphan + " 条未系于任何主角」，恰一处，仅此数异（今名册 " + rosterStat.newS.n + " 人；两数皆另路自 json 与旧 app.js 名册算出，不读 DOM）",
         Z: "r61-H（c787c70，裁二百一十九：祁奚、韩厥升一级、介之推降二级）、r61-M（01206f4，裁二百二十二：赵盾、郤克、栾书升一级）——名册自 34 增至 38，未系于主角之事件相应由 72 减至 41",
-        subs: [["其中 " + rosterStat.newS.orphan + " 条未系于任何主角", "其中 " + rosterStat.oldS.orphan + " 条未系于任何主角"]] }],
+        subs: [["其中 " + rosterStat.newS.orphan + " 条未系于任何主角", "其中 " + rosterStat.oldS.orphan + " 条未系于任何主角"]] },
+      { tag: "丙", X: "旧版：按国之筛末枚为「无地望 " + chronW.old + "」（旧码以 state 空即归无地望，有地而国属未书之事并入其中）",
+        Y: "其处恰一段：「国属未定 " + chronW.undet.length + "」一钮＋「无地望 " + chronW.noPlace + "」一钮（二数另路自 events／places.json：无 place_id 者、有其地而 state 空者）",
+        Z: "r61-W（裁二百三十一 二1、裁二百三十二 取乙：有其地而 state 空者另书「国属未定」，自成一组，居「其他」之后、「无地望」之前）",
+        subs: [[chronW.chip("国属未定", chronW.undet.length) + chronW.chip("无地望", chronW.noPlace), chronW.chip("无地望", chronW.old)]] },
+      { tag: "丁", X: "旧版：「有其地而 state 空」之事（今 " + chronW.undet.map(x => x.id).join("、") + "）其行 data-state＝无地望、其签书「无地望」",
+        Y: "其行 data-state＝国属未定；其签恰为中性而加 is-undet、书「国属未定」、title 书其地之名与「库中未书其所属之国」——逐事各一处",
+        Z: "r61-W（同上；签文不暗示其属某国，L_JIAGU.state 照旧留空）",
+        subs: chronW.undet.flatMap(x => [
+          [x.rowNew, x.rowOld],
+          [x.tagNew, x.tagOld]]) }],
     "#/library": [
       { tag: "甲", X: "旧版：资料库页首（标题 #library-title 之后）无账本句",
         Y: "恰一个 <p class=\"vs-ledger-note\" id=\"vs-note-library\">，紧随 #library-title 之后，其文＝自 json 另路复算之覆盖句",
@@ -971,6 +998,7 @@ async function snapshot(br, base, hash, sel, w, h) {
   proof("(k) 关系全景面包屑之边数改一数（今值 +1）", "#/relations", s => s.replace(rosterStat.newS.edges + " 条关系（默认", (rosterStat.newS.edges + 1) + " 条关系（默认"));
   proof("(l) 关系全景于已列之变外另改别处一字（全景加 X）", "#/relations", s => s.replace("全景 · ", "全景X · "));
   proof("(g) 吞别处之差：编年页于已列之变外另改别处一字（标题加 X）", "#/chronicle", s => s.replace("编年 · 大事年表", "编年 · 大事年表X"));
+  proof("(p) 编年页「国属未定」之签回书「无地望」（r61-W 之按类反证）", "#/chronicle", s => s.replace(/<span class="chron-state is-neutral is-undet"[^>]*><i aria-hidden="true"><\/i>国属未定<\/span>/, '<span class="chron-state is-neutral" title="本条无地望（事不系于一地，或地望无考）"><i aria-hidden="true"></i>无地望</span>'));
   proof("(m) 地图页于图例之外另改一字（「示意底图」→「示意底圖」）", "#/p/P_WENJIANG/map", s => s.replace("示意底图", "示意底圖"));
   proof("(n) 地图图例「相关」之释改一字（「无其在场明文」→「无其在场明书」）", "#/p/P_WENJIANG/map", s => s.replace("（史文无其在场明文）", "（史文无其在场明书）"));
   proof("(o) 地图图例删去「不在」一行", "#/p/P_WENJIANG/map", s => s.replace(/\s*<span data-presence="不在"[\s\S]*?<\/span><\/span>/, ""));

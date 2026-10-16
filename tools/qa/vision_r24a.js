@@ -60,7 +60,8 @@
 // 【退出码】（r61-T 补，裁二百二十七 三③、旧书裁二百〇五 三②；照 prod_freshness.js 门头之式）
 //   0 ＝ 全过（汇总「N 项通过，0 项未过」）；
 //   1 ＝ 判红——汇总之「未过」≥1，即任一 `[FAIL]` 行（门说「未过」，退出码即不得说「过」）；
-//   2 ＝ 本门自身出错——页面驱动抛错（浏览器起不来、选择器超时、端口等），此时其「通过／未过」之数不可尽信。
+//   2 ＝ 本门自身出错——页面驱动抛错（浏览器起不来、选择器超时、端口等），此时其「通过／未过」之数不可尽信；
+//       及（r61-W 起）按类反证不红者（判据空转）。
 //   ★ 此前本门只印 `[FAIL]` 而恒 exit 0（且无 .catch，抛错时 Node 以 1 退，与判红混同）——自 r61-T 起三分如上。
 //
 // r61-T 校基线（裁二百二十七 三；二条期值随裁而旧、一条量具过宽，俱不松——详见各处注）：
@@ -70,6 +71,7 @@
 //       今改取 `details[data-eid]`（事件卡之专属），断言「条数＝挂链数、无缺」一字不变。
 //   ★ §11「无地望事件 N 条一律中性签」之红**未治**：门对，站之标签有误（E274 之地 L_JIAGU 有坐标而 state 空，
 //       编年之签书「无地望」），系站之旧病（r45 起），呈裁，不以改门了之。
+//       〔r61-W 注：已治于站（裁二百三十二 取乙：有其地而 state 空者另书「国属未定」）；本门另立二中性集之判与按类反证。上文原字照留。〕
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -77,6 +79,23 @@ const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; cha
 function srv(root) { return new Promise((res, rej) => { const s = http.createServer((rq, rs) => { let u = decodeURIComponent(rq.url.split("?")[0].split("#")[0]); if (u === "/") u = "/index.html"; const fp = path.join(root, u); if (!fp.startsWith(root)) { rs.writeHead(403); rs.end(); return; } fs.readFile(fp, (e, d) => { if (e) { rs.writeHead(404); rs.end(); return; } rs.writeHead(200, { "Content-Type": MIME[path.extname(fp).toLowerCase()] || "application/octet-stream" }); rs.end(d); }); }); s.on("error", rej); s.listen(0, "127.0.0.1", () => res(s)); }); }
 /* r61-T：期值之另路——site/data/*.json 由 Node 端直读，不取自被测页 */
 const EVENTS_N_FILE = JSON.parse(fs.readFileSync(path.join(SITE_DIR, "data", "events.json"), "utf8")).length;
+/* r61-W（裁二百三十二 取乙）：编年签之二中性集，另路自 events.json＋places.json 取（Node 端，不取被测页）——
+ *   「无地望」＝无 place_id；「国属未定」＝有其地而其地 state 空（不论坐标）。二集不相交，合之即旧「实测中性」之数。 */
+const W_EVENTS = JSON.parse(fs.readFileSync(path.join(SITE_DIR, "data", "events.json"), "utf8"));
+const W_PLACES = new Map(JSON.parse(fs.readFileSync(path.join(SITE_DIR, "data", "places.json"), "utf8")).map(p => [p.id, p]));
+const W_NOPLACE = W_EVENTS.filter(e => !e.place_id).map(e => e.id).sort();
+const W_UNDET = W_EVENTS.filter(e => e.place_id && W_PLACES.has(e.place_id) && !(W_PLACES.get(e.place_id).state || "")).map(e => e.id).sort();
+/* 二集之判（正验与反证共用）：got＝页上 data-state 为「无地望」／「国属未定」之行之 eid 与其签之形 */
+function judgeChronNeutral(got) {
+  const errs = [], eq = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+  if (!eq(got.noPlace, W_NOPLACE)) errs.push("「无地望」之集 " + got.noPlace.length + " 条≠期 " + W_NOPLACE.length + " 条（多 " + got.noPlace.filter(x => !W_NOPLACE.includes(x)).join("/") + "）");
+  if (!eq(got.undet, W_UNDET)) errs.push("「国属未定」之集 " + got.undet.join("/") + "≠期 " + W_UNDET.join("/"));
+  if (got.noPlaceBadTag.length) errs.push("「无地望」行签非中性或其字非「无地望」：" + got.noPlaceBadTag.join("/"));
+  if (got.undetBadTag.length) errs.push("「国属未定」行签非中性、非 is-undet、或其字非「国属未定」、或著色：" + got.undetBadTag.join("/"));
+  if (got.filter.noPlace !== W_NOPLACE.length || got.filter.undet !== W_UNDET.length) errs.push("按国之筛二组之数 " + JSON.stringify(got.filter) + " 不合");
+  return errs;
+}
+let GATE_ERR = 0;   // r61-W：按类反证不红之计（门自身出错 → exit 2）
 const log = [];
 const say = (...a) => { const s = a.join(" "); log.push(s); console.log(s); };
 const H = (t) => say("\n===== " + t + " =====");
@@ -878,6 +897,19 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
       noPlaceNeutral: [...list.querySelectorAll('details[data-state="无地望"] .chron-state')].filter(t => t.classList.contains("is-neutral")).length,
     };
   });
+  /* r61-W：读二中性集（正验与按类反证共用之量） */
+  const readChronNeutral = () => p.evaluate(() => {
+    const list = document.querySelector("#chron-list");
+    const ids = (st) => [...list.querySelectorAll('details[data-state="' + st + '"]')].map(d => d.dataset.eid).sort();
+    const bad = (st, word, undet) => [...list.querySelectorAll('details[data-state="' + st + '"]')].filter(d => {
+      const t = d.querySelector(".chron-state");
+      return !t || !t.classList.contains("is-neutral") || t.classList.contains("is-undet") !== undet ||
+        t.textContent.trim() !== word || !!t.style.getPropertyValue("--tag");
+    }).map(d => d.dataset.eid);
+    const chip = (k) => { const b = document.querySelector('#chron-f-state .chron-chip[data-key="' + k + '"]'); return b ? Number((b.textContent.match(/(\d+)\s*$/) || [])[1]) : 0; };
+    return { noPlace: ids("无地望"), undet: ids("国属未定"), noPlaceBadTag: bad("无地望", "无地望", false), undetBadTag: bad("国属未定", "国属未定", true),
+             filter: { noPlace: chip("无地望"), undet: chip("国属未定") } };
+  });
   say("  行数 " + chr.nRows + " / 库内事件 " + chr.nEvents + "；渲染耗时 " + chr.renderMs + " ms");
   say("  首三条 " + chr.firstThree.join(",") + " … 末三条 " + chr.lastThree.join(","));
   say("  无主角挂链 " + chr.orphan.length + " 条：" + chr.orphan.join("/"));
@@ -894,6 +926,30 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   OK(chr.icons === chr.nRows && chr.tags === chr.nRows, "每行皆有分类图标与国色签（图标 " + chr.icons + " / 签 " + chr.tags + "）");
   OK(chr.noPlaceNeutral === chr.noPlaceData && chr.noPlaceData > 0,
      "无地望事件 " + chr.noPlaceData + " 条一律中性签（实测中性 " + chr.noPlaceNeutral + "）");
+  /* r61-W（裁二百三十二 取乙）：二中性集另路自 json 取，逐条对页上之行与签；二集不相交，合之＝旧「实测中性」之数（今 56） */
+  {
+    const gotN = await readChronNeutral(), eN = judgeChronNeutral(gotN);
+    say("  二中性集（json 另路）：无地望 " + W_NOPLACE.length + " 条；国属未定 " + W_UNDET.length + " 条（" + W_UNDET.join("/") + "）；合 " + (W_NOPLACE.length + W_UNDET.length));
+    OK(eN.length === 0 && W_UNDET.length > 0 && !W_NOPLACE.some(x => W_UNDET.includes(x)),
+       "编年签二中性集：「无地望」" + W_NOPLACE.length + " 条＝无 place_id 者、「国属未定」" + W_UNDET.length + " 条＝有其地而 state 空者（俱 json 另路），二集不相交、合之 " + (W_NOPLACE.length + W_UNDET.length) + "；签俱中性、二形可分、不著国色；按国之筛二组之数相合" + (eN.length ? "——" + eN.join("；") : ""));
+    // 按类反证：页内令 chronStateOf 回旧式（state 空即书「无地望」），重绘后同一判须红；不红＝门自身出错（exit 2）
+    await p.evaluate(() => {
+      window.__chronStateOfW = chronStateOf;
+      window.chronStateOf = (evt, pal) => { const pl = evt.place_id ? PLACES[evt.place_id] : null; const raw = pl ? (pl.state || "") : "";
+        if (!raw) return { key: null, group: "无地望", label: "无地望", color: null }; return window.__chronStateOfW(evt, pal); };
+      renderChronicle();
+    });
+    const eR = judgeChronNeutral(await readChronNeutral());
+    say("  〔按类反证〕令夹谷回书「无地望」（旧式 chronStateOf）→ " + (eR.length ? "当场红：" + eR[0] : "★ 不红"));
+    if (!eR.length) { GATE_ERR++; say("  [FAIL] 〔门自检〕按类反证不红——二中性集之判空转（本门自身出错，exit 2）"); }
+    await p.evaluate(() => { window.chronStateOf = window.__chronStateOfW; renderChronicle(); });
+    OK(judgeChronNeutral(await readChronNeutral()).length === 0, "反证撤后复绿（chronStateOf 复原、重绘）");
+    if (W_UNDET.includes("E274")) {
+      await p.evaluate(() => { const d = document.querySelector('#chron-list details[data-eid="E274"]'); d.scrollIntoView({ block: "center" }); });
+      await p.waitForTimeout(300);
+      await p.locator('#chron-list details[data-eid="E274"]').screenshot({ path: path.join(OUT, "r61w_chron_E274.png") }).catch(() => {});
+    }
+  }
   OK(chr.theme.toUpperCase() === "#B4652F",
      "编年视图内 --theme 归暖赭（" + chr.theme + "）——全局视图不随人物语境染色，国别信息只由国色签承担");
   OK(chr.idxEvents === chr.nEvents, "搜索索引·事件组已扩至全库（" + chr.idxEvents + " / " + chr.nEvents + "）");
@@ -2186,5 +2242,5 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   fails.forEach(f => say(f));
   await b.close(); if (s) s.close();
   fs.writeFileSync(path.join(OUT, "r24a_log.txt"), log.join("\n"), "utf8");
-  process.exit(fails.length ? 1 : 0);   // r61-T：门说「未过」即 exit 1（见门头【退出码】）
+  process.exit(GATE_ERR ? 2 : fails.length ? 1 : 0);   // r61-T：门说「未过」即 exit 1；r61-W：按类反证不红即 exit 2（见门头【退出码】）
 })().catch(e => { console.error("本门自身出错（exit 2）：", e); process.exit(2); });

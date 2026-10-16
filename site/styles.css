@@ -1587,6 +1587,10 @@ button.chron-chip[aria-pressed="true"] {
 }
 .chron-state.is-neutral { color: var(--ink-soft); border-style: dashed; }
 .chron-state.is-neutral i { background: none; border: 1px solid currentColor; }
+/* r61-W「国属未定」（有其地而库中未书其国属）：同为中性、不著国色，而形与「无地望」可分——
+ * 点线框（无地望为虚线框）、方形空心记（无地望为圆形空心记）：有其地，故不作「空」之圆；无其国，故不著色。 */
+.chron-state.is-undet { border-style: dotted; }
+.chron-state.is-undet i { border-radius: 1px; }
 
 /* 所系人物徽记签（编年卡内）：主角带徽记＋国色，配角只出名字；
  * 「相关」＝史文无其在场明文，作虚线空心签——与地图空心点、时间线 presence 标签同一套语汇。 */
