@@ -1,3 +1,10 @@
+/* 【退出码】（r61-X 补，裁二百三十一 二4；照 prod_freshness.js 门头之式）
+ *   0 ＝ 量成且无判红；1 ＝ 判红——本门之判据（相对现库：新枚任一尺度之最紧对不得紧于现库同尺度之最紧对）有不合者，
+ *        即任一新枚之 verdict 为「⚠ 紧于现库最紧对·须改形」；
+ *   2 ＝ 本门自身出错（浏览器起不来、徽记文件读不到等抛错，`.catch` 出）。
+ *   ★ 余者（「通过·但已进现库最紧 2%…记观察」、点名逐对之 IoU 与「通过／存疑／撞形」或「更紧／松」之注、同弧组内最紧）俱为记实，不入退出码。
+ *   ★ 此前本门「须改形」只印不判、恒 exit 0，抛错以 1 退——自 r61-X 起三分如上。
+ */
 /* 经纬春秋 · r26b 徽记撞形实测（Vision）
  *
  * 为什么要有这个脚本：国色制（design_notes §2.0）下徽记是「个人身份的唯一色外锚点」，
@@ -41,6 +48,7 @@ const NAMES = {
  * （design_notes §4），但「论对＝牍」「政制＝矩绳」两枚新近才立，仍值得报数留痕。 */
 const CATS = ["lundui", "zhengzhi", "qita", "waijiao", "zaiyi", "xianghui", "huimeng"];
 
+let MUST_REDRAW = 0;   // r61-X：须改形之计
 (async () => {
   const { chromium } = require("playwright");
   const br = await chromium.launch();
@@ -118,6 +126,7 @@ const CATS = ["lundui", "zhengzhi", "qita", "waijiao", "zaiyi", "xianghui", "hui
         "   " + r.v.toFixed(3) + "  " + NAMES[r.b] + "（墨量 " + ink(masks[r.b]) + "）"));
       const worst = rows[0];
       const nT = tighter(worst.v);
+      if (worst.v > base.v) MUST_REDRAW++;   // r61-X：判据不合即判红（见门头【退出码】）
       const verdict = worst.v > base.v ? "⚠ 紧于现库最紧对·须改形"
         : nT >= oldPairs.length * 0.02 ? "通过（现库尚有 " + nT + " 对比它更紧）"
         : "通过·但已进现库最紧 2%（现库仅 " + nT + " 对比它更紧），记观察";
@@ -178,4 +187,6 @@ const CATS = ["lundui", "zhengzhi", "qita", "waijiao", "zaiyi", "xianghui", "hui
   }
   console.log("\n对照图：screenshots/r26b_badges_24px.png、r26b_badges_22px.png");
   await br.close();
-})().catch(e => { console.error(e); process.exit(1); });
+  console.log("\n—— 判红（须改形）" + MUST_REDRAW + " ——");
+  process.exit(MUST_REDRAW ? 1 : 0);
+})().catch(e => { console.error(e); process.exit(2); });

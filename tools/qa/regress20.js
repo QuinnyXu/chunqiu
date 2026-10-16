@@ -1,3 +1,8 @@
+/* 【退出码】（r61-X 补，裁二百三十一 二4；照 prod_freshness.js 门头之式）
+ *   0 ＝ 报成且无判红；1 ＝ 判红——本门余皆只报（各人播放钮之显隐、降级、状态行），唯「页面错误」（pageerror）非空即 1；
+ *   2 ＝ 本门自身出错（浏览器起不来等抛错，`.catch` 出）。
+ *   ★ 此前本门只报、恒 exit 0，抛错以 1 退——自 r61-X 起三分如上。
+ */
 "use strict";
 const http=require("http"),fs=require("fs"),path=require("path");
 const SITE_DIR=path.resolve(__dirname,"..","..","site");
@@ -32,4 +37,5 @@ const IDS=["P_WENJIANG","P_LUHUAN","P_QIXIANG","P_ZHENGZHAO","P_JIZHONG","P_ZHEN
   console.log("\n降级清单:",degraded.join("、"));
   console.log("页面错误:",errs.length?errs.join(" | "):"无");
   await b.close();if(s)s.close();
-})().catch(e=>{console.error(e);process.exit(1);});
+  process.exit(errs.length?1:0);   // r61-X：页面抛错即判红（见门头【退出码】）
+})().catch(e=>{console.error(e);process.exit(2);});

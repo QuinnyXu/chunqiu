@@ -477,9 +477,18 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
         const y = a.find(z => z.eid === x.eid);
         console.log("      " + x.eid + "  " + JSON.stringify(y.rect) + " → " + JSON.stringify(x.rect));
       }
-      ok(rectDiff.length === 8 || rectDiff.length === 9,
-        "375px：叔向盒矩形两版有差 " + rectDiff.length + " 行 —— **此差即甲之治**（旧版此宽下 9 行溢出其 8），不是回归；DOM 仍逐位相同（上条已断）",
-        "详见交付文档「验收偏差上报」");
+      /* ★ r61-X 替代之断（裁二百三十一 二3）。旧断言原文：
+       *     ok(rectDiff.length === 8 || rectDiff.length === 9,
+       *       "375px：叔向盒矩形两版有差 " + rectDiff.length + " 行 —— **此差即甲之治**（旧版此宽下 9 行溢出其 8），不是回归；…")
+       *   其由：「8 或 9」是范围之断，且系于叔向之行数（同数据对读不能钉于当日数据，r61-T 呈）——叔向增事即漂。
+       *   今断：「两版盒矩形有差之行之集 ＝ 旧版此宽溢出之行之集」——二集俱于**同一跑、同一份数据**量得
+       *   （一为新旧二页盒矩形之比，一为旧版页上 MEASURE 之溢出量），异路而互证；不系叔向之行数，且比「8 或 9」更严
+       *   （差须恰落溢出之行，不多不少）。并断旧版溢出之集非空（否则二空集相等即空转）。 */
+      const oldOverIds = (await op.evaluate(eval("(" + MEASURE + ")"))).filter(r => r.over > 0.5).map(r => r.eid).sort();
+      const diffIds = rectDiff.map(x => x.eid).sort();
+      ok(oldOverIds.length > 0 && JSON.stringify(diffIds) === JSON.stringify(oldOverIds),
+        "375px：叔向两版盒矩形有差之行之集＝旧版此宽溢出之行之集（同一跑量得；此差即甲之治，不是回归；DOM 仍逐位相同，上条已断）",
+        "有差 " + diffIds.length + " 行［" + diffIds.join(",") + "］／旧版溢出 " + oldOverIds.length + " 行［" + oldOverIds.join(",") + "］");
     }
   }
 

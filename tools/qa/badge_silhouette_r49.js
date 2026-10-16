@@ -1,3 +1,10 @@
+/* 【退出码】（r61-X 补，裁二百三十一 二4；照 prod_freshness.js 门头之式）
+ *   0 ＝ 量成且无判红；1 ＝ 判红——本门之判据（相对现库：新枚任一尺度之最紧对不得紧于现库同尺度之最紧对）有不合者，
+ *        即任一新枚之 verdict 为「⚠ 紧于现库最紧对·须改形」；
+ *   2 ＝ 本门自身出错（浏览器起不来、徽记文件读不到等抛错，`.catch` 出）。
+ *   ★ 余者（「通过·但已进现库最紧 2%…记观察」、点名逐对之 IoU 与「通过／存疑／撞形」或「更紧／松」之注、同弧组内最紧）俱为记实，不入退出码。
+ *   ★ 此前本门「须改形」只印不判、恒 exit 0，抛错以 1 退——自 r61-X 起三分如上。
+ */
 /* 〔r61-M 改〕名录 35→38：纳赵盾·取橐（badge_zhaodun，r61F 备选「取橐」稿）、郤克·鼓与双枹、栾书·三军之营（NEW）；晋组改 8 人；
  * 点名逐对改为三枚对晋簇其余五枚及同形近邻；判据、三尺度、线宽一字未动。祁奚、韩厥自此不再标「新」。
  *
@@ -61,6 +68,7 @@ const GRP = {
 };
 const LU = GRP["鲁组 4→5 人"];
 
+let MUST_REDRAW = 0;   // r61-X：须改形之计
 (async () => {
   const { chromium } = require("playwright");
   const br = await chromium.launch();
@@ -132,6 +140,7 @@ const LU = GRP["鲁组 4→5 人"];
         "   " + r.v.toFixed(3) + "  " + NAMES[r.b] + "（墨量 " + ink(masks[r.b]) + "）"));
       const worst = rows[0];
       const nT = tighter(worst.v);
+      if (worst.v > base.v) MUST_REDRAW++;   // r61-X：判据不合即判红（见门头【退出码】）
       const verdict = worst.v > base.v ? "⚠ 紧于现库最紧对·须改形"
         : nT >= oldPairs.length * 0.02 ? "通过（现库尚有 " + nT + " 对比它更紧）"
         : "通过·但已进现库最紧 2%（现库仅 " + nT + " 对比它更紧），记观察";
@@ -200,4 +209,6 @@ const LU = GRP["鲁组 4→5 人"];
   }
   console.log("\n对照图：screenshots/r61M_badges_24px.png、r61M_badges_22px.png、r61M_badges_18px.png");
   await br.close();
-})().catch(e => { console.error(e); process.exit(1); });
+  console.log("\n—— 判红（须改形）" + MUST_REDRAW + " ——");
+  process.exit(MUST_REDRAW ? 1 : 0);
+})().catch(e => { console.error(e); process.exit(2); });

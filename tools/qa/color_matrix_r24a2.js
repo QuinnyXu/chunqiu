@@ -16,11 +16,20 @@
  *   node tools/qa/color_matrix_r24a2.js            全矩阵复验（默认）
  *   node tools/qa/color_matrix_r24a2.js --search   候选色搜索（换色相时用）
  */
+/* 【退出码】（r61-X 立，裁二百三十一 二2；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过——判据俱合（凡越线者皆在 tools/qa/color_exemptions.js 之豁免清单内，且其值与清单逐字相合）；
+ *   1 ＝ 判红——裁定 3 之判据（国色两两 ΔE76 ≥13.2、诗歌层色对全体 ≥13.2 与双底线）有不合者，或清单外有越线者、
+ *        或清单之条其值已变／已不越线（清单过时）；
+ *   2 ＝ 本门自身出错（读不到色值等抛错）。`--search` 为取色之器，不判，恒 0。
+ *   ★ 此前本门印 ✗ 而恒 exit 0（只报）——自 r61-X 起判化：豁免比值不比名，清单外越线即红。
+ */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..", "..");
+const CX = require("./color_exemptions.js");
+const TALLY = CX.makeTally();
 const CSS = fs.readFileSync(path.join(ROOT, "site", "styles.css"), "utf8");
 const APP = fs.readFileSync(path.join(ROOT, "site", "app.js"), "utf8");
 
@@ -157,6 +166,7 @@ function report() {
     if (d < T_DE) { fail++; console.log("  ✗ " + STATES[i].name + "×" + STATES[j].name + " " + fmt(d)); }
   }
   console.log("  最紧：" + worst.a + "×" + worst.b + " " + fmt(worst.d) + "；低于判据 " + fail + " 对");
+  TALLY.judge(fail === 0, "【三】九国色两两 ΔE76 ≥" + T_DE + "（裁定 3 主判据，无豁免）：低于者 " + fail + " 对");
 
   // 诗歌层色 vs 全体（本批焦点）
   console.log("\n【四】诗歌层色 " + POEM_HEX + " vs 全体（本批焦点，" + (ALL.length - 1) + " 项）");
@@ -171,6 +181,8 @@ function report() {
     (poemFail.length ? "（" + poemFail.map(r => r.c.name + " " + r.d.toFixed(2)).join("、") + "）" : ""));
   console.log("  → 双底线：对绢帛 " + fmt(contrast(POEM_HEX, SILK)) + "（≥" + T_SILK + "）、对白 " +
     fmt(contrast(POEM_HEX, WHITE)) + "（≥" + T_WHITE + "）、对绢帛面板 " + fmt(contrast(POEM_HEX, SILK_PANEL)));
+  TALLY.judge(poemFail.length === 0, "【四】诗歌层色对全体 ΔE76 ≥" + T_DE + "（design_notes §2.4.1，无豁免）：低于者 " + poemFail.length + " 项");
+  TALLY.judge(contrast(POEM_HEX, SILK) >= T_SILK && contrast(POEM_HEX, WHITE) >= T_WHITE, "【四】诗歌层色双底线（对绢帛 ≥" + T_SILK + "、对白 ≥" + T_WHITE + "）");
 
   // 九国色 vs 全部功能色（含关系线与中性色）
   console.log("\n【五】九国色 × 全部非国色（每国列出最近三项）");
@@ -186,15 +198,18 @@ function report() {
   for (const u of under.sort((a, b) => a.d - b.d)) {
     console.log("    " + u.s + " × " + u.c.name + "（" + u.c.group + "） ΔE " + fmt(u.d));
   }
+  // r61-X：越线者逐对比豁免清单（比值）；清单外或值变即红
+  const sHex = Object.fromEntries(STATES.map(x => [x.name, x.hex]));
+  CX.printDE(CX.judgeDE(under.map(u => ({ aHex: sHex[u.s], aName: u.s, bHex: u.c.hex, bName: u.c.name, d: u.d })), ALL.map(c => c.hex)),
+    TALLY, "【五】国色 × 非国色 ΔE76 越线之对，比豁免清单");
 
   // 双底线全量
   console.log("\n【六】双底线全量实测（前景色对底：仅列不达标者）");
   const dim = ALL.filter(c => contrast(c.hex, SILK) < T_SILK || contrast(c.hex, WHITE) < T_WHITE);
   if (!dim.length) console.log("  全部达标。");
-  for (const c of dim) {
-    console.log("  ✗ " + c.name + " " + c.hex + " 对绢帛 " + fmt(contrast(c.hex, SILK)) +
-      " / 对白 " + fmt(contrast(c.hex, WHITE)) + "（" + c.group + "）");
-  }
+  // r61-X：不达者逐色比豁免清单（比值）；旧以 ✗ 列而不判，今清单内相合者记「豁免」，清单外或值变即红
+  CX.printContrast(CX.judgeContrast(dim.map(c => ({ hex: c.hex, name: c.name, silk: contrast(c.hex, SILK), white: contrast(c.hex, WHITE) })), ALL.map(c => c.hex)),
+    TALLY, "【六】双底线不达之色，比豁免清单");
   console.log("\n  注：界线 line / 年轴刻度 / 绢帛面板等为「面与线」而非正文前景，本就不受 4.5 正文判据约束；");
   console.log("      双底线只适用于承载文字或细线语义的色（国色、层色、强调色）。");
 }
@@ -241,4 +256,7 @@ function search() {
 }
 
 if (process.argv.includes("--search")) search();
-else report();
+else {
+  try { report(); } catch (e) { console.error("本门自身出错（exit 2）：", e); process.exit(2); }
+  TALLY.exit();
+}

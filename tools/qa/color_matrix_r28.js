@@ -19,11 +19,21 @@
  *   node tools/qa/color_matrix_r28.js --search   第 11 色候选搜索（取色时用）
  *   node tools/qa/color_matrix_r28.js --search '#2E6B3A'  附带指定色逐一体检
  */
+/* 【退出码】（r61-X 立，裁二百三十一 二2；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过——裁定 3 之判据俱合（国色两两 ΔE76 ≥13.2、国色双底线），新立之色对全体 ≥13.2，
+ *        且国色×非国色之越线者皆在 tools/qa/color_exemptions.js 豁免清单内、其值与清单逐字相合；
+ *   1 ＝ 判红——上列任一不合，或清单外有越线者、清单之条值已变／已不越线（清单过时）；
+ *   2 ＝ 本门自身出错（读不到色值等抛错）。`--search` 为取色之器，不判，恒 0。
+ *   ★ 此前本门印 ✓／✗ 而恒 exit 0，且以国名之集 KNOWN_WATCH（齐郑秦鲁）判「既有」——比名：齐郑秦鲁日后新撞一色亦被放过。
+ *     自 r61-X 起判化，豁免改由清单比值（色值对＋两位小数之实测值）。
+ */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..", "..");
+const CX = require("./color_exemptions.js");
+const TALLY = CX.makeTally();
 const CSS = fs.readFileSync(path.join(ROOT, "site", "styles.css"), "utf8");
 const APP = fs.readFileSync(path.join(ROOT, "site", "app.js"), "utf8");
 
@@ -147,8 +157,8 @@ const SILK = cssVar("silk"), SILK_PANEL = cssVar("silk-panel"), WHITE = "#FFFFFF
 const NON_STATE = [...FUNCS, ...REL, ...MISC];
 const ALL = [...STATES, ...NON_STATE];
 
-/* r24a-2 已裁定的既有观察项（本轮不动）——用于把「既有」与「本轮新增」分开报数 */
-const KNOWN_WATCH = new Set(["齐", "郑", "秦", "鲁"]);
+/* 〔r61-X 废〕原 `KNOWN_WATCH = new Set(["齐", "郑", "秦", "鲁"])`——以国名判「既有观察项」（比名），
+ *   齐郑秦鲁四国日后新撞任何一色亦被当作既有放过。今改由 tools/qa/color_exemptions.js 之清单比值（裁二百三十一 二2）。 */
 
 const T_DE = 13.2, T_SILK = 3.5, T_WHITE = 4.1;
 const fmt = (n, w = 6) => n.toFixed(2).padStart(w);
@@ -182,6 +192,7 @@ function report() {
   console.log("  低于判据 " + T_DE + " 者：" + fail.length + " 对" +
     (fail.length ? "（" + fail.map(p => p.a + "×" + p.b + " " + p.d.toFixed(2)).join("、") + "）" : "") +
     (fail.length ? "  ✗" : "  ✓"));
+  TALLY.judge(fail.length === 0, "【二】国色两两 ΔE76 ≥" + T_DE + "（裁定 3 主判据，无豁免）：低于者 " + fail.length + " 对");
 
   console.log("\n【三】双底线逐色实测（判据 对绢帛 ≥" + T_SILK + "、对白 ≥" + T_WHITE + "）");
   let minSilk = { v: Infinity }, minWhite = { v: Infinity };
@@ -195,6 +206,7 @@ function report() {
   }
   console.log("  → 最低 对绢帛 " + fmt(minSilk.v) + "（" + minSilk.n + "）、对白 " +
     fmt(minWhite.v) + "（" + minWhite.n + "）");
+  TALLY.judge(minSilk.v >= T_SILK && minWhite.v >= T_WHITE, "【三】国色双底线（对绢帛 ≥" + T_SILK + "、对白 ≥" + T_WHITE + "；裁定 3，无豁免）");
 
   console.log("\n【四】国色 × 全部非国色 " + NON_STATE.length + " 项，逐对核（只列 < " + T_DE + " 者，并注既有/新增）");
   const under = [];
@@ -206,12 +218,12 @@ function report() {
   }
   under.sort((a, b) => a.d - b.d);
   for (const u of under) {
-    const tag = KNOWN_WATCH.has(u.s) ? "既有观察项（r24a-2 裁定不动）" : "★本轮新增——不可接受";
-    console.log("  " + u.s + " × " + u.c.name + "（" + u.c.group + "） ΔE " + fmt(u.d) + "  " + tag);
+    console.log("  " + u.s + " × " + u.c.name + "（" + u.c.group + "） ΔE " + fmt(u.d));
   }
-  const fresh = under.filter(u => !KNOWN_WATCH.has(u.s));
-  console.log("  → 共 " + under.length + " 对低于 " + T_DE + "，其中本轮新立之国所涉 " + fresh.length + " 对" +
-    (fresh.length ? "  ✗" : "  ✓"));
+  // r61-X：越线者逐对比豁免清单（比值，不比国名）；清单外或值变即红
+  const sHex = Object.fromEntries(STATES.map(x => [x.name, x.hex]));
+  CX.printDE(CX.judgeDE(under.map(u => ({ aHex: sHex[u.s], aName: u.s, bHex: u.c.hex, bName: u.c.name, d: u.d })), ALL.map(c => c.hex)),
+    TALLY, "【四】国色 × 非国色 ΔE76 越线之对，比豁免清单");
 
   const NEW = STATES[STATES.length - 1];
   console.log("\n【五】新立之色 " + NEW.name + " " + NEW.hex + " 对全体 " + (ALL.length - 1) + " 项，最近十项");
@@ -220,6 +232,7 @@ function report() {
     console.log("  " + (r.d >= T_DE ? "✓" : "✗") + " " + r.c.group.padEnd(9) + " " +
       r.c.name.padEnd(22) + " " + r.c.hex + " ΔE " + fmt(r.d));
   }
+  TALLY.judge(near.every(r => r.d >= T_DE), "【五】新立之色 " + NEW.name + " 对全体 " + near.length + " 项 ΔE76 ≥" + T_DE + "（无豁免）：低于者 " + near.filter(r => r.d < T_DE).length + " 项");
 
   console.log("\n【六】旁通道记实（三型色觉模拟与灰度轴，非判据，见 design_notes §2.2 物理不可能证明）");
   for (const type of ["protan", "deutan", "tritan"]) {
@@ -331,4 +344,7 @@ function search() {
 }
 
 if (process.argv.includes("--search")) search();
-else report();
+else {
+  try { report(); } catch (e) { console.error("本门自身出错（exit 2）：", e); process.exit(2); }
+  TALLY.exit();
+}

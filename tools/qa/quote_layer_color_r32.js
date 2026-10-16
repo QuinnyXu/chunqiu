@@ -25,11 +25,22 @@
  *      可选 --band=lo,hi  --gray=lo,hi  --chroma=lo,hi  --step=N  --floor=N
  *   node tools/qa/quote_layer_color_r32.js --search '#6B4A22' '#8C7A3E'   附带指定色逐一体检
  */
+/* 【退出码】（r61-X 立，裁二百三十一 二2；照 prod_freshness.js 门头之式）
+ *   0 ＝ 全过——出土文献层色：对既有各档最紧 ΔE76 ≥13.2、对编者层标暖赭 ≥13.2、对全部国色与功能色 ≥13.2、
+ *        于各实际底色（压测之玄墨底除外）对比度 ≥3.5 且 ≥4.1；压测如期而红（计为过）；
+ *   1 ＝ 判红——上列任一不合；或 styles.css 尚无出土文献层色（站缺其色）；
+ *   2 ＝ 本门自身出错——**压测不红**（量法失灵，r56 款），或读不到色值等抛错。`--search` 为取色之器，不判，恒 0。
+ *   ★ 此前本门印 ✓／✗ 而恒 exit 0。「〔压力项〕玄墨底」系**有意之压测**（design_notes §3.5.1：站内无暗色模式，
+ *     「深底一维在本站不存在」——以玄墨底量之，须红，证此量法能红），自 r61-X 起不再以 ✗ 示之，改书「压测·如期而红」。
+ *   ★ 「≥4.5（AA 小字）」一栏原为「一并报数」（design_notes §3.5.1），非判据——照旧只记，未达者书「未达·记」，不以 ✗ 示之。
+ */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..", "..");
+const CX = require("./color_exemptions.js");
+const TALLY = CX.makeTally();
 const CSS = fs.readFileSync(path.join(ROOT, "site", "styles.css"), "utf8");
 const APP = fs.readFileSync(path.join(ROOT, "site", "app.js"), "utf8");
 
@@ -185,12 +196,13 @@ function backgrounds(hex) {
     { name: "卡头 hover 5% 暖赭叠卡面", bg: over(OCHRE, SILK_PANEL, 0.05) },
     { name: "卡头 active 10% 暖赭叠卡面", bg: over(OCHRE, SILK_PANEL, 0.10) },
     { name: "纯白（判据基线）", bg: WHITE },
-    { name: "〔压力项〕玄墨底 --ink", bg: INK },
+    { name: "〔压力项〕玄墨底 --ink", bg: INK, pressure: true },
   ];
 }
 
 function report() {
-  if (!CHUTU) { console.log("！styles.css 尚无 .quote.layer-chutu 层色，且未给 --probe=；先用 --search 取色。"); return; }
+  if (!CHUTU) { console.log("！styles.css 尚无 .quote.layer-chutu 层色，且未给 --probe=；先用 --search 取色。");
+    TALLY.judge(false, "站之 styles.css 有出土文献层色（缺即判红：站缺其色）"); return; }
   console.log("=== r32 史料层徽标色全矩阵复验（第 6 档「出土文献」= " + CHUTU + "）===");
   console.log("（色值实读自 site/styles.css 与 site/app.js；口径同 design_notes §2.1/§2.2）\n");
 
@@ -236,6 +248,7 @@ function report() {
     console.log("\n  新色对既有各档的最紧值：");
     console.log("    最紧 ΔE76  " + fmt(ne.de) + "（对 " + (ne.a === TIERS[TIERS.length - 1].name ? ne.b : ne.a) + "）" +
       (ne.de >= T_DE ? "  ✓ ≥" + T_DE : "  ✗"));
+    TALLY.judge(ne.de >= T_DE, "【二】新色对既有各档最紧 ΔE76 ≥" + T_DE + "（" + ne.de.toFixed(2) + "）");
     console.log("    最紧 Δ色相 " + fmt(nh.dh) + "°（对 " + (nh.a === TIERS[TIERS.length - 1].name ? nh.b : nh.a) + "）");
     console.log("    最紧 ΔL*   " + fmt(nl.dl) + "（对 " + (nl.a === TIERS[TIERS.length - 1].name ? nl.b : nl.a) + "）");
   }
@@ -245,6 +258,7 @@ function report() {
     const d = dE76(CHUTU, c.hex);
     console.log("  新色 × " + c.name + "  ΔE76 " + fmt(d) + " Δ色相 " + fmt(dHue(CHUTU, c.hex), 7) +
       "° ΔL* " + fmt(Math.abs(Lstar(CHUTU) - Lstar(c.hex)), 6) + (d >= T_DE ? "  ✓" : "  ✗"));
+    TALLY.judge(d >= T_DE, "【三】新色 × " + c.name + " ΔE76 ≥" + T_DE + "（" + d.toFixed(2) + "）");
   }
 
   console.log("\n【四】新色对「全部国色 " + STATES.length + " ＋ 全部功能色 " + NON_STATE.length +
@@ -256,13 +270,21 @@ function report() {
       r.c.name.padEnd(22) + " " + r.c.hex + " ΔE " + fmt(r.d));
   }
   console.log("  → 低于 " + T_DE + " 者 " + under.length + " 对" + (under.length ? "  ✗" : "  ✓（本轮新增 0 对）"));
+  TALLY.judge(under.length === 0, "【四】新色对全部国色 ＋ 功能色 " + near.length + " 项 ΔE76 ≥" + T_DE + "（无豁免）：低于者 " + under.length + " 对");
 
   console.log("\n【五】新色在各实际底色上的 WCAG 对比度（徽标为 0.66rem 小字，故一并对 4.5 报数）");
   console.log("  底色                              合成值    对比度  ≥3.5  ≥4.1  ≥4.5(AA小字)");
   for (const b of backgrounds(CHUTU)) {
     const c = contrast(CHUTU, b.bg);
+    if (b.pressure) {   // r61-X：有意之压测——须红，红计为过；不红即门自身出错（exit 2）。不再以 ✗ 示之
+      console.log("  " + b.name.padEnd(32) + " " + b.bg + " " + fmt(c) + "   （压测，见下行）");
+      TALLY.pressure(c < T_SILK && c < T_WHITE && c < 4.5,
+        "〔压测〕新色于玄墨底 " + c.toFixed(2) + "：≥" + T_SILK + "／≥" + T_WHITE + "／≥4.5 三线俱须不达（design_notes §3.5.1：本站无深底，此量法于深底须红）");
+      continue;
+    }
     console.log("  " + b.name.padEnd(32) + " " + b.bg + " " + fmt(c) + "   " +
-      (c >= T_SILK ? "✓" : "✗") + "     " + (c >= T_WHITE ? "✓" : "✗") + "     " + (c >= 4.5 ? "✓" : "✗"));
+      (c >= T_SILK ? "✓" : "✗") + "     " + (c >= T_WHITE ? "✓" : "✗") + "     " + (c >= 4.5 ? "✓" : "未达·记"));
+    TALLY.judge(c >= T_SILK && c >= T_WHITE, "【五】新色于「" + b.name + "」对比度 " + c.toFixed(2) + " ≥" + T_SILK + " 且 ≥" + T_WHITE);
   }
 
   console.log("\n【六】旁通道记实（三型色觉模拟，非判据，见 design_notes §2.2）——六档去重后两两");
@@ -370,4 +392,8 @@ function search() {
   }
 }
 
-if (process.argv.includes("--search")) search(); else report();
+if (process.argv.includes("--search")) search();
+else {
+  try { report(); } catch (e) { console.error("本门自身出错（exit 2）：", e); process.exit(2); }
+  TALLY.exit();
+}
