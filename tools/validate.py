@@ -9,6 +9,8 @@
 
 退出码：0 全过；1 有校验失败；2 任期表之门（tools/tenure_gate.py，r59-G 九表变十表）之反证未红——
 量具不能自证其能红（裁一百一十四），此时即便数据本身无违例亦不印 OK。
+一级可显底线（r61-R，裁二百二十六）之地数一项，另设女性一途豁免单（r62-H，据裁二百三十六 三；
+见 PROTAG_PLACE_EXEMPT，改之须裁；比值不比名；只免地数；类四、类五反证同跑）。
 """
 import csv
 import re
@@ -162,6 +164,36 @@ PROTAG_MIN_PLACES = 1  # 可落图之亲至地：presence ∈ {亲至, 空} 之�
 # 注：库中 presence 现仅有 亲至／相关／不在 三值、无空值；空值按 site/app.js 缺省视同亲至（presence || "亲至"）。
 
 
+# ---- 女性一途地数豁免单（r62-H；裁二百三十六 三 1、2；据 team/round61_prompts.md §四十六）----
+# id → (名, 所免之项, 所据之裁)。★ 改之须裁：增删一人须站长裁；不以性别或任何一栏自动豁免。
+# 只免「可落图亲至地」一项；挂链 ≥3、涉年 ≥2 照验。比值不比名（照 tools/qa/color_exemptions.js 之法，r61-X）：
+# id 须存于 people.csv、name 与此处全同、is_protagonist == 1，否则红「豁免单已失其人，须裁」。
+PROTAG_PLACE_EXEMPT = {
+    "P_ZHUANGJIANG": ("庄姜", "可落图亲至地", "裁二百三十六"),
+    "P_XUANJIANG": ("宣姜", "可落图亲至地", "裁二百三十六"),
+}
+
+
+def exempt_check(people_rows):
+    """豁免单比值不比名；返回违例文列表（空＝单中诸人俱在、名同、仍为一级）。"""
+    by = {(p.get("id") or "").strip(): p for p in people_rows}
+    v = []
+    for pid, (name, _item, ruling) in PROTAG_PLACE_EXEMPT.items():
+        p = by.get(pid)
+        if p is None or (p.get("name") or "").strip() != name                 or (p.get("is_protagonist") or "").strip() != "1":
+            v.append(f"豁免单已失其人，须裁：{name}（{pid}，{ruling}）——id 须在 people.csv、name 全同、is_protagonist==1")
+    return v
+
+
+def exempt_unused(people_rows, ep_rows, event_rows, place_rows):
+    """豁免之人今地数 ≥1 者 → 提示行（不红）。"""
+    out = []
+    for pid, name, n, y, c in protagonist_counts(people_rows, ep_rows, event_rows, place_rows):
+        if pid in PROTAG_PLACE_EXEMPT and c >= PROTAG_MIN_PLACES:
+            out.append(f"豁免未用：{name}（{pid}）可落图亲至地 {c} ≥ {PROTAG_MIN_PLACES}，地数豁免（{PROTAG_PLACE_EXEMPT[pid][2]}）今未生效")
+    return out
+
+
 def protagonist_counts(people_rows, ep_rows, event_rows, place_rows):
     """返回 [(id, 名, 挂链, 涉年, 可落图亲至地)]，仅 is_protagonist == 1 者。"""
     ev = {(e.get("id") or "").strip(): e for e in event_rows}
@@ -187,10 +219,11 @@ def protagonist_counts(people_rows, ep_rows, event_rows, place_rows):
 
 
 def protagonist_floor(people_rows, ep_rows, event_rows, place_rows):
-    """返回违例列表 [(id, 文)]；任一数不及 3／2／1 即违例。"""
+    """返回违例列表 [(id, 文)]；任一数不及 3／2／1 即违例；豁免单中人免地数一项（r62-H）。"""
     v = []
     for pid, name, n, y, c in protagonist_counts(people_rows, ep_rows, event_rows, place_rows):
-        if n < PROTAG_MIN_LINKS or y < PROTAG_MIN_YEARS or c < PROTAG_MIN_PLACES:
+        place_ok = c >= PROTAG_MIN_PLACES or pid in PROTAG_PLACE_EXEMPT  # 豁免只免地数
+        if n < PROTAG_MIN_LINKS or y < PROTAG_MIN_YEARS or not place_ok:
             v.append((pid, f"一级人物 {name}（{pid}）不及可显底线：挂链 {n}（须≥{PROTAG_MIN_LINKS}）、"
                            f"涉年 {y}（须≥{PROTAG_MIN_YEARS}）、可落图亲至地 {c}（须≥{PROTAG_MIN_PLACES}）"
                            f"——降否、补料否，由站长定（§6.7）"))
@@ -198,13 +231,16 @@ def protagonist_floor(people_rows, ep_rows, event_rows, place_rows):
 
 
 def protagonist_selftest(people_rows, ep_rows, event_rows, place_rows, target=None):
-    """反证（r61-S 去写死）：取 is_protagonist == 1 名册之任一（缺省按 id 排序之首人；target 可指定，
-    供自证「不系于现数」用），构造必落线下之形，三类各须红；返回 [(名, 是否红)]。不动传入之表（浅拷再改）。
-    名册为空 → 反证不可施，返回一条必红失败项（调用方据以 exit 2，不静默通过）。"""
+    """反证（r61-S 去写死；r62-H 增类四、类五）：类一至三取 is_protagonist == 1 名册中**非豁免**之首人
+    （缺省按 id 排序；不写死名；target 可指定，供自证「不系于现数」用），构造必落线下之形，各须红；
+    类四：豁免单中每人删挂链至 2 行、只留一年，各须红（证豁免不及挂链、涉年）；
+    类五：副本中改豁免之人 name 一字，比值须红（证比值不比名）。返回 [(名, 是否红)]。不动传入之表（浅拷再改）。
+    除豁免外名册为空 → 反证不可施，返回一条必红失败项（调用方据以 exit 2，不静默通过）。"""
     roster = sorted((p.get("id") or "").strip() for p in people_rows
-                    if (p.get("is_protagonist") or "").strip() == "1")
+                    if (p.get("is_protagonist") or "").strip() == "1"
+                    and (p.get("id") or "").strip() not in PROTAG_PLACE_EXEMPT)
     if not roster:
-        return [("名册为空（无一级人物可施反证）", False)]
+        return [("名册为空（除豁免外无一级人物可施反证）", False)]
     pid = target if target is not None else roster[0]
     out = []
     ev = {(e.get("id") or "").strip(): e for e in event_rows}
@@ -228,6 +264,24 @@ def protagonist_selftest(people_rows, ep_rows, event_rows, place_rows, target=No
     y0 = ev[bs[0]["event_id"]]["year_bce"] if bs else None
     ep3 = [r for r in ep_rows if not (id(r) in mine_ids and r["event_id"] in ev and ev[r["event_id"]]["year_bce"] != y0)]
     out.append((f"{pid}：只留一年挂链", red(ep3, place_rows)))
+    # 类四（豁免不及挂链、涉年）：豁免单中每人，删挂链至 2 行、只留一年，各须红
+    for xid, (xname, _i, _r) in PROTAG_PLACE_EXEMPT.items():
+        xm = [r for r in ep_rows if (r.get("person_id") or "").strip() == xid]
+        xids = {id(r) for r in xm}
+        kx = {id(r) for r in xm[:PROTAG_MIN_LINKS - 1]}
+        epx = [r for r in ep_rows if id(r) not in xids or id(r) in kx]
+        out.append((f"{xname}（{xid}，豁免）：删挂链至只余 {PROTAG_MIN_LINKS - 1} 行",
+                    any(i == xid for i, _ in protagonist_floor(people_rows, epx, event_rows, place_rows))))
+        xb = [r for r in xm if r["event_id"] in ev]
+        xy = ev[xb[0]["event_id"]]["year_bce"] if xb else None
+        epy = [r for r in ep_rows if not (id(r) in xids and r["event_id"] in ev and ev[r["event_id"]]["year_bce"] != xy)]
+        out.append((f"{xname}（{xid}，豁免）：只留一年挂链",
+                    any(i == xid for i, _ in protagonist_floor(people_rows, epy, event_rows, place_rows))))
+    # 类五（比值不比名）：改豁免之人 name 一字，须红
+    for xid, (xname, _i, _r) in PROTAG_PLACE_EXEMPT.items():
+        pp = [dict(p, name=(p.get("name") or "")[:-1] + "〇") if (p.get("id") or "").strip() == xid else p
+              for p in people_rows]
+        out.append((f"{xname}（{xid}，豁免）：改 name 一字", bool(exempt_check(pp))))
     return out
 
 
@@ -412,8 +466,12 @@ def main():
 
     # ---- 一级可显底线（r61-R）----
     if not errors:
+        for msg in exempt_check(tables["people"]):
+            err(msg)
         for _, msg in protagonist_floor(tables["people"], tables["event_people"], tables["events"], tables["places"]):
             err(msg)
+        for msg in ([] if exempt_check(tables["people"]) else exempt_unused(tables["people"], tables["event_people"], tables["events"], tables["places"])):
+            print(msg)
         for name, red in protagonist_selftest(tables["people"], tables["event_people"], tables["events"], tables["places"]):
             if not red:
                 selftest_failed = True
