@@ -12,7 +12,14 @@
  *      并含独立复算之覆盖数）；
  *  (5) 反证：把一条已核之引文注入为未核，记号当现；注入 negated／8 档宽口／sources 表之条，记号不现。
  * 严口径：status.name ∈ {本轮无从核, 未见, 未核} 且 negated=false 触发。
- * 读者面三句在此独立再书一遍（若 app.js 改其字，本门当场红）。 */
+ * 读者面三句在此独立再书一遍（若 app.js 改其字，本门当场红）。
+ *
+ * r62-L 另路求之（裁二百三十九 二3）：「people 三态非 negated 之行」原写死 14 人之精确集合——写死之集，库一改即红。
+ *   今其集由 verify_marks.json 求之（本门独立之 expF，Node 端），非空为底（空即 exit 2），并与页面所据之集比：
+ *   页内以站之 vsStatesOf("people", id, "notes") 逐人求其触发态，二集须逐元相等（二路互证）；人卡零记号诸断照旧。
+ *   按类反证：页内为一个不在集中之人注入一条「未核」之 verify_marks 元，页面之集遂多一人，同一判须当场红；不红即 exit 2。
+ *   ★ 史断：r61-E 后（至 55aabe9）其集 14 人；r62-J·E（3eb7579）改 people 之 notes 后增为 20 人，
+ *     新入者 P_CHENHENG（陈恒）、P_GUANZHONG（管仲）、P_LUHUAN（鲁桓公）、P_WENJIANG（文姜）、P_YIYA（易牙）、P_ZANGXIBO（臧僖伯）。 */
 /* 【退出码】（r61-T 补书，旧书裁二百〇五 三②、裁二百二十七 三3；照 prod_freshness.js 门头之式）
  *   0 ＝ 全过；1 ＝ 判红（任一 ✗）；2 ＝ 本门自身出错（前提不成、门自检 `gateErrs` 有出错者、`.catch` 出之抛错）。
  */
@@ -233,7 +240,26 @@ const negOnly = PASS.filter(q => q.event_id && allSt(q.id).some(e => e.status.so
   }
   // people.notes：其栏之文未渲染，故不挂；「不挂」是被测过的
   const pplTrig = PPL.filter(r => expF("people", r.id).size);
-  ok(pplTrig.map(r => r.id).sort().join() === "P_GAOGU,P_GOUJIAN,P_GUOZUO,P_JIWENZI,P_QINGJI,P_QIWUZHANG,P_WEISHU,P_XICHOU,P_XIKE,P_XIQI,P_XIZHI,P_ZANGXUANSHU,P_ZHAOKUO,P_ZHAOTONG", "people 三态非 negated 之行恰为 P_GAOGU／P_GOUJIAN／P_GUOZUO／P_JIWENZI／P_QINGJI／P_QIWUZHANG／P_WEISHU／P_XICHOU／P_XIKE／P_XIQI／P_XIZHI／P_ZANGXUANSHU／P_ZHAOKUO／P_ZHAOTONG（共 " + pplTrig.length + "；〔r61-E 随扩库同步〕原为 P_GOUJIAN／P_QINGJI／P_WEISHU／P_XIKE 共 4，r61-B 四线新人 notes 带电子本「纸本未核」类核对状态语而入此集，断言仍为精确集合相等）");
+  /* r62-L：其集另路求之（见门头），非空为底；与页面所据之集（站之 vsStatesOf）逐元比 */
+  selfcheck(pplTrig.length > 0, "people 三态非 negated 之集（verify_marks.json 另路求之）非空", pplTrig.length + " 人");
+  const pageTrigOf = () => pg.evaluate((col) => DATA.people.filter(r => vsStatesOf("people", r.id, col).size > 0).map(r => r.id).sort(), COLS.people);
+  const wantTrig = pplTrig.map(r => r.id).sort();
+  const sameSet = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+  const pageTrig = await pageTrigOf();
+  ok(sameSet(pageTrig, wantTrig), "people 三态非 negated 之行：verify_marks.json 另路之集＝页面所据之集（站之 vsStatesOf），共 " + wantTrig.length + " 人（旧写死 14 人之集；E 后 20）",
+    wantTrig.join("／") + (sameSet(pageTrig, wantTrig) ? "" : "；页面得 " + pageTrig.join("／")));
+  { // 〔反证〕页内为一不在集中之人注入一条「未核」之元，页面之集多一人，同一判须红在其因上
+    const victim = PPL.find(r => !wantTrig.includes(r.id));
+    const injected = await pg.evaluate((args) => {
+      DATA.verify_marks.push({ table: "people", row_id: args.id, col: args.col, status: [{ name: "未核", negated: false }] });
+      VS_IDX = null;
+      const got = DATA.people.filter(r => vsStatesOf("people", r.id, args.col).size > 0).map(r => r.id).sort();
+      DATA.verify_marks.pop(); VS_IDX = null;
+      return got;
+    }, { id: victim.id, col: COLS.people });
+    const red = !sameSet(injected, wantTrig) && injected.includes(victim.id);
+    selfcheck(red, "〔反证〕页内为 " + victim.id + " 注入一条「未核」之元 → 二集之判当场红（页面之集多出 " + victim.id + "）", red ? "红在其因上" : "★ 不红");
+  }
   for (const r of pplTrig) {
     const f = field.people[r.id];
     ok(!!r.short_bio && !!r.notes && !f.text.includes(r.notes.slice(0, 12)), "  " + r.id + "：有 short_bio，人卡不渲染其 notes（卡文中无 notes 前 12 字），故不挂", "挂得上＝否");

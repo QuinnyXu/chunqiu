@@ -2351,6 +2351,7 @@ function renderMap() {
 
   // 取景
   mapState.fitBox = computeFitBox(fitPoints);
+  mapState.fitEmpty = fitPoints.length === 0;   // r62-L：无一可落图之地，「活动范围」无从说起（computeFitBox 已退全图）
   applyView(mapState.mode === "fit" ? mapState.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
   updateScopeBtn();
 
@@ -2372,6 +2373,7 @@ function renderMap() {
   btn.onclick = () => toggleSinglePlay(traj, anchors, theme);
 
   $("#btn-scope").onclick = () => {
+    if (mapState.fitEmpty) return;   // r62-L：无可落图之地，不可切（钮亦 disabled）
     mapState.mode = mapState.mode === "fit" ? "full" : "fit";
     applyView(mapState.mode === "fit" ? mapState.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
     updateScopeBtn();
@@ -2408,10 +2410,38 @@ function renderMap() {
     }
   }
 }
+/* 「视野」钮之文与可切（单人图）。
+ * r62-L（裁二百三十九 三）：fit 之点为空者（其人无一可落图之地，如庄姜、宣姜），图本即全图，
+ * 旧码仍依 mode 书「视野：活动范围」——钮所言不实。今：点空者钮书「视野：全图」、disabled、title 明其由；有点者一切照旧。
+ * ★ 有点者不加 title 属性（removeAttribute，不设空串），以免无故改其 DOM。 */
+const SCOPE_EMPTY_TIP = "无可落图之地，只示全图";
 function updateScopeBtn() {
   const b = $("#btn-scope");
+  if (mapState.fitEmpty) {
+    b.textContent = "视野：全图";
+    b.disabled = true;
+    b.title = SCOPE_EMPTY_TIP;
+    b.setAttribute("aria-pressed", "false");
+    return;
+  }
+  b.disabled = false;
+  b.removeAttribute("title");
   b.textContent = mapState.mode === "fit" ? "视野：活动范围" : "视野：全图";
   b.setAttribute("aria-pressed", String(mapState.mode === "fit"));
+}
+/* 交会图之「视野」钮（#cmp-scope），同上之则：甲乙俱无可落图之点、亦无交会落点者，钮书「视野：全图」、disabled */
+function cmpUpdateScope() {
+  const b = $("#cmp-scope");
+  if (!b) return;
+  if (cmp.fitEmpty) {
+    b.textContent = "视野：全图";
+    b.disabled = true;
+    b.title = SCOPE_EMPTY_TIP;
+    return;
+  }
+  b.disabled = false;
+  b.removeAttribute("title");
+  b.textContent = cmp.mode === "fit" ? "视野：活动范围" : "视野：全图";
 }
 
 /* ---------- 地点详情：内嵌态（含窄屏）走地图下方文档流卡片 / 仅全屏态走底部抽屉 ----------
@@ -3492,9 +3522,10 @@ function renderCompare() {
   setPlayDegrade("compare", cmp.trajA.length < 2 && cmp.trajB.length < 2);
   playBtn.onclick = toggleComparePlay;
   $("#cmp-scope").onclick = () => {
+    if (cmp.fitEmpty) return;   // r62-L：无可落图之地，不可切
     cmp.mode = cmp.mode === "fit" ? "full" : "fit";
     cmpApplyView(cmp.mode === "fit" ? cmp.fitBox : { x: 0, y: 0, w: MAP_W, h: MAP_H });
-    $("#cmp-scope").textContent = cmp.mode === "fit" ? "视野：活动范围" : "视野：全图";
+    cmpUpdateScope();
   };
   $("#cmp-zoom").onclick = openCmpOverlay;
   // r24a：「⇄ 对调」按钮退役——以对方为主请自其人物页进入并观（hash 甲＝当前页主，语义不变）
@@ -3634,9 +3665,10 @@ function cmpBuildMap() {
   cmp.markerB = mkMarker(cmp.colorB, "B");
 
   cmp.fitBox = computeFitBox(fitPoints);
+  cmp.fitEmpty = fitPoints.length === 0;   // r62-L
   cmp.mode = "fit";
   cmpApplyView(cmp.fitBox);
-  $("#cmp-scope").textContent = "视野：活动范围";
+  cmpUpdateScope();
   // 全屏手势绑定到本帧新建的 svg（每次 render 皆为新节点，故每帧重绑；非激活态下 handler 自守卫）
   bindZoomGesture(svg, cmpZoom);
 }
@@ -3864,7 +3896,7 @@ function cmpShowMeetings(placeId, list) {
     if (b && (px < b.x || px > b.x + b.w || py < b.y || py > b.y + b.h)) {
       cmp.mode = "full";
       cmpApplyView({ x: 0, y: 0, w: MAP_W, h: MAP_H });
-      $("#cmp-scope").textContent = "视野：全图";
+      cmpUpdateScope();
     }
   }
   document.querySelectorAll(".cmp-meet.selected").forEach(g => g.classList.remove("selected"));

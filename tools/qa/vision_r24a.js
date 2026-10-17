@@ -72,6 +72,19 @@
 //   ★ §11「无地望事件 N 条一律中性签」之红**未治**：门对，站之标签有误（E274 之地 L_JIAGU 有坐标而 state 空，
 //       编年之签书「无地望」），系站之旧病（r45 起），呈裁，不以改门了之。
 //       〔r61-W 注：已治于站（裁二百三十二 取乙：有其地而 state 空者另书「国属未定」）；本门另立二中性集之判与按类反证。上文原字照留。〕
+//
+// r62-L 另路求之（裁二百三十九 二1；r61-T 三法之「同步或另路求之」）——写死之样本改由 site/data/*.json 求（Node 端，不取被测页）：
+//   §14／§18 晋都迁点：原写死 7 条（r26 fix26 之样本 E201／E219／E190／E194／E210／E220／E221，照留为史）。
+//       今「迁后落新田之集」照其原选之准（fix26「落点从实不从称」：前585 迁都之后之晋都事落 L_XINTIAN）由 events.json 求：
+//       place_id＝L_XINTIAN 者（集须非空，空即 exit 2），并断其俱在前585 之后、原样本无一改落他地；
+//       原样本中落点已从阙者（r62-F 落点从阙：今 E221）改断其显为「无地望」之式——编年无地点 chip、国色签归「无地望」、新田抽屉不列。
+//       史断：55aabe9 时原 7 条俱落 L_XINTIAN（另有 E271、E276 亦落之）；81d3d53 时 E221、E276 从阙。
+//   §11 卡体复用：原写死样本 E205（无主角挂链而有引文之事，r24a §6b 所举）。今照其原选之准——无主角挂链、有引文——
+//       于 events.json 按 id 序取首个**有落点**者为卡体之样本（集须非空）；另断 E205（r62-F 落点从阙）之卡无地点 chip。
+//       E205 自身之断（引文随卡、人物签数＝挂链数、二人俱「相关」）照留于 E205。
+//   E205 之卡：断「地点 chip 之有无＝其 place_id 之有无」（81d3d53 时从阙，故无；55aabe9 时 L_LINZI，故有）。
+//   按类反证：页内令一条从阙之事（原样本之首个从阙者；无则 events.json 中 id 序首个无 place_id 之事）复有落点、重绘编年，
+//       「从阙之显」之判须当场红；不红即 exit 2。
 const http = require("http"), fs = require("fs"), path = require("path");
 const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
@@ -96,6 +109,22 @@ function judgeChronNeutral(got) {
   return errs;
 }
 let GATE_ERR = 0;   // r61-W：按类反证不红之计（门自身出错 → exit 2）
+/* r62-L：另路之集（见门头） */
+const L_RD = (n) => JSON.parse(fs.readFileSync(path.join(SITE_DIR, "data", n + ".json"), "utf8"));
+const L_PEOPLE = L_RD("people"), L_EP = L_RD("event_people"), L_PASS = L_RD("passages");
+const L_PROTO = new Set(L_PEOPLE.filter(x => Number(x.is_protagonist) === 1).map(x => x.id));
+const R26_MOVED = ["E201", "E219", "E190", "E194", "E210", "E220", "E221"];   // r26 fix26 之原样本（史，照留）
+const L_EV = new Map(W_EVENTS.map(e => [e.id, e]));
+const XT_SET = W_EVENTS.filter(e => e.place_id === "L_XINTIAN").map(e => e.id).sort();          // 迁后落新田之集
+const XT_QUE = R26_MOVED.filter(id => L_EV.has(id) && !L_EV.get(id).place_id);                     // 原样本中落点已从阙者
+const XT_ELSE = R26_MOVED.filter(id => L_EV.has(id) && L_EV.get(id).place_id && L_EV.get(id).place_id !== "L_XINTIAN");
+const L_ORPHAN_QUOTED = W_EVENTS.filter(e => !L_EP.some(l => l.event_id === e.id && L_PROTO.has(l.person_id)) &&
+  L_PASS.some(q => q.event_id === e.id)).map(e => e.id).sort();
+const CARD_SAMPLE = L_ORPHAN_QUOTED.find(id => L_EV.get(id).place_id) || null;                     // 卡体之样本
+/* 从阙之显之判（正验与反证共用）：got＝[{id, place（地点 chip 之文）, state（data-state）}] */
+function judgeQue(got) {
+  return got.filter(c => c.err || (c.place || "") !== "" || c.state !== "无地望").map(c => c.id + "：" + (c.err || "地点 chip「" + c.place + "」／国色签「" + c.state + "」"));
+}
 const log = [];
 const say = (...a) => { const s = a.join(" "); log.push(s); console.log(s); };
 const H = (t) => say("\n===== " + t + " =====");
@@ -991,12 +1020,15 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   OK(tagColors.comp.length > 0, "复合地名（如「齐鲁间」「晋/秦晋间」）签文照显 places.state 原文 " + tagColors.comp.length + " 种");
 
   // 展开卡：与时间线同源组件（chips/引文/层标）＋编年特有的所系人物签
-  const card = await p.evaluate(async () => {
-    const d = document.querySelector('#chron-list [data-eid="E205"]');
+  /* r62-L：卡体复用之样本另路求之（见门头）；E205 自身之断照留 */
+  say("  卡体之样本（无主角挂链、有引文、id 序首个有落点者）：" + CARD_SAMPLE + "（候选 " + L_ORPHAN_QUOTED.length + " 条）");
+  if (!CARD_SAMPLE) { GATE_ERR++; say("  [FAIL] 〔门自检〕卡体之样本之集为空（本门自身出错，exit 2）"); }
+  const readCard = (eid) => p.evaluate(async (eid) => {
+    const d = document.querySelector('#chron-list [data-eid="' + eid + '"]');
     const beforeBody = !!d.querySelector(".event-body");   // 按需构建：展开前不应存在
     d.querySelector("summary").click();
     await new Promise(r => setTimeout(r, 300));
-    const links = DATA.event_people.filter(l => l.event_id === "E205").length;
+    const links = DATA.event_people.filter(l => l.event_id === eid).length;
     return {
       beforeBody, open: d.open, body: !!d.querySelector(".event-body"),
       chips: [...d.querySelectorAll(".meta-chips .chip")].map(e => e.textContent),
@@ -1005,12 +1037,18 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
       links, related: d.querySelectorAll(".evt-person.is-related").length,
       hasSummaryText: (d.querySelector(".event-body p") || {}).textContent.length > 10,
     };
-  });
+  }, eid);
+  const cardS = CARD_SAMPLE ? await readCard(CARD_SAMPLE) : null;
+  const card = await readCard("E205");
+  say("  " + CARD_SAMPLE + " 卡：" + JSON.stringify(cardS));
   say("  E205 卡：" + JSON.stringify(card));
-  OK(card.beforeBody === false && card.body === true,
+  OK(!!cardS && cardS.beforeBody === false && cardS.body === true && card.beforeBody === false && card.body === true,
      "详情按需构建：展开前无卡体、展开后自建（190 行不预造读者九成不看的 DOM）");
-  OK(card.chips.some(t => /地点/.test(t)) && card.chips.some(t => /可靠性/.test(t)) && card.hasSummaryText,
-     "卡体复用时间线组件：地点/分类/可靠度/重要度 chips ＋ summary 齐备");
+  OK(!!cardS && cardS.chips.some(t => /地点/.test(t)) && cardS.chips.some(t => /可靠性/.test(t)) && cardS.chips.some(t => /重要度/.test(t)) && cardS.hasSummaryText,
+     "卡体复用时间线组件：地点/分类/可靠度/重要度 chips ＋ summary 齐备（样本 " + CARD_SAMPLE + "，另路求之）");
+  { const e205Place = L_EV.has("E205") ? L_EV.get("E205").place_id : null, has = card.chips.some(t => /^地点/.test(t));
+    OK(has === !!e205Place,
+       "E205 之卡：地点 chip 之有无＝events.json 其 place_id 之有无（今 " + (e205Place || "空——r62-F 落点从阙，其卡无地点 chip，从阙之显") + "）"); }
   OK(card.quotes > 0, "引文块随卡呈现（" + card.quotes + " 条）");
   OK(card.people.length === card.links && card.links > 0,
      "所系人物签数与 event_people 挂链数相等（" + card.people.length + "/" + card.links + "）");
@@ -1300,8 +1338,13 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   say("  子产地图着色锚点：" + jin.colored.join("、") + " | " + jin.status);
   OK(jin.stragglers.length === 0,
      "审计反证：全库「year_bce > −585 而仍落 L_JIANG」者 0 条（残留：" + (jin.stragglers.join("/") || "无") + "）");
-  OK(jin.movedPlaces.every(m => m.place === "L_XINTIAN"),
-     "7 条迁点事件全部落 L_XINTIAN：" + jin.movedPlaces.map(m => m.id + "(" + m.y + ")").join("、"));
+  /* r62-L：迁后落新田之集另路求之（见门头）；原 7 条之样本照留为史 */
+  say("  迁后落新田之集（events.json 另路）：" + XT_SET.map(id => id + "(" + L_EV.get(id).year_bce + ")").join("、") + "；原样本中从阙者：" + (XT_QUE.join("、") || "无"));
+  if (!XT_SET.length) { GATE_ERR++; say("  [FAIL] 〔门自检〕迁后落新田之集为空（本门自身出错，exit 2）"); }
+  OK(XT_SET.length > 0 && XT_SET.every(id => L_EV.get(id).year_bce > -585) && XT_ELSE.length === 0 &&
+     R26_MOVED.every(id => XT_SET.includes(id) || XT_QUE.includes(id)),
+     "迁后落新田之集 " + XT_SET.length + " 条俱在前585 之后；r26 原样本 7 条或仍落 L_XINTIAN、或落点已从阙（" + (XT_QUE.join("、") || "无") + "），无一改落他地" +
+     (XT_ELSE.length ? "——改落他地者：" + XT_ELSE.join("、") : ""));
   OK(jin.e182.place === "L_JIANG" && jin.e182.y < -585,
      "E182（前" + (-jin.e182.y) + "，早于迁都）仍落 L_JIANG，未被误迁");
   OK(!!jin.xtAnchor && jin.xtAnchor.cx === jin.xtCalc[0] && jin.xtAnchor.cy === jin.xtCalc[1],
@@ -1361,7 +1404,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   // 五条无前端主角挂链的迁点事件：其可见面在编年，地点 chip 须已写新田
   await p.goto(origin + "/#/p/P_ZICHAN/map", { waitUntil: "load" }); await p.waitForTimeout(600);
   await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1500);
-  const chips = await p.evaluate(async (MOVED) => {
+  const readChips = (IDS) => p.evaluate(async (MOVED) => {
     const out = [];
     for (const id of MOVED) {
       const d = document.querySelector('#chron-list [data-eid="' + id + '"]');
@@ -1374,10 +1417,25 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
       await new Promise(r => setTimeout(r, 120));
     }
     return out;
-  }, MOVED);
+  }, IDS);
+  const chips = await readChips(XT_SET);
   chips.forEach(c => say("    " + c.id + " 前" + (-c.year) + " · " + c.place + " · 国色签「" + c.state + "」"));
-  OK(chips.every(c => /新田/.test(c.place || "")), "7 条迁点事件在编年卡内的地点 chip 一律已作「新田（绛）」");
-  OK(chips.every(c => c.state === "晋"), "7 条国色签仍为晋（迁都不改国属，色只答「哪一国」）");
+  OK(chips.length === XT_SET.length && chips.every(c => /新田/.test(c.place || "")), XT_SET.length + " 条迁后落新田之事在编年卡内的地点 chip 一律已作「新田（绛）」");
+  OK(chips.length === XT_SET.length && chips.every(c => c.state === "晋"), XT_SET.length + " 条国色签仍为晋（迁都不改国属，色只答「哪一国」）");
+  /* r62-L：原样本中落点已从阙者，断其显为「无地望」之式（无地点 chip、国色签归「无地望」） */
+  // 原样本中无从阙者（如 55aabe9 之树）→ 以 events.json 中 id 序首个无 place_id 之事代之，仍断其显（集非空为底）
+  const queIds = XT_QUE.length ? XT_QUE : W_EVENTS.filter(e => !e.place_id).map(e => e.id).sort().slice(0, 1);
+  if (!queIds.length) { GATE_ERR++; say("  [FAIL] 〔门自检〕无一从阙之事可验其显（本门自身出错，exit 2）"); }
+  const que = await readChips(queIds);
+  que.forEach(c => say("    〔从阙〕" + c.id + " 前" + (-c.year) + " · 地点 chip「" + c.place + "」 · 国色签「" + c.state + "」"));
+  const eQue = judgeQue(que);
+  OK(eQue.length === 0, "原样本中落点已从阙者（" + queIds.join("、") + "）其显为「无地望」之式：编年无地点 chip、国色签归「无地望」" + (eQue.length ? "——" + eQue.join("；") : ""));
+  // 按类反证：页内令其首条复有落点（L_XINTIAN）、重绘编年，同一判须红在其因上
+  await p.evaluate((id) => { const e = DATA.events.find(x => x.id === id); window.__queW = e.place_id; e.place_id = "L_XINTIAN"; renderChronicle(); }, queIds[0]);
+  const eQueR = judgeQue(await readChips([queIds[0]]));
+  say("  〔按类反证〕令 " + queIds[0] + " 复有落点 → " + (eQueR.length ? "当场红：" + eQueR[0] : "★ 不红"));
+  if (!eQueR.length) { GATE_ERR++; say("  [FAIL] 〔门自检〕从阙之显之反证不红（本门自身出错，exit 2）"); }
+  await p.evaluate((id) => { const e = DATA.events.find(x => x.id === id); e.place_id = window.__queW; renderChronicle(); }, queIds[0]);
 
   // ---------- 15) r26 叔向 ego 图：姻亲边与祁大夫新配角 ----------
   H("15) r26 叔向 ego 图（姻亲边 · 祁大夫）");
@@ -1643,6 +1701,10 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
                  hasName: !!(txt && /新田/.test(txt) && /侯马/.test(txt)) };
       }, w.id);
       const wantVisit = pr.presence === "亲至";
+      if (XT_QUE.includes(w.id)) {   // r62-L：落点已从阙者——新田抽屉不列本条（从阙之显）
+        OK(!hit.hasEvent, w.id + "（前" + (-w.year) + "·" + w.title + "）落点已从阙，在 " + pr.pid + " 地图：新田抽屉不列本条");
+        continue;
+      }
       OK(hit.on && (wantVisit ? /（亲至地点）/.test(hit.aria || "") : true) && hit.hasName,
          w.id + "（前" + (-w.year) + "·" + w.title + "）落 " + w.place + "，在 " + pr.pid +
          " 地图：aria「" + (hit.aria || "—") + "」，其 presence=" + pr.presence + "，抽屉出「新田（绛）／侯马」");

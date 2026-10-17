@@ -100,6 +100,11 @@ const ROLE_ROWS = EP.filter(l => l.role_in_event);
  *   新：俱自 site/data/event_people.json 另路算（Node 端，不取被测页）：
  *     · 星号成对之口径照 conventions §7 ⚑H ⑤款（只计长度恰为 2 之游程，顺序两两成对）——同 vision_r51 之 starScan；
  *     · 「全库最长」改为可证之断：其值之长＝json 中 role_in_event 最长者之长，且最长者恰为 E295／P_CHUWU；
+ *       〔r62-L 再改（裁二百三十九 二2）〕「最长者恰为 E295／P_CHUWU」亦是写死之样本——今最长者**由 event_people.json 求之**
+ *       （`ROLE_SCAN.longest`，非空为底，空即 exit 2），于其卡断原有之版式诸项（渲入可见容器、不溢出、全文落卡内逐字还原、
+ *       <code> 枚数＝值内反引号对数、还原之反证）；页内 DATA 之最长另算一遍与 json 对（二路互证），注入一行更长者须当场红。
+ *       ★ 史断：55aabe9 时最长者 E295／P_CHUWU（486 字）；81d3d53 时 E302／P_KONGZI（653 字，r62-F 改其 role）——本门之计法
+ *       （`role_in_event` 之 JS 字符串长度）施于二提交之 event_people.json 实得之数，与裁文所记相合。
  *     · 叔向之卡数＝json 中 P_SHUXIANG 之挂链行数。
  *   ★ 测具互验：同一算法施于 r52 提交 3b5f38a 当日之 event_people.json，须复现 51／118、486、9（对该提交之断言，不漂）。 */
 const starPairsH = (s) => Math.floor([...(s || "").matchAll(/\*+/g)].filter(m => m[0].length === 2).length / 2);
@@ -191,7 +196,7 @@ const MEASURE = `() => {
 }`;
 
 /* P_CHUWU（非主角，`#/p/P_CHUWU/timeline` 走不进去）：以生产之 renderTimeline() 直驱，渲进可见容器 */
-const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return true; }`;
+const DRIVE_CHUWU = `(pid) => { state.person = pid; renderTimeline(); return true; }`;   // r62-L：直驱之人由数据求之（最长者之 pid）
 
 (async () => {
   const pw = require("playwright");
@@ -319,38 +324,61 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
       bad.length ? JSON.stringify(bad.slice(0, 5)) : "零溢出");
   }
 
-  /* 口径六①点名之最长值：E295／P_CHUWU，486 字。其人非主角，公开页走不进去，故以生产 renderTimeline() 直驱 */
-  const chuwuLen = await n1440.p.evaluate(() =>
-    (DATA.event_people.find(l => l.event_id === "E295" && l.person_id === "P_CHUWU") || {}).role_in_event.length);
-  ok(chuwuLen === CHUWU_LEN && ROLE_SCAN.longest.eid === "E295" && ROLE_SCAN.longest.pid === "P_CHUWU",
-     "`E295`／`P_CHUWU` 之 `role_in_event` 实测 " + CHUWU_LEN + " 字，且为全库最长（期望另路自 event_people.json 取最长者；旧写死 486）",
-     String(chuwuLen) + "（json 最长者 " + JSON.stringify(ROLE_SCAN.longest) + "）");
+  /* 口径六①点名之最长值——r62-L 起由 event_people.json 求之（见门头）。其人若非主角，公开页走不进去，故以生产 renderTimeline() 直驱 */
+  const LONG = ROLE_SCAN.longest;
+  if (!LONG) { console.log("  ⚠ 〔门自检〕role_in_event 最长者之集为空——本门自身出错（exit 2）"); process.exitCode = 2; }
+  const pageLong = (await n1440.p.evaluate((L) => {
+    const row = DATA.event_people.find(l => l.event_id === L.eid && l.person_id === L.pid);
+    const max = Math.max(...DATA.event_people.map(l => (l.role_in_event || "").length));
+    return { len: row ? row.role_in_event.length : null, max };
+  }, LONG));
+  const judgeLong = (pl, L) => pl.len === L.len && pl.max === L.len;
+  ok(judgeLong(pageLong, LONG),
+     "`" + LONG.eid + "`／`" + LONG.pid + "` 之 `role_in_event` 实测 " + pageLong.len + " 字，且为全库最长（最长者另路自 event_people.json 求之，页内 DATA 之最长另算一遍互证；旧写死 E295／P_CHUWU 486）",
+     "json 最长者 " + JSON.stringify(LONG) + "；页内最长 " + pageLong.max);
+  { // 〔反证〕页内注入一行更长之 role，同一判须红在其因上（最长者已非所求）
+    const injected = await n1440.p.evaluate((L) => {
+      const other = DATA.event_people.find(l => !(l.event_id === L.eid && l.person_id === L.pid) && l.role_in_event);
+      const keep = other.role_in_event; other.role_in_event = "长".repeat(L.len + 1);
+      const max = Math.max(...DATA.event_people.map(l => (l.role_in_event || "").length));
+      other.role_in_event = keep;
+      const row = DATA.event_people.find(l => l.event_id === L.eid && l.person_id === L.pid);
+      return { len: row.role_in_event.length, max };
+    }, LONG);
+    const red = !judgeLong(injected, LONG);
+    console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕页内注入一行 " + (LONG.len + 1) + " 字之 role → 「最长」之判" + (red ? "当场红（页内最长 " + injected.max + " ≠ " + LONG.len + "）" : "★ 不红：门自身出错"));
+    if (!red) process.exitCode = 2;
+  }
   for (const [p, W] of [[n1440.p, 1440], [n375.p, 375]]) {
     await goPerson(p, NEW, "P_KONGZI");
-    await p.evaluate(eval("(" + DRIVE_CHUWU + ")"));
+    await p.evaluate(eval("(" + DRIVE_CHUWU + ")"), LONG.pid);
     await p.waitForTimeout(300);
     const rows = await p.evaluate(eval("(" + MEASURE + ")"));
-    const r = rows.find(x => x.eid === "E295");
-    ok(!!r, W + "px：`E295` 卡已渲入可见时间线容器（生产 renderTimeline 直驱）", r ? "胶囊 " + r.chipW + "×" + r.chipH : "未渲出");
+    const r = rows.find(x => x.eid === LONG.eid);
+    ok(!!r, W + "px：`" + LONG.eid + "` 卡已渲入可见时间线容器（生产 renderTimeline 直驱）", r ? "胶囊 " + r.chipW + "×" + r.chipH : "未渲出");
     ok(r && r.over <= 0.5 && r.smOver <= 0 && r.docOver <= 0,
       W + "px：" + CHUWU_LEN + " 字之值**不溢出其容器**（越卡右缘 " + (r ? r.over : "?") + "px，summary 溢出 " + (r ? r.smOver : "?") + "，页面横向溢出 " + (r ? r.docOver : "?") + "）",
       r ? "胶囊实载 " + r.text.length + " 字" : "");
-    // 同一页上，486 字之全文须在卡内可见（不是丢了）
-    const inCard = await p.evaluate(() => {
-      const d = [...document.querySelectorAll("details.event")].find(x => x.dataset.eid === "E295");
+    // 同一页上，最长之值之全文须在卡内可见（不是丢了）
+    const inCard = await p.evaluate((L) => {
+      const d = [...document.querySelectorAll("details.event")].find(x => x.dataset.eid === L.eid);
       if (!d) return null;
       d.open = true;
       const note = d.querySelector(".evt-role-note");
-      const raw = DATA.event_people.find(l => l.event_id === "E295" && l.person_id === "P_CHUWU").role_in_event;
+      const raw = DATA.event_people.find(l => l.event_id === L.eid && l.person_id === L.pid).role_in_event;
       /* ★ r61-Q 补测具（裁二百二十五，2026-10-13；非放判据）：往返还原原只认文本与 STRONG，余者记「?」。
        *   r53（27717c3，2026-09-26，后于本门立于 09-20）起，反引号记法渲为 <code class="md-name">——
        *   486 字之值内有反引号 8 对，故今卡内有 8 枚 <code>，旧还原法遇之记「?」而红。
        *   辨：此是**测具未随 r53 之记法**，非站之退（卡内全文逐字俱在，只是反引号二字变成了 <code> 的包裹）。
        *   治：还原法增认 `CODE.md-name` → 反引号包裹，**其余一概仍记「?」**——故仍是逐字全等之断，一字不松；
        *   且下以〔反证〕注入二病（<code> 换成别的元素／少一字），各须使还原不等。 */
+      /* r62-L 补测具（非放判据）：最长者改由数据求之后，今之最长值（E302／P_KONGZI）有「粗体内夹反引号」之形
+       *   （如 `**`presence` 从严标…**`），站渲为 <strong> 内嵌 <code.md-name>；旧还原法于 STRONG 只取 textContent，
+       *   丢其内之反引号而不等——是测具未及此形，非站之退（卡内逐字俱在）。今 STRONG 之内递归还原，其余一概仍记「?」，
+       *   仍是逐字全等之断；下之二反证（<code> 换元素、少一字）照旧须红。 */
       const restore = (nt) => [...nt.childNodes].filter(n => !(n.nodeType === 1 && n.classList && n.classList.contains("evt-role-label")))
         .map(n => n.nodeType === 3 ? n.textContent
-          : (n.nodeName === "STRONG" ? "**" + n.textContent + "**"
+          : (n.nodeName === "STRONG" ? "**" + restore(n) + "**"
             : (n.nodeName === "CODE" && n.classList.contains("md-name") ? "`" + n.textContent + "`" : "?"))).join("");
       const back = note ? restore(note) : null;
       let proofSwap = null, proofDrop = null, codeN = 0;
@@ -362,7 +390,7 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
         if (tn) { tn.textContent = tn.textContent.slice(0, -1); proofDrop = restore(c2) === raw; }
       }
       return { has: !!note, label: note ? note.querySelector(".evt-role-label").textContent : "", same: back === raw, visible: note ? note.getBoundingClientRect().width > 0 : false, codeN, proofSwap, proofDrop, rawPairs: (raw.match(/`[^`]+`/g) || []).length };
-    });
+    }, LONG);
     ok(inCard && inCard.has && inCard.same && inCard.visible,
       W + "px：" + CHUWU_LEN + " 字之全文落卡内「" + (inCard ? inCard.label : "") + "」一节，往返还原逐字全等且可见（还原法已认 <code.md-name>，见上注）", inCard ? "卡内 <code> " + inCard.codeN + " 枚／值内反引号 " + inCard.rawPairs + " 对" : "未见该节");
     ok(inCard && inCard.codeN === inCard.rawPairs && inCard.codeN > 0, W + "px：" + CHUWU_LEN + " 字之值内反引号对数（" + (inCard && inCard.rawPairs) + "，自 DATA 值数）＝卡内 <code.md-name> 枚数——不多不少", inCard ? String(inCard.codeN) : "");
@@ -530,5 +558,5 @@ const DRIVE_CHUWU = `() => { state.person = "P_CHUWU"; renderTimeline(); return 
   await browser.close(); sNew.close(); sOld.close(); sOldD.close();
 
   console.log("\n=== 合计 " + checks + " 项，FAIL " + fails + " ===");
-  process.exit(fails ? 1 : 0);
+  process.exit(process.exitCode === 2 ? 2 : fails ? 1 : 0);   // r62-L：门自检出错（集空、反证不红）压过判红
 })().catch(e => { console.error(e); process.exit(2); });
