@@ -23,6 +23,12 @@
  *   §三 交会图：Z 中二人之并观——钮「视野：全图」且 disabled；有地之二人之并观——可切、文随 mode 变。Z 不足二人 → 前者印「本项无对象」。
  *   §四 按类反证：于 0 地之页把钮复为旧式（依 mode 书「活动范围」、可切），§一之判须当场红；无 0 地之人则于有地之页令其 fitEmpty 而钮不改，
  *       同判须红。不红即 exit 2。
+ *   §五 〔r62-L 续命，裁二百四十一 二1〕图中无落于 (0,0) 之可见元素：0 地之单人图、0 地二人之并观（全图）、有地二人之并观切至全图
+ *       （原点入镜）三处，逐一量 svg 内凡可见之图元其 getBBox 落于原点者（x、y ≤ 1，宽高 < 40）——须无。
+ *       其物：并观之二播放标记（甲圆 r8、乙方 14×14）建于取景之时、未播即带 hidden，而 SVG 元素不认 HTML 之 hidden，遂现于 (0,0)；
+ *       站以样式 `.cmp-marker[hidden], #play-marker[hidden] { display: none }` 承其义。
+ *       反证：页内注样式令 `.cmp-marker[hidden]` 复显，同判须当场红；不红即 exit 2。0 地二人之并观若无（Z 不足二人）则印「本项无对象」，
+ *       余二处照跑。
  */
 "use strict";
 const fs = require("fs"), path = require("path"), http = require("http");
@@ -61,6 +67,20 @@ function srv() {
 /* 钮之量与判（正验与反证共用） */
 const readBtn = (pg, sel) => pg.evaluate((sel) => { const b = document.querySelector(sel); const svg = document.querySelector(sel === "#btn-scope" ? "#map-canvas svg" : "#cmp-canvas svg, #view-compare svg");
   return { text: b.textContent, disabled: b.disabled, title: b.getAttribute("title"), pressed: b.getAttribute("aria-pressed"), vb: svg ? svg.getAttribute("viewBox") : null }; }, sel);
+/* (0,0) 之可见图元（正验与反证共用） */
+const readOrigin = (pg, sel) => pg.evaluate((sel) => {
+  const svg = document.querySelector(sel); if (!svg) return { err: "无 svg" };
+  const out = [];
+  for (const el of svg.querySelectorAll("*")) {
+    if (!(el instanceof SVGGraphicsElement) || el.tagName === "g" || el.tagName === "svg") continue;
+    let bb; try { bb = el.getBBox(); } catch (e) { continue; }
+    let vis = true; for (let n = el; n && n !== svg; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === "none" || cs.visibility === "hidden" || cs.opacity === "0") { vis = false; break; } }
+    if (!vis || !(bb.width > 0 || bb.height > 0)) continue;
+    if (bb.x <= 1 && bb.y <= 1 && bb.x + bb.width < 40 && bb.y + bb.height < 40) out.push(el.tagName + "." + (el.getAttribute("class") || "") + "@" + [bb.x, bb.y, bb.width, bb.height].map(v => Math.round(v)).join(","));
+  }
+  return { at: out, vb: svg.getAttribute("viewBox") };
+}, sel);
+const judgeOrigin = (r) => r.err ? [r.err] : r.at;
 function judgeEmpty(b) {
   const e = [];
   if (b.text !== "视野：全图") e.push("钮文「" + b.text + "」应「视野：全图」");
@@ -136,6 +156,28 @@ function judgeEmpty(b) {
     ok(!d0.disabled && d0.title === null && d0.text === "视野：活动范围" && d1.text === "视野：全图" && d2.text === "视野：活动范围",
        w + "px 并观 " + H1.name + "×" + H2.name + "：钮可切，文随 mode 变", [d0, d1, d2].map(x => x.text).join(" → "));
     await pg.screenshot({ path: path.join(shotDir, "r62l_" + tag + "_compare_" + H1.id + "_" + H2.id + ".png"), fullPage: tag === "mobile" });
+    /* §五 (0,0) 无可见图元 */
+    console.log("§五 图中无落于 (0,0) 之可见元素");
+    for (const p of ZE) {
+      await go(pg, "#/p/" + p.id + "/map", "#map-canvas svg");
+      const o = await readOrigin(pg, "#map-canvas svg"), e = judgeOrigin(o);
+      ok(!e.length, w + "px " + p.name + " 单人图（全图）：原点无可见图元", e.join("；") || "viewBox " + o.vb);
+    }
+    if (ZE.length >= 2) {
+      await go(pg, "#compare=" + ZE[0].id + "," + ZE[1].id, "#cmp-canvas svg");
+      const o = await readOrigin(pg, "#cmp-canvas svg"), e = judgeOrigin(o);
+      ok(!e.length, w + "px 并观 " + ZE[0].name + "×" + ZE[1].name + "（全图）：原点无可见图元", e.join("；") || "viewBox " + o.vb);
+      await pg.screenshot({ path: path.join(shotDir, "r62l_after_" + tag + "_compare_" + ZE[0].id + "_" + ZE[1].id + ".png"), fullPage: tag === "mobile" });
+    } else console.log("  本项无对象（0 地二人之并观）");
+    await go(pg, "#compare=" + H1.id + "," + H2.id, "#cmp-scope");
+    await pg.click("#cmp-scope"); await pg.waitForTimeout(150);   // 切至全图，原点入镜
+    { const o = await readOrigin(pg, "#cmp-canvas svg"), e = judgeOrigin(o);
+      ok(!e.length && o.vb === "0 0 1200 700", w + "px 并观 " + H1.name + "×" + H2.name + " 切至全图：原点无可见图元", e.join("；") || "viewBox " + o.vb);
+      if (tag === "desk") {   // 按类反证：令 .cmp-marker[hidden] 复显（旧式），同判须红在其因上
+        await pg.addStyleTag({ content: ".cmp-marker[hidden] { display: inline !important; }" });
+        const r = judgeOrigin(await readOrigin(pg, "#cmp-canvas svg"));
+        selfcheck(r.some(x => /cmp-marker/.test(x)), "〔反证〕令 .cmp-marker[hidden] 复显 → 原点之判当场红，红在播放标记", r.join("；") || "★ 不红");
+      } }
     /* §四 按类反证（只于桌面跑一回） */
     if (tag === "desk") {
       console.log("§四 按类反证");

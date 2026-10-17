@@ -2392,6 +2392,10 @@ button.chron-chip[aria-pressed="true"] {
 .cmp-play-active .cmp-meet.lit circle:first-of-type { stroke-width: 3.4; }
 .cmp-play-active .cmp-meet.lit .cmp-meet-label { opacity: 1; }
 .cmp-marker { pointer-events: none; transition: opacity 0.2s ease; }
+/* r62-L 续命（裁二百四十一 二1）：播放标记建于取景之时、未播即带 hidden——而 SVG 元素不认 HTML 之 hidden 属性（UA 样式不及），
+ * 故并观之二标记（甲圆、乙方）未设坐标即现于 (0,0)：视野含原点之时（全图，如宣姜×庄姜之 0 地并观）见于左上角。
+ * 单人图之 #play-marker 停播时亦设 hidden 而未藏。此为通病之根，非一页之事——以样式承 hidden 之义。 */
+.cmp-marker[hidden], #play-marker[hidden] { display: none; }
 
 /* 年轴 */
 .cmp-axis-wrap { margin: 0.7rem 0 0.2rem; }
