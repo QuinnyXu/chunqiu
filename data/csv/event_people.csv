@@ -16,9 +16,9 @@ E009,P_LUHUAN,赴齐者,direct,亲至
 E009,P_WENJIANG,随行者,direct,亲至
 E009,P_QIXIANG,齐侯,direct,亲至
 E010,P_LUHUAN,遇害者,direct,亲至
-E010,P_WENJIANG,与齐侯通,direct,亲至
+E010,P_WENJIANG,与齐侯通,direct,相关
 E010,P_QIXIANG,主谋/齐侯,direct,亲至
-E010,P_PENGSHENG,同乘并致死者,direct,亲至
+E010,P_PENGSHENG,同乘并致死者,direct,相关
 E011,P_QIXIANG,杀郑君者,direct,亲至
 E011,P_ZIWEI,被杀,direct,亲至
 E011,P_GAOQUMI,被轘,direct,亲至
@@ -34,10 +34,10 @@ E016,P_WENJIANG,两会齐侯,direct,亲至
 E016,P_QIXIANG,齐侯,direct,亲至
 E017,P_QIXIANG,齐师之君,indirect,相关
 E018,P_QIXIANG,被弑,direct,亲至
-E018,P_WUZHI,弑君自立者,direct,亲至
+E018,P_WUZHI,弑君自立者,direct,相关
 E018,P_PENGSHENG,怪异叙事中被提及,indirect,相关
 E019,P_WENJIANG,薨,direct,亲至
-E020,P_WENJIANG,以小君礼葬,direct,亲至
+E020,P_WENJIANG,以小君礼葬,direct,相关
 E021,P_ZHENGHUAN,问计谋迁者,direct,亲至
 E022,P_ZHENGZHUANG,出生（寤生）,direct,亲至
 E022,P_WUJIANG,生母、恶之,direct,亲至
@@ -46,7 +46,7 @@ E024,P_ZHENGZHUANG,平叛并掘地见母,direct,亲至
 E024,P_GONGSHUDUAN,叛乱失败出奔,direct,亲至
 E024,P_WUJIANG,为段请制请京、将启之为内应；乱平后被置城颍、掘地见母而母子如初,direct,亲至
 E024,P_YINGKAOSHU,献隧而相见之策,direct,亲至
-E025,P_LUYIN,摄位,direct,亲至
+E025,P_LUYIN,摄位,direct,相关
 E025,P_LUHUAN,年少待立之君,indirect,相关
 E026,P_ZHENGZHUANG,怨王交质,direct,亲至
 E026,P_ZHENGZHAO,公子忽为质于周,direct,亲至
@@ -60,12 +60,12 @@ E030,P_ZHENGZHUANG,以祊易许田,direct,相关
 E030,P_LUYIN,受祊之鲁君,direct,相关
 E031,P_ZHENGZHUANG,以王命伐宋,direct,亲至
 E031,P_LUYIN,败宋师于菅,direct,亲至
-E031,P_YUFU,帅师会伐,direct,亲至
+E031,P_YUFU,帅师会伐,direct,相关
 E032,P_ZHENGZHUANG,入许并处置许国,direct,亲至
 E032,P_LUYIN,会伐,direct,亲至
 E032,P_YINGKAOSHU,先登阵亡,direct,亲至
 E033,P_LUHUAN,即位改元,direct,亲至
-E033,P_YUFU,弑隐拥立、求大宰,direct,亲至
+E033,P_YUFU,弑隐拥立、求大宰,direct,相关
 E034,P_ZHENGZHUANG,抗王师之郑伯,direct,亲至
 E034,P_ZHOUHUAN,亲征中箭,direct,亲至
 E034,P_ZHUDAN,射王中肩,direct,亲至
@@ -81,12 +81,12 @@ E039,P_ZHENGLI,被立为君,direct,亲至
 E039,P_JIZHONG,被执与宋盟,direct,亲至
 E002,P_LUYIN,被弑者（配合E002修正合入）,direct,亲至
 E002,P_YUFU,主谋弑君（配合E002修正合入）,direct,相关
-E003,P_YUFU,如齐逆女,direct,亲至
+E003,P_YUFU,如齐逆女,direct,相关
 E040,P_QIXIANG,主导迫纪,direct,相关
 E041,P_QIHUAN,出奔莒,direct,亲至
 E041,P_BAOSHUYA,预判乱作、奉小白出奔,direct,亲至
 E041,P_QIXIANG,政令无常之乱源,indirect,相关
-E042,P_WUZHI,被杀,direct,亲至
+E042,P_WUZHI,被杀,direct,相关
 E042,P_QIHUAN,得归国之机,indirect,相关
 E043,P_QIHUAN,自莒先入即位,direct,亲至
 E043,P_GUANZHONG,遮莒道射钩（《史记》层）,direct,相关
@@ -96,8 +96,8 @@ E044,P_LUZHUANG,亲征败绩、丧戎路,direct,亲至
 E044,P_QIHUAN,齐师之君、亲在无文,direct,相关
 E045,P_ZIJIU,被杀于生窦,direct,亲至
 E045,P_SHAOHU,死之,direct,亲至
-E045,P_GUANZHONG,请囚,direct,亲至
-E045,P_BAOSHUYA,帅师来言、受管仲,direct,亲至
+E045,P_GUANZHONG,请囚,direct,相关
+E045,P_BAOSHUYA,帅师来言、受管仲,direct,相关
 E045,P_LUZHUANG,迫于齐命行诛,direct,相关
 E045,P_QIHUAN,主令讨纠,direct,相关
 E046,P_GUANZHONG,堂阜脱械、入齐为相,direct,亲至
@@ -112,33 +112,33 @@ E050,P_QIHUAN,主盟北杏,direct,亲至
 E051,P_QIHUAN,主令灭遂、亲往无文,direct,相关
 E052,P_QIHUAN,盟主、受劫而许（劫盟为《史记》层）,direct,亲至
 E052,P_LUZHUANG,与齐盟、始及齐平,direct,亲至
-E052,P_CAOGUI,劫盟者（《公羊》作曹子、《史记》作曹沫、《穀梁》称曹刿之盟；《左传》不及其人）,direct,亲至
+E052,P_CAOGUI,劫盟者（《公羊》作曹子、《史记》作曹沫、《穀梁》称曹刿之盟；《左传》不及其人）,direct,相关
 E053,P_QIHUAN,始霸之会,direct,亲至
 E054,P_LUZHUANG,即位,direct,亲至
 E054,P_WENJIANG,出居于齐故不称即位,indirect,相关
-E055,P_LUZHUANG,主王姬之婚、筑馆于外,direct,亲至
+E055,P_LUZHUANG,主王姬之婚、筑馆于外,direct,相关
 E055,P_QIXIANG,娶王姬（受之于齐）,direct,相关
 E056,P_LUZHUANG,如齐观社,direct,亲至
 E056,P_CAOGUI,谏（谏于鲁，未随往无文）,direct,相关
 E056,P_QIHUAN,社祭所在之君、亲在无文,indirect,相关
-E057,P_LUZHUANG,如齐逆女,direct,亲至
+E057,P_LUZHUANG,如齐逆女,direct,相关
 E057,P_AIJIANG,入鲁为夫人,direct,亲至
 E057,P_QIHUAN,遣嫁公室女,indirect,相关
 E058,P_LUZHUANG,病笃问后、薨于路寝,direct,亲至
-E058,P_JIYOU,请奉子般、以君命鸩叔牙,direct,亲至
-E058,P_SHUYA,言庆父材、被鸩,direct,亲至
+E058,P_JIYOU,请奉子般、以君命鸩叔牙,direct,相关
+E058,P_SHUYA,言庆父材、被鸩,direct,相关
 E058,P_QINGFU,立嗣之争暗线,indirect,相关
 E059,P_ZIBAN,被弑于党氏,direct,亲至
 E059,P_QINGFU,主使（使圉人荦行弑）,direct,相关
 E059,P_JIYOU,弑后奔陈,direct,相关
 E059,P_AIJIANG,与庆父通而党之,indirect,相关
 E004,P_LUZHUANG,出生（子同）,direct,亲至
-E017,P_LUZHUANG,拒击齐师,direct,亲至
-E019,P_LUZHUANG,母薨居丧,direct,亲至
-E020,P_LUZHUANG,主小君之葬,direct,亲至
+E017,P_LUZHUANG,拒击齐师,direct,相关
+E019,P_LUZHUANG,母薨居丧,direct,相关
+E020,P_LUZHUANG,主小君之葬,direct,相关
 E001,P_ZHENGZHAO,少年从军（曼伯是否即忽有异说，从杨注系于忽）,direct,亲至
 E060,P_ZHENGZHAO,寄居卫都,direct,亲至
-E061,P_QIHUAN,救燕伐山戎（《史记》明书亲征）；公及齐侯遇于鲁济（庄公三十年经）与齐侯来献戎捷（三十一年经）为亲与旁证,direct,亲至
+E061,P_QIHUAN,救燕伐山戎（《史记》明书亲征）；公及齐侯遇于鲁济（庄公三十年经）与齐侯来献戎捷（三十一年经）为亲与旁证,direct,相关
 E062,P_QIHUAN,纳谏出师,direct,相关
 E062,P_GUANZHONG,谏'诸夏不可弃',direct,相关
 E063,P_QIHUAN,使公子无亏戍曹,direct,相关
@@ -149,7 +149,7 @@ E066,P_WEIWEN,受封居楚丘,direct,亲至
 E066,P_QIHUAN,主城楚丘之役,direct,相关
 E067,P_QIHUAN,怒归蔡姬,direct,亲至
 E068,P_QIHUAN,亲将伐楚主盟,direct,亲至
-E068,P_GUANZHONG,责包茅、昭王之问,direct,亲至
+E068,P_GUANZHONG,责包茅、昭王之问,direct,相关
 E068,P_QUWAN,如师对答与盟,direct,亲至
 E069,P_QIHUAN,会王世子,direct,亲至
 E070,P_QIHUAN,主盟谋王室,direct,亲至
@@ -157,23 +157,23 @@ E071,P_QIHUAN,受胙下拜、主盟,direct,亲至
 E071,P_ZAIKONG,代王赐胙而论之,direct,亲至
 E072,P_GUANZHONG,平戎于王、辞上卿礼,direct,亲至
 E072,P_QIHUAN,遣使于王,direct,相关
-E073,P_GUANZHONG,卒,direct,亲至
-E073,P_QIHUAN,病榻问相（《史记》层）,direct,亲至
+E073,P_GUANZHONG,卒,direct,相关
+E073,P_QIHUAN,病榻问相（《史记》层）,direct,相关
 E073,P_XIPENG,被荐、同岁前后卒,indirect,相关
 E073,P_YIYA,被论当远,indirect,相关
 E073,P_SHUDIAO,被论当远,indirect,相关
 E073,P_KAIFANG,被论当远,indirect,相关
 E074,P_QIHUAN,卒,direct,亲至
 E074,P_YIYA,因内宠杀群吏,direct,亲至
-E074,P_SHUDIAO,与乱立无亏,direct,亲至
+E074,P_SHUDIAO,与乱立无亏,direct,相关
 E074,P_KAIFANG,后出层并称与乱,indirect,相关
 E075,P_QIHUAN,使仲孙湫省难,direct,相关
 E075,P_QINGFU,乱源被论,indirect,相关
 E003,P_QIXI,齐君亲送女文姜于讙（左传评齐侯亲送为非礼）,direct,亲至
-E031,P_QIXI,会盟约期共伐宋之齐君（隐十年公会齐侯于中丘、老桃）,direct,亲至
+E031,P_QIXI,会盟约期共伐宋之齐君（隐十年公会齐侯于中丘、老桃）,direct,相关
 E032,P_QIXI,会伐入许之齐君（隐十一年公会齐侯郑伯伐许）,direct,亲至
-E035,P_QIXI,乞师于郑、受郑师献捷之齐君（北戎伐齐，战在齐境）,direct,亲至
-E036,P_QIXI,两请以女妻太子忽之齐君（主导议婚）,direct,亲至
+E035,P_QIXI,乞师于郑、受郑师献捷之齐君（北戎伐齐，战在齐境）,direct,相关
+E036,P_QIXI,两请以女妻太子忽之齐君（主导议婚）,direct,相关
 E076,P_JINXIAN,伐骊戎娶骊姬（乱源之君）,direct,亲至
 E076,P_LIJI,归晋生奚齐而嬖（欲立其子）,direct,亲至
 E076,P_SHENSHENG,齐姜所生之嫡太子（追叙出身）,indirect,相关
@@ -208,7 +208,7 @@ E087,P_JINWEN,安于齐被醉遣,direct,亲至
 E087,P_QIJIANG,与子犯谋醉遣公子,direct,亲至
 E087,P_HUYAN,与齐姜谋而被戈逐,direct,亲至
 E087,P_QIHUAN,妻以宗女厚遇之,direct,相关
-E087,P_ZHAOCUI,从亡在行,direct,亲至
+E087,P_ZHAOCUI,从亡在行,direct,相关
 E088,P_JINWEN,过曹被观骈胁,direct,亲至
 E088,P_XIFUJI,馈盘飧置璧示礼,direct,亲至
 E088,P_ZHAOCUI,从亡在行,direct,亲至
@@ -332,19 +332,19 @@ E135,P_CHUCHENG,楚子及诸侯围宋之楚君,direct,亲至
 E136,P_CHUCHENG,城濮战前入居于申、命子玉勿从晋师之楚君,direct,亲至
 E136,P_ZIYU,受命去宋而违命请战（在宋前线·不在申）,direct,相关
 E137,P_CHUCHENG,受郑伯始朝、亲赐之金之楚君,direct,亲至
-E138,P_WEIZHUANG,娶齐东宫得臣之妹为夫人,direct,亲至
-E138,P_ZHUANGJIANG,齐女嫁卫为夫人（美而无子）,direct,亲至
-E139,P_ZHUANGJIANG,养戴妫之子完为己子,direct,亲至
-E139,P_WEIHUAN,戴妫所生·庄姜子之（时尚幼）,direct,相关
+E138,P_WEIZHUANG,娶齐东宫得臣之妹为夫人,direct,相关
+E138,P_ZHUANGJIANG,齐女嫁卫为夫人（美而无子）,direct,相关
+E139,P_ZHUANGJIANG,养戴妫之子完为己子,direct,相关
+E139,P_WEIHUAN,戴妫所生·庄姜子之（时尚幼）,direct,亲至
 E139,P_WEIZHUANG,娶陈戴妫生完,direct,相关
-E140,P_ZHOUYU,嬖人子有宠好兵,direct,亲至
-E140,P_ZHUANGJIANG,恶州吁,direct,亲至
-E140,P_WEIZHUANG,有宠而弗禁（石碏谏不听）,direct,亲至
+E140,P_ZHOUYU,嬖人子有宠好兵,direct,相关
+E140,P_ZHUANGJIANG,恶州吁,direct,相关
+E140,P_WEIZHUANG,有宠而弗禁（石碏谏不听）,direct,相关
 E141,P_ZHOUYU,弑桓公自立,direct,亲至
-E141,P_WEIHUAN,立十六年为州吁所弑,direct,亲至
+E141,P_WEIHUAN,立十六年为州吁所弑,direct,相关
 E141,P_ZHUANGJIANG,养子被弑（庄姜之痛）,indirect,相关
-E142,P_WEIXUAN,为急子娶齐女而筑新台自纳之,direct,亲至
-E142,P_XUANJIANG,齐女嫁卫·为宣公所纳,direct,亲至
+E142,P_WEIXUAN,为急子娶齐女而筑新台自纳之,direct,相关
+E142,P_XUANJIANG,齐女嫁卫·为宣公所纳,direct,相关
 E142,P_JIZI,所聘之齐女为父所夺,direct,相关
 E143,P_JIZI,使如齐·盗待诸莘见杀,direct,亲至
 E143,P_SHOUZI,窃旌先行代兄死,direct,亲至
@@ -352,8 +352,8 @@ E143,P_WEIHUI,与宣姜构急子·遣盗,direct,相关
 E143,P_XUANJIANG,与朔构急子,indirect,相关
 E144,P_WEIHUI,二公子立黔牟·奔齐,direct,亲至
 E144,P_XUANJIANG,惠公母,indirect,相关
-E145,P_ZHAOBO,齐人强其烝宣姜·生五子,direct,亲至
-E145,P_XUANJIANG,为昭伯所烝·生戴文与许穆夫人,direct,亲至
+E145,P_ZHAOBO,齐人强其烝宣姜·生五子,direct,相关
+E145,P_XUANJIANG,为昭伯所烝·生戴文与许穆夫人,direct,相关
 E145,P_XUMU,昭伯宣姜所生之女（追叙）,indirect,相关
 E145,P_WEIWEN,昭伯宣姜所生,indirect,相关
 E146,P_CHUWEN,将楚师败蔡于莘·获蔡侯,direct,亲至
@@ -382,7 +382,7 @@ E092,P_MUJI,秦穆公夫人（后世或谓其劝纳重耳·经传无征·姑存�
 E155,P_GUANZHONG,奉公子纠奔鲁,direct,亲至
 E155,P_SHAOHU,奉公子纠奔鲁,direct,亲至
 E155,P_ZIJIU,出奔鲁,direct,亲至
-E154,P_GUANZHONG,自鲁就囚、槛车东归,direct,亲至
+E154,P_GUANZHONG,自鲁就囚、槛车东归,direct,相关
 E154,P_BAOSHUYA,受管仲（受之不系地，脱械在堂阜即 E046；如鲁无明文）,direct,相关
 E044,P_GUANZHONG,随子纠居鲁（乾时鲁败，本人在阵无明文）,indirect,相关
 E071,P_GUANZHONG,佐桓公主霸（葵丘会盟经无亲在明文）,direct,相关
@@ -392,7 +392,7 @@ E170,P_SONGHUAN,宋公疾、命子鱼为嗣,direct,亲至
 E171,P_SONGXIANG,嗣立为宋君,direct,亲至
 E171,P_MUYI,受命为左师以听政,direct,亲至
 E171,P_SONGHUAN,春三月丁丑卒于宋,direct,亲至
-E172,P_SONGXIANG,以诸侯伐齐、纳孝公之宋君。（经书「宋公……伐齐」君将之辞；甗战经书「宋师」，判据见 docs/changes/r21_songxiang.md 三）,direct,亲至
+E172,P_SONGXIANG,以诸侯伐齐、纳孝公之宋君。（经书「宋公……伐齐」君将之辞；甗战经书「宋师」，判据见 docs/changes/r21_songxiang.md 三）,direct,相关
 E172,P_QIXIAOGONG,宋所纳而立之齐君（「立孝公而还」，其亲在甗之战阵无明文）,direct,相关
 E173,P_SONGXIANG,亲盟于曹南、使邾文公用鄫子于次睢之社,direct,亲至
 E173,P_MUYI,司马谏用人于社（谏对时地无明文）,direct,相关
@@ -400,7 +400,7 @@ E174,P_SONGXIANG,鹿上求诸侯于楚之宋君（经传书「宋人」、无宋
 E174,P_MUYI,谏「小国争盟，祸也」（谏对时地无明文）,direct,相关
 E175,P_SONGXIANG,卒于宋，伤于泓故,direct,亲至
 E071,P_SONGXIANG,居丧未葬而与葵丘之会，经书「宋子」,direct,亲至
-E074,P_QIXIAOGONG,太子昭遭乱奔宋,direct,亲至
+E074,P_QIXIAOGONG,太子昭遭乱奔宋,direct,相关
 E111,P_MUYI,司马请击半渡、既败而论战,direct,亲至
 E134,P_MUYI,谏「祸其在此乎、君欲已甚」（谏对时地无明文）,direct,相关
 E176,P_CHENLING,与二卿戏于朝、告二子而弗禁其杀泄冶之陈君,direct,亲至
@@ -474,7 +474,7 @@ E197,P_ZICHAN,两拒禳火之请，曰「天道远，人道迩」；火作而备
 E197,P_PIZAO,请用瓘斝玉瓒禳火，两言而两不见用,direct,亲至
 E197,P_ZIDASHU,以「宝，以保民也」请用之，子产不可,direct,亲至
 E198,P_ZICHAN,有疾，以宽猛之诲授政于子大叔,direct,亲至
-E198,P_ZIDASHU,受遗言而为政；宽而多盗，悔而攻萑苻之盗,direct,亲至
+E198,P_ZIDASHU,受遗言而为政；宽而多盗，悔而攻萑苻之盗,direct,相关
 E198,P_KONGZI,《左传》系其评语：「宽以济猛，猛以济宽，政是以和」,indirect,相关
 E199,P_ZICHAN,卒于执政之位，凡二十二年,direct,亲至
 E199,P_KONGZI,闻子产卒，出涕曰「古之遗爱也」（闻讣于鲁）,indirect,相关
@@ -496,7 +496,7 @@ E207,P_YANYING,为父晏桓子服斩衰，食鬻居倚庐；家老谓非大夫�
 E208,P_YANYING,辞邶殿之邑六十，申「富如布帛之有幅」之幅利义,direct,亲至
 E208,P_QIJING,分庆氏之邑，与晏婴邶殿其鄙六十；「公以为忠，故有宠」（赐邑之举有文而在场无文）,direct,相关
 E209,P_YANYING,辞更宅；以「踊贵屦贱」对物价之问而谏刑；如晋归毁已成之新宅，复为里室,direct,亲至
-E209,P_QIJING,欲更晏婴之宅而见辞，笑问贵贱得「踊贵屦贱」之对，「为是省于刑」,direct,亲至
+E209,P_QIJING,欲更晏婴之宅而见辞，笑问贵贱得「踊贵屦贱」之对，「为是省于刑」,direct,相关
 E209,P_SHUXIANG,晏婴既告于君，「与叔向语而称之」——其语见 E210，本条其人不在齐,indirect,相关
 E210,P_YANYING,如晋请继室，受礼与叔向宴语；答「此季世也……齐其为陈氏矣」,direct,亲至
 E210,P_QIJING,使晏婴请继室于晋，己不行（使者代行）,indirect,相关
@@ -504,7 +504,7 @@ E211,P_QIJING,疾而闻请诛祝史，以告晏婴；既谏，使有司宽政、
 E211,P_YANYING,谏诛祝史：「虽其善祝，岂能胜亿兆人之诅」「君若欲诛于祝史，脩德而后可」,direct,亲至
 E212,P_YANYING,侍于遄台，答「据亦同也，焉得为和」，遂论「和如羹焉」,direct,亲至
 E212,P_QIJING,至自田而谓「唯据与我和夫」，问和与同之异,direct,亲至
-E213,P_QIJING,以彗星使禳之，闻谏乃止,direct,亲至
+E213,P_QIJING,以彗星使禳之，闻谏乃止,direct,相关
 E213,P_YANYING,谏禳彗：「天道不謟，不贰其命」「君无秽德，又何禳焉」,direct,亲至
 E214,P_QIJING,坐于路寝而叹「美哉室，其谁有此乎」；闻对而曰「吾今而后知礼之可以为国也」,direct,亲至
 E214,P_YANYING,对以「其陈氏乎」「公厚敛焉，陈氏厚施焉」及「唯礼可以已之」,direct,亲至
@@ -514,7 +514,7 @@ E219,P_QIXIDAFU,已告老，闻叔向见囚，乘馹见范宣子，举其「谋�
 E220,P_SHUXIANG,韩宣子忧贫而贺之：举栾武子之贫、郤昭子之富为对，断以「若不忧德之不建，而患货之不足，将吊不暇，何贺之有」,direct,亲至
 E220,P_HANQI,以「有卿之名而无其实，无以从二三子」自陈其忧；闻叔向之对而拜稽首，曰「起也将亡，赖子存之」,direct,亲至
 E221,P_SHUXIANG,羊舌氏之宗于是见灭，所杀者为其子杨食我；传于本条系「初，叔向欲娶于申公巫臣氏」一段追叙其娶与母谏,indirect,相关
-E221,P_YANGSHIWO,党于祁盈助乱，夏六月与祁盈同见杀于晋，羊舌氏之宗遂亡，其田分为三县,direct,亲至
+E221,P_YANGSHIWO,党于祁盈助乱，夏六月与祁盈同见杀于晋，羊舌氏之宗遂亡，其田分为三县,direct,相关
 E081,P_MUJI,晋灭虞，执虞公及其大夫井伯以媵之于秦——秦晋媵事之经传明文在此；其人时在秦，不在虞,indirect,相关
 E222,P_JIZHA,诸樊除丧将立之，引曹之子臧「能守节」为比而辞：「有國，非吾節也」；诸樊固立之，乃「棄其室而耕」,direct,亲至
 E223,P_JIZHA,来聘于鲁、观乐遍评，遂历聘齐郑卫晋者。先戒叔孙穆子「不慎舉，何以堪之」，继请观于周乐，遍评十五国风、二雅三颂及六舞，末曰「觀止矣」；遂历聘齐郑卫晋，于晏平仲、子产、孙文子、叔向各有一语,direct,亲至
@@ -593,7 +593,7 @@ E266,P_FANLI,自陈「四封之外，敵國之制，立斷之事，種亦不如�
 E266,P_WENZHONG,受命「守於國」——传文明书其不与行，presence 首用第三值「不在」（r28 裁定 c，史文明书其不在事发地）,indirect,不在
 E267,P_GOUJIAN,越既灭吴，鲁始遣叔青使越，越使诸鞅报聘；传书两国使者往还而越子亲在之文阙如，依 §7「使者代行」条不作在场论,indirect,相关
 E268,P_JIZHA,聘于齐，说晏平仲而戒之曰「子速納邑與政。無邑無政，乃免於難」,direct,亲至
-E268,P_YANYING,受季札之戒，因陈桓子以纳政与邑，是以免于栾、高之难——传于其言之下即书其行与其效,direct,亲至
+E268,P_YANYING,受季札之戒，因陈桓子以纳政与邑，是以免于栾、高之难——传于其言之下即书其行与其效,direct,相关
 E269,P_JIZHA,聘于郑，见子产如旧相识，与之缟带而受其纻衣，戒以「鄭之執政侈，難將至矣，政必及子。子為政，慎之以禮」,direct,亲至
 E269,P_ZICHAN,与季札一见如旧相识，献纻衣以报缟带；受「政必及子」「慎之以禮」之戒，其后果执郑政,direct,亲至
 E270,P_JIZHA,适卫，说蘧瑗、史狗、史鰌、公子荆、公叔发、公子朝六人，曰「衞多君子，未有患也」；自卫如晋，将宿于戚而闻钟声，讥孙文子「君又在殯，而可以樂乎」，遂去之,direct,亲至
@@ -616,18 +616,18 @@ E274,P_QIJING,齐方之君，会鲁公于夹谷，从犁弥之谋而复遽辟之
 E274,P_LUDINGGONG,夹谷之会经传所书之会主。经「夏，公會齊侯于夾谷。公至自夾谷」，传「夏，公會齊侯于祝其，實夾谷」；孔丘以公退、齐侯将享公，皆以其人为所卫所享之主。r45 试点合入时其行未立，遂成「会主不在挂链中」之形，本批立行而回挂之（r44 裁定在案之回补义务）,direct,亲至
 E275,P_LUZHAOGONG,纳公若、郈昭伯之谋而伐季氏，居于长府，杀公之于门而入之；季平子三请（待罪沂上、囚于费、以五乘亡）皆弗许，子家子谏而弗听；三家既合，与臧孙如墓谋，己亥孙于齐，次于阳州,direct,亲至
 E275,P_QIJING,齐方之君。将唁公于平阴而公先至于野井，曰「寡人之罪也，使有司待於平陰，為近故也」；继许「自莒疆以西，請致千社」以待君命。**其人不在曲阜事发之地**，故从严标「相关」,indirect,相关
-E276,P_ZHAOYANG,传所直书之行事者：「晉趙鞅、荀寅帥師城汝濱，遂賦晉國一鼓鐵，以鑄刑鼎，著范宣子所謂刑書焉」。**明书其在汝滨而铸鼎之地传无文**，本条落点在晋（L_XINTIAN），故从严标「相关」——行事之主未必亲至，判据在史文所书之地,direct,相关
+E276,P_ZHAOYANG,传所直书之行事者：「晉趙鞅、荀寅帥師城汝濱，遂賦晉國一鼓鐵，以鑄刑鼎，著范宣子所謂刑書焉」。**明书其在汝滨而铸鼎之地传无文**，本条落点从阙（汝滨库无其点；铸鼎之地传不书），「帥師」是兵事之词，故从严标「相关」——行事之主未必亲至，判据在史文所书之地,direct,相关
 E277,P_LUZHAOGONG,所葬者。其丧夏六月癸亥至自乾侯，秋七月癸巳葬于墓道之南，不入先君墓域。依 conventions §7 v1.22「死者不作亲至」通例，虽其柩在葬所，不构成在场意义之亲至，从严标「相关」／indirect,indirect,相关
 E277,P_LUDINGGONG,继昭公而主鲁社稷者：六月戊辰即位，七月葬昭公。**经传于其人在葬所无明文**（经书「葬我君昭公」而不书公之与），故从严标「相关」,indirect,相关
 E278,P_GONGSHANBUNIU,阳虎欲逐仲梁怀而告之，对曰「彼為君也，子何怨焉」，初不与其谋。传于同年别书「及費，子洩為費宰」一节，其「子洩」与本人是否一人系传文他篇（哀公八年）之内证所推，标 medium（见其人 notes）。**其人于稷门之盟无在场明文**，从严标「相关」,indirect,相关
 E279,P_LUDINGGONG,被盟者，亦所盟之首。传「陽虎又盟公及三桓於周社」——盟之地在周社而公为盟之一方，合 conventions §7 所许之「盟」明文，标「亲至」,direct,亲至
-E280,P_LUDINGGONG,为阳虎所劫以伐孟氏者。传「陽虎劫公與武叔以伐孟氏」，明书其人在伐孟氏之役中，标「亲至」。其被劫非其所愿，然 presence 所答者是「身在何处」而非「出于何心」,direct,亲至
+E280,P_LUDINGGONG,为阳虎所劫以伐孟氏者。传「陽虎劫公與武叔以伐孟氏」，「劫」是处置之词，其人是受事，传不书其身之地亦无其答拜之文（型 11），presence 从严标「相关」,direct,相关
 E280,P_GONGLIANCHUFU,成宰。先觉阳虎之谋而告孟孙（「季氏戒都車，何故？」「然則亂也，必及於子，先備諸」），与孟孙以壬辰为期；继「帥成人自上東門入，與陽氏戰于南門之內，弗勝；又戰于棘下，陽氏敗」——阳虎之败实由其手，明书其在曲阜城内之战地，标「亲至」,direct,亲至
 E280,P_GONGSHANBUNIU,阳虎欲去三桓之党，五人之一。季寤、公鉏极、公山不狃皆不得志于季氏，与叔孙辄、叔仲志五人因阳虎，为阳虎欲去三桓之党。**传不书其与蒲圃之谋、棘下之战**，从严标「相关」,indirect,相关
 E281,P_QIJING,齐方之君。阳虎奔齐请师以伐鲁，齐侯将许之，鲍文子谏「陽虎欲勤齊師也……親富不親仁，君焉用之」而止；乃执阳虎，将东之而反囚诸西鄙。**传不书其在执囚之地**，从严标「相关」,indirect,相关
 E281,P_ZHAOYANG,阳虎亡命之所归：传「奔宋，遂奔晉，適趙氏」。传所书者是奔者至其门，非书赵鞅在何地，故从严标「相关」。传于其下系仲尼「趙氏其世有亂乎」一语（属评语账，本批不收）,indirect,相关
 E282,P_LUDINGGONG,堕三都时之鲁君。费人袭鲁，「公與三子入于季氏之宮，登武子之臺」，费人攻之弗克而入及公侧；冬十二月「公圍成」，经复书「公至自圍成」。两处俱明书其在事发地，标「亲至」,direct,亲至
-E282,P_GONGSHANBUNIU,堕费之对手方，帅费人袭鲁者。「公山不狃、叔孫輒帥費人以襲魯」，攻武子之台而入及公侧，为仲尼所命之申句须、乐颀所败于姑蔑，遂与叔孙辄奔齐。明书其在曲阜之战地，标「亲至」,direct,亲至
+E282,P_GONGSHANBUNIU,堕费之对手方，帅费人袭鲁者。「公山不狃、叔孫輒帥費人以襲魯」，攻武子之台而入及公侧，为仲尼所命之申句须、乐颀所败于姑蔑，遂与叔孙辄奔齐。「帥」「襲」是兵事之词，「費人攻之」是集称，传不书其人之身在曲阜，presence 从严标「相关」,direct,相关
 E282,P_GONGLIANCHUFU,成宰。谏孟孙勿堕成：「墮成，齊人必至于北門。且成，孟氏之保障也，無成是無孟氏也。子偽不知，我將不墜」——三都所以堕其二而止者在此。**传不书其言于何地**，本条落点在曲阜，故从严标「相关」,direct,相关
 E283,P_LUDINGGONG,邾隐公来朝时受玉之主。「邾子執玉高，其容仰；**公受玉卑，其容俯**」——子贡即据此二君之容而断「二君者皆有死亡焉」「君為主，其先亡乎」。明书其人在朝礼之场，标「亲至」。是年夏五月公薨（E284），其言遂中,direct,亲至
 E284,P_LUDINGGONG,所薨者：经「壬申，公薨于高寢」。依 conventions §7 presence 从严通例所许之「生卒于其地」明文，标「亲至」——其人于本条自始为行动主体（薨之为事，主体即其人），非以尸身入场，不属 v1.22「死者不作亲至」通例所指之情形,direct,亲至
@@ -638,7 +638,7 @@ E287,P_GUOSHU,齐方之将：「齊為鄎故，國書、高無平帥師伐我，
 E288,P_LUAIGONG,用田赋时之鲁君。经「十有二年春，用田賦」、传「十二年春，王正月，用田賦」——**经传俱不书行之者之名**（其本源在哀公十一年季孙欲以田赋一节，属批乙）；所以挂之者只在其为在位之君，从严标「相关」,indirect,相关
 E289,P_LUZHAOGONG,所卒者（昭夫人孟子）之夫。「昭夫人孟子卒。**昭公娶于吳，故不書姓**」——经之三不书（不书姓、不称夫人、不言葬小君）皆缘其娶同姓之讳。其人已先卒二十七年（前510），本条为追述其婚而及之，标「相关」／indirect,indirect,相关
 E290,P_LUAIGONG,螽时之鲁君。经「冬，十有二月，螽」——**经传于其事无人之行动明文**（传所系者为季孙问、仲尼答一节，属批乙）；所以挂之者只在其为在位之君，从严标「相关」。本条挂链之薄已于事目 summary 与 CHANGES 登记,indirect,相关
-E291,P_CHENHENG,作弑者：忌子我之得宠而骤顾诸朝；夏五月壬申以兄弟四乘如公，入而闭门，迁公于寝；子我出走而为陈氏所追杀。庚辰「陳恆執公于舒州」，六月甲午「齊陳恆弒其君壬于舒州」。明书其在公宫与舒州，标「亲至」,direct,亲至
+E291,P_CHENHENG,作弑者：忌子我之得宠而骤顾诸朝；夏五月壬申以兄弟四乘如公，入而闭门，迁公于寝；子我出走而为陈氏所追杀。庚辰「陳恆執公于舒州」，六月甲午「齊陳恆弒其君壬于舒州」。「執公于舒州」之地及于公之身、不及执者（型 4），「弒其君壬于舒州」书齐人（集称），presence 从严标「相关」；其入公宫之行在临淄，非本目落点,direct,相关
 E291,P_QIJIANGONG,见弑者，亦本条之行动主体之一。与妇人饮酒于檀台而成子迁诸寝，「公執戈將擊之」，为大史子余所止；见执于舒州而曰「吾早從鞅之言，不及此」；甲午见弑于舒州。合「生卒于其地」明文，标「亲至」,direct,亲至
 E292,P_KUAIKUI,作难者：闰月与浑良夫蒙衣而乘，入孔氏之外圃，「大子與五人介，輿豭從之，迫孔悝於廁，強盟之，遂劫以登臺」；子路请燔台，「大子聞之懼，下石乞、盂黶敵子路」。孔悝遂立之为庄公。明书其在孔氏之台，标「亲至」,direct,亲至
 E293,P_BAIGONGSHENG,作乱者：请伐郑复父雠不遂而自厉剑；吴人伐慎，败之而请以战备献，遂作乱。秋七月「殺子西、子期于朝，而劫惠王」，欲以子闾为王，不可而杀之，以王如高府；叶公入而国人攻之，「白公奔山而縊」。明书其在朝、在高府、在山，标「亲至」,direct,亲至
@@ -669,7 +669,7 @@ E299,P_KONGZI,受季孙田赋之访而三不对、私诫冉有者。记事账记
 E300,P_KONGZI,观鉏商所获之兽而名之为麟者。记事账记-16。「叔孫氏之車子鉏商獲麟，以為不祥，以賜虞人。**仲尼觀之，曰：麟也。然後取之**」（`Q510`）。标**「相关」**——观、取二事俱其亲身之行，然「亲至」之据须落在**事发地之明文**，本条恰缺此件：其观之之地是否即本条落点大野（`L_DAYE`），传无文——麟既「以賜虞人」，则观之之处或在虞人所居，而虞人之居传亦不书。**行动明文而无地者不得当亲至，此判一体贯彻**（2026-09-08 领队裁定，不为本条开「行动可代地」之口）；「觀之」「取之」之行动实录仍全见于此、`E300.summary`、`Q510` 注、`L_DAYE.coord_basis` 四处，presence 之从严不没其行动之实,indirect,相关
 E301,P_KONGZI,请鲁伐齐以讨陈恒、公使告季孙而辞者。记事账记-17。「**孔丘三日齊，而請伐齊三**。公曰：魯為齊弱久矣……對曰：陳恆弒其君，民之不與者半……公曰：子告季孫。**孔子辭**，退而告人曰：吾以從大夫之後也，故不敢不言」（`Q511`）。标「亲至」——「公曰／對曰／公曰／孔子辭」四番往复，君臣面对之明文俱全。**「吾以從大夫之後也」是孔子在《左传》全帙中对自己身位的唯一一次自述**,direct,亲至
 E301,P_LUAIGONG,孔丘请讨陈恒时所请之君。「**公曰：魯為齊弱久矣，子之伐之，將若之何？**」「**公曰：子告季孫。**」（`Q511`）——两番亲答，面对之明文俱全，标「亲至」。其答之实，是把国事推给私门（季孙），而孔子以「辭」应之——本条之枢在此,direct,亲至
-E302,P_KONGZI,所卒者。记事账记-19。经「夏，四月，己丑，孔丘卒」（`Q513`，**《春秋》经全帙书孔子之唯一一见**）；传备记哀公之诔与子贡之讥（`Q514`）。**`presence` 从严标「相关」／`indirect`，其据在经传书其卒而不书其卒之地**——§7 presence 通例许「生卒于其地」为亲至之明文，而「孔丘卒」四字无地；`E284`「公薨于**高寢**」、`E286`「卒于**城父**」则有，**判据之别只在这一个地名的有无**。（`docs/kaoding_kongzi.md` §1.2 记-19 原据 §7 v1.22「死者不作亲至」通例而得同一结论；本批改从「卒地无明文」立论——v1.22 所指者是死者以尸身入他事之场，而本条之卒者即本条自始之行动主体，援之不切。**结论未变而依据链换过一次，照 §7 v1.29 于此留痕**。）本条落点取 `L_QUFU`，据者是哀公诔之与经之系鲁，非其卒地之明文，故不因落点而升其 presence,indirect,相关
+E302,P_KONGZI,所卒者。记事账记-19。经「夏，四月，己丑，孔丘卒」（`Q513`，**《春秋》经全帙书孔子之唯一一见**）；传备记哀公之诔与子贡之讥（`Q514`）。**`presence` 从严标「相关」／`indirect`，其据在经传书其卒而不书其卒之地**——§7 presence 通例许「生卒于其地」为亲至之明文，而「孔丘卒」四字无地；`E284`「公薨于**高寢**」、`E286`「卒于**城父**」则有，**判据之别只在这一个地名的有无**。（`docs/kaoding_kongzi.md` §1.2 记-19 原据 §7 v1.22「死者不作亲至」通例而得同一结论；本批改从「卒地无明文」立论——v1.22 所指者是死者以尸身入他事之场，而本条之卒者即本条自始之行动主体，援之不切。**结论未变而依据链换过一次，照 §7 v1.29 于此留痕**。）本条落点取 `L_QUFU`，据者是哀公诔之与经之系鲁，非其卒地之明文，故不因落点而升其 presence〔就地加注·r62-F，2026-10-16；据 `team/round61_prompts.md` §四十五 裁二百三十五 四1、§五十四 裁二百三十七 二6〕本目落点已从阙（经传不书其卒之地，不以鲁都代填），上句「本条落点取 `L_QUFU`」今已不然；落点从阙之目，本事即其人之卒，依型 22 改标「亲至」——上文「从严标相关」之由（卒地无明文）须有一地可对，生于旧落点曲阜，今其由不生。依据链又转一次，照 §7 v1.29 于此留痕。,indirect,亲至
 E302,P_LUAIGONG,为孔丘作诔者。「**公誄之曰**：旻天不弔，不憖遺一老……嗚呼哀哉！尼父！無自律」（`Q514`）。**传不书其诔于何地**，从严标「相关」／`indirect`——诔是辞而非行，无在场之明文。子贡当场判之「生不能用，死而誄之，非禮也；稱『一人』，非名也。君兩失之」，是本库所收对在位之君最重的一句当面之评；子贡之人物行属批丙，本批不立行,indirect,相关
 E176,P_KONGZI,《左传》系其评语：「民之多辟，無自立辟，其洩冶之謂乎」（追记之断）,indirect,相关
 E278,P_YANGHU,作事者。季平子卒，欲以璵璠敛而仲梁怀弗与，遂谋逐之；乙亥囚季桓子及公父文伯而逐仲梁怀，十月丁亥杀公何藐，「己丑，盟桓子于稷門之內」，庚寅大诅。**标「亲至」之据在「盟……于稷門之內」一句**——盟为 §7 通例明列之在场明文，稷门为鲁都城门（本事目落点 L_QUFU）。**一处自陈**：该句主语承前省（前句「陽虎囚季桓子」），非本句再书其名，此层已入 CHANGES §5.1 上报,direct,亲至
@@ -710,16 +710,16 @@ E311,P_HANQI,为兄韩无忌所让而立为卿（「請立起也」），「使�
 E312,P_XUNYING,子囊所述「知罃稟焉以為政」之人。本条为楚人之言，其人不在其事，标「相关」,indirect,相关
 E312,P_SHIGAI,子囊所述「使佐中軍」之范匄。楚人之言所及，标「相关」,indirect,相关
 E312,P_XUNYAN,子囊所述位次在范匄之下之中行偃。楚人之言所及，标「相关」,indirect,相关
-E313,P_XUNYING,卒；同年荀偃受命将中军（荀罃之职名传无明文，二人之相继系任期表之推）。已卒之人非行动主体，依「死者不作亲至」通例标「相关」,indirect,相关
+E313,P_XUNYING,卒；同年荀偃受命将中军（荀罃之职名传无明文，二人之相继系任期表之推）。本事即其人之卒，落点从阙，依型 22（裁二百三十七 二6）标「亲至」——卒之本人非 v1.22 所言之死者（彼指事发时已死之身）,indirect,亲至
 E313,P_XUNYAN,绵上之蒐受命将中军（士匄让之）。其人在蒐与否无明文，从严标「相关」,direct,相关
 E313,P_SHIGAI,辞将中军而让伯游，为中军佐。其辞发于何地无明文，从严标「相关」,direct,相关
-E314,P_XUNYAN,伐齐还而癉疽，卒，视而不可含。已卒之人非行动主体，依「死者不作亲至」通例标「相关」,indirect,相关
+E314,P_XUNYAN,伐齐还而癉疽，卒，视而不可含。本事即其人之卒，落点从阙，依型 22（裁二百三十七 二6）标「亲至」——卒之本人非 v1.22 所言之死者（彼指事发时已死之身）,indirect,亲至
 E314,P_SHIGAI,盥而抚荀偃之尸，旋为政。在场之据二：传书「士匄請見，弗內」（荀偃病中求见于其所）、「宣子盥而撫之」（身临其尸）——俱身行之明文，非以职推，标「亲至」；本目落点从阙，「亲至」所指为身在荀偃卒处，非指某一地点行（r59-E 复核留，裁一百四十二④）,direct,亲至
 E315,P_ZHAOWU,为政，令薄诸侯之币而重其礼。其于重丘之盟在场与否无明文，标「相关」,direct,相关
 E315,P_SHIGAI,前任执政，卒于赵文子为政之前。已卒之人，依「死者不作亲至」通例标「相关」,indirect,相关
 E316,P_ZHAOWU,烝于温，旬日而卒。已卒之人非行动主体，依「死者不作亲至」通例标「相关」,indirect,相关
 E317,P_HANQI,聘鲁且告为政。传明书「晉侯使韓宣子來聘」，标「亲至」,direct,亲至
-E318,P_WEISHU,合诸侯之大夫于狄泉，田于大陆而卒于甯。已卒之人非行动主体，依「死者不作亲至」通例标「相关」,indirect,相关
+E318,P_WEISHU,合诸侯之大夫于狄泉，田于大陆而卒于甯。本事即其人之卒，落点从阙，依型 22（裁二百三十七 二6）标「亲至」——卒之本人非 v1.22 所言之死者（彼指事发时已死之身）,indirect,亲至
 E221,P_WEISHU,继韩宣子为政，分祁氏、羊舌氏之田为十县而举其官（`Q515`）。为政与分田于何地无明文，标「相关」,direct,相关
 E128,P_XIKE,上军佐。传书「郤獻子曰：二憾往矣，弗備必敗」，为其在军中之言，标「亲至」,direct,亲至
 E128,P_LUANSHU,下军佐。传书「欒武子曰：楚自克庸以來……」，为其在军中之言，标「亲至」,direct,亲至

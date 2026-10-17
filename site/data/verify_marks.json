@@ -3739,6 +3739,20 @@
   },
   {
     "table": "passages",
+    "row_id": "Q067",
+    "col": "modern_note",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q068",
+    "col": "modern_note",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "passages",
     "row_id": "Q073",
     "col": "modern_note",
     "offset": 0,
@@ -3858,6 +3872,20 @@
     "row_id": "Q161",
     "col": "modern_note",
     "offset": 677,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q170",
+    "col": "modern_note",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q171",
+    "col": "modern_note",
+    "offset": 0,
     "status": []
   },
   {
@@ -5879,7 +5907,14 @@
     "table": "passages",
     "row_id": "Q503",
     "col": "modern_note",
-    "offset": 518,
+    "offset": 309,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q503",
+    "col": "modern_note",
+    "offset": 629,
     "status": []
   },
   {
@@ -5970,7 +6005,14 @@
     "table": "passages",
     "row_id": "Q514",
     "col": "modern_note",
-    "offset": 839,
+    "offset": 766,
+    "status": []
+  },
+  {
+    "table": "passages",
+    "row_id": "Q514",
+    "col": "modern_note",
+    "offset": 1044,
     "status": []
   },
   {
@@ -7654,6 +7696,13 @@
   {
     "table": "events",
     "row_id": "E298",
+    "col": "summary",
+    "offset": 0,
+    "status": []
+  },
+  {
+    "table": "events",
+    "row_id": "E299",
     "col": "summary",
     "offset": 0,
     "status": []

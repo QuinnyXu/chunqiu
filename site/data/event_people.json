@@ -123,7 +123,7 @@
     "person_id": "P_WENJIANG",
     "role_in_event": "与齐侯通",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E010",
@@ -137,7 +137,7 @@
     "person_id": "P_PENGSHENG",
     "role_in_event": "同乘并致死者",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E011",
@@ -249,7 +249,7 @@
     "person_id": "P_WUZHI",
     "role_in_event": "弑君自立者",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E018",
@@ -270,7 +270,7 @@
     "person_id": "P_WENJIANG",
     "role_in_event": "以小君礼葬",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E021",
@@ -333,7 +333,7 @@
     "person_id": "P_LUYIN",
     "role_in_event": "摄位",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E025",
@@ -431,7 +431,7 @@
     "person_id": "P_YUFU",
     "role_in_event": "帅师会伐",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E032",
@@ -466,7 +466,7 @@
     "person_id": "P_YUFU",
     "role_in_event": "弑隐拥立、求大宰",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E034",
@@ -578,7 +578,7 @@
     "person_id": "P_YUFU",
     "role_in_event": "如齐逆女",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E040",
@@ -613,7 +613,7 @@
     "person_id": "P_WUZHI",
     "role_in_event": "被杀",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E042",
@@ -683,14 +683,14 @@
     "person_id": "P_GUANZHONG",
     "role_in_event": "请囚",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E045",
     "person_id": "P_BAOSHUYA",
     "role_in_event": "帅师来言、受管仲",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E045",
@@ -795,7 +795,7 @@
     "person_id": "P_CAOGUI",
     "role_in_event": "劫盟者（《公羊》作曹子、《史记》作曹沫、《穀梁》称曹刿之盟；《左传》不及其人）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E053",
@@ -823,7 +823,7 @@
     "person_id": "P_LUZHUANG",
     "role_in_event": "主王姬之婚、筑馆于外",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E055",
@@ -858,7 +858,7 @@
     "person_id": "P_LUZHUANG",
     "role_in_event": "如齐逆女",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E057",
@@ -886,14 +886,14 @@
     "person_id": "P_JIYOU",
     "role_in_event": "请奉子般、以君命鸩叔牙",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E058",
     "person_id": "P_SHUYA",
     "role_in_event": "言庆父材、被鸩",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E058",
@@ -942,21 +942,21 @@
     "person_id": "P_LUZHUANG",
     "role_in_event": "拒击齐师",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E019",
     "person_id": "P_LUZHUANG",
     "role_in_event": "母薨居丧",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E020",
     "person_id": "P_LUZHUANG",
     "role_in_event": "主小君之葬",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E001",
@@ -977,7 +977,7 @@
     "person_id": "P_QIHUAN",
     "role_in_event": "救燕伐山戎（《史记》明书亲征）；公及齐侯遇于鲁济（庄公三十年经）与齐侯来献戎捷（三十一年经）为亲与旁证",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E062",
@@ -1054,7 +1054,7 @@
     "person_id": "P_GUANZHONG",
     "role_in_event": "责包茅、昭王之问",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E068",
@@ -1110,14 +1110,14 @@
     "person_id": "P_GUANZHONG",
     "role_in_event": "卒",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E073",
     "person_id": "P_QIHUAN",
     "role_in_event": "病榻问相（《史记》层）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E073",
@@ -1166,7 +1166,7 @@
     "person_id": "P_SHUDIAO",
     "role_in_event": "与乱立无亏",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E074",
@@ -1201,7 +1201,7 @@
     "person_id": "P_QIXI",
     "role_in_event": "会盟约期共伐宋之齐君（隐十年公会齐侯于中丘、老桃）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E032",
@@ -1215,14 +1215,14 @@
     "person_id": "P_QIXI",
     "role_in_event": "乞师于郑、受郑师献捷之齐君（北戎伐齐，战在齐境）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E036",
     "person_id": "P_QIXI",
     "role_in_event": "两请以女妻太子忽之齐君（主导议婚）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E076",
@@ -1467,7 +1467,7 @@
     "person_id": "P_ZHAOCUI",
     "role_in_event": "从亡在行",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E088",
@@ -2335,28 +2335,28 @@
     "person_id": "P_WEIZHUANG",
     "role_in_event": "娶齐东宫得臣之妹为夫人",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E138",
     "person_id": "P_ZHUANGJIANG",
     "role_in_event": "齐女嫁卫为夫人（美而无子）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E139",
     "person_id": "P_ZHUANGJIANG",
     "role_in_event": "养戴妫之子完为己子",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E139",
     "person_id": "P_WEIHUAN",
     "role_in_event": "戴妫所生·庄姜子之（时尚幼）",
     "directness": "direct",
-    "presence": "相关"
+    "presence": "亲至"
   },
   {
     "event_id": "E139",
@@ -2370,21 +2370,21 @@
     "person_id": "P_ZHOUYU",
     "role_in_event": "嬖人子有宠好兵",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E140",
     "person_id": "P_ZHUANGJIANG",
     "role_in_event": "恶州吁",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E140",
     "person_id": "P_WEIZHUANG",
     "role_in_event": "有宠而弗禁（石碏谏不听）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E141",
@@ -2398,7 +2398,7 @@
     "person_id": "P_WEIHUAN",
     "role_in_event": "立十六年为州吁所弑",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E141",
@@ -2412,14 +2412,14 @@
     "person_id": "P_WEIXUAN",
     "role_in_event": "为急子娶齐女而筑新台自纳之",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E142",
     "person_id": "P_XUANJIANG",
     "role_in_event": "齐女嫁卫·为宣公所纳",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E142",
@@ -2475,14 +2475,14 @@
     "person_id": "P_ZHAOBO",
     "role_in_event": "齐人强其烝宣姜·生五子",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E145",
     "person_id": "P_XUANJIANG",
     "role_in_event": "为昭伯所烝·生戴文与许穆夫人",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E145",
@@ -2685,7 +2685,7 @@
     "person_id": "P_GUANZHONG",
     "role_in_event": "自鲁就囚、槛车东归",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E154",
@@ -2755,7 +2755,7 @@
     "person_id": "P_SONGXIANG",
     "role_in_event": "以诸侯伐齐、纳孝公之宋君。（经书「宋公……伐齐」君将之辞；甗战经书「宋师」，判据见 docs/changes/r21_songxiang.md 三）",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E172",
@@ -2811,7 +2811,7 @@
     "person_id": "P_QIXIAOGONG",
     "role_in_event": "太子昭遭乱奔宋",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E111",
@@ -3329,7 +3329,7 @@
     "person_id": "P_ZIDASHU",
     "role_in_event": "受遗言而为政；宽而多盗，悔而攻萑苻之盗",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E198",
@@ -3483,7 +3483,7 @@
     "person_id": "P_QIJING",
     "role_in_event": "欲更晏婴之宅而见辞，笑问贵贱得「踊贵屦贱」之对，「为是省于刑」",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E209",
@@ -3539,7 +3539,7 @@
     "person_id": "P_QIJING",
     "role_in_event": "以彗星使禳之，闻谏乃止",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E213",
@@ -3609,7 +3609,7 @@
     "person_id": "P_YANGSHIWO",
     "role_in_event": "党于祁盈助乱，夏六月与祁盈同见杀于晋，羊舌氏之宗遂亡，其田分为三县",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E081",
@@ -4162,7 +4162,7 @@
     "person_id": "P_YANYING",
     "role_in_event": "受季札之戒，因陈桓子以纳政与邑，是以免于栾、高之难——传于其言之下即书其行与其效",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E269",
@@ -4321,7 +4321,7 @@
   {
     "event_id": "E276",
     "person_id": "P_ZHAOYANG",
-    "role_in_event": "传所直书之行事者：「晉趙鞅、荀寅帥師城汝濱，遂賦晉國一鼓鐵，以鑄刑鼎，著范宣子所謂刑書焉」。**明书其在汝滨而铸鼎之地传无文**，本条落点在晋（L_XINTIAN），故从严标「相关」——行事之主未必亲至，判据在史文所书之地",
+    "role_in_event": "传所直书之行事者：「晉趙鞅、荀寅帥師城汝濱，遂賦晉國一鼓鐵，以鑄刑鼎，著范宣子所謂刑書焉」。**明书其在汝滨而铸鼎之地传无文**，本条落点从阙（汝滨库无其点；铸鼎之地传不书），「帥師」是兵事之词，故从严标「相关」——行事之主未必亲至，判据在史文所书之地",
     "directness": "direct",
     "presence": "相关"
   },
@@ -4356,9 +4356,9 @@
   {
     "event_id": "E280",
     "person_id": "P_LUDINGGONG",
-    "role_in_event": "为阳虎所劫以伐孟氏者。传「陽虎劫公與武叔以伐孟氏」，明书其人在伐孟氏之役中，标「亲至」。其被劫非其所愿，然 presence 所答者是「身在何处」而非「出于何心」",
+    "role_in_event": "为阳虎所劫以伐孟氏者。传「陽虎劫公與武叔以伐孟氏」，「劫」是处置之词，其人是受事，传不书其身之地亦无其答拜之文（型 11），presence 从严标「相关」",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E280",
@@ -4398,9 +4398,9 @@
   {
     "event_id": "E282",
     "person_id": "P_GONGSHANBUNIU",
-    "role_in_event": "堕费之对手方，帅费人袭鲁者。「公山不狃、叔孫輒帥費人以襲魯」，攻武子之台而入及公侧，为仲尼所命之申句须、乐颀所败于姑蔑，遂与叔孙辄奔齐。明书其在曲阜之战地，标「亲至」",
+    "role_in_event": "堕费之对手方，帅费人袭鲁者。「公山不狃、叔孫輒帥費人以襲魯」，攻武子之台而入及公侧，为仲尼所命之申句须、乐颀所败于姑蔑，遂与叔孙辄奔齐。「帥」「襲」是兵事之词，「費人攻之」是集称，传不书其人之身在曲阜，presence 从严标「相关」",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E282",
@@ -4475,9 +4475,9 @@
   {
     "event_id": "E291",
     "person_id": "P_CHENHENG",
-    "role_in_event": "作弑者：忌子我之得宠而骤顾诸朝；夏五月壬申以兄弟四乘如公，入而闭门，迁公于寝；子我出走而为陈氏所追杀。庚辰「陳恆執公于舒州」，六月甲午「齊陳恆弒其君壬于舒州」。明书其在公宫与舒州，标「亲至」",
+    "role_in_event": "作弑者：忌子我之得宠而骤顾诸朝；夏五月壬申以兄弟四乘如公，入而闭门，迁公于寝；子我出走而为陈氏所追杀。庚辰「陳恆執公于舒州」，六月甲午「齊陳恆弒其君壬于舒州」。「執公于舒州」之地及于公之身、不及执者（型 4），「弒其君壬于舒州」书齐人（集称），presence 从严标「相关」；其入公宫之行在临淄，非本目落点",
     "directness": "direct",
-    "presence": "亲至"
+    "presence": "相关"
   },
   {
     "event_id": "E291",
@@ -4692,9 +4692,9 @@
   {
     "event_id": "E302",
     "person_id": "P_KONGZI",
-    "role_in_event": "所卒者。记事账记-19。经「夏，四月，己丑，孔丘卒」（`Q513`，**《春秋》经全帙书孔子之唯一一见**）；传备记哀公之诔与子贡之讥（`Q514`）。**`presence` 从严标「相关」／`indirect`，其据在经传书其卒而不书其卒之地**——§7 presence 通例许「生卒于其地」为亲至之明文，而「孔丘卒」四字无地；`E284`「公薨于**高寢**」、`E286`「卒于**城父**」则有，**判据之别只在这一个地名的有无**。（`docs/kaoding_kongzi.md` §1.2 记-19 原据 §7 v1.22「死者不作亲至」通例而得同一结论；本批改从「卒地无明文」立论——v1.22 所指者是死者以尸身入他事之场，而本条之卒者即本条自始之行动主体，援之不切。**结论未变而依据链换过一次，照 §7 v1.29 于此留痕**。）本条落点取 `L_QUFU`，据者是哀公诔之与经之系鲁，非其卒地之明文，故不因落点而升其 presence",
+    "role_in_event": "所卒者。记事账记-19。经「夏，四月，己丑，孔丘卒」（`Q513`，**《春秋》经全帙书孔子之唯一一见**）；传备记哀公之诔与子贡之讥（`Q514`）。**`presence` 从严标「相关」／`indirect`，其据在经传书其卒而不书其卒之地**——§7 presence 通例许「生卒于其地」为亲至之明文，而「孔丘卒」四字无地；`E284`「公薨于**高寢**」、`E286`「卒于**城父**」则有，**判据之别只在这一个地名的有无**。（`docs/kaoding_kongzi.md` §1.2 记-19 原据 §7 v1.22「死者不作亲至」通例而得同一结论；本批改从「卒地无明文」立论——v1.22 所指者是死者以尸身入他事之场，而本条之卒者即本条自始之行动主体，援之不切。**结论未变而依据链换过一次，照 §7 v1.29 于此留痕**。）本条落点取 `L_QUFU`，据者是哀公诔之与经之系鲁，非其卒地之明文，故不因落点而升其 presence〔就地加注·r62-F，2026-10-16；据 `team/round61_prompts.md` §四十五 裁二百三十五 四1、§五十四 裁二百三十七 二6〕本目落点已从阙（经传不书其卒之地，不以鲁都代填），上句「本条落点取 `L_QUFU`」今已不然；落点从阙之目，本事即其人之卒，依型 22 改标「亲至」——上文「从严标相关」之由（卒地无明文）须有一地可对，生于旧落点曲阜，今其由不生。依据链又转一次，照 §7 v1.29 于此留痕。",
     "directness": "indirect",
-    "presence": "相关"
+    "presence": "亲至"
   },
   {
     "event_id": "E302",
@@ -4979,9 +4979,9 @@
   {
     "event_id": "E313",
     "person_id": "P_XUNYING",
-    "role_in_event": "卒；同年荀偃受命将中军（荀罃之职名传无明文，二人之相继系任期表之推）。已卒之人非行动主体，依「死者不作亲至」通例标「相关」",
+    "role_in_event": "卒；同年荀偃受命将中军（荀罃之职名传无明文，二人之相继系任期表之推）。本事即其人之卒，落点从阙，依型 22（裁二百三十七 二6）标「亲至」——卒之本人非 v1.22 所言之死者（彼指事发时已死之身）",
     "directness": "indirect",
-    "presence": "相关"
+    "presence": "亲至"
   },
   {
     "event_id": "E313",
@@ -5000,9 +5000,9 @@
   {
     "event_id": "E314",
     "person_id": "P_XUNYAN",
-    "role_in_event": "伐齐还而癉疽，卒，视而不可含。已卒之人非行动主体，依「死者不作亲至」通例标「相关」",
+    "role_in_event": "伐齐还而癉疽，卒，视而不可含。本事即其人之卒，落点从阙，依型 22（裁二百三十七 二6）标「亲至」——卒之本人非 v1.22 所言之死者（彼指事发时已死之身）",
     "directness": "indirect",
-    "presence": "相关"
+    "presence": "亲至"
   },
   {
     "event_id": "E314",
@@ -5042,9 +5042,9 @@
   {
     "event_id": "E318",
     "person_id": "P_WEISHU",
-    "role_in_event": "合诸侯之大夫于狄泉，田于大陆而卒于甯。已卒之人非行动主体，依「死者不作亲至」通例标「相关」",
+    "role_in_event": "合诸侯之大夫于狄泉，田于大陆而卒于甯。本事即其人之卒，落点从阙，依型 22（裁二百三十七 二6）标「亲至」——卒之本人非 v1.22 所言之死者（彼指事发时已死之身）",
     "directness": "indirect",
-    "presence": "相关"
+    "presence": "亲至"
   },
   {
     "event_id": "E221",
