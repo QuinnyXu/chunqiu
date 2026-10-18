@@ -158,6 +158,22 @@ const PROTAGONISTS = [
   { id: "P_MUJI",        color: "", badge: "badge_muji",        fallback: "穆姬", home: "秦" },
   { id: "P_ZHUANGJIANG", color: "", badge: "badge_zhuangjiang", fallback: "庄姜", home: "卫" },
   { id: "P_XUANJIANG",   color: "", badge: "badge_xuanjiang",   fallback: "宣姜", home: "卫" },
+  /* r62-U-甲（裁二百四十六；裁二百四十七 站长示可 §一百〇七）：升卫五人，卫分区一级 2→7。
+   * 卫组之序：通组依各人徽记所取之事之年先后（亦即各人于库中首见之序）——庄姜、宣姜在前一字不动，五人续之：
+   *   甯武子（僖二十八，前 632）→ 孙林父（襄七，前 566）→ 定姜（襄十，前 563）→ 卫献公（襄十四，前 559）→ 蒯聩（哀二，前 493）。
+   * 徽记取材（俱经传本文，不取《诗》、不取后出层；画其人之行）：
+   *   甯武子＝饘（badge_ningwuzi）：Q838「甯子職納橐饘焉」——三足鬲上三缕热气；
+   *   孙林父＝并登（badge_sunlinfu）：Q780「公登亦登」——二阶并行而上；
+   *   定姜＝释兆（badge_dingjiang）：Q814「姜氏問繇」而断「禦寇之利」——龟腹甲、中缝一卜坼；
+   *   卫献公＝射鸿（badge_weixiangong）：Q815「射鴻於囿」——一鸿展翅、下一矢上射；
+   *   蒯聩＝戈（badge_kuaikui）：Q852「大子救之以戈」——援、内、胡、秘、鐏。
+   * 定姜 state 只「卫」而照任务书书 home「卫」（所嫁之国）；蒯聩 state「卫/晋/卫」，首国即卫，亦明书 home「卫」免链序之疑；
+   * 余三人 state 只「卫」，省 home（同晋组之例）。出稿与撞形之量见 team/r62U_jia_drafts/。 */
+  { id: "P_NINGWUZI",    color: "", badge: "badge_ningwuzi",    fallback: "甯武子" },
+  { id: "P_SUNLINFU",    color: "", badge: "badge_sunlinfu",    fallback: "孙林父" },
+  { id: "P_DINGJIANG",   color: "", badge: "badge_dingjiang",   fallback: "定姜", home: "卫" },
+  { id: "P_WEIXIANGONG", color: "", badge: "badge_weixiangong", fallback: "卫献公" },
+  { id: "P_KUAIKUI",     color: "", badge: "badge_kuaikui",     fallback: "蒯聩", home: "卫" },
   { id: "P_SONGXIANG",   color: "", badge: "badge_songxiang",   fallback: "宋襄公" },
   { id: "P_XIAJI",       color: "", badge: "badge_xiaji",       fallback: "夏姬", home: "陈" },
   { id: "P_HELU",        color: "", badge: "badge_helu",        fallback: "阖庐" },
@@ -280,9 +296,13 @@ const STATE_EPITHET = {
  * 实测 1440 距「许」字 4.4px、「郑」字 8.0px、郑簇 20.4px，375 依次 1.8／3.4／8.2px（team/r62S_drafts/README.md 三）。只立许一簇。 */
 /* r62-M（裁二百四十三）：齐簇 7→6。照通则（裁定 7：逾 6 枚方折行）六枚复为单行；单行宽 182 而簇心照旧 [930,176] 则左端压「泰山」之注，
  * 故簇心移 [958,190]（右 28、下 14）：桌面、手机实测不压「泰山」「汶水」「纪」诸注、不压鲁簇。只动齐一簇。 */
+/* r62-U-甲（裁二百四十七 二，站长示可 §一百〇七）：卫簇 2→7 枚，照现行 clusterSlots 折 3＋4（上窄下宽），簇心 [692,214]→[631,234]（左 61、下 20）。
+ * 旧点本已压放大后之「卫」字（26 号字盒 [684.7,200.2]–[711.1,226.6]，正当簇心），r12 以来之遗，此笔并治。卫块小而字大，
+ * 七枚不压字则五枚出块；落字西、上行在块内。实测 1440 距卫字 6.1、周字 15.3、河水 20.9，375 依次 2.6／5.7／7.4，
+ * 邻簇郑 9.2、晋 10.9（375，屏 px）（team/r62U_jia_drafts/README.md 二）。只改坐标，不动 clusterSlots；只动卫一簇。 */
 const HOME_BADGE_POS = {
   "齐": [958, 190], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 243],
-  "秦": [152, 300], "楚": [510, 610], "卫": [692, 214],
+  "秦": [152, 300], "楚": [510, 610], "卫": [631, 234],
   "宋": [770, 340], "陈": [732, 384], "吴": [1086, 556], "越": [1104, 668],
   "许": [610, 361],
 };
