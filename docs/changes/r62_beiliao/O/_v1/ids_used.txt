@@ -1,0 +1,42 @@
+# r62-O（楚之备料：申包胥、子文、邓曼）占用之 ID —— 机读清单
+# 来源标记：Sophia·r62-O，2026-10-17 EDT；目的：team/round61_prompts.md「Task for Sophia · r62-N／O／P／Q／R」O 行备料
+# 基线：HEAD 81d3d53；主表尾号 E351／Q645／R386／Z160；O 之号段 E362–E381｜Q666–Q705｜R395–R409｜Z166–Z172
+# 格式：表<TAB>ID；P_／L_ 四人二地已先登 data/incoming/r62_beiliao/_ledger.csv（Sophia·r62-O，2026-10-17 14:08:04）
+# 复用（不新占）：events E244（只加 event_people 一行）；fixes 整行替换：people P_ZIWEN、P_SHENBAOXU、P_CHUWU；sources Z009、Z032、Z038、Z047、Z069、Z062、G010；relations R141；places L_SUIGUO
+# 号段余而未用：E370–E381、Q678–Q705、R403–R409、Z168–Z172（不为凑数立目）
+events	E362
+events	E363
+events	E364
+events	E365
+events	E366
+events	E367
+events	E368
+events	E369
+passages	Q666
+passages	Q667
+passages	Q668
+passages	Q669
+passages	Q670
+passages	Q671
+passages	Q672
+passages	Q673
+passages	Q674
+passages	Q675
+passages	Q676
+passages	Q677
+sources	Z166
+sources	Z167
+people	P_DENGMAN
+people	P_QINAIGONG
+people	P_DOUBOBI
+people	P_QUXIA
+relations	R395
+relations	R396
+relations	R397
+relations	R398
+relations	R399
+relations	R400
+relations	R401
+relations	R402
+places	L_KUI
+places	L_XIAN

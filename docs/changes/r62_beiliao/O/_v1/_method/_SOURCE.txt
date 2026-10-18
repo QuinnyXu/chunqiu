@@ -1,0 +1,12 @@
+来源标记（CLAUDE.md 红线4 附则②）
+会话：Sophia 子代理·r62-O（楚之备料：申包胥、子文、邓曼），2026-10-17 EDT
+所读之 HEAD：81d3d53（开工时）；sim 末跑时 HEAD 已至 021e845（r62-M·甲，只改 people.csv 中 P_QIXI、P_CHUZHAO 之 is_protagonist，与本件之行不相涉）
+目的：team/round61_prompts.md「Task for Sophia · r62-N／O／P／Q／R」O 行备料；只备料，不改 data/csv/，不提交
+内容：
+  build_o.py   —— 出表脚本（写 O/ 下 *_new.csv 与 fixes_*.csv；fixes 以 data/csv/ 现行行为底）
+  hujiao.py    —— 引文比字（维基文库底本子串）与 ctext 互校（去标点、异体折叠定位，逐字列异）；sim 亦调之
+  ledger_add.py —— 共用号簿登记之助手（登前重读、一次只追加一行、登后再读）
+  fetch.py／clean.py —— 取维基文库 action=raw 与剥模板之脚本（原跑于会话暂存区）
+底本：../diben/wikisource（维基文库《春秋左氏傳》桓、莊、僖、宣、定五公与《國語·卷19》，2026-10-17 实取）；
+      ../diben/ctext（ctext 九页，互校用）；../diben/zhengyi（维基文库《春秋左傳正義》卷06/07/09/11/13/15，杜注之电子本转引用）
+注意：电子本日后修订可致字有出入；纸本（阮刻注疏本、杨伯峻《春秋左传注》、谭图）本件俱未核。

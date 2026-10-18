@@ -1,0 +1,26 @@
+来源标记（CLAUDE.md 红线4 附则②）
+会话：Sophia 子代理·r62-O（楚之备料：申包胥、子文、邓曼），2026-10-17 EDT
+所读之 HEAD：81d3d53（开工时）；sim 末跑时 HEAD 已至 021e845（r62-M·甲，只改 people.csv 中 P_QIXI、P_CHUZHAO 之 is_protagonist，与本件之行不相涉）
+目的：team/round61_prompts.md「Task for Sophia · r62-N／O／P／Q／R」O 行备料；只备料，不改 data/csv/，不提交
+内容：
+  build_o.py   —— 出表脚本（写 O/ 下 *_new.csv 与 fixes_*.csv；fixes 以 data/csv/ 现行行为底）
+  hujiao.py    —— 引文比字（维基文库底本子串）与 ctext 互校（去标点、异体折叠定位，逐字列异）；sim 亦调之
+  ledger_add.py —— 共用号簿登记之助手（登前重读、一次只追加一行、登后再读）
+  fetch.py／clean.py —— 取维基文库 action=raw 与剥模板之脚本（原跑于会话暂存区）
+底本：../diben/wikisource（维基文库《春秋左氏傳》桓、莊、僖、宣、定五公与《國語·卷19》，2026-10-17 实取）；
+      ../diben/ctext（ctext 九页，互校用）；../diben/zhengyi（维基文库《春秋左傳正義》卷06/07/09/11/13/15，杜注之电子本转引用）
+注意：电子本日后修订可致字有出入；纸本（阮刻注疏本、杨伯峻《春秋左传注》、谭图）本件俱未核。
+
+【归档附记·Skipper，2026-10-18，据裁二百四十六（team/round61_prompts.md §一百〇一）】
+../diben/ctext/ 九页（ctext.org 之页存本，互校用，2026-10-17 约 14:11 EDT 取）不入公开仓库，本归档不含；原件留本机 team/_archive/r62_beiliao_ctext/（gitignored）。以下为其重取之址（页面语言 /zh）：
+  ctext_huan-gong-shi-san-nian.txt        https://ctext.org/chun-qiu-zuo-zhuan/huan-gong-shi-san-nian/zh
+  ctext_zhuang-gong-si-nian.txt           https://ctext.org/chun-qiu-zuo-zhuan/zhuang-gong-si-nian/zh
+  ctext_zhuang-gong-san-shi-nian.txt      https://ctext.org/chun-qiu-zuo-zhuan/zhuang-gong-san-shi-nian/zh
+  ctext_xi-gong-wu-nian.txt               https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-wu-nian/zh
+  ctext_xi-gong-er-shi-nian.txt           https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-nian/zh
+  ctext_xi-gong-er-shi-san-nian.txt       https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-san-nian/zh
+  ctext_xi-gong-er-shi-qi-nian.txt        https://ctext.org/chun-qiu-zuo-zhuan/xi-gong-er-shi-qi-nian/zh
+  ctext_xuan-gong-si-nian.txt             https://ctext.org/chun-qiu-zuo-zhuan/xuan-gong-si-nian/zh
+  ctext_wu-yu.txt                         https://ctext.org/guo-yu/wu-yu/zh
+注：前八址中六条见于本目录 sources 表所载之 URL，其余二条（桓公十三年、僖公二十年）依同式；《吴语》一址为依 ctext 站内式所拟，存本内无 URL 字串，重取时请核。
+本目录 _method/hujiao.py 于导入时读 ../diben/ctext/，归档副本无此目录，故 hujiao.py 与 O 之 sim 在 docs/changes 中不可直接复跑；复跑须先将 team/_archive/r62_beiliao_ctext/ 之件放回 O/diben/ctext/。

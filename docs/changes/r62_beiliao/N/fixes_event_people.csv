@@ -1,0 +1,4 @@
+event_id,person_id,role_in_event,directness,presence
+E114,P_QINMU,求贤纳士、以五羖赎百里奚之秦君。r62-N 改相关（裁二百四十一 三）：本目只据《史记·秦本纪》（`S005`，后出层），后出层不立 presence,direct,相关
+E114,P_BAILIXI,自楚赎归、相秦。r62-N 改相关（裁二百四十一 三）：本目只据《史记·秦本纪》（`S005`，后出层），后出层不立 presence,direct,相关
+E114,P_JIANSHU,百里奚所举、厚币迎为上大夫。r62-N 改相关（裁二百四十一 三）：本目只据《史记·秦本纪》（`S005`，后出层），后出层不立 presence,direct,相关

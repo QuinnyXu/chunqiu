@@ -1,0 +1,14 @@
+来源标记：领队会话，2026-10-17，据 team/round61_prompts.md §六十七 裁二百四十 四6–7 立此目录与共用登记簿 _ledger.csv（仅表头）。
+目的：r62-N／O／P／Q／R 五国备料之共用号簿（Z 以外之来源前缀、新 P_、新 L_、共用之事目），先登先得。
+
+【归档附记·Skipper，2026-10-18】
+本目录 diben／_method/diben／Q/diben 诸底本，除 O/diben/ctext（未入归档，见 O/_method/_SOURCE.txt）外，俱取自维基文库（zh.wikisource.org，action=raw，2026-10-17 实取），授权 CC BY-SA（维基文库文本之共享协议）；页名与落点：
+  春秋左氏傳/{桓公、莊公、僖公、宣公、定公}  → O/diben/wikisource/春秋左氏傳_*.txt
+  國語/卷19                                  → O/diben/wikisource/國語_卷19.txt
+  春秋左傳正義/{卷06、07、09、11、13、15}     → O/diben/zhengyi/
+  春秋左氏傳/{莊公、閔公、僖公、文公、宣公、成公、襄公、昭公}、國語/{卷04、卷05、卷14} → Q/diben/
+  春秋左氏傳/{宣公、成公、襄公、襄公/廿五年、昭公、哀公}、管子/第32篇小稱（及未用之管子/戒） → P/_method/diben/
+  春秋左氏傳/{僖公、文公}、國語/卷10、史記/{卷039、卷005}、春秋左傳正義/{卷14–19} → N/_method/diben/
+  R/_method/diben/zuo_used.json：r62-A 取维基文库《春秋左氏傳》并 parse 之段（自生）
+页 URL 式：https://zh.wikisource.org/wiki/<页名>（如 https://zh.wikisource.org/wiki/春秋左氏傳/僖公）。
+自生件（非外库）：各 *_new／fixes_* csv、CHANGES.md、ids_used.txt、sim_*.py、_method 脚本、P/_method/zz_p.json（自底本 parse）、cui_paras.txt（自底本摘）、N/_v1/build_n.py.bak。

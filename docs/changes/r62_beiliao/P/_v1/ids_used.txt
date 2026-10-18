@@ -1,0 +1,41 @@
+# r62-P（齐之备料：崔杼、陈恒；《管子·小称》来源行）本件占用之 ID —— 机读清单
+# 来源标记：Sophia（史料研究员），2026-10-17 EDT；所读 HEAD 81d3d53；号段 E382–E401／Q706–Q745／R410–R424／Z173–Z180；T012、P_QINGFENG、P_TANGJIANG、P_KANZHI 已登 _ledger.csv；L_SALAN、L_PUSHUI 只登簿、本件不立行（地望之单）
+# 格式：表<TAB>ID；复用不新占：events E073（fixes）；relations R077、R080（fixes）；people P_CUIZHU、P_CHENHENG（fixes）
+events	E382
+events	E383
+events	E384
+events	E385
+events	E386
+events	E387
+events	E388
+events	E389
+passages	Q706
+passages	Q707
+passages	Q708
+passages	Q709
+passages	Q710
+passages	Q711
+passages	Q712
+passages	Q713
+passages	Q714
+passages	Q715
+passages	Q716
+passages	Q717
+passages	Q718
+passages	Q719
+passages	Q720
+passages	Q721
+relations	R410
+relations	R411
+relations	R412
+relations	R413
+relations	R414
+relations	R415
+relations	R416
+relations	R417
+sources	Z173
+sources	Z174
+sources	T012
+people	P_QINGFENG
+people	P_TANGJIANG
+people	P_KANZHI

@@ -1,0 +1,7 @@
+来源标记（CLAUDE.md 红线4 附则②）
+会话：Sophia 子代理，r62-R（卫之备料＋卫之修正），2026-10-17 EDT；限额中断后续行（team/round61_prompts.md §七十、§七十五）
+目的：data/incoming/r62_beiliao/R/ 诸 csv 之生成与复跑底稿；不入 data/csv
+内容：build_r.py（生成器：自底本切引文、出 *_new／fixes_*／ids_used）；ledger_reg.py（登簿：一次追加一行，登前登后重读）；
+      diben/zuo_used.json（本件所用之《左传》段，维基文库《春秋左氏傳》action=raw，r62-A 2026-10-15 实取并 parse 为段，本件复用；sim 比字之底）
+复跑：python _method/build_r.py <zz.json>（zz.json 为 r62-A parse.py 之出，在会话暂存区；复跑须先以 r62-A fetch.py／parse.py 重取）；
+      python data/incoming/r62_beiliao/R/sim_r62r_wei_beiliao.py [--chain]

@@ -1,0 +1,16 @@
+来源标记（CLAUDE.md 红线4 附则②）
+会话：Sophia 子代理，r62-N（秦之备料：蹇叔、怀嬴），2026-10-17
+所读 HEAD：81d3d53f9ad3aae85577060d75b350337510e3cb
+目的：data/incoming/r62_beiliao/N/ 诸件之复跑底稿；只备料，不入 data/csv，不提交
+内容：
+  diben/zuo_xigong_raw.txt   维基文库《春秋左氏傳/僖公》action=raw，2026-10-17 实取（引文比字之底本）
+  diben/zuo_wengong_raw.txt  维基文库《春秋左氏傳/文公》action=raw，2026-10-17 实取
+  diben/guoyu_juan10_raw.txt 维基文库《國語/卷10》（晋语四，含韦昭注）action=raw，2026-10-17 实取
+  diben/zhengyi_juan14/16/18.txt 维基文库《春秋左傳正義》卷14、16、18 action=raw，2026-10-17 实取（杜注之核：
+      僖二十二「嬴氏，秦所妻子圉，懷嬴也」、僖二十三「懷嬴，子圉妻。子圉諡懷公，故號為懷嬴」、
+      僖二十四「秦穆公女文嬴也」、僖三十三「文嬴，晉文公始適秦，秦穆公所妻夫人，襄公嫡母」、
+      文六「辰嬴，懷嬴也。二君，懷公、文公也」；及正义引《世族譜》「或以為西乞術、白乙丙為蹇叔子……或說必妄記異聞耳」）
+  diben/zhengyi_juan15/17/19.txt 同取，未用（无所检之名）
+  build_n.py  自 diben 切引文、出 N/ 下诸 csv 与 ids_used.txt（复跑：python data/incoming/r62_beiliao/N/_method/build_n.py）
+注意：维基文库日后修订可致字有出入；核对状态俱为「电子本逐字核对」，纸本未核。
+续命（2026-10-17，HEAD 77e27e3）：增取 diben/shiji_juan039_raw.txt（维基文库《史記/卷039》晋世家）、shiji_juan005_raw.txt（卷005 秦本纪），为 E092「秦宗女」注其出；build_n.py 增出 fixes_events／fixes_passages／fixes_event_people；改前之件存 ../_v1/。

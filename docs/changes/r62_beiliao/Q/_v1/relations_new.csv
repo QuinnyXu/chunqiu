@@ -1,0 +1,12 @@
+id,person_a,person_b,rel_type,rel_label,reliability,source_note
+R425,P_MUJIANG,P_LUCHENGGONG,亲属-直系,母,medium,左传成公九年穆姜自称「未亡人」而称成公为「嗣君」（`Q765`）；成公十六年「穆姜送公」「姜又命公如初」（`Q766`、`Q767`）——母子之称经传无直书，据此推之；杜注明其为成公母（纸本未核）
+R426,P_SHUSUNQIAORU,P_MUJIANG,其他,私通（传文之辞）,high,左传成公十六年「宣伯通於穆姜」（`Q766`）——传文之叙，其归罪属文本立场
+R427,P_SHUSUNQIAORU,P_JIWENZI,敌对,谮之于晋，请止而杀之,high,左传成公十六年「宣伯使告郤犨曰……請止行父而殺之」（`Q769`）
+R428,P_SHUSUNQIAORU,P_SHUSUNBAO,亲属-同辈,兄,medium,左传昭公四年宣伯谓穆子「魯以先子之故．將存吾宗．必召女」——同父之辞；长幼据杜注（纸本未核），故 medium
+R429,P_SHUSUNBAO,P_SHUNIU,亲属-直系,父,medium,左传昭公四年庚宗之妇人「余子長矣．能奉雉而從我矣．召而見之．則所夢也」（`Q791`）——传未直书「子」字，杜注以牛为穆子之子（纸本未核）
+R430,P_SHUNIU,P_SHUSUNBAO,其他,竖（家臣），有宠而为政,high,左传昭公四年「遂使為豎．有寵．長使為政」（`Q791`）
+R431,P_ZANGWENZHONG,P_JIWENZI,师友,教以事君之礼,high,左传文公十八年大史克对曰「先大夫臧文仲，教行父事君之禮」（`Q760`）
+R432,P_KONGZI,P_ZANGWENZHONG,其他,评其「不仁者三，不知者三」,high,左传文公二年「仲尼曰：臧文仲其不仁者三，不知者三」（`Q755`，评-2）
+R433,P_ZHAOWU,P_SHUSUNBAO,其他,虢之会请诸楚而免之,high,左传昭公元年赵孟曰「魯叔孫豹可謂能矣．請免之以靖能者」「固請諸楚．楚人許之．乃免叔孫」（`Q788`）
+R434,P_SHIXIE,P_JIWENZI,其他,言于栾武子而赦之,high,左传成公十六年「范文子謂欒武子曰．季孫於魯．相二君矣……乃許魯平．赦季孫」（`Q770`）
+R435,P_SHIGAI,P_SHUSUNBAO,其他,问「死而不朽」,high,左传襄公二十四年「范宣子逆之問焉．曰．古人有言曰．死而不朽．何謂也」（`Q784`）；《国语·晋语八》同（`Q785`）
