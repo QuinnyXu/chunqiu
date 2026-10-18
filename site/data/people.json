@@ -714,7 +714,7 @@
     "active_years_bce": "前660",
     "relations": "卫公室女；通说戴公、文公之姊妹",
     "notes": "闵卫之亡赋《载驰》；后世通说为文学史上最早留名的女诗人。卫公室之女，姬姓；名无载（'许穆'为夫许穆公之谥加国名，'姬'为其姓）。〔2026-10-17 r62-R 卫之修正，据 `team/round61_prompts.md`「R 另办卫之修正」、r62-G `wei_shen/renwu_shen.csv`〕【栏之改】`active_years_bce` 原作「前660前后」；`short_bio` 原作「」。【short_bio】原缺，今补。【active_years_bce】「前660前后」体例不一，经传只闵公二年一见，改「前660」。【notes 旧句】「后世通说为文学史上最早留名的女诗人」系后世评说，非经传之文，原字照留，标为后出之评。【挂链】r62-R 补挂 `E063`（相关）。【分区】站长定其分区取所嫁之国「许」（裁二百四十 三3）；本行不涉级。",
-    "is_protagonist": 0,
+    "is_protagonist": 1,
     "birth_year_bce": null,
     "death_year_bce": null,
     "short_bio": "卫昭伯与宣姜所生之女，嫁许穆公（闵公二年传）。前660 狄灭卫，传书「許穆夫人賦《載馳》」——《左传》唯此一见。"

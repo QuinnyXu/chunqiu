@@ -171,6 +171,7 @@ PROTAG_MIN_PLACES = 1  # 可落图之亲至地：presence ∈ {亲至, 空} 之�
 PROTAG_PLACE_EXEMPT = {
     "P_ZHUANGJIANG": ("庄姜", "可落图亲至地", "裁二百三十六"),
     "P_XUANJIANG": ("宣姜", "可落图亲至地", "裁二百三十六"),
+    "P_XUMU": ("许穆夫人", "可落图亲至地", "裁二百四十三"),
 }
 
 
