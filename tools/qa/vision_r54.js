@@ -118,7 +118,8 @@ function recomputeFromData() {
   }));
   return { total: events.length, orphan, meta, nCats: cats.size, nStates: groups.size };
 }
-const STATE_FAMILIES = ["齐", "鲁", "郑", "晋", "秦", "楚", "卫", "宋", "陈", "吴", "越"];
+/* r62-S 乙（2026-10-18）：许分区首立，第 12 国色家族「许」（design_notes §2.1、§2.1.4）——名表随之加许（三法之「同步」，显式）。 */
+const STATE_FAMILIES = ["齐", "鲁", "郑", "晋", "秦", "楚", "卫", "宋", "陈", "吴", "越", "许"];
 
 async function pageOf(br, base, opts) {
   const o = opts || {};
@@ -550,7 +551,33 @@ async function snapshot(br, base, hash, sel, w, h) {
     console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(c) 补断：块外改一字（第 " + k + " 字一带）→ " + (red ? "当场红" : "★ 不红：门自身出错"));
     if (!red) process.exitCode = 2;
   }
-  const srvOldR = await srv(SITE, { "/app.js": oldAppRoster, "/index.html": oldHtml, "/styles.css": oldCss });
+  /* r62-S 乙（2026-10-18）·控制变量之二：关系全景之阵营弧随国色家族而画（app.js STATE_FAMILY_VAR × styles.css 之 --state-*），
+   *   许分区首立后今版多一弧、诸边序随之——旧码配今名册仍缺许之家族与其色变量，控制不复成立。故关系页之控制另换二物：
+   *   ① app.js 之 STATE_FAMILY_VAR 一块换成今版者；须**旧家族俱留**（名、变量名俱同），只多新立者；
+   *   ② styles.css 只于旧版 `--state-yue` 一行之后，插入新立家族之变量行（取今版 styles.css 原行），余一字不动。
+   *   二者俱机械断之；并自证能红：令新块改一旧家族之变量名，①之判须红，不红即门自身出错（exit 2）。 */
+  const famBlk = (t) => { const i = t.indexOf("const STATE_FAMILY_VAR = {"), j = t.indexOf("};", i); if (i < 0 || j < 0) throw new Error("STATE_FAMILY_VAR 块找不到，停门"); return [i, j + 2]; };
+  const famPairs = (b) => [...b.matchAll(/"([^"]+)":\s*"(--[a-z-]+)"/g)].map(m => [m[1], m[2]]);
+  const [nf0, nf1] = famBlk(newApp), [of0, of1] = famBlk(oldAppRoster);
+  const famJudge = (newBlk) => { const o = famPairs(oldAppRoster.slice(of0, of1)), n = famPairs(newBlk);
+    return { kept: o.every(([k, v]) => n.some(([a, b]) => a === k && b === v)), added: n.filter(([k]) => !o.some(([a]) => a === k)) }; };
+  const famNew = newApp.slice(nf0, nf1), fj = famJudge(famNew);
+  const oldAppRosterFam = oldAppRoster.slice(0, of0) + famNew + oldAppRoster.slice(of1);
+  const newCssText = fs.readFileSync(path.join(SITE, "styles.css"), "utf8");
+  const cssLine = (css, v) => { const m = new RegExp("^[ \\t]*" + v + "\\s*:[^\\n]*\\n", "m").exec(css); return m ? m[0] : null; };
+  const addCss = fj.added.map(([, v]) => cssLine(newCssText, v)), yueLine = cssLine(oldCss, "--state-yue");
+  const oldCssFam = yueLine ? oldCss.replace(yueLine, yueLine + addCss.join("")) : oldCss;
+  ok(fj.kept && addCss.every(Boolean) && !!yueLine && oldCssFam.length === oldCss.length + addCss.join("").length &&
+     oldAppRosterFam.slice(0, of0) === oldAppRoster.slice(0, of0) && oldAppRosterFam.slice(of0 + famNew.length) === oldAppRoster.slice(of1),
+    "§〇〔(d) 控制变量之二〕关系页之控制另换国色家族块：旧家族俱留、新立 " + (fj.added.map(x => x[0]).join("、") || "无") + "；styles.css 只插其变量行 " + addCss.length + "，块外与行外一字不动",
+    addCss.map(x => (x || "缺").trim().slice(0, 40)).join(" | "));
+  {
+    const bad = famNew.replace(/"卫":\s*"--state-wei"/, '"卫": "--state-weiz"');
+    const red = !famJudge(bad).kept;
+    console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(d) 新块改一旧家族之变量名（卫）→ " + (red ? "当场红" : "★ 不红：门自身出错"));
+    if (!red) process.exitCode = 2;
+  }
+  const srvOldR = await srv(SITE, { "/app.js": oldAppRosterFam, "/index.html": oldHtml, "/styles.css": oldCssFam });
   const baseOldR = "http://127.0.0.1:" + srvOldR.address().port + "/";
   const br = await chromium.launch();
 
@@ -823,6 +850,27 @@ async function snapshot(br, base, hash, sel, w, h) {
           '」国属未定：库中未书其所属之国（经传无属国之文），故不著国色、不归任何一国"><i aria-hidden="true"></i>国属未定</span>',
         tagOld: '<span class="chron-state is-neutral" title="本条无地望（事不系于一地，或地望无考）"><i aria-hidden="true"></i>无地望</span>' })) };
   })();
+  /* r62-S 乙（2026-10-18；裁二百四十三 三3 许分区首立）：OLD_REF 之码国色家族十一，今十二（加「许」）。编年页因之有二变：
+   *   戊 按国之筛于「越」后多「许 N」一钮（着许色），「其他」之数相应减 N；
+   *   己 地属许之事（今只 E032 入许）其行 data-state 由「其他」改「许」，其签由中性改着许色（title 随之）。
+   * 期值另路：N 与「其他」二数自 events／places.json 以「十二家 vs 旧十一家」逐事求色键（不读 DOM）；许色自 styles.css 实读；
+   *   签之 title 二式照 app.js 渲法（「，签色即其国色」／「（该国未立国色，作中性签）」）。旧家族名单取 OLD_REF 之 app.js 实读。 */
+  const chronFam = (() => {
+    const J = (n) => JSON.parse(fs.readFileSync(path.join(SITE, "data", n + ".json"), "utf8"));
+    const evs = J("events"), PLx = new Map(J("places").map(p => [p.id, p]));
+    const famOf = (t) => [...(((t.match(/const STATE_FAMILY_VAR = \{([\s\S]*?)\};/) || [])[1]) || "").matchAll(/"([^"]+)":\s*"(--[a-z-]+)"/g)].map(m => [m[1], m[2]]);
+    const oldF = famOf(oldApp).map(x => x[0]), newFV = famOf(newApp), newF = newFV.map(x => x[0]);
+    const added = newF.filter(k => !oldF.includes(k));
+    const newCss = fs.readFileSync(path.join(SITE, "styles.css"), "utf8");
+    const hexOf = (v) => { const m = new RegExp(v + "\\s*:\\s*(#[0-9A-Fa-f]{6})").exec(newCss); return m ? m[1] : null; };
+    const keyOf = (raw, fams) => { for (const ch of raw) if (fams.includes(ch)) return ch; return null; };
+    const grp = (fams) => { const g = {}; for (const e of evs) { const pl = e.place_id ? PLx.get(e.place_id) : null; if (!pl || !(pl.state || "")) continue; const k = keyOf(pl.state, fams) || "其他"; g[k] = (g[k] || 0) + 1; } return g; };
+    const gOld = grp(oldF), gNew = grp(newF);
+    const moved = evs.filter(e => { const pl = e.place_id ? PLx.get(e.place_id) : null; return pl && (pl.state || "") && keyOf(pl.state, newF) !== keyOf(pl.state, oldF); })
+      .map(e => { const pl = PLx.get(e.place_id); return { e, raw: pl.state, kNew: keyOf(pl.state, newF), kOld: keyOf(pl.state, oldF) }; });
+    const chipC = (k, n) => '<button type="button" class="chip chron-chip" data-key="' + k + '" aria-pressed="false" style="--tag: ' + hexOf(newFV.find(x => x[0] === k)[1]) + ';"><i class="cc-dot" aria-hidden="true"></i>' + k + " " + n + "</button>";
+    return { added, gOld, gNew, moved, chipC, hexOf, newFV };
+  })();
   const DELTAS = {
     "#/p/P_WENJIANG/map": [
       { tag: "甲", X: "旧版：地图图例 #map-legend 三项（亲至 实心／相关 空心／轨迹），「相关」无释语",
@@ -852,7 +900,31 @@ async function snapshot(br, base, hash, sel, w, h) {
         Z: "r61-W（同上；签文不暗示其属某国，L_JIAGU.state 照旧留空）",
         subs: chronW.undet.flatMap(x => [
           [x.rowNew, x.rowOld],
-          [x.tagNew, x.tagOld]]) }],
+          [x.tagNew, x.tagOld]]) },
+      { tag: "戊", X: "旧版：按国之筛国色诸钮止于「越」，其后为「其他 " + (chronFam.gOld["其他"] || 0) + "」（旧码国色家族十一，无许）",
+        Y: "其处恰一段：新立家族（" + chronFam.added.join("、") + "）各一钮着其国色，依 STATE_FAMILY_VAR 之序居「越」后，其数 " +
+           chronFam.added.map(k => k + " " + (chronFam.gNew[k] || 0)).join("、") + "；随后「其他 " + (chronFam.gNew["其他"] || 0) + "」（诸数另路自 events／places.json，以今十二家与旧十一家逐事求色键）",
+        Z: "r62-S（裁二百四十三 三3：许分区首立，第 12 国色 --state-xu；站长择定 §九十一）",
+        subs: [[chronFam.added.map(k => chronFam.chipC(k, chronFam.gNew[k] || 0)).join("") + chronW.chip("其他", chronFam.gNew["其他"] || 0), chronW.chip("其他", chronFam.gOld["其他"] || 0)]] },
+      { tag: "己", X: "旧版：地属新立家族之事（今 " + chronFam.moved.map(x => x.e.id).join("、") + "）其行 data-state＝其他、其签中性、title「（该国未立国色，作中性签）」",
+        Y: "其行 data-state＝其国（" + chronFam.moved.map(x => x.e.id + "→" + x.kNew).join("、") + "）；其签去 is-neutral、着其国色、title「，签色即其国色」——逐事各一处，其行之余与旧版逐字同",
+        Z: "r62-S（同上）。★ 只断旧为中性者（旧码键空）；若有旧已着他国色而今改许者，本项当场红，须另列",
+        subsFn: (oldS) => {
+          const out = [];
+          for (const x of chronFam.moved) {
+            if (x.kOld) return null;   // 旧已着色者不在本项之式，当场红（见 Z）
+            const rowO = 'data-eid="' + x.e.id + '" data-year="' + x.e.year_bce + '" data-state="其他"';
+            const tagO = '<span class="chron-state is-neutral" title="事发地属「' + x.raw + '」（该国未立国色，作中性签）"><i aria-hidden="true"></i>' + x.raw + "</span>";
+            const i = oldS.indexOf(rowO), j = i < 0 ? -1 : oldS.indexOf(tagO, i);
+            if (i < 0 || j < 0) return null;
+            const od = oldS.slice(i, j + tagO.length);
+            const hex = chronFam.hexOf(chronFam.newFV.find(f => f[0] === x.kNew)[1]);
+            const nw = od.replace(rowO, 'data-eid="' + x.e.id + '" data-year="' + x.e.year_bce + '" data-state="' + x.kNew + '"')
+              .replace(tagO, '<span class="chron-state" title="事发地属「' + x.raw + '」，签色即其国色" style="--tag: ' + hex + ';"><i aria-hidden="true"></i>' + x.raw + "</span>");
+            out.push([nw, od]);
+          }
+          return out;
+        } }],
     "#/library": [
       { tag: "甲", X: "旧版：资料库页首（标题 #library-title 之后）无账本句",
         Y: "恰一个 <p class=\"vs-ledger-note\" id=\"vs-note-library\">，紧随 #library-title 之后，其文＝自 json 另路复算之覆盖句",
@@ -891,9 +963,12 @@ async function snapshot(br, base, hash, sel, w, h) {
   /* 剥去一项：返回 { stripped, reasons }。reasons 空＝该项 Y 成立。不吞别的差异：命中须恰一处、位须精确。 */
   function applyDelta(cur, oldS, d) {
     const reasons = [];
-    if (d.subs) {   // r61-Q：替换型期望差异——新文须恰一处，换回旧文；位置不变，故「余下与旧版逐位全等」仍断其位
+    if (d.subs || d.subsFn) {   // r61-Q：替换型期望差异——新文须恰一处，换回旧文；位置不变，故「余下与旧版逐位全等」仍断其位
       let out = cur;
-      for (const [nw, od] of d.subs) {
+      /* r62-S 乙：subsFn(oldS)——期望之新文由**旧版基线**之片段加显式之改而成（不读被测之今版），供「其行之中段与旧版同、只改两处」者用 */
+      const subs = d.subsFn ? d.subsFn(oldS) : d.subs;
+      if (!subs) { reasons.push("旧版中其片段找不到"); return { stripped: cur, reasons }; }
+      for (const [nw, od] of subs) {
         const k = out.split(nw).length - 1;
         if (k !== 1) { reasons.push("今版中「" + nw.slice(0, 40) + "」命中 " + k + " 处，应恰 1"); continue; }
         out = out.replace(nw, () => od);
@@ -1003,6 +1078,9 @@ async function snapshot(br, base, hash, sel, w, h) {
   proof("(l) 关系全景于已列之变外另改别处一字（全景加 X）", "#/relations", s => s.replace("全景 · ", "全景X · "));
   proof("(g) 吞别处之差：编年页于已列之变外另改别处一字（标题加 X）", "#/chronicle", s => s.replace("编年 · 大事年表", "编年 · 大事年表X"));
   proof("(p) 编年页「国属未定」之签回书「无地望」（r61-W 之按类反证）", "#/chronicle", s => s.replace(/<span class="chron-state is-neutral is-undet"[^>]*><i aria-hidden="true"><\/i>国属未定<\/span>/, '<span class="chron-state is-neutral" title="本条无地望（事不系于一地，或地望无考）"><i aria-hidden="true"></i>无地望</span>'));
+  /* r62-S 乙：戊、己二项之按类反证——许之签回中性（旧式）、许之筛钮去其色，各须当场红 */
+  proof("(q) 编年页许地之事其签回中性（r62-S 己之按类反证）", "#/chronicle", s => s.replace(/<span class="chron-state" title="事发地属「许」，签色即其国色" style="--tag: #[0-9A-Fa-f]{6};"><i aria-hidden="true"><\/i>许<\/span>/, '<span class="chron-state is-neutral" title="事发地属「许」（该国未立国色，作中性签）"><i aria-hidden="true"></i>许</span>'));
+  proof("(r) 编年页按国之筛「许」钮去其国色（r62-S 戊之按类反证）", "#/chronicle", s => s.replace(/ data-key="许" aria-pressed="false" style="--tag: #[0-9A-Fa-f]{6};"><i class="cc-dot" aria-hidden="true"><\/i>/, ' data-key="许" aria-pressed="false">'));
   proof("(m) 地图页于图例之外另改一字（「示意底图」→「示意底圖」）", "#/p/P_WENJIANG/map", s => s.replace("示意底图", "示意底圖"));
   proof("(n) 地图图例「相关」之释改一字（「无其在场明文」→「无其在场明书」）", "#/p/P_WENJIANG/map", s => s.replace("（史文无其在场明文）", "（史文无其在场明书）"));
   proof("(o) 地图图例删去「不在」一行", "#/p/P_WENJIANG/map", s => s.replace(/\s*<span data-presence="不在"[\s\S]*?<\/span><\/span>/, ""));

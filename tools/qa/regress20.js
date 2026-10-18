@@ -17,13 +17,26 @@ function srv(root){return new Promise((res,rej)=>{const s=http.createServer((rq,
 const wire=(page,arr)=>page.on("pageerror",e=>arr.push(e.message));
 const judgeErrs=(arr)=>({red:arr.length>0,why:arr.join(" | ")});
 const INJECT="r62-C 反证：页内注入之未捕之错（经 pageerror 之接线）";
-const IDS_R=["P_WENJIANG","P_LUHUAN","P_QIXIANG","P_ZHENGZHAO","P_JIZHONG","P_ZHENGZHUANG","P_LUYIN","P_WUJIANG","P_LUZHUANG","P_QIHUAN","P_QIXI","P_JINWEN","P_LIJI","P_QINMU","P_CHUCHENG","P_MUJI","P_CHUZHUANG","P_ZHUANGJIANG","P_XUANJIANG","P_XIGUI"];
-/* r62-M（三法之「同步」）：本门之回归名单系立门当时之一级，写死于上；今降二级者（如齐僖公 P_QIXI，r62-M）其 `#/p/<id>/…` 落首页，
- * 页面仍是前一人之图，量得者是陈物而印其名下——是量错对象。故名单与 site/data/people.json 之 is_protagonist=1 取交，
- * 降者剔出并印其名（非减所断：所剔者已非一级，其页本不存在）。 */
-const IDS_PROTO = new Set(JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "..", "site", "data", "people.json"), "utf8")).filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
-const IDS = IDS_R.filter(id => IDS_PROTO.has(id));
-if (IDS.length < IDS_R.length) console.log("〔r62-M〕回归名单剔出今非一级者：" + IDS_R.filter(id => !IDS_PROTO.has(id)).join("、"));
+const IDS=["P_WENJIANG","P_LUHUAN","P_QIXIANG","P_ZHENGZHAO","P_JIZHONG","P_ZHENGZHUANG","P_LUYIN","P_WUJIANG","P_LUZHUANG","P_QIHUAN","P_JINWEN","P_LIJI","P_QINMU","P_CHUCHENG","P_MUJI","P_CHUZHUANG","P_ZHUANGJIANG","P_XUANJIANG","P_XIGUI"];
+/* r62-S 乙（裁二百四十四 三2，2026-10-17 Co站长）：去 r62-M 之「与 people.json 取交」——取交是自动剔名，日后若有人误被降（数据错），
+ * 本门亦默然剔之、不红，门失其能红。改为：
+ *   ① 名单中**显式删** P_QIXI（齐僖公）——由：裁二百四十（齐僖公降二级之议）、裁二百四十三 三2（站长定「齐僖公维持降」）；
+ *      r62-M `1c75d56` 解其 PROTAGONISTS 之挂，其 `#/p/P_QIXI/…` 已无其页。
+ *   ② 加断「名单中人俱须为今一级（site/data/people.json is_protagonist=1），否则 exit 1」，印其名。
+ *   ③ 其后凡降一人，须于本门名单显式删之（三法之「同步」须是显式之改）。
+ *   反证：判法 rosterNonProto 对「名单＋一非一级者（P_QIXI）」须判出之，不判出 exit 2；
+ *        另可以环境变量 QA_ROSTER_INJECT=<id> 将一人混入名单实跑，须 exit 1。（反证所用之 P_QIXI 若日后复升，须换一今非一级者。） */
+const PROTO_NOW = new Set(JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "..", "site", "data", "people.json"), "utf8")).filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
+const rosterNonProto = (list) => list.filter(id => !PROTO_NOW.has(id));
+if (process.env.QA_ROSTER_INJECT) IDS.push(process.env.QA_ROSTER_INJECT);
+{
+  const probe = rosterNonProto([...IDS, "P_QIXI"]);
+  if (!probe.includes("P_QIXI")) { console.log("【反证·★ 不红：门自身出错】名单混入非一级者 P_QIXI 而判法未判出"); process.exit(2); }
+  console.log("【反证·如期而红，计为过】名单混入非一级者 P_QIXI，判法判出");
+  const bad = rosterNonProto(IDS);
+  if (bad.length) { console.log("【判·红】回归名单中人俱须为今一级：非一级者 " + bad.length + "：" + bad.join("、") + "（降者须于本门名单显式删之）"); process.exit(1); }
+  console.log("【判·过】回归名单 " + IDS.length + " 人俱为今一级");
+}
 (async()=>{
   const pw=require("playwright");
   const baseURL=process.env.QA_BASE_URL||null;

@@ -5,7 +5,11 @@
  *   ★ 余者（「通过·但已进现库最紧 2%…记观察」、点名逐对之 IoU 与「通过／存疑／撞形」或「更紧／松」之注、同弧组内最紧）俱为记实，不入退出码。
  *   ★ 此前本门「须改形」只印不判、恒 exit 0，抛错以 1 退——自 r61-X 起三分如上。
  */
-/* 〔r62-M 改〕名录 38→38：去齐僖公·载书入坎（降二级，badge_qixi.svg 留档不删，只解其挂）、纳楚昭王·望山（NEW，站长择定甲稿，裁二百四十三 三1）；
+/* 〔r62-S 改〕名录 38→39：纳许穆夫人·册（badge_xumu，NEW，站长择定甲稿，§九十一；取 Q056「許穆夫人賦載馳」）；许组 1 人，无组内对，故不入 GRP
+ * （GRP 之组内最紧须二枚以上）；点名逐对改为许穆夫人对出稿时三尺度之近邻（息妫·桃花、齐襄公·雷纹、鲁隐公、子产、郑庄公）及卫组二枚（其母国、其母）。
+ * 判据、三尺度、线宽一字未动。楚昭王自此不再标「新」。出稿之量见 team/r62S_drafts/silhouette_output.txt。
+ *
+ * 〔r62-M 改〕名录 38→38：去齐僖公·载书入坎（降二级，badge_qixi.svg 留档不删，只解其挂）、纳楚昭王·望山（NEW，站长择定甲稿，裁二百四十三 三1）；
  * 齐组 7→6、楚组 3→4；点名逐对改为楚昭王对楚组其余三枚及同形近邻（秦穆公·崤函之险——同为山峰）。判据、三尺度、线宽一字未动。
  * 赵盾、郤克、栾书自此不再标「新」。
  *
@@ -39,7 +43,7 @@ const ICONS = path.join(ROOT, "site", "assets", "icons");
 const KONGZI_SRC = path.join(ICONS, "badge_kongzi.svg");
 const OUT = path.resolve(__dirname, "screenshots");
 
-const NEW = ["badge_chuzhao"];
+const NEW = ["badge_xumu"];
 const NAMES = {
   badge_wenjiang: "文姜·涡纹", badge_qixiang: "齐襄公·雷纹", badge_qihuan: "齐桓公·连环三盟",
   badge_guanzhong: "管仲·衡轻重", badge_baoshuya: "鲍叔牙·税械",
@@ -50,13 +54,14 @@ const NAMES = {
   badge_jinwen: "晋文公·济河之舟", badge_liji: "骊姬·觚鸩",
   badge_shuxiang: "叔向·昧旦",
   badge_qinmu: "秦穆公·崤函之险", badge_muji: "穆姬·薪火", badge_chucheng: "楚成王·凤纹",
-  badge_chuzhuang: "楚庄王·问鼎", badge_chuzhao: "楚昭王·望山（新）", badge_xigui: "息妫·桃花", badge_zhuangjiang: "庄姜·双燕",
+  badge_chuzhuang: "楚庄王·问鼎", badge_chuzhao: "楚昭王·望山", badge_xigui: "息妫·桃花", badge_zhuangjiang: "庄姜·双燕",
   badge_xuanjiang: "宣姜·新台临河", badge_songxiang: "宋襄公·泓上之旆", badge_xiaji: "夏姬·四徙之途",
   badge_helu: "阖庐·鱼中之剑", badge_wuyuan: "伍员·耒",
   badge_fucha: "夫差·庭中之表", badge_goujian: "勾践·甲楯",
   badge_kongzi: "孔子·胡簋",
   badge_qixidafu: "祁奚·一官三物", badge_hanjue: "韩厥·觞承璧",
   badge_zhaodun: "赵盾·取橐", badge_xike: "郤克·鼓与双枹", badge_luanshu: "栾书·三军之营",
+  badge_xumu: "许穆夫人·册（新）",
 };
 /* 24px 类别图标一并入表——跨尺度关系是第二位判据（design_notes §4），只留痕报数。
    本轮尤须留痕者：huimeng（会盟＝鼎），与新枚同为礼器同尺度。 */
@@ -159,7 +164,7 @@ let MUST_REDRAW = 0;   // r61-X：须改形之计
      *  孔子×管仲「衡轻重」／介之推「文之渐隐」／息妫「桃花」——三档中曾入最近 6 枚者。 */
     const NAMED = [];
     const jin = ["badge_jinwen","badge_liji","badge_shuxiang","badge_qixidafu","badge_hanjue"];
-    for (const n of NEW) for (const o of ["badge_chucheng","badge_chuzhuang","badge_xigui","badge_qinmu","badge_xuanjiang","badge_qihuan","badge_songxiang"]) NAMED.push([n,o]);   // r62-M：楚组三枚＋同形近邻
+    for (const n of NEW) for (const o of ["badge_xigui","badge_qixiang","badge_luyin","badge_zichan","badge_zhengzhuang","badge_zhuangjiang","badge_xuanjiang"]) NAMED.push([n,o]);   // r62-S：出稿时之近邻＋卫组二枚
     console.log("\n  —— 点名逐对 ——");
     for (const [a, b] of NAMED) {
       const v = iou(masks[a], masks[b]);
@@ -200,7 +205,7 @@ let MUST_REDRAW = 0;   // r61-X：须改形之计
     const cells = badges.map(b => ({ b, name: NAMES[b] }));
     await p.setViewportSize({ width: 1180, height: 620 });
     await p.setContent(`<body style="margin:0;background:#F4EDDF;font:12px/1.6 system-ui,sans-serif;color:#2E2A24">
-      <div style="padding:14px 16px;font-size:14px">徽记 silhouette 对照 · ${sc.label} · 剥外圈 · r61-M（38 枚）</div>
+      <div style="padding:14px 16px;font-size:14px">徽记 silhouette 对照 · ${sc.label} · 剥外圈 · r62-S（39 枚）</div>
       <div style="display:flex;flex-wrap:wrap;gap:14px;padding:0 16px 16px">
       ${cells.map(c => `<div style="width:98px;text-align:center">
         <div style="height:${sc.size + 8}px;display:flex;align-items:center;justify-content:center;color:${NEW.includes(c.b) ? "#BC4433" : "#2E2A24"}">

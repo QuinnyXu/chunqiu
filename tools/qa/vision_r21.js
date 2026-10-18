@@ -9,15 +9,28 @@ const SITE_DIR = path.resolve(__dirname, "..", "..", "site");
 const OUT = path.resolve(__dirname, "screenshots");
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon" };
 function srv(root) { return new Promise((res, rej) => { const s = http.createServer((rq, rs) => { let u = decodeURIComponent(rq.url.split("?")[0].split("#")[0]); if (u === "/") u = "/index.html"; const fp = path.join(root, u); if (!fp.startsWith(root)) { rs.writeHead(403); rs.end(); return; } fs.readFile(fp, (e, d) => { if (e) { rs.writeHead(404); rs.end(); return; } rs.writeHead(200, { "Content-Type": MIME[path.extname(fp).toLowerCase()] || "application/octet-stream" }); rs.end(d); }); }); s.on("error", rej); s.listen(0, "127.0.0.1", () => res(s)); }); }
-const PROTS_R = ["P_WENJIANG", "P_QIXIANG", "P_QIHUAN", "P_GUANZHONG", "P_QIXI", "P_LUYIN", "P_LUHUAN", "P_LUZHUANG",
+const PROTS = ["P_WENJIANG", "P_QIXIANG", "P_QIHUAN", "P_GUANZHONG", "P_LUYIN", "P_LUHUAN", "P_LUZHUANG",
   "P_ZHENGZHUANG", "P_ZHENGZHAO", "P_WUJIANG", "P_JIZHONG", "P_JINWEN", "P_QINMU", "P_CHUCHENG", "P_CHUZHUANG",
   "P_XIGUI", "P_LIJI", "P_MUJI", "P_ZHUANGJIANG", "P_XUANJIANG", "P_SONGXIANG", "P_XIAJI"];
-/* r62-M（三法之「同步」）：本门之回归名单系立门当时之一级，写死于上；今降二级者（如齐僖公 P_QIXI，r62-M）其 `#/p/<id>/…` 落首页，
- * 页面仍是前一人之图，量得者是陈物而印其名下——是量错对象。故名单与 site/data/people.json 之 is_protagonist=1 取交，
- * 降者剔出并印其名（非减所断：所剔者已非一级，其页本不存在）。 */
-const PROTS_PROTO = new Set(JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "..", "site", "data", "people.json"), "utf8")).filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
-const PROTS = PROTS_R.filter(id => PROTS_PROTO.has(id));
-if (PROTS.length < PROTS_R.length) console.log("〔r62-M〕回归名单剔出今非一级者：" + PROTS_R.filter(id => !PROTS_PROTO.has(id)).join("、"));
+/* r62-S 乙（裁二百四十四 三2，2026-10-17 Co站长）：去 r62-M 之「与 people.json 取交」——取交是自动剔名，日后若有人误被降（数据错），
+ * 本门亦默然剔之、不红，门失其能红。改为：
+ *   ① 名单中**显式删** P_QIXI（齐僖公）——由：裁二百四十（齐僖公降二级之议）、裁二百四十三 三2（站长定「齐僖公维持降」）；
+ *      r62-M `1c75d56` 解其 PROTAGONISTS 之挂，其 `#/p/P_QIXI/…` 已无其页。
+ *   ② 加断「名单中人俱须为今一级（site/data/people.json is_protagonist=1），否则 exit 1」，印其名。
+ *   ③ 其后凡降一人，须于本门名单显式删之（三法之「同步」须是显式之改）。
+ *   反证：判法 rosterNonProto 对「名单＋一非一级者（P_QIXI）」须判出之，不判出 exit 2；
+ *        另可以环境变量 QA_ROSTER_INJECT=<id> 将一人混入名单实跑，须 exit 1。（反证所用之 P_QIXI 若日后复升，须换一今非一级者。） */
+const PROTO_NOW = new Set(JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "..", "site", "data", "people.json"), "utf8")).filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
+const rosterNonProto = (list) => list.filter(id => !PROTO_NOW.has(id));
+if (process.env.QA_ROSTER_INJECT) PROTS.push(process.env.QA_ROSTER_INJECT);
+{
+  const probe = rosterNonProto([...PROTS, "P_QIXI"]);
+  if (!probe.includes("P_QIXI")) { console.log("【反证·★ 不红：门自身出错】名单混入非一级者 P_QIXI 而判法未判出"); process.exit(2); }
+  console.log("【反证·如期而红，计为过】名单混入非一级者 P_QIXI，判法判出");
+  const bad = rosterNonProto(PROTS);
+  if (bad.length) { console.log("【判·红】回归名单中人俱须为今一级：非一级者 " + bad.length + "：" + bad.join("、") + "（降者须于本门名单显式删之）"); process.exit(1); }
+  console.log("【判·过】回归名单 " + PROTS.length + " 人俱为今一级");
+}
 const log = [];
 const say = (...a) => { const s = a.join(" "); log.push(s); console.log(s); };
 

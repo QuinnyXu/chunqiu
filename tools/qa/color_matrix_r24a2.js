@@ -23,6 +23,13 @@
  *   2 ＝ 本门自身出错（读不到色值等抛错）。`--search` 为取色之器，不判，恒 0。
  *   ★ 此前本门印 ✗ 而恒 exit 0（只报）——自 r61-X 起判化：豁免比值不比名，清单外越线即红。
  */
+/* 【本门之域】（r62-S 乙立，裁二百四十四 二3，2026-10-17 Co站长）
+ *   本门之域：r24a-2（2026-08-02）时之九国色；其后新立之国色（吴、越、许）由 r27／r28 之实读名录覆之。
+ *   ★ 九色写死是本门提交之断（r24a-2 诗歌层换色时对当时九国色之复验），r27 立吴、r28 立越、r62-S 立许俱照例不加入。
+ *   ★ 然九之写死不可默然：本门起首对账 app.js 之 STATE_FAMILY_VAR（见【〇】）——
+ *     九色（名与变量名）须俱在其中，缺一或改名即判红（exit 1）；其中九色以外者，逐一印其名与「由 r27／r28 覆」。
+ *     并附对账之反证（去「陈」、改「卫」之变量名，须各判出一缺／改；不判出则门自身出错 exit 2）。
+ */
 "use strict";
 const fs = require("fs");
 const path = require("path");
@@ -139,7 +146,35 @@ const T_DE = 13.2, T_SILK = 3.5, T_WHITE = 4.1;
 
 function fmt(n, w = 6) { return n.toFixed(2).padStart(w); }
 
+/* 【〇】本门之域与名录对账（r62-S 乙，裁二百四十四 二3）：九色写死，须俱在 app.js STATE_FAMILY_VAR（名、变量名俱合）；
+ * 九色外者只印其名，由 r27／r28 之实读名录覆之。缺一或改名即判红。 */
+const STATES9 = [["齐", "state-qi"], ["鲁", "state-lu"], ["郑", "state-zheng"], ["晋", "state-jin"], ["秦", "state-qin"],
+  ["楚", "state-chu"], ["卫", "state-wei"], ["宋", "state-song"], ["陈", "state-chen"]];
+function domainCheck(appText) {
+  const blk = /const STATE_FAMILY_VAR = \{([\s\S]*?)\};/.exec(appText);
+  if (!blk) throw new Error("app.js 中读不到 STATE_FAMILY_VAR");
+  const fam = new Map(); const re = /"([^"]+)":\s*"--([a-z-]+)"/g; let m;
+  while ((m = re.exec(blk[1]))) fam.set(m[1], m[2]);
+  const missing = STATES9.filter(([n, v]) => fam.get(n) !== v)
+    .map(([n, v]) => n + "（应 --" + v + "，今" + (fam.has(n) ? "为 --" + fam.get(n) : "缺") + "）");
+  const extra = [...fam.keys()].filter(n => !STATES9.some(([k]) => k === n));
+  return { missing, extra, fam };
+}
+function reportDomain() {
+  const d = domainCheck(APP);
+  console.log("【〇】本门之域：r24a-2（2026-08-02）时之九国色；其后新立之国色（吴、越、许）由 r27／r28 之实读名录覆之");
+  console.log("  STATE_FAMILY_VAR 实读 " + d.fam.size + " 色；九色俱在且变量名合：" + (d.missing.length ? "否——" + d.missing.join("、") : "是"));
+  for (const n of d.extra) console.log("  · 九色外：" + n + "（--" + d.fam.get(n) + "）—— 由 r27／r28 覆");
+  TALLY.judge(d.missing.length === 0, "【〇】九色名录对账（缺一或改名即红）：缺／改 " + d.missing.length);
+  const neg1 = domainCheck(APP.replace(/"陈":\s*"--state-chen",?/, ""));
+  const neg2 = domainCheck(APP.replace(/"卫":\s*"--state-wei"/, '"卫": "--state-weix"'));
+  const hit1 = neg1.missing.some(x => x.startsWith("陈")), hit2 = neg2.missing.some(x => x.startsWith("卫"));
+  TALLY.pressure(hit1 && hit2, "【〇】对账反证：去「陈」→ " + (hit1 ? "判出" : "未判出") + "；改「卫」之变量名 → " + (hit2 ? "判出" : "未判出") + "（俱须判出）");
+  console.log("");
+}
+
 function report() {
+  reportDomain();
   console.log("=== r24a-2 色彩距离全矩阵（判据：ΔE76 ≥ " + T_DE + "；对绢帛 ≥ " + T_SILK + "；对白 ≥ " + T_WHITE + "）===\n");
   console.log("【一】色目清单（" + ALL.length + " 色，全部从源文件实读）");
   console.log("  组别      名称                    色值      灰阶  相角   对绢帛  对白");
