@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-10-17T17:59:39+00:00",
+  "generated_at": "2026-10-18T03:25:31+00:00",
   "tables": {
     "archaeology": 8,
     "background": 11,
-    "event_people": 871,
-    "events": 314,
+    "event_people": 1022,
+    "events": 374,
     "office_tenures": 16,
-    "passages": 628,
-    "people": 225,
-    "places": 107,
-    "relations": 369,
-    "sources": 231,
-    "verify_marks": 631
+    "passages": 762,
+    "people": 248,
+    "places": 119,
+    "relations": 419,
+    "sources": 248,
+    "verify_marks": 901
   },
   "year_range_bce": {
     "min": -773,
-    "max": -472
+    "max": -468
   }
 }

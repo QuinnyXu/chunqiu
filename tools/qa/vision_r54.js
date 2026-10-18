@@ -834,7 +834,11 @@ async function snapshot(br, base, hash, sel, w, h) {
       { tag: "甲", X: "旧版：编年页首（自述 #chron-intro 之后）无账本句",
         Y: "恰一个 " + "<p class=\"vs-ledger-note\" id=\"vs-note-chron\">，紧随 #chron-intro 之后，其文＝自 json 另路复算之覆盖句（数与日期不写死）",
         Z: "r60-B（e5814bb，裁一百九十九⑤：「无记号不等于已核」须与记号同屏）；覆盖句二改与补语：r60-B 续（42f6b72）、r60-I（0e15a26，裁二百〇四 四③）",
-        html: LEDGER_P("vs-note-chron"), anchor: (old) => endOf(old, 'id="chron-intro"', "</p>") },
+        html: LEDGER_P("vs-note-chron"),
+        /* r62-T（2026-10-17）：锚在旧版自述之末，而自述内「其中 N 条未系」之 N 在锚之前，其位数随名册联动之数（乙项）而异——
+         *   五国备料合入后今版 93（二位）对旧码名册之 126（三位），此前 41／72 同为二位故位不移。
+         *   位移取自二数之位数差（另路自 json 与旧 app.js 名册算出，不读 DOM），不写死、不放宽：其位仍须精确，只计入乙项所致之字数差。 */
+        anchor: (old) => { const k = endOf(old, 'id="chron-intro"', "</p>"); return k < 0 ? k : k + (String(rosterStat.newS.orphan).length - String(rosterStat.oldS.orphan).length); } },
       { tag: "乙", X: "旧版：编年页自述「其中 " + rosterStat.oldS.orphan + " 条未系于任何主角」（旧码名册 " + rosterStat.oldS.n + " 人）",
         Y: "「其中 " + rosterStat.newS.orphan + " 条未系于任何主角」，恰一处，仅此数异（今名册 " + rosterStat.newS.n + " 人；两数皆另路自 json 与旧 app.js 名册算出，不读 DOM）",
         Z: "r61-H（c787c70，裁二百一十九：祁奚、韩厥升一级、介之推降二级）、r61-M（01206f4，裁二百二十二：赵盾、郤克、栾书升一级）——名册自 34 增至 38，未系于主角之事件相应由 72 减至 41",

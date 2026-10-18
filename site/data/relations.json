@@ -690,7 +690,7 @@
     "rel_type": "君臣",
     "rel_label": "近幸",
     "reliability": "medium",
-    "source_note": "【后出层·经传无征】三竖并称出《管子》（《小称》《戒》）、《史记·齐太公世家》；左传之乱（僖公十七年）未及其名——开方其人与此边俱据后出层，照 v1.27 不撤（裁二百三十五 四3）"
+    "source_note": "【后出层·经传无征】三竖并称出《管子》（《小称》《戒》）、《史记·齐太公世家》；左传之乱（僖公十七年）未及其名——开方其人与此边俱据后出层，照 v1.27 不撤（裁二百三十五 四3）〔2026-10-17 r62-P 加注：《管子·小称》立来源行 `T012`，其文见 `Q721`（挂 `E073`）；《戒》未立来源行〕"
   },
   {
     "id": "R078",
@@ -717,7 +717,7 @@
     "rel_type": "敌对",
     "rel_label": "临终论其不可近",
     "reliability": "medium",
-    "source_note": "【后出层·经传无征】《史记》齐太公世家（后出叙事）桓公四十一年管仲病榻之对；《管子·小称》《戒》亦载管仲论开方不可近（诸子层）。《左传》无病榻之文，此边照 v1.27 不撤（裁二百三十五 四3）"
+    "source_note": "【后出层·经传无征】《史记》齐太公世家（后出叙事）桓公四十一年管仲病榻之对；《管子·小称》《戒》亦载管仲论开方不可近（诸子层）。《左传》无病榻之文，此边照 v1.27 不撤（裁二百三十五 四3）〔2026-10-17 r62-P 加注：《管子·小称》立来源行 `T012`，其文见 `Q721`（挂 `E073`）；《戒》未立来源行〕"
   },
   {
     "id": "R081",
@@ -1266,7 +1266,7 @@
     "rel_type": "其他",
     "rel_label": "荐为令尹自代",
     "reliability": "high",
-    "source_note": "左传僖公二十七年（子文荐子玉）"
+    "source_note": "左传僖公二十七年（子文荐子玉） 〔r62-O 追加（2026-10-17 EDT，Sophia；上文原字照留）〕其传政之年为僖公二十三年（前637）「子文以為之功使為令尹」（`E367`、`Q674`）；僖公二十七年为蒍贾追论「子之傳政於子玉」（`E368`、`Q675`）。"
   },
   {
     "id": "R142",
@@ -3319,5 +3319,455 @@
     "rel_label": "君",
     "reliability": "high",
     "source_note": "《左传·襄公三年》「祁奚請老．晉侯問嗣焉」（E351）；晋侯即悼公，以在位之年定（前573 即位，前558 卒）"
+  },
+  {
+    "id": "R387",
+    "person_a": "P_HUAIYING",
+    "person_b": "P_JINHUAI",
+    "rel_type": "婚姻",
+    "rel_label": "妻（质秦时所配）",
+    "reliability": "high",
+    "source_note": "《左传·僖公二十二年》嬴氏对子圉「寡君之使婢子侍執巾櫛，以固子也」（E352）；杜注「嬴氏，秦所妻子圉，懷嬴也」"
+  },
+  {
+    "id": "R388",
+    "person_a": "P_HUAIYING",
+    "person_b": "P_JINWEN",
+    "rel_type": "婚姻",
+    "rel_label": "妻（秦伯纳女五人而与焉）",
+    "reliability": "high",
+    "source_note": "《左传·僖公二十三年》「秦伯納女五人，懷嬴與焉」（E092）；《国语·晋语四》「乃歸女而納幣，且逆之」"
+  },
+  {
+    "id": "R389",
+    "person_a": "P_QINMU",
+    "person_b": "P_HUAIYING",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "medium",
+    "source_note": "《国语·晋语四》秦伯见公子曰「寡人之適，此為才」，韦注「適，適妃子」；《左传》只书「秦伯納女五人」不书其为穆公女，故 medium；又《史记·晋世家》作「繆公以宗女五人妻重耳，故子圉妻與往」，以为宗女，与国语异，并陈"
+  },
+  {
+    "id": "R395",
+    "person_a": "P_DENGMAN",
+    "person_b": "P_CHUWU",
+    "rel_type": "婚姻",
+    "rel_label": "夫人",
+    "reliability": "high",
+    "source_note": "左传桓公十三年「入告夫人鄧曼」（`Q666`）、庄公四年「入告夫人鄧曼曰：余心蕩」（`Q668`）——传文两见「夫人鄧曼」；杜注「鄧曼，楚武王夫人」（《春秋左传正义》电子本转引，纸本未核）"
+  },
+  {
+    "id": "R396",
+    "person_a": "P_DOUBOBI",
+    "person_b": "P_ZIWEN",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "左传宣公四年追叙「初，若敖娶于鄖，生鬥伯比……淫于邧子之女，生子文焉……以其女妻伯比，實為令尹子文」（`Q670`）"
+  },
+  {
+    "id": "R397",
+    "person_a": "P_CHUWU",
+    "person_b": "P_DOUBOBI",
+    "rel_type": "君臣",
+    "rel_label": "谋臣（羸师之谋、请济师）",
+    "reliability": "high",
+    "source_note": "左传桓公六年「鬥伯比言于楚子」（`Q489`）、桓公八年（`Q492`、`Q494`）、桓公十三年「遂見楚子曰：必濟師」（`Q666`）；桓公卷「楚子」为楚武王（`P_CHUWU.notes`）"
+  },
+  {
+    "id": "R398",
+    "person_a": "P_CHUWU",
+    "person_b": "P_QUXIA",
+    "rel_type": "君臣",
+    "rel_label": "莫敖（伐罗败绩，楚子曰「孤之罪也」）",
+    "reliability": "high",
+    "source_note": "左传桓公十三年「楚屈瑕伐羅」「莫敖縊于荒谷，群帥囚于冶父以聽刑。楚子曰：孤之罪也」（`Q666`、`Q667`）"
+  },
+  {
+    "id": "R399",
+    "person_a": "P_QINAIGONG",
+    "person_b": "P_SHENBAOXU",
+    "rel_type": "其他",
+    "rel_label": "为之赋《无衣》而出师救楚",
+    "reliability": "high",
+    "source_note": "左传定公四年「秦哀公為之賦《無衣》，九頓首而坐。秦師乃出」（`Q374`）；定公五年「申包胥以秦師至」（`Q357`）"
+  },
+  {
+    "id": "R400",
+    "person_a": "P_SHENBAOXU",
+    "person_b": "P_GOUJIAN",
+    "rel_type": "其他",
+    "rel_label": "使越，答其问战",
+    "reliability": "high",
+    "source_note": "国语吴语「楚申包胥使於越，越王句踐問焉」（`Q676`），越王称「吾問於王孫包胥，既命孤矣」（`Q677`）；其事之系年为推定，见 `E369`（medium），关系本身为《国语》明文"
+  },
+  {
+    "id": "R401",
+    "person_a": "P_DOUBOBI",
+    "person_b": "P_QUXIA",
+    "rel_type": "其他",
+    "rel_label": "料其必败（「舉趾高，心不固矣」）",
+    "reliability": "high",
+    "source_note": "左传桓公十三年（`Q666`）"
+  },
+  {
+    "id": "R402",
+    "person_a": "P_DENGMAN",
+    "person_b": "P_QUXIA",
+    "rel_type": "其他",
+    "rel_label": "料其必败（「狃于蒲騷之役，將自用也」）",
+    "reliability": "high",
+    "source_note": "左传桓公十三年（`Q666`）"
+  },
+  {
+    "id": "R410",
+    "person_a": "P_CUIZHU",
+    "person_b": "P_QINGFENG",
+    "rel_type": "其他",
+    "rel_label": "右相、左相同盟国人（崔、庆）",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十五年》「崔杼立而相之，慶封為左相，盟國人於大宮曰：所不與崔、慶者」（E204）；襄公二十七年庆封曰「崔、慶一也」（E386）"
+  },
+  {
+    "id": "R411",
+    "person_a": "P_QINGFENG",
+    "person_b": "P_CUIZHU",
+    "rel_type": "敌对",
+    "rel_label": "假为之讨而灭崔氏",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十七年》卢蒲嫳谓庆封「崔之薄，慶之厚也」；庆封曰「請為子討之」，「使盧蒲嫳帥甲以攻崔氏……遂滅崔氏」（E386）。rel_type 取「敌对」据其行之实（灭其家），与 R410 并存（同对异类）"
+  },
+  {
+    "id": "R412",
+    "person_a": "P_CUIZHU",
+    "person_b": "P_TANGJIANG",
+    "rel_type": "婚姻",
+    "rel_label": "夫",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十五年》「見棠姜而美之，使偃取之……遂取之」；襄公二十七年「娶東郭姜，生明」"
+  },
+  {
+    "id": "R413",
+    "person_a": "P_QIZHUANG",
+    "person_b": "P_TANGJIANG",
+    "rel_type": "其他",
+    "rel_label": "通之（传文用字）",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十五年》「莊公通焉，驟如崔氏」（E202，Q272）——照录传文，归罪与评断属文本立场"
+  },
+  {
+    "id": "R414",
+    "person_a": "P_CHENHENG",
+    "person_b": "P_KANZHI",
+    "rel_type": "敌对",
+    "rel_label": "争政，逐而杀之",
+    "reliability": "high",
+    "source_note": "《左传·哀公十四年》「陳成子憚之，驟顧諸朝。諸御鞅言於公曰：陳、闞不可並也」；壬申「子我歸，屬徒攻闈與大門……陳氏追之……殺諸郭關」（E387）"
+  },
+  {
+    "id": "R415",
+    "person_a": "P_QIJIANGONG",
+    "person_b": "P_KANZHI",
+    "rel_type": "君臣",
+    "rel_label": "宠而使为政",
+    "reliability": "high",
+    "source_note": "《左传·哀公十四年》「齊簡公之在魯也，闞止有寵焉。及即位，使為政」（Q485、Q718）"
+  },
+  {
+    "id": "R416",
+    "person_a": "P_ZIGONG",
+    "person_b": "P_CHENHENG",
+    "rel_type": "其他",
+    "rel_label": "为鲁介而对之，齐乃归成",
+    "reliability": "high",
+    "source_note": "《左传·哀公十五年》「陳成子館客……景伯揖子贛而進之，對曰……成子病之，乃歸成」（E388）"
+  },
+  {
+    "id": "R417",
+    "person_a": "P_KONGZI",
+    "person_b": "P_CHENHENG",
+    "rel_type": "其他",
+    "rel_label": "请伐齐以讨其弑君",
+    "reliability": "high",
+    "source_note": "《左传·哀公十四年》「孔丘三日齊，而請伐齊三……對曰：陳恆弒其君，民之不與者半」（E301，Q511）。二人无相见之文，rel_type 取「其他」"
+  },
+  {
+    "id": "R425",
+    "person_a": "P_MUJIANG",
+    "person_b": "P_LUCHENGGONG",
+    "rel_type": "亲属-直系",
+    "rel_label": "母",
+    "reliability": "medium",
+    "source_note": "〔裁二百四十二 五5 准 medium〕左传成公九年穆姜自称「未亡人」而称成公为「嗣君」（`Q765`）；成公十六年「穆姜送公」「姜又命公如初」（`Q766`、`Q767`）——母子之称经传无直书，据此推之；杜注明其为成公母（纸本未核）"
+  },
+  {
+    "id": "R426",
+    "person_a": "P_SHUSUNQIAORU",
+    "person_b": "P_MUJIANG",
+    "rel_type": "其他",
+    "rel_label": "私通（传文之辞）",
+    "reliability": "high",
+    "source_note": "左传成公十六年「宣伯通於穆姜」（`Q766`）——传文之叙，其归罪属文本立场"
+  },
+  {
+    "id": "R427",
+    "person_a": "P_SHUSUNQIAORU",
+    "person_b": "P_JIWENZI",
+    "rel_type": "敌对",
+    "rel_label": "谮之于晋，请止而杀之",
+    "reliability": "high",
+    "source_note": "左传成公十六年「宣伯使告郤犨曰……請止行父而殺之」（`Q769`）"
+  },
+  {
+    "id": "R428",
+    "person_a": "P_SHUSUNQIAORU",
+    "person_b": "P_SHUSUNBAO",
+    "rel_type": "亲属-同辈",
+    "rel_label": "兄",
+    "reliability": "medium",
+    "source_note": "〔裁二百四十二 五5 准 medium〕左传昭公四年宣伯谓穆子「魯以先子之故．將存吾宗．必召女」——同父之辞；长幼据杜注（纸本未核），故 medium"
+  },
+  {
+    "id": "R429",
+    "person_a": "P_SHUSUNBAO",
+    "person_b": "P_SHUNIU",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "medium",
+    "source_note": "〔裁二百四十二 五5 准 medium〕左传昭公四年庚宗之妇人「余子長矣．能奉雉而從我矣．召而見之．則所夢也」（`Q791`）——传未直书「子」字，杜注以牛为穆子之子（纸本未核）"
+  },
+  {
+    "id": "R430",
+    "person_a": "P_SHUNIU",
+    "person_b": "P_SHUSUNBAO",
+    "rel_type": "其他",
+    "rel_label": "竖（家臣），有宠而为政",
+    "reliability": "high",
+    "source_note": "左传昭公四年「遂使為豎．有寵．長使為政」（`Q791`）"
+  },
+  {
+    "id": "R431",
+    "person_a": "P_ZANGWENZHONG",
+    "person_b": "P_JIWENZI",
+    "rel_type": "师友",
+    "rel_label": "教以事君之礼",
+    "reliability": "high",
+    "source_note": "左传文公十八年大史克对曰「先大夫臧文仲，教行父事君之禮」（`Q760`）"
+  },
+  {
+    "id": "R432",
+    "person_a": "P_KONGZI",
+    "person_b": "P_ZANGWENZHONG",
+    "rel_type": "其他",
+    "rel_label": "评其「不仁者三，不知者三」",
+    "reliability": "high",
+    "source_note": "左传文公二年「仲尼曰：臧文仲其不仁者三，不知者三」（`Q755`，评-2）"
+  },
+  {
+    "id": "R433",
+    "person_a": "P_ZHAOWU",
+    "person_b": "P_SHUSUNBAO",
+    "rel_type": "其他",
+    "rel_label": "虢之会请诸楚而免之",
+    "reliability": "high",
+    "source_note": "左传昭公元年赵孟曰「魯叔孫豹可謂能矣．請免之以靖能者」「固請諸楚．楚人許之．乃免叔孫」（`Q788`）"
+  },
+  {
+    "id": "R434",
+    "person_a": "P_SHIXIE",
+    "person_b": "P_JIWENZI",
+    "rel_type": "其他",
+    "rel_label": "言于栾武子而赦之",
+    "reliability": "high",
+    "source_note": "左传成公十六年「范文子謂欒武子曰．季孫於魯．相二君矣……乃許魯平．赦季孫」（`Q770`）"
+  },
+  {
+    "id": "R435",
+    "person_a": "P_SHIGAI",
+    "person_b": "P_SHUSUNBAO",
+    "rel_type": "其他",
+    "rel_label": "问「死而不朽」",
+    "reliability": "high",
+    "source_note": "左传襄公二十四年「范宣子逆之問焉．曰．古人有言曰．死而不朽．何謂也」（`Q784`）；《国语·晋语八》同（`Q785`）"
+  },
+  {
+    "id": "R450",
+    "person_a": "P_WEIDINGGONG",
+    "person_b": "P_WEIXIANGONG",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《左传·成公十四年》：「衛侯有疾。使孔成子。甯惠子。立敬姒之子衎。以為大子」（`Q811`），冬「衛定公卒」而大子嗣（`Q812`）。"
+  },
+  {
+    "id": "R451",
+    "person_a": "P_DINGJIANG",
+    "person_b": "P_WEIDINGGONG",
+    "rel_type": "婚姻",
+    "rel_label": "夫人",
+    "reliability": "high",
+    "source_note": "《左传·成公十四年》：「衛定公卒。夫人姜氏既哭而息」（`Q812`）；襄公十四年定姜自言「余以巾櫛事先君」（`Q820`）。"
+  },
+  {
+    "id": "R452",
+    "person_a": "P_DINGJIANG",
+    "person_b": "P_WEIXIANGONG",
+    "rel_type": "亲属-直系",
+    "rel_label": "嫡母（献公为敬姒所生）",
+    "reliability": "medium",
+    "source_note": "《左传·成公十四年》：衎为「敬姒之子」（`Q811`），定姜为定公夫人（`Q812`）——嫡母之称系以夫人与庶子之礼推之，传不直书其称，故 medium。"
+  },
+  {
+    "id": "R453",
+    "person_a": "P_SUNLIANGFU",
+    "person_b": "P_SUNLINFU",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "medium",
+    "source_note": "杜注以孙林父为孙良夫（孙桓子）之子；传成公十四年定姜称之「先君宗卿之嗣」（`Q809`），襄公七年「尋孫桓子之盟」——相应而无直书，故 medium。"
+  },
+  {
+    "id": "R454",
+    "person_a": "P_SUNLINFU",
+    "person_b": "P_WEIXIANGONG",
+    "rel_type": "敌对",
+    "rel_label": "逐君者",
+    "reliability": "high",
+    "source_note": "《左传·襄公十四年》：孙文子「君忌我矣。弗先。必死」，杀公使于丘宫，「公出奔齊。孫氏追之。敗公徒于河澤」（`Q815`–`Q817`）；襄公二十年甯殖自言「孫林父。甯殖。出其君」。"
+  },
+  {
+    "id": "R455",
+    "person_a": "P_SUNLINFU",
+    "person_b": "P_WEIDINGGONG",
+    "rel_type": "君臣",
+    "rel_label": "卿（为定公所恶，出奔而复）",
+    "reliability": "high",
+    "source_note": "《左传·成公七年》「衛定公惡孫林父。冬。孫林父出奔晉」（`Q806`）；成公十四年「衛侯見而復之」（`Q809`）。"
+  },
+  {
+    "id": "R456",
+    "person_a": "P_NINGZHI",
+    "person_b": "P_NINGXI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十年》：「衛甯惠子疾。召悼子曰……若能掩之。則吾子也」；襄公二十六年悼子（甯喜）曰「吾受命於先人」（`Q824`）。"
+  },
+  {
+    "id": "R457",
+    "person_a": "P_NINGXI",
+    "person_b": "P_WEIXIANGONG",
+    "rel_type": "拥立",
+    "rel_label": "纳君者（「政由甯氏，祭则寡人」之约）",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十五年》「衛獻公自夷儀使與甯喜言。甯喜許之」（`Q823`）；二十六年子鲜以公命与甯喜言「苟反。政由甯氏。祭則寡人」，甯喜攻孙氏、杀殇公，献公复归（`Q824`、`Q826`）。"
+  },
+  {
+    "id": "R458",
+    "person_a": "P_WEIXIANGONG",
+    "person_b": "P_NINGXI",
+    "rel_type": "敌对",
+    "rel_label": "杀之者（使公孙免余攻甯氏）",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十七年》「衛甯喜專。公患之。公孫免餘請殺之」「免餘復攻甯氏。殺甯喜及右宰穀」（`Q831`、`Q832`）；经「衛殺其大夫甯喜」（`Q830`）。"
+  },
+  {
+    "id": "R459",
+    "person_a": "P_NINGWUZI",
+    "person_b": "P_WEICHENGGONG",
+    "rel_type": "君臣",
+    "rel_label": "卿（周旋于成公之难）",
+    "reliability": "high",
+    "source_note": "《左传·僖公二十八年》盟于宛濮、为卫侯之辅、纳橐饘（`Q835`、`Q838`）；三十年货医（`Q840`）；三十一年谏祀相（`Q843`）。"
+  },
+  {
+    "id": "R460",
+    "person_a": "P_DINGJIANG",
+    "person_b": "P_SUNLINFU",
+    "rel_type": "其他",
+    "rel_label": "劝定公宥之；为之释卜兆",
+    "reliability": "high",
+    "source_note": "《左传·成公十四年》定姜曰「是先君宗卿之嗣也……君其忍之」（`Q809`）；襄公十年「孫文子卜追之。獻兆於定姜」（`Q814`）。"
+  },
+  {
+    "id": "R461",
+    "person_a": "P_NINGZHI",
+    "person_b": "P_WEIXIANGONG",
+    "rel_type": "敌对",
+    "rel_label": "与孙林父出君（其自言）",
+    "reliability": "high",
+    "source_note": "《左传·襄公十四年》「衛人立公孫剽。孫林父。甯殖。相之」（`Q819`）；襄公二十年甯惠子自言「名藏在諸侯之策。曰孫林父。甯殖。出其君」——其出君之责为其自言，照录为文本立场。"
+  },
+  {
+    "id": "R462",
+    "person_a": "P_QUBOYU",
+    "person_b": "P_SUNLINFU",
+    "rel_type": "其他",
+    "rel_label": "以逐君之谋告之而不与，从近关出",
+    "reliability": "high",
+    "source_note": "《左传·襄公十四年》：孙文子「入見蘧伯玉」，对曰「君制其國。臣敢奸之」，「遂行。從近關出」（`Q816`）。"
+  },
+  {
+    "id": "R463",
+    "person_a": "P_QUBOYU",
+    "person_b": "P_NINGXI",
+    "rel_type": "其他",
+    "rel_label": "以纳君之谋告之而不与，从近关出",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十六年》：「甯喜告蘧伯玉。伯玉曰：瑗不得聞君之出。敢聞其入。遂行。從近關出」（`Q824`）。"
+  },
+  {
+    "id": "R464",
+    "person_a": "P_JIZHA",
+    "person_b": "P_SUNLINFU",
+    "rel_type": "其他",
+    "rel_label": "过戚讥其闻钟（「猶燕之巢於幕上」）",
+    "reliability": "high",
+    "source_note": "《左传·襄公二十九年》：季札「將宿於戚。聞鍾聲焉」，曰「夫子獲罪於君以在此……君又在殯。而可以樂乎」，「遂去之。文子聞之。終身不聽琴瑟」（`E270`／`Q440`）。"
+  },
+  {
+    "id": "R465",
+    "person_a": "P_WEILINGGONG",
+    "person_b": "P_KUAIKUI",
+    "rel_type": "亲属-直系",
+    "rel_label": "父",
+    "reliability": "high",
+    "source_note": "《春秋·定公十四年》「衛世子蒯瞶出奔宋」（`Q847`），时卫君为灵公；《左传·哀公二年》「衛靈公卒……且亡人之子輒在」（`Q850`）。"
+  },
+  {
+    "id": "R466",
+    "person_a": "P_NANZI",
+    "person_b": "P_WEILINGGONG",
+    "rel_type": "婚姻",
+    "rel_label": "夫人",
+    "reliability": "high",
+    "source_note": "《左传·定公十四年》：「衛侯為夫人南子召宋朝」（`Q846`）。"
+  },
+  {
+    "id": "R467",
+    "person_a": "P_KUAIKUI",
+    "person_b": "P_NANZI",
+    "rel_type": "敌对",
+    "rel_label": "谋杀之而不遂（「蒯聵將殺余」）",
+    "reliability": "high",
+    "source_note": "《左传·定公十四年》：大子谓戏阳速「少君見我。我顧乃殺之」，夫人「啼而走曰：蒯聵將殺余」（`Q846`）——谋之叙为传文直书，蒯聩与戏阳速互责之言照录为文本立场。"
+  },
+  {
+    "id": "R468",
+    "person_a": "P_ZHAOYANG",
+    "person_b": "P_KUAIKUI",
+    "rel_type": "拥立",
+    "rel_label": "纳之于戚",
+    "reliability": "high",
+    "source_note": "《春秋·哀公二年》「晉趙鞅帥師納衛世子蒯瞶于戚」；传「晉趙鞅納衛大子于戚」（`Q848`、`Q849`）。"
+  },
+  {
+    "id": "R469",
+    "person_a": "P_KUAIKUI",
+    "person_b": "P_ZHAOYANG",
+    "rel_type": "其他",
+    "rel_label": "车右（铁之战）",
+    "reliability": "high",
+    "source_note": "《左传·哀公二年》：「郵無恤御簡子．衛太子為右」「鄭人擊簡子中肩……大子救之以戈」（`Q852`）。"
   }
 ]
