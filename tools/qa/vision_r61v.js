@@ -183,7 +183,12 @@ function judgeLegend(got) {
   const most = [...sec].sort((a, b) => rowsOf(b.id).length - rowsOf(a.id).length || a.id.localeCompare(b.id))[0];
   const SEC = [female, withBuzai, most].filter(Boolean);
   const protoSample = PPL.find(p => PROTO.has(p.id) && neighbors(p.id).length > 0);
-  const jz = PP.get("P_JIEZHITUI");
+  /* 〔r62-W 改，2026-10-18〕「`#/p/<二级>/…` 照旧落首页」之样本：原写死介之推；r62-W（裁二百四十八 三）立留页名单，
+   * 介之推、齐僖公今有人物页，此式只及**不在留页单之二级**。样本改由数据另求——留页单取 site/app.js 之 `RETAINED_PAGES`
+   * （源文本读其 id），二级取 is_protagonist=0 而不在单者，id 序首个有挂链者。判据一字未动；留页之人之落法另由 vision_r62w 验之。 */
+  const RETAINED = (() => { const m = fs.readFileSync(path.join(SITE, "app.js"), "utf8").match(/const RETAINED_PAGES = \[([\s\S]*?)\];/);
+    return m ? [...m[1].matchAll(/id:\s*"([^"]+)"/g)].map(x => x[1]) : []; })();
+  const jz = sec.filter(p => !RETAINED.includes(p.id) && rowsOf(p.id).length > 0).sort((a, b) => a.id.localeCompare(b.id))[0];
   const kongzi = PP.get("P_KONGZI");
   const protoNoAbs = PPL.find(p => PROTO.has(p.id) && !rowsOf(p.id).some(l => l.presence === "不在") && rowsOf(p.id).length > 0);
   const protoAbs = PPL.find(p => PROTO.has(p.id) && rowsOf(p.id).some(l => l.presence === "不在"));
@@ -192,7 +197,7 @@ function judgeLegend(got) {
   selfcheck(new Set(SEC.map(p => p.id)).size === 3 && SEC.every(p => !PROTO.has(p.id) && rowsOf(p.id).length > 0 && neighbors(p.id).length > 0),
     "二级三样本互异、俱有挂链与邻人", SEC.map(p => p.name).join("、"));
   selfcheck(!!protoSample, "有邻人之一级样本", protoSample && protoSample.name);
-  selfcheck(!!jz && !PROTO.has(jz.id), "介之推在库且为二级（`#/p/<二级>/…` 落法之样本）");
+  selfcheck(!!jz && !PROTO.has(jz.id) && !RETAINED.includes(jz.id), "不在留页单之二级样本可求（`#/p/<二级>/…` 落法之样本）", jz && (jz.name + "；留页单 " + RETAINED.join("、")));
   selfcheck(!!protoAbs && !!protoNoAbs, "一级之图：有「不在」行者、无者各一（图例恒在之判不空转）", (protoAbs && protoAbs.name) + "／" + (protoNoAbs && protoNoAbs.name));
   if (gateErrs) { console.log("门自身出错（前提不成）"); process.exit(2); }
 

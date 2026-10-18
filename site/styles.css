@@ -1736,6 +1736,32 @@ button.chron-chip[aria-pressed="true"] {
   padding: 0 0.45rem;
   vertical-align: 0.12em;
 }
+/* r62-W 留页之链（资料库人物条、关系侧栏、关系抽屉同形）：「留页」虚框小签＋「时间线／地图」二链。
+ * 虚框以别于「一级」之实框（其人仍是二级，只留其页）；链取暖赭，与资料库详情之链同色。 */
+.page-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.4rem;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.page-links a { color: var(--ochre); text-decoration: underline; text-underline-offset: 0.18em; padding: 0.1rem 0.1rem; }
+.page-links a:hover, .page-links a:focus-visible { color: var(--cinnabar); }
+.page-links-sep { color: var(--ink-soft); }
+.page-links-lab {
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  border: 1px dashed var(--ochre);
+  color: var(--ochre);
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  margin-right: 0.15rem;
+}
+.lib-page-links { padding: 0 0.9rem 0.55rem; margin-top: -0.3rem; }
+.rel-page-links { margin-top: 0.6rem; }
 .lib-detail { flex: 1 1 auto; min-width: 0; }
 .lib-detail a { color: var(--ochre); }
 /* 手机端资料详情「返回列表」（桌面双栏隐藏，布局零变化，Xiangtao 反馈 4） */
@@ -2497,6 +2523,7 @@ button.chron-chip[aria-pressed="true"] {
 
 /* 「添加对照人物」选人小面板 */
 .cmp-pick-wrap { position: relative; display: inline-block; }
+.cmp-pick-wrap[hidden] { display: none; }   /* r62-W：留页之人之地图页无并观 */
 .cmp-pick {
   position: absolute; z-index: 40; top: calc(100% + 4px); left: 0;
   background: var(--silk-panel); border: 1px solid var(--line); border-radius: 4px;

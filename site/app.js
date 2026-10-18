@@ -192,6 +192,60 @@ const PROTAGONISTS = [
    * 不取《诗·载驰》本文为图像之据（Q055 为 P 层诗辞）。 */
   { id: "P_XUMU",        color: "", badge: "badge_xumu",        fallback: "许穆夫人", home: "许" },
 ];
+/* r62-W 留页名单（裁二百四十八 三，§一百十三；站长 2026-10-18：「降级的人物……应该保留时间线、地图、关系模式，
+ * 只是首页地图模式不需要他们的图标」）。
+ * ★ 其义：**曾为一级而降者，留其人物页三式**（`#/p/<id>/timeline|map|relations`），只去首页之徽——
+ *   首页地图不画、首页一级列表不列（renderHome／buildHomeMap 只读 PROTAGONISTS，不读此单）；**并观不及**（并观只一级，
+ *   bothProto 只认 PROTAGONISTS，地图页「＋ 添加对照人物」于留页之人藏之）。
+ * ★ 其人**仍是二级**：`people.is_protagonist` 不改（＝0），不入 PROTAGONISTS（故 protoRoster 之对账、页脚人数、
+ *   全景主角环、资料库「一级」之标、搜索「主角」之标俱不及之）；可显底线不验，不入豁免单。
+ * ★ 此单只供三事：parseHash／legacyToNewHash 兼认其人物路由（hasPersonPage）；其页之徽与色（pageMeta）；
+ *   资料库人物条、关系侧栏、全站搜索三处入口加「时间线／地图」之链（只及此单中人）。
+ * ★ 门：tools/qa/vision_r62w.js——名册三分（一级＝PROTAGONISTS＝is_protagonist=1；留页＝此单，须在库、is_protagonist=0、
+ *   徽记文件在；二者不交），比值不比名；反证混一一级入此单、混一不在库之 id，须红。
+ * ★ 其后凡降一人，降之件**同笔**入此单（裁二百四十八 三5）；其徽记文件留档不删。
+ *   介之推：r61-H 降（裁二百一十九；裁二百一十五 ④），徽「文之渐隐」badge_jiezhitui.svg 留档；
+ *   齐僖公：r62-M 降（裁二百四十、裁二百四十三 三2），徽「载书入坎」badge_qixi.svg 留档。
+ * 二人 state 只一国（晋、齐），home 照书其国（同 PROTAGONISTS 之 home 义：分区／国色之键）。 */
+const RETAINED_PAGES = [
+  { id: "P_JIEZHITUI", color: "", badge: "badge_jiezhitui", fallback: "介之推", home: "晋" },
+  { id: "P_QIXI",      color: "", badge: "badge_qixi",      fallback: "齐僖公", home: "齐" },
+];
+/* 有人物页者之配置：一级（PROTAGONISTS）先，留页（RETAINED_PAGES）次；无则 null。
+ * 一级之判（isProto）照旧只认 PROTAGONISTS——凡「一级」之义（并观、主角环、主角标、对账）不经此函数。 */
+function pageMeta(id) {
+  return PROTAGONISTS.find(m => m.id === id) || RETAINED_PAGES.find(m => m.id === id) || null;
+}
+const isRetained = (id) => !PROTAGONISTS.some(m => m.id === id) && RETAINED_PAGES.some(m => m.id === id);
+/* 其人有人物页（一级或留页）且在库 */
+const hasPersonPage = (id) => !!pageMeta(id) && !!(typeof PEOPLE !== "undefined" && PEOPLE && PEOPLE[id]);
+/* 留页之链（r62-W 入口）：「时间线」「地图」二链，真 <a href>（可新开、可复制），址照 buildHash 之人物式。
+ * 资料库人物条、关系侧栏（内嵌右卡与全屏抽屉）同用此一函数；beforeNav 只抽屉一路传入（先退全屏再跳）。 */
+function pageLinksNode(pid, cls, beforeNav) {
+  const box = document.createElement("p");
+  box.className = "page-links " + (cls || "");
+  box.dataset.pid = pid;
+  const lab = document.createElement("span");
+  lab.className = "page-links-lab";
+  lab.textContent = "留页";
+  lab.title = "其人旧为一级，降二级后留其人物页（时间线、地图、关系）";
+  box.appendChild(lab);
+  const nm = PEOPLE[pid] ? PEOPLE[pid].name : pid;
+  [["timeline", "时间线"], ["map", "地图"]].forEach(([v, t], i) => {
+    if (i) { const sep = document.createElement("span"); sep.className = "page-links-sep"; sep.setAttribute("aria-hidden", "true"); sep.textContent = "／"; box.appendChild(sep); }
+    const a = document.createElement("a");
+    a.href = buildHash(pid, v);
+    a.dataset.pview = v;
+    a.textContent = t;
+    a.setAttribute("aria-label", nm + "之" + t);
+    if (beforeNav) a.addEventListener("click", (ev) => {
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button === 1) return;
+      ev.preventDefault(); beforeNav(); setHash(pid, v);
+    });
+    box.appendChild(a);
+  });
+  return box;
+}
 /* 国色家族（styles.css :root 的单一源）。新增国色家族只改这一处，
  * 首页分区、关系全景阵营底晕、分享卡色带、编年国色签、人物着色五处同步扩展。
  * r27 新立第 10 色「吴」（--state-wu #164F5C，海滨苍青系），判据全矩阵见 design_notes §2.1。
@@ -216,9 +270,10 @@ function panoStateKey(p) {
  * 不会再出现旧制那种「色取 A 国、位落 B 国」的错置。缺失则退暖赭并告警。 */
 function resolveProtoColors() {
   const cs = getComputedStyle(document.documentElement);
-  for (const m of PROTAGONISTS) {
+  // r62-W：留页之人亦取其国色（其人物页之 --theme、轨迹、徽记之色）；键取其 home（同 panoStateKey 之义）
+  for (const m of [...PROTAGONISTS, ...RETAINED_PAGES]) {
     const p = (typeof PEOPLE !== "undefined" && PEOPLE[m.id]) || { id: m.id, state: "" };
-    const key = panoStateKey(p);
+    const key = m.home || panoStateKey(p);
     const varName = STATE_FAMILY_VAR[key];
     const v = varName ? cs.getPropertyValue(varName).trim() : "";
     if (v) m.color = v;
@@ -446,7 +501,7 @@ function legacyToNewHash(h) {
     const [k, v] = kv.split("=");
     if (k && v !== undefined) o[k] = v;
   }
-  const person = PROTAGONISTS.some(p => p.id === o.person) ? o.person : null;
+  const person = pageMeta(o.person) ? o.person : null;   // r62-W：留页之人兼认
   let view = ["home", "timeline", "map", "library", "relations", "about", "chronicle", "tenures"].includes(o.view) ? o.view : null;
   if (person && (!view || view === "home")) view = "timeline"; // 旧 #person=X 落其时间线
   if (person && PERSON_VIEWS.includes(view)) return buildHash(person, view);
@@ -496,7 +551,8 @@ function parseHash() {
     return st;
   }
   if (segs[0] === "p") {
-    if (PROTAGONISTS.some(p => p.id === segs[1])) {
+    // r62-W：一级与留页名单中人俱有人物页（pageMeta）；余者照旧落首页
+    if (pageMeta(segs[1])) {
       st.person = segs[1];
       st.view = PERSON_VIEWS.includes(segs[2]) ? segs[2] : "timeline";
     }
@@ -647,7 +703,7 @@ function render() {
   closeOverlay();
   closeDrawer();
   hideCardPop();
-  const ctxMeta = PROTAGONISTS.find(p => p.id === personCtx);
+  const ctxMeta = pageMeta(personCtx);   // r62-W：留页之人用其留档之徽与国色
   document.documentElement.style.setProperty("--theme", ctxMeta ? ctxMeta.color : "#B4652F");
 
   renderPersonNav(ctxMeta);
@@ -2216,6 +2272,9 @@ function applyView(box) {
 
 function renderMap() {
   resetPlacePanel();
+  // r62-W：并观只一级（裁二百四十八 三2）——留页之人之地图页不设「＋ 添加对照人物」（其面板所列俱一级，点之亦入不得并观）
+  const cmpWrap = $("#btn-compare").closest(".cmp-pick-wrap");
+  if (cmpWrap) cmpWrap.hidden = !isProto(state.person);
   const canvas = $("#map-canvas");
   canvas.innerHTML = baseMapText;
   mountCaption("single");   // 内嵌图框内的字幕条同为派生物（静态节点已移除，见 mountCaption 注释）
@@ -4204,7 +4263,8 @@ function libPeopleHint(panel) {
   p.className = "map-status";
   const n1 = DATA.people.filter(r => isProto(r.id)).length;
   p.textContent = "全库 " + DATA.people.length + " 人：一级 " + n1 + "、二级 " + (DATA.people.length - n1) + "。" +
-    "点一人即入——一级入其时间线；二级入其关系页，其所系之事列于关系详情之末。";
+    "点一人即入——一级入其时间线；二级入其关系页，其所系之事列于关系详情之末。" +
+    (RETAINED_PAGES.some(m => PEOPLE[m.id]) ? "旧为一级而留页者，条下另有其时间线、地图之链。" : "");
   panel.appendChild(h3);
   panel.appendChild(p);
 }
@@ -4259,7 +4319,9 @@ function renderLibList() {
         title.appendChild(mk);
       }
       sub.textContent = [r.state, r.role, "所系之事 " + n].filter(Boolean).join(" · ");
-      b.title = isProto(r.id) ? "入其时间线" : "入其关系页（二级人物无个人时间线与地图，所系之事列于关系详情）";
+      b.title = isProto(r.id) ? "入其时间线"
+        : isRetained(r.id) ? "入其关系页（其人旧为一级，时间线与地图留页，见本条之链）"
+        : "入其关系页（二级人物无个人时间线与地图，所系之事列于关系详情）";
     } else {
       title.textContent = r.title;
       sub.textContent = [srcTypeOf(r.id), r.section].filter(Boolean).join(" · ");
@@ -4270,6 +4332,8 @@ function renderLibList() {
     if (state.tab === "people") b.addEventListener("click", () => goSearchPerson(r.id));
     else b.addEventListener("click", () => showLibDetail(r, b));
     li.appendChild(b);
+    // r62-W：留页名单中人，条下加「时间线／地图」之链（主钮之落法不改：二级照旧入其关系页）
+    if (state.tab === "people" && isRetained(r.id) && hasPersonPage(r.id)) li.appendChild(pageLinksNode(r.id, "lib-page-links"));
     list.appendChild(li);
   }
   consumeLibSpot(list, rows);
@@ -4501,7 +4565,7 @@ function relSyncHash() {
   history.pushState(null, "", next);
   prevHash = location.hash;
   state = parseHash();
-  renderPersonNav(PROTAGONISTS.find(p => p.id === personCtx));
+  renderPersonNav(pageMeta(personCtx));
 }
 function drawRel() {
   if (relView.mode === "ego" && !relView.center) relView.mode = "pano";
@@ -5338,6 +5402,8 @@ function showRelDetail(rels, pid) {
     acts.appendChild(clear);
   }
   panel.appendChild(acts);
+  // r62-W：留页名单中人（单人之卡），加「时间线／地图」之链
+  if (pid && isRetained(pid) && hasPersonPage(pid)) panel.appendChild(pageLinksNode(pid, "rel-page-links"));
 }
 /* 全屏放大态：点边/点节点 → 底部抽屉（复用地图抽屉的开合/下滑/遮罩/ESC 三件套）。
  * 内容与内嵌右侧卡片一致；仅保留「查看时间线」这一不与全屏冲突的操作（先退出全屏再跳转）。 */
@@ -5364,6 +5430,8 @@ function showRelDetailDrawer(rels, pid) {
     acts.appendChild(go);
   }
   if (acts.childNodes.length) wrap.appendChild(acts);
+  // r62-W：留页名单中人，抽屉同设「时间线／地图」之链（先退全屏再跳）
+  if (pid && isRetained(pid) && hasPersonPage(pid)) wrap.appendChild(pageLinksNode(pid, "rel-page-links", () => { closeDrawer(); closeRelOverlay(); }));
   openDrawer(relDetailTitle(rels, pid), wrap);
 }
 
@@ -5429,6 +5497,20 @@ function buildSearchIndex() {
       sub: [nameLineText(p, false), p.state, isProto(p.id) ? "主角" : ""].filter(Boolean).join(" · "),
       go: () => goSearchPerson(p.id),
     });
+    /* r62-W：留页名单中人另出二条——「<名> · 时间线」「<名> · 地图」，直入其人物页（主条之落法不改：二级照旧入其关系页）。
+     * 检索文本同其主条，故搜其名、别名即三条相随；入人物组之计数。 */
+    if (isRetained(p.id)) {
+      for (const [v, t] of [["timeline", "时间线"], ["map", "地图"]]) {
+        SEARCH_INDEX.push({
+          group: "people",
+          text: searchNorm([p.name, p.alt_names, p.xing, p.shi, p.ming, p.zi].filter(Boolean).join("|")),
+          label: p.name + " · " + t,
+          sub: "留页 · 旧为一级",
+          pageView: v, pid: p.id,
+          go: () => setHash(p.id, v),
+        });
+      }
+    }
   }
   for (const pl of DATA.places) {
     SEARCH_INDEX.push({
@@ -5606,6 +5688,7 @@ function initSearch() {
         b.id = "sr-opt-" + (optSeq++);
         b.setAttribute("role", "option");
         b.setAttribute("aria-selected", "false");
+        if (en.pageView) { b.dataset.pview = en.pageView; b.dataset.pid = en.pid; }   // r62-W 留页之条
         const lab = document.createElement("strong");
         lab.textContent = en.label;
         b.appendChild(lab);
