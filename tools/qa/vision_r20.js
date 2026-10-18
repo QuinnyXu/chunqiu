@@ -8,7 +8,13 @@ const SITE_DIR=path.resolve(__dirname,"..","..","site");
 const OUT=path.resolve(__dirname,"screenshots");
 const MIME={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".png":"image/png",".ico":"image/x-icon"};
 function srv(root){return new Promise((res,rej)=>{const s=http.createServer((rq,rs)=>{let u=decodeURIComponent(rq.url.split("?")[0].split("#")[0]);if(u==="/")u="/index.html";const fp=path.join(root,u);if(!fp.startsWith(root)){rs.writeHead(403);rs.end();return;}fs.readFile(fp,(e,d)=>{if(e){rs.writeHead(404);rs.end();return;}rs.writeHead(200,{"Content-Type":MIME[path.extname(fp).toLowerCase()]||"application/octet-stream"});rs.end(d);});});s.on("error",rej);s.listen(0,"127.0.0.1",()=>res(s));});}
-const PROTS=["P_WENJIANG","P_QIXIANG","P_QIHUAN","P_GUANZHONG","P_QIXI","P_LUYIN","P_LUHUAN","P_LUZHUANG","P_ZHENGZHUANG","P_ZHENGZHAO","P_WUJIANG","P_JIZHONG","P_JINWEN","P_QINMU","P_CHUCHENG","P_CHUZHUANG","P_XIGUI","P_LIJI","P_MUJI","P_ZHUANGJIANG","P_XUANJIANG"];
+const PROTS_R=["P_WENJIANG","P_QIXIANG","P_QIHUAN","P_GUANZHONG","P_QIXI","P_LUYIN","P_LUHUAN","P_LUZHUANG","P_ZHENGZHUANG","P_ZHENGZHAO","P_WUJIANG","P_JIZHONG","P_JINWEN","P_QINMU","P_CHUCHENG","P_CHUZHUANG","P_XIGUI","P_LIJI","P_MUJI","P_ZHUANGJIANG","P_XUANJIANG"];
+/* r62-M（三法之「同步」）：本门之回归名单系立门当时之一级，写死于上；今降二级者（如齐僖公 P_QIXI，r62-M）其 `#/p/<id>/…` 落首页，
+ * 页面仍是前一人之图，量得者是陈物而印其名下——是量错对象。故名单与 site/data/people.json 之 is_protagonist=1 取交，
+ * 降者剔出并印其名（非减所断：所剔者已非一级，其页本不存在）。 */
+const PROTS_PROTO = new Set(JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "..", "site", "data", "people.json"), "utf8")).filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
+const PROTS = PROTS_R.filter(id => PROTS_PROTO.has(id));
+if (PROTS.length < PROTS_R.length) console.log("〔r62-M〕回归名单剔出今非一级者：" + PROTS_R.filter(id => !PROTS_PROTO.has(id)).join("、"));
 (async()=>{
   const pw=require("playwright");
   const baseURL=process.env.QA_BASE_URL||null;

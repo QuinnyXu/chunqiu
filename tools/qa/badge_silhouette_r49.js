@@ -5,7 +5,11 @@
  *   ★ 余者（「通过·但已进现库最紧 2%…记观察」、点名逐对之 IoU 与「通过／存疑／撞形」或「更紧／松」之注、同弧组内最紧）俱为记实，不入退出码。
  *   ★ 此前本门「须改形」只印不判、恒 exit 0，抛错以 1 退——自 r61-X 起三分如上。
  */
-/* 〔r61-M 改〕名录 35→38：纳赵盾·取橐（badge_zhaodun，r61F 备选「取橐」稿）、郤克·鼓与双枹、栾书·三军之营（NEW）；晋组改 8 人；
+/* 〔r62-M 改〕名录 38→38：去齐僖公·载书入坎（降二级，badge_qixi.svg 留档不删，只解其挂）、纳楚昭王·望山（NEW，站长择定甲稿，裁二百四十三 三1）；
+ * 齐组 7→6、楚组 3→4；点名逐对改为楚昭王对楚组其余三枚及同形近邻（秦穆公·崤函之险——同为山峰）。判据、三尺度、线宽一字未动。
+ * 赵盾、郤克、栾书自此不再标「新」。
+ *
+ * 〔r61-M 改〕名录 35→38：纳赵盾·取橐（badge_zhaodun，r61F 备选「取橐」稿）、郤克·鼓与双枹、栾书·三军之营（NEW）；晋组改 8 人；
  * 点名逐对改为三枚对晋簇其余五枚及同形近邻；判据、三尺度、线宽一字未动。祁奚、韩厥自此不再标「新」。
  *
  * 〔r61-H 改〕名录 34→35：去介之推（降二级，徽记文件留档不删）、纳祁奚·一官三物与韩厥·觞承璧（NEW）；晋组改 5 人；点名逐对改为二枚对晋簇与同形近邻；
@@ -35,10 +39,10 @@ const ICONS = path.join(ROOT, "site", "assets", "icons");
 const KONGZI_SRC = path.join(ICONS, "badge_kongzi.svg");
 const OUT = path.resolve(__dirname, "screenshots");
 
-const NEW = ["badge_zhaodun", "badge_xike", "badge_luanshu"];
+const NEW = ["badge_chuzhao"];
 const NAMES = {
   badge_wenjiang: "文姜·涡纹", badge_qixiang: "齐襄公·雷纹", badge_qihuan: "齐桓公·连环三盟",
-  badge_guanzhong: "管仲·衡轻重", badge_baoshuya: "鲍叔牙·税械", badge_qixi: "齐僖公·载书入坎",
+  badge_guanzhong: "管仲·衡轻重", badge_baoshuya: "鲍叔牙·税械",
   badge_yanying: "晏婴·幅",
   badge_luyin: "鲁隐公·鱼纹", badge_luhuan: "鲁桓公·圭璧", badge_luzhuang: "鲁庄公·鼓纹",
   badge_caogui: "曹刿·辙", badge_zhengzhuang: "郑庄公·蟠虺", badge_zhengzhao: "郑昭公·翎矢",
@@ -46,24 +50,24 @@ const NAMES = {
   badge_jinwen: "晋文公·济河之舟", badge_liji: "骊姬·觚鸩",
   badge_shuxiang: "叔向·昧旦",
   badge_qinmu: "秦穆公·崤函之险", badge_muji: "穆姬·薪火", badge_chucheng: "楚成王·凤纹",
-  badge_chuzhuang: "楚庄王·问鼎", badge_xigui: "息妫·桃花", badge_zhuangjiang: "庄姜·双燕",
+  badge_chuzhuang: "楚庄王·问鼎", badge_chuzhao: "楚昭王·望山（新）", badge_xigui: "息妫·桃花", badge_zhuangjiang: "庄姜·双燕",
   badge_xuanjiang: "宣姜·新台临河", badge_songxiang: "宋襄公·泓上之旆", badge_xiaji: "夏姬·四徙之途",
   badge_helu: "阖庐·鱼中之剑", badge_wuyuan: "伍员·耒",
   badge_fucha: "夫差·庭中之表", badge_goujian: "勾践·甲楯",
   badge_kongzi: "孔子·胡簋",
   badge_qixidafu: "祁奚·一官三物", badge_hanjue: "韩厥·觞承璧",
-  badge_zhaodun: "赵盾·取橐（新）", badge_xike: "郤克·鼓与双枹（新）", badge_luanshu: "栾书·三军之营（新）",
+  badge_zhaodun: "赵盾·取橐", badge_xike: "郤克·鼓与双枹", badge_luanshu: "栾书·三军之营",
 };
 /* 24px 类别图标一并入表——跨尺度关系是第二位判据（design_notes §4），只留痕报数。
    本轮尤须留痕者：huimeng（会盟＝鼎），与新枚同为礼器同尺度。 */
 const CATS = ["lundui", "zhengzhi", "qita", "waijiao", "zaiyi", "xianghui", "huimeng", "zhanzheng", "shisha", "chuben"];
 /* 同弧邻座（同国者同色，撞形代价最高）。孔子入鲁弧为第 5 人。 */
 const GRP = {
-  "齐组 7 人": ["badge_wenjiang", "badge_qixiang", "badge_qihuan", "badge_guanzhong", "badge_baoshuya", "badge_qixi", "badge_yanying"],
+  "齐组 6 人": ["badge_wenjiang", "badge_qixiang", "badge_qihuan", "badge_guanzhong", "badge_baoshuya", "badge_yanying"],
   "鲁组 4→5 人": ["badge_luyin", "badge_luhuan", "badge_luzhuang", "badge_caogui"],
   "郑组 5 人": ["badge_zhengzhuang", "badge_zhengzhao", "badge_wujiang", "badge_jizhong", "badge_zichan"],
   "晋组 5→8 人": ["badge_jinwen", "badge_liji", "badge_shuxiang", "badge_qixidafu", "badge_hanjue", "badge_zhaodun", "badge_xike", "badge_luanshu"],
-  "楚组 3 人": ["badge_chucheng", "badge_chuzhuang", "badge_xigui"],
+  "楚组 3→4 人": ["badge_chucheng", "badge_chuzhuang", "badge_xigui", "badge_chuzhao"],
   "吴组 3 人": ["badge_helu", "badge_wuyuan", "badge_fucha"],
 };
 const LU = GRP["鲁组 4→5 人"];
@@ -155,8 +159,7 @@ let MUST_REDRAW = 0;   // r61-X：须改形之计
      *  孔子×管仲「衡轻重」／介之推「文之渐隐」／息妫「桃花」——三档中曾入最近 6 枚者。 */
     const NAMED = [];
     const jin = ["badge_jinwen","badge_liji","badge_shuxiang","badge_qixidafu","badge_hanjue"];
-    for (const n of NEW) for (const o of [...jin, "badge_zichan","badge_jizhong","badge_qixi","badge_luhuan","badge_chuzhuang","badge_guanzhong","badge_yanying","badge_fucha","badge_qixiang","badge_qihuan"]) NAMED.push([n,o]);
-    NAMED.push(["badge_zhaodun","badge_xike"], ["badge_zhaodun","badge_luanshu"], ["badge_xike","badge_luanshu"]);
+    for (const n of NEW) for (const o of ["badge_chucheng","badge_chuzhuang","badge_xigui","badge_qinmu","badge_xuanjiang","badge_qihuan","badge_songxiang"]) NAMED.push([n,o]);   // r62-M：楚组三枚＋同形近邻
     console.log("\n  —— 点名逐对 ——");
     for (const [a, b] of NAMED) {
       const v = iou(masks[a], masks[b]);

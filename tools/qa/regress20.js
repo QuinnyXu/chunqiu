@@ -17,7 +17,13 @@ function srv(root){return new Promise((res,rej)=>{const s=http.createServer((rq,
 const wire=(page,arr)=>page.on("pageerror",e=>arr.push(e.message));
 const judgeErrs=(arr)=>({red:arr.length>0,why:arr.join(" | ")});
 const INJECT="r62-C 反证：页内注入之未捕之错（经 pageerror 之接线）";
-const IDS=["P_WENJIANG","P_LUHUAN","P_QIXIANG","P_ZHENGZHAO","P_JIZHONG","P_ZHENGZHUANG","P_LUYIN","P_WUJIANG","P_LUZHUANG","P_QIHUAN","P_QIXI","P_JINWEN","P_LIJI","P_QINMU","P_CHUCHENG","P_MUJI","P_CHUZHUANG","P_ZHUANGJIANG","P_XUANJIANG","P_XIGUI"];
+const IDS_R=["P_WENJIANG","P_LUHUAN","P_QIXIANG","P_ZHENGZHAO","P_JIZHONG","P_ZHENGZHUANG","P_LUYIN","P_WUJIANG","P_LUZHUANG","P_QIHUAN","P_QIXI","P_JINWEN","P_LIJI","P_QINMU","P_CHUCHENG","P_MUJI","P_CHUZHUANG","P_ZHUANGJIANG","P_XUANJIANG","P_XIGUI"];
+/* r62-M（三法之「同步」）：本门之回归名单系立门当时之一级，写死于上；今降二级者（如齐僖公 P_QIXI，r62-M）其 `#/p/<id>/…` 落首页，
+ * 页面仍是前一人之图，量得者是陈物而印其名下——是量错对象。故名单与 site/data/people.json 之 is_protagonist=1 取交，
+ * 降者剔出并印其名（非减所断：所剔者已非一级，其页本不存在）。 */
+const IDS_PROTO = new Set(JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "..", "site", "data", "people.json"), "utf8")).filter(p => Number(p.is_protagonist) === 1).map(p => p.id));
+const IDS = IDS_R.filter(id => IDS_PROTO.has(id));
+if (IDS.length < IDS_R.length) console.log("〔r62-M〕回归名单剔出今非一级者：" + IDS_R.filter(id => !IDS_PROTO.has(id)).join("、"));
 (async()=>{
   const pw=require("playwright");
   const baseURL=process.env.QA_BASE_URL||null;

@@ -116,7 +116,7 @@ const PROTAGONISTS = [
   { id: "P_QIHUAN",      color: "", badge: "badge_qihuan",      fallback: "齐桓公" },
   { id: "P_GUANZHONG",   color: "", badge: "badge_guanzhong",   fallback: "管仲" },
   { id: "P_BAOSHUYA",    color: "", badge: "badge_baoshuya",    fallback: "鲍叔牙" },
-  { id: "P_QIXI",        color: "", badge: "badge_qixi",        fallback: "齐僖公" },
+  /* r62-M（裁二百四十、裁二百四十三）：齐僖公降二级（badge_qixi.svg 留档不删，只解其挂），齐分区一级 7→6。 */
   { id: "P_YANYING",     color: "", badge: "badge_yanying",     fallback: "晏婴" },
   { id: "P_LUYIN",       color: "", badge: "badge_luyin",       fallback: "鲁隐公" },
   { id: "P_LUHUAN",      color: "", badge: "badge_luhuan",      fallback: "鲁桓公" },
@@ -137,6 +137,10 @@ const PROTAGONISTS = [
   { id: "P_QINMU",       color: "", badge: "badge_qinmu",       fallback: "秦穆公" },
   { id: "P_CHUCHENG",    color: "", badge: "badge_chucheng",    fallback: "楚成王" },
   { id: "P_CHUZHUANG",   color: "", badge: "badge_chuzhuang",   fallback: "楚庄王" },
+  /* r62-M（裁二百四十 三1、裁二百四十三 三1 站长择定徽记甲）：楚昭王升一级，楚分区一级 3→4。徽记＝望山（badge_chuzhao）：
+   * 取《左传·哀公六年》「三代命祀，祭不越望。江、漢、雎、章，楚之望也……河非所獲罪也」（Q477）——一山二峰、下一水，山川之望。
+   * 楚君之序续于庄王之后；state 只「楚」，home 照任务书明书。 */
+  { id: "P_CHUZHAO",     color: "", badge: "badge_chuzhao",     fallback: "楚昭王", home: "楚" },
   { id: "P_XIGUI",       color: "", badge: "badge_xigui",       fallback: "息妫", home: "楚" },
   { id: "P_LIJI",        color: "", badge: "badge_liji",        fallback: "骊姬" },
   { id: "P_SHUXIANG",    color: "", badge: "badge_shuxiang",    fallback: "叔向" },
@@ -264,8 +268,10 @@ const STATE_EPITHET = {
  * 覆宁绍平原），簇心落其块内偏右下、避开「越」国名（1050,652）；与吴簇心（1086,556）相距 113px，
  * 远过两簇各自的直径，一南一北分属两块，不相犯。 */
 /* r61-M（裁二百二十三 二，站长择定）：晋簇升八枚折两行，簇心 [474,237]→[474,243]（下移 6），免上行压「晋」字下半；只动晋一簇。 */
+/* r62-M（裁二百四十三）：齐簇 7→6。照通则（裁定 7：逾 6 枚方折行）六枚复为单行；单行宽 182 而簇心照旧 [930,176] 则左端压「泰山」之注，
+ * 故簇心移 [958,190]（右 28、下 14）：桌面、手机实测不压「泰山」「汶水」「纪」诸注、不压鲁簇。只动齐一簇。 */
 const HOME_BADGE_POS = {
-  "齐": [930, 176], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 243],
+  "齐": [958, 190], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 243],
   "秦": [152, 300], "楚": [510, 610], "卫": [692, 214],
   "宋": [770, 340], "陈": [732, 384], "吴": [1086, 556], "越": [1104, 668],
 };
