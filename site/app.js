@@ -1817,7 +1817,7 @@ function eventPeopleNode(evt) {
     b.appendChild(pr);
     b.title = p.name + (l.role_in_event ? " · " + l.role_in_event : "") +
       "（" + (PRESENCE_TIP[pv] || pv) + "）" +
-      " —— 点开" + (meta ? "其时间线并定位此事" : "其关系图");
+      " —— 点开" + (hasPersonPage(l.person_id) ? "其时间线并定位此事" : "其关系图");   // r62-W 续命：留页之人同一级
     b.addEventListener("click", (ev) => {
       ev.preventDefault();
       ev.stopPropagation();   // 勿连带切换所在 <details> 的开合
@@ -5468,9 +5468,11 @@ const protoRank = (pid) => {
  * 由编年卡的挂链人物签回人物线时，人是读者点的，不必替他挑（见 goEventPerson）。 */
 
 /* 编年卡「所系人物」签的落点：主角 → 其时间线**并定位到同一条事件**（往返精确到事，不只到人）；
- * 非主角无时间线，落其 ego 关系图（同 goSearchPerson 的既有语义）。 */
+ * 非主角无时间线，落其 ego 关系图（同 goSearchPerson 的既有语义）。
+ * r62-W 续命（裁二百四十九 一，§一百十六）：留页名单中人（RETAINED_PAGES）有时间线，照一级之式入之并定位此事——
+ *   判据由 isProto 改为 hasPersonPage（一级或留页、且在库）；签之样式（徽、国色、is-proto）不动，仍照二级。 */
 function goEventPerson(pid, eid) {
-  if (!(isProto(pid) && PEOPLE[pid])) { goSearchPerson(pid); return; }
+  if (!hasPersonPage(pid)) { goSearchPerson(pid); return; }
   pendingSpot = { view: "timeline", type: "event", eid };
   setHash(pid, "timeline");
 }
@@ -6385,12 +6387,15 @@ function renderTenures() {
     head.appendChild(mk("span", "tn-ord", "第 " + (i + 1) + " 任"));
     const pe = PEOPLE[r.person_id];
     const a = mk("a", "tn-person", pe ? pe.name : r.person_id);
-    a.href = isProto(r.person_id) ? buildHash(r.person_id, "timeline") : buildHash(null, "relations", null, null, r.person_id);
-    a.title = "查看其人物（关系图）";
+    /* r62-W 续命（裁二百四十九 一）：有人物页者（一级或留页，hasPersonPage）入其时间线；余者入其关系页。
+     * 留页之人不经 goSearchPerson（其主条照旧入关系页，搜索之义不改），故此处自判。 */
+    const tnPage = hasPersonPage(r.person_id);
+    a.href = tnPage ? buildHash(r.person_id, "timeline") : buildHash(null, "relations", null, null, r.person_id);
+    a.title = tnPage ? "查看其人物（时间线）" : "查看其人物（关系图）";
     a.addEventListener("click", (ev) => {
       if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button === 1) return;
       ev.preventDefault();
-      goSearchPerson(r.person_id);
+      if (tnPage) setHash(r.person_id, "timeline"); else goSearchPerson(r.person_id);
     });
     head.appendChild(a);
     head.appendChild(mk("span", "tn-years", yrs(r)));

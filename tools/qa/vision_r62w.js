@@ -26,7 +26,16 @@
  *      ① 混一一级入留页单 → §一 须红；② 混一不在库之 id 入留页单 → §一 须红；
  *      ③ parseHash 不认留页（pageMeta 换回只认 PROTAGONISTS）→ §二 须红；
  *      ④ 首页名册混入一留页之人（renderHome 前 push 入 PROTAGONISTS）→ §四 须红。
- *  截图：team/r62W_shots/（桌面、手机；二人三式、首页、资料库、关系侧栏、搜索）。
+ *  §七 W 续命（裁二百四十九 一，§一百十六；2026-10-18 增）：站内人名之链指留页之人者，入其时间线（照一级之式）。
+ *      编年卡人签（goEventPerson）：留页每人取其事之首（(year_bce, sort_key, id) 序），点其签 → `#/p/<id>/timeline`，
+ *        其卡展开且在视口（定位到同一事）；签之 title 书「其时间线并定位此事」。对照：同卡之不在单二级签照旧入
+ *        `#/relations?ego=`；同卡一级签照旧入其时间线并定位。
+ *      晋中军将历任页（renderTenures）：每任之人名链，有人物页者（一级∪留页，由数据与页内单求）href＝其时间线、余者＝其关系页；
+ *        今历任无一人在留页单（实况），故另以页内实注验其活路：取历任中首个不在单之二级，push 入 RETAINED_PAGES、
+ *        重绘，其链须改指其时间线、点之即至。
+ *      反证（续 §六）：⑤ goEventPerson 换回只认一级（isProto）→ 编年签之断须红；
+ *        ⑥ 实注后 pageMeta 换回只认 PROTAGONISTS、重绘历任 → 历任之断须红。
+ *  截图：team/r62W_shots/（桌面、手机；二人三式、首页、资料库、关系侧栏、搜索）；§七 之图入 team/r62W2_shots/。
  */
 "use strict";
 const fs = require("fs"), path = require("path"), http = require("http");
@@ -116,6 +125,47 @@ function judgeHome(got, retIds) {
   const k = got.cards.filter(n => retNames.has(n) || !protoNames.has(n));
   if (k.length) errs.push("首页列表含非一级之卡：" + k.join("、"));
   if (!got.cards.length || !got.cluster.length) errs.push("首页之簇或卡为空（判据空转）");
+  return errs;
+}
+
+/* §七 之量与判（正验与反证共用） */
+async function chronTrip(pg, go, eid, pid) {
+  await go(pg, "#/chronicle", '#chron-list details[data-eid="' + eid + '"]');
+  const pre = await pg.evaluate(({ eid, pid }) => { const d = document.querySelector('#chron-list details[data-eid="' + eid + '"]');
+    d.open = true; chronEnsureBody(d); const b = d.querySelector('.evt-person[data-pid="' + pid + '"]');
+    return b ? { title: b.title } : null; }, { eid, pid });
+  if (!pre) return { err: "卡 " + eid + " 无 " + pid + " 之签" };
+  await pg.click('#chron-list details[data-eid="' + eid + '"] .evt-person[data-pid="' + pid + '"]');
+  await pg.waitForFunction(() => state.view !== "chronicle", null, { timeout: 4000 }).catch(() => {});
+  await pg.waitForTimeout(1200);
+  return { title: pre.title, ...(await pg.evaluate((eid) => {
+    const tl = document.querySelector('#timeline-list details[data-eid="' + eid + '"]');
+    const r = tl ? tl.getBoundingClientRect() : null;
+    return { hash: location.hash, view: state.view, person: state.person, open: !!(tl && tl.open),
+      inView: !!(r && r.bottom > 0 && r.top < innerHeight) };
+  }, eid)) };
+}
+function judgeTripPage(t, pid) {
+  if (t.err) return [t.err];
+  const errs = [];
+  if (t.hash !== "#/p/" + pid + "/timeline" || t.view !== "timeline" || t.person !== pid) errs.push(pid + " 之签落 " + t.hash + "（须 #/p/" + pid + "/timeline）");
+  else if (!(t.open && t.inView)) errs.push(pid + " 之时间线未定位其事（open=" + t.open + "，inView=" + t.inView + "）");
+  if (!/其时间线并定位此事/.test(t.title)) errs.push(pid + " 之签 title 未书「其时间线并定位此事」：" + t.title);
+  return errs;
+}
+async function readTenures(pg) {
+  return pg.evaluate(() => [...document.querySelectorAll("#tn-body .tn-card")].map(li => {
+    const a = li.querySelector("a.tn-person"); return { id: li.id.replace(/^tn-/, ""), href: a.getAttribute("href"), title: a.title }; }));
+}
+function judgeTenures(cards, rows, pageIds) {
+  const errs = [];
+  if (cards.length !== rows.length) errs.push("历任卡 " + cards.length + "≠任 " + rows.length);
+  rows.forEach((r, i) => {
+    const c = cards[i] || {}, page = pageIds.has(r.person_id);
+    const want = page ? "#/p/" + r.person_id + "/timeline" : "#/relations?ego=" + encodeURIComponent(r.person_id);
+    if (c.href !== want) errs.push((PP.get(r.person_id) || {}).name + " 之链 " + c.href + "（须 " + want + "）");
+    if (c.title !== (page ? "查看其人物（时间线）" : "查看其人物（关系图）")) errs.push(r.person_id + " 之 title「" + c.title + "」不合");
+  });
   return errs;
 }
 
@@ -314,6 +364,63 @@ function srv() {
     if (p !== pg) await p.context().close();
   }
 
+  /* ================= §七 W 续命 ================= */
+  const shot2Dir = path.join(ROOT, "team", "r62W2_shots");
+  try { fs.mkdirSync(shot2Dir, { recursive: true }); } catch { /* 无妨 */ }
+  const TN = J("office_tenures");
+  const tnSec = TN.find(r => !PROTO.has(r.person_id) && !RET.includes(r.person_id) && PP.has(r.person_id));
+  const tnProto = TN.find(r => PROTO.has(r.person_id));
+  selfcheck(TN.length > 0 && !!tnSec && !!tnProto, "历任可求（有任；有不在单之二级、有一级）", TN.length + "／" + (tnSec || {}).person_id + "／" + (tnProto || {}).person_id);
+  if (gateErrs) { console.log("门自身出错（前提不成）"); await browser.close(); s.close(); process.exit(2); }
+  const tripCase = {};   // 留页每人：其首事 eid；并其卡之对照签
+  for (const r of reg.ret) {
+    const e = evtsOf(r.id)[0];
+    const others = EP.filter(l => l.event_id === e.id && l.person_id !== r.id && PP.has(l.person_id));
+    tripCase[r.id] = { eid: e.id,
+      sec: (others.find(l => !PROTO.has(l.person_id) && !RET.includes(l.person_id)) || {}).person_id || null,
+      proto: (others.find(l => PROTO.has(l.person_id)) || {}).person_id || null };
+  }
+  for (const [w, h] of [[1440, 900], [375, 812]]) {
+    console.log("\n§七 W 续命（" + w + "px）");
+    const p = w === 1440 ? pg : await mkPage(w, h);
+    for (const r of reg.ret) {
+      const nm = PP.get(r.id).name, c = tripCase[r.id];
+      await go(p, "#/chronicle", '#chron-list details[data-eid="' + c.eid + '"]');
+      await p.evaluate((eid) => { const d = document.querySelector('#chron-list details[data-eid="' + eid + '"]'); d.open = true; chronEnsureBody(d); d.scrollIntoView({ block: "start" }); }, c.eid);
+      await p.waitForTimeout(900);   // 编年长表，待其绘毕再截
+      await p.locator('#chron-list details[data-eid="' + c.eid + '"]').screenshot({ path: path.join(shot2Dir, "r62w2_chron_" + c.eid + "_" + r.id + "_" + w + ".png") });   // 取卡之元素截图（签在卡末）
+      const t = await chronTrip(p, go, c.eid, r.id);
+      const e7 = judgeTripPage(t, r.id);
+      ok(!e7.length, w + "px 编年 " + c.eid + " 之签「" + nm + "」→ 其时间线并定位此事（照一级之式）", e7.join(" | ") || t.hash);
+      await p.screenshot({ path: path.join(shot2Dir, "r62w2_land_" + r.id + "_" + w + ".png") });
+      if (c.sec) {
+        const t2 = await chronTrip(p, go, c.eid, c.sec);
+        ok(t2.hash === "#/relations?ego=" + encodeURIComponent(c.sec) && t2.view === "relations", w + "px 对照：同卡不在单之二级「" + PP.get(c.sec).name + "」之签照旧入其关系页", t2.hash);
+      }
+      if (c.proto) {
+        const t3 = await chronTrip(p, go, c.eid, c.proto);
+        ok(!judgeTripPage(t3, c.proto).length, w + "px 对照：同卡一级「" + PP.get(c.proto).name + "」之签照旧入其时间线并定位", judgeTripPage(t3, c.proto).join(" | "));
+      }
+    }
+    // 晋中军将历任：实况
+    await go(p, "#/tenures", "#tn-body .tn-card");
+    const pageIds = new Set([...PROTO, ...RET]);
+    const e8 = judgeTenures(await readTenures(p), TN, pageIds);
+    ok(!e8.length, w + "px 历任 " + TN.length + " 任之人名链：有人物页者（今 " + TN.filter(r => pageIds.has(r.person_id)).length + " 任；其中留页之人 " + TN.filter(r => RET.includes(r.person_id)).length + " 任）入其时间线，余者入其关系页", e8.slice(0, 3).join(" | "));
+    // 实注：取历任首个不在单之二级入留页单，重绘
+    const injId = "tn-" + TN.find(r => r.person_id === tnSec.person_id).id;
+    await p.evaluate((pid) => { RETAINED_PAGES.push({ id: pid, color: "", badge: "badge_jiezhitui", fallback: "x", home: "晋" }); renderTenures(); }, tnSec.person_id);
+    const e9 = judgeTenures(await readTenures(p), TN, new Set([...pageIds, tnSec.person_id]));
+    ok(!e9.length, w + "px 实注「" + PP.get(tnSec.person_id).name + "」入留页单、重绘 → 其链改指其时间线（余任不变）", e9.slice(0, 3).join(" | "));
+    await (await p.$("#" + injId)).screenshot({ path: path.join(shot2Dir, "r62w2_tenure_inject_" + w + ".png") });
+    await p.click("#" + injId + " a.tn-person");
+    await p.waitForFunction(() => state.view !== "tenures", null, { timeout: 4000 }).catch(() => {});
+    await p.waitForTimeout(300);
+    const st = await p.evaluate(() => ({ view: state.view, person: state.person, hash: location.hash }));
+    ok(st.view === "timeline" && st.person === tnSec.person_id, w + "px 实注后点其名 → 至其时间线", JSON.stringify(st));
+    if (p !== pg) await p.context().close();
+  }
+
   /* ================= §六 反证 ================= */
   console.log("\n§六 反证（任一不红 → exit 2）");
   const anti = (red, label) => { if (red) console.log("  ✓ 【反证·如期而红】" + label); else { gateErrs++; console.log("  ⚠ 【反证·★ 不红：门自身出错】" + label); } };
@@ -340,6 +447,25 @@ function srv() {
     await pg.waitForTimeout(400);
     const r4 = judgeHome(await readHome(pg), RET);
     anti(r4.length > 0, "④ 首页名册混入留页之人 → §四 红：" + r4.slice(0, 2).join("；"));
+  }
+
+  {
+    const r = reg.ret[0], c = tripCase[r.id];
+    await go(pg, "#/", "#person-groups .person-card");
+    await pg.evaluate(() => { goEventPerson = function (pid, eid) {   // eslint-disable-line no-global-assign
+      if (!(isProto(pid) && PEOPLE[pid])) { goSearchPerson(pid); return; }
+      pendingSpot = { view: "timeline", type: "event", eid }; setHash(pid, "timeline"); }; });
+    const softGo = async (p, h, sel) => { await p.evaluate((hh) => { location.hash = hh; }, h); await p.waitForSelector(sel, { state: "attached" }); await p.waitForTimeout(300); };
+    const r5 = judgeTripPage(await chronTrip(pg, softGo, c.eid, r.id), r.id);
+    anti(r5.some(x => x.includes("之签落")), "⑤ goEventPerson 换回只认一级 → §七 编年签红：" + r5.slice(0, 1).join("；"));
+  }
+  {
+    await go(pg, "#/tenures", "#tn-body .tn-card");
+    const pageIds = new Set([...PROTO, ...RET, tnSec.person_id]);
+    await pg.evaluate((pid) => { RETAINED_PAGES.push({ id: pid, color: "", badge: "badge_jiezhitui", fallback: "x", home: "晋" });
+      pageMeta = (id) => PROTAGONISTS.find(m => m.id === id) || null; renderTenures(); }, tnSec.person_id);   // eslint-disable-line no-global-assign
+    const r6 = judgeTenures(await readTenures(pg), TN, pageIds);
+    anti(r6.some(x => x.includes(PP.get(tnSec.person_id).name)), "⑥ 实注后 pageMeta 只认一级、重绘历任 → §七 历任红：" + r6.slice(0, 1).join("；"));
   }
 
   await browser.close(); s.close();
