@@ -117,11 +117,32 @@ const PROTAGONISTS = [
   { id: "P_GUANZHONG",   color: "", badge: "badge_guanzhong",   fallback: "管仲" },
   { id: "P_BAOSHUYA",    color: "", badge: "badge_baoshuya",    fallback: "鲍叔牙" },
   /* r62-M（裁二百四十、裁二百四十三）：齐僖公降二级（badge_qixi.svg 留档不删，只解其挂），齐分区一级 7→6。 */
+  /* r62-U-乙（裁二百四十九 二；站长示可 §一百十七 二2）：升鲁、齐五人，齐分区一级 6→8、鲁 5→8，全库 44→49。
+   * 齐、鲁二组之序：一则贯之——**新人依其徽记所取之事之年插入组内年序之位，旧人相对之序一字不动**；
+   *   五人之徽记年序与其库中首见之序（(year_bce, sort_key, id) 之首事）俱同，无二解。
+   *   齐：鲍叔牙（庄九）→ 崔杼（襄二十五，前 548；首见前 599）→ 晏婴（襄二十八，前 545；首见前 556）→ 陈恒（哀二十七，前 468；首见前 481）。
+   *   鲁：曹刿（庄十）→ 季文子（襄五，前 568；首见前 621）→ 穆姜（襄九，前 564；首见前 608）→ 叔孙豹（昭元，前 541；首见前 575）→ 孔子（哀十一，前 484）。
+   * 徽记取材（俱经传与《国语》本文，不取《诗》、不取后出层；画其人之行；出稿与撞形之量见 team/r62VU_yi_drafts/）：
+   *   崔杼＝大宫（badge_cuizhu）：Q276「崔杼立而相之……盟國人於大宮」——重檐屋顶、二楹；
+   *   陈恒＝鞭（badge_chenheng）：Q720「馬不出者．助之鞭之」——策柄缠束、鞭梢回曲。
+   * 二人 state 只「齐」，省 home（同晋组之例）。 */
+  { id: "P_CUIZHU",      color: "", badge: "badge_cuizhu",      fallback: "崔杼" },
   { id: "P_YANYING",     color: "", badge: "badge_yanying",     fallback: "晏婴" },
+  { id: "P_CHENHENG",    color: "", badge: "badge_chenheng",    fallback: "陈恒" },
   { id: "P_LUYIN",       color: "", badge: "badge_luyin",       fallback: "鲁隐公" },
   { id: "P_LUHUAN",      color: "", badge: "badge_luhuan",      fallback: "鲁桓公" },
   { id: "P_LUZHUANG",    color: "", badge: "badge_luzhuang",    fallback: "鲁庄公" },
   { id: "P_CAOGUI",      color: "", badge: "badge_caogui",      fallback: "曹刿" },
+  /* r62-U-乙（同上）：鲁三人续曹刿、在孔子前（序之由见齐组注）。徽记取材：
+   *   季文子＝马不食粟（badge_jiwenzi）：Q777（襄五传）「無衣帛之妾．無食粟之馬」、Q778（《国语·鲁语上》）「妾不衣帛，馬不食粟」
+   *     ——马首侧影、前一丛刍（画其俭之所见，不画粟）；
+   *   穆姜＝艮（badge_mujiang）：Q782（襄九传）「始往而筮之．遇艮之八」——艮之经卦三画（上一阳、下二阴）；
+   *     **所画为筮所得之卦，非其「元亨利贞」之论**（四德之论不可画，以其所驳之卦当之）；
+   *   叔孙豹＝裂帛（badge_shusunbao）：Q788（昭元传，虢之会）「召使者裂裳帛而與之．曰帶其褊矣」——一条裂端参差之帛带。
+   * 穆姜 state「齐/鲁」，首国为齐，照任务书明书 home「鲁」（所嫁之国，其事俱在鲁）；季文子、叔孙豹 state 只「鲁」，省 home。 */
+  { id: "P_JIWENZI",     color: "", badge: "badge_jiwenzi",     fallback: "季文子" },
+  { id: "P_MUJIANG",     color: "", badge: "badge_mujiang",     fallback: "穆姜", home: "鲁" },
+  { id: "P_SHUSUNBAO",   color: "", badge: "badge_shusunbao",   fallback: "叔孙豹" },
   /* 孔子为鲁色家族第 5 位、全库第 34 位主角（r49 裁定三：胡簋定稿过裁，随本件升位）。
    * 其 state 只「鲁」一国，不需 home 覆盖；全景环序由 panoPeople() 的 id 排序自然落 i=8
    * （齐弧 7 人在前，鲁弧内 P_CAOGUI ＜ P_KONGZI ＜ P_LUHUAN），左曹刿、右鲁桓公，
@@ -355,11 +376,35 @@ const STATE_EPITHET = {
  * 旧点本已压放大后之「卫」字（26 号字盒 [684.7,200.2]–[711.1,226.6]，正当簇心），r12 以来之遗，此笔并治。卫块小而字大，
  * 七枚不压字则五枚出块；落字西、上行在块内。实测 1440 距卫字 6.1、周字 15.3、河水 20.9，375 依次 2.6／5.7／7.4，
  * 邻簇郑 9.2、晋 10.9（375，屏 px）（team/r62U_jia_drafts/README.md 二）。只改坐标，不动 clusterSlots；只动卫一簇。 */
+/* r62-V（裁二百四十八 四「首页簇之上下则」；裁二百四十九 二、三1；站长示可 §一百十七 二1、二3）：
+ * ★ **北国居上、中原南国居下**——簇之锚义自此分二（HOME_BADGE_ANCHOR，见 clusterSlots）：
+ *   - 居上（"up"：秦、晋、卫、齐）：坐标＝簇**最下行**之心，簇整在国名之上，加人则向上生长（远离国名）；
+ *   - 居下（"down"：鲁、郑、宋、陈、许、楚、吴、越）：坐标＝簇**最上行**之心，簇整在国名之下（郑例外，见下），加人则向下生长；
+ *   - ≤6 枚单行时三法同位（坐标即行心），故许、楚、吴、越之今坐标一字不动而义随锚。
+ * 诸坐标（底图单位）与其所治：
+ *   秦 [152,300]→[121,262] 居上：旧位压「秦」字；居下者满 10 压秦岭山形，居上满 10 不压。
+ *   晋 [474,243]→[386,168] 居上（贴国名之左上）：簇与晋块相属；正上之点隔汾水注而远（离名 56），不取。
+ *   卫 [631,234]→[697,151] 居上：唯一满 10 不压之上位（近点 [653,179] 满 10 压河水）。
+ *   齐 [958,190]→[935,99] 居上：唯一之案；旧位满 10 压泰山。
+ *   鲁 [847,256]→[857,264] 居下（站长言「照今位」；照今位今法 8 枚压「鲁」字二处，右 10、下 8 即不压——今位之微移，非改其所）。
+ *   郑 [635,306]→[635,278]：**居名之上**（坐标义仍是居下之「最上行心」，今 5 枚单行；郑名之下是许与颍水，无地）——
+ *     旧位压「嵩山」注与山形、「郑」字，上移 28 即净。
+ *   宋 [770,340]→[761,350]、陈 [732,384]→[705,412]：俱移于其名之下（旧位一枚贴压其名）。
+ *   许 [610,361]、楚 [510,610]、吴 [1086,556]、越 [1104,668]：不动。
+ * 今数与满 10 之实量见 team/r62VU_yi_drafts/cluster_table.md（出稿）与 team/r62VU_yi_shots/（落笔实看）。
+ * ★ 登记（裁二百四十九 三2、3）：中原四国（郑宋陈许）满 10 必互压——块小而相挤，是地图之实；越满 10 第二行出图。
+ *   他日中原某国或越之一级逾 5，另议（或缩簇、或改其法），不在本表。 */
 const HOME_BADGE_POS = {
-  "齐": [958, 190], "鲁": [847, 256], "郑": [635, 306], "晋": [474, 243],
-  "秦": [152, 300], "楚": [510, 610], "卫": [631, 234],
-  "宋": [770, 340], "陈": [732, 384], "吴": [1086, 556], "越": [1104, 668],
+  "齐": [935, 99], "鲁": [857, 264], "郑": [635, 278], "晋": [386, 168],
+  "秦": [121, 262], "楚": [510, 610], "卫": [697, 151],
+  "宋": [761, 350], "陈": [705, 412], "吴": [1086, 556], "越": [1104, 668],
   "许": [610, 361],
+};
+/* 簇之锚（r62-V，义见上）：不列者照 r27 之上下对称（今无不列者；留此缺省以免新国未列即无位）。 */
+const HOME_BADGE_ANCHOR = {
+  "秦": "up", "晋": "up", "卫": "up", "齐": "up",
+  "鲁": "down", "郑": "down", "宋": "down", "陈": "down", "许": "down",
+  "楚": "down", "吴": "down", "越": "down",
 };
 const HOME_PENDING = "人物线整理中";
 /* 轨迹降级（r19b 通用机制）：亲至可落图地点不足两处者，无从连成轨迹，
@@ -885,14 +930,25 @@ function ellipseFinalGeom(el) {
  *     6 枚行宽 182 尚在多数色块的可用宽度边缘，故门槛定在「超 6」，即第 7 枚起折。
  *  ② **上行取 floor(n/2)、下行取 ceil(n/2)**——即较宽的一行在下。国名标注一律在簇之上
  *     （首页地图国名放大至 26px），把窄行放在上方可少压字；两行各自居中于簇心 x。
- * 行距 rowGap 须 ≥ 2R（27）方不相压，取 29 留 2px。 */
-function clusterSlots(metas, pos, gap, rowGap, fold) {
+ * 行距 rowGap 须 ≥ 2R（27）方不相压，取 29 留 2px。
+ *
+ * r62-V 加第六参 anchor（裁二百四十八 四「首页簇之上下则」；折行之数不改：仍逾 fold 枚折二行）：
+ *  - "up"（居上之国）：pos ＝ **最下行**之心，第二行在其上 rowGap；行序「上宽下窄」（ceil 在上、floor 在下）——
+ *    簇在国名之上，窄行贴名少压字，同 ② 之理而方向反之；
+ *  - "down"（居下之国）：pos ＝ **最上行**之心，第二行在其下 rowGap；行序「上窄下宽」（同 ②，窄行贴名）；
+ *  - 不传：r27 之法一字不变（pos ＝ 二行之中，上窄下宽）。
+ *  单行（≤ fold）时三法同位：cy ＝ pos[1]。 */
+function clusterSlots(metas, pos, gap, rowGap, fold, anchor) {
   const n = metas.length;
-  const rows = n > fold ? [metas.slice(0, Math.floor(n / 2)), metas.slice(Math.floor(n / 2))]
-                        : [metas];
+  const fl = Math.floor(n / 2), ce = Math.ceil(n / 2);
+  const rows = n <= fold ? [metas]
+             : anchor === "up" ? [metas.slice(0, ce), metas.slice(ce)]
+             : [metas.slice(0, fl), metas.slice(fl)];
   const out = [];
   rows.forEach((row, ri) => {
-    const cy = pos[1] + (rows.length === 1 ? 0 : (ri - (rows.length - 1) / 2) * rowGap);
+    const cy = anchor === "up" ? pos[1] - (rows.length - 1 - ri) * rowGap
+             : anchor === "down" ? pos[1] + ri * rowGap
+             : pos[1] + (rows.length === 1 ? 0 : (ri - (rows.length - 1) / 2) * rowGap);
     const x0 = pos[0] - ((row.length - 1) * gap) / 2;
     row.forEach((meta, i) => out.push({ meta, cx: x0 + i * gap, cy }));
   });
@@ -961,7 +1017,9 @@ function buildHomeMap() {
     if (!pos) continue;
     const cl = document.createElementNS(NS, "g");
     cl.setAttribute("class", "home-cluster");
-    for (const { meta, cx, cy } of clusterSlots(metas, pos, BADGE_GAP, BADGE_ROW, BADGE_FOLD)) {
+    cl.dataset.state = st;               // r62-V：簇之所属国（门据之求其锚，aria-hidden 之层，不入读屏）
+    cl.dataset.anchor = HOME_BADGE_ANCHOR[st] || "";
+    for (const { meta, cx, cy } of clusterSlots(metas, pos, BADGE_GAP, BADGE_ROW, BADGE_FOLD, HOME_BADGE_ANCHOR[st])) {
       const c = document.createElementNS(NS, "circle");
       c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", BADGE_R);
       c.setAttribute("fill", meta.color);

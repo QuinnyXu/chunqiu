@@ -1125,8 +1125,10 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   const trip2 = await p.evaluate(async () => {
     const d = document.querySelector('#chron-list [data-eid="E205"]');
     d.querySelector("summary").click(); await new Promise(r => setTimeout(r, 250));
-    const btn = [...d.querySelectorAll(".evt-person")].find(e => e.dataset.pid === "P_CUIZHU");
-    if (!btn) return { err: "无崔杼签" };
+    /* r62-U-乙：原写死崔杼为「非主角签」之样本，崔杼升一级后本断必红——照三法「另路求之」：取同卡（E205）中
+     * 首个无人物页者（!hasPersonPage：非一级、非留页）之签；判据一字不动。 */
+    const btn = [...d.querySelectorAll(".evt-person")].find(e => !hasPersonPage(e.dataset.pid));
+    if (!btn) return { err: "E205 无非主角签" };
     const pid = btn.dataset.pid;   // r61-V：期值以所点之签之 data-pid 书之（裁二百三十 二1），不另写死
     btn.click(); await new Promise(r => setTimeout(r, 1400));
     return { pid, hash: location.hash, view: state.view, center: relView.mode === "ego" ? relView.center : null,
@@ -1137,7 +1139,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   // `#/relations?ego=<所点之签之 data-pid>`，并加「以其为中心」一断——较旧断言更严，不松。
   OK(!!trip2.pid && trip2.hash === "#/relations?ego=" + encodeURIComponent(trip2.pid) && trip2.view === "relations" &&
      trip2.focus && trip2.center === trip2.pid,
-     "编年卡非主角签（崔杼，本库无其时间线）→ 落其关系图，人在图上——全库事件的人也一并可达");
+     "编年卡非主角签（" + (trip2.pid || "—") + "，本库无其时间线）→ 落其关系图，人在图上——全库事件的人也一并可达");
 
   // 轻筛选：按国／按分类／交集／清除／空态
   await p.goto(origin + "/#/chronicle", { waitUntil: "load" }); await p.waitForTimeout(1300);
@@ -1529,7 +1531,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
    * 缺口不在某一处呈现坏了，而在**两份名册各走各的**，且没有任何一处把它们对起来。
    * 故本门一律对账式：不问「是不是 29」，只问「六处呈现各自数出来的人，跟名册对不对得上」。 */
   H("17) r26b 晏婴（齐7）· 叔向（晋4）上线：名册对账与六处呈现");
-  const NEWP = [{ id: "P_YANYING", name: "晏婴", state: "齐", badge: "badge_yanying", nth: 6 },   // r62-M：齐僖公降二级（原齐组第 6 位），晏婴顺位 7→6；只随名单同步，断言不变
+  const NEWP = [{ id: "P_YANYING", name: "晏婴", state: "齐", badge: "badge_yanying", nth: 7 },   // r62-M：齐僖公降二级（原齐组第 6 位），晏婴顺位 7→6；r62-U-乙：崔杼升一级、序在晏婴前，晏婴顺位 6→7；只随名单同步，断言不变
                 { id: "P_SHUXIANG", name: "叔向", state: "晋", badge: "badge_shuxiang", nth: 3 }]; // r61-H：介之推降二级（原晋组第 2 位），叔向顺位 4→3；只随名单同步，断言不变
   await p.goto(origin + "/#/?home=list", { waitUntil: "load" }); await p.waitForTimeout(1200);
   const pick = await p.evaluate((NEWP) => {
@@ -1823,7 +1825,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
         if (!rows.has(y)) rows.set(y, []); rows.get(y).push(+c.getAttribute("cx")); });
       const r = +cs[0].getAttribute("r");
       const ys = [...rows.keys()].sort((a, b) => a - b);
-      return { n: cs.length, r, ys,
+      return { n: cs.length, r, ys, st: g.dataset.state, anchor: g.dataset.anchor || "", pos: HOME_BADGE_POS[g.dataset.state],
                rows: ys.map(y => { const xs = rows.get(y).sort((a, b) => a - b);
                  return { y, n: xs.length, w: +(xs[xs.length - 1] - xs[0] + 2 * r).toFixed(1),
                           mid: +((xs[0] + xs[xs.length - 1]) / 2).toFixed(1) }; }),
@@ -1835,7 +1837,18 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
   const big = fold.filter(c => c.n > 6), small = fold.filter(c => c.n <= 6);
   OK(big.length > 0 && big.every(c => c.rows.length === 2), "超 6 枚者一律折两行（现 " + big.length + " 簇：" + big.map(c => c.names[0] + "组" + c.n + "枚").join("、") + "）");
   OK(small.every(c => c.rows.length === 1), "≤6 枚者仍单行（" + small.length + " 簇）");
-  OK(big.every(c => c.rows[0].n <= c.rows[1].n), "折行取「上窄下宽」——国名在簇之上，窄行让字");
+  /* r62-V（裁二百四十八 四「首页簇之上下则」）同步：折行之序随锚——居上（up）之簇在国名之上，窄行在下贴名，即「上宽下窄」；
+   * 居下（down）与对称者，国名在簇之上，仍「上窄下宽」。判据（窄行贴名）不变，只随锚分向；并验锚义：
+   * up 之最下行、down 之最上行、对称者二行之中，其 y 恒＝HOME_BADGE_POS 之 y（单行者三法同位，亦验之）。 */
+  OK(big.every(c => c.anchor === "up" ? c.rows[0].n >= c.rows[1].n : c.rows[0].n <= c.rows[1].n),
+     "折行之序随锚：居上之簇「上宽下窄」、余者「上窄下宽」——窄行一律贴国名（" + big.map(c => c.st + (c.anchor || "对称") + " " + c.rows.map(r => r.n).join("+")).join("、") + "）");
+  const anchorBad = fold.filter(c => { if (!c.pos) return true;
+    const want = c.rows.length === 1 ? c.ys[0] : c.anchor === "up" ? c.ys[c.ys.length - 1] : c.anchor === "down" ? c.ys[0] : (c.ys[0] + c.ys[1]) / 2;
+    return Math.abs(want - c.pos[1]) > 0.01 || c.rows.some(r => Math.abs(r.mid - c.pos[0]) > 0.05); });
+  OK(fold.length > 0 && anchorBad.length === 0, "锚义：诸簇（" + fold.length + "）之锚行 y 与行心 x ＝ HOME_BADGE_POS（" + (anchorBad.map(c => c.st).join("、") || "无差") + "）");
+  // 锚之所属照裁（裁二百四十八 四；站长示可 §一百十七）：北国秦晋卫齐居上，余国一律居下——写裁于门，表若失其锚即红
+  const upSet = fold.filter(c => c.anchor === "up").map(c => c.st).sort().join(""), offSet = fold.filter(c => c.anchor !== "up" && c.anchor !== "down").map(c => c.st);
+  OK(upSet === ["秦", "晋", "卫", "齐"].sort().join("") && offSet.length === 0, "锚之所属：居上＝秦晋卫齐（实 " + upSet + "），余国俱居下（无锚者：" + (offSet.join("、") || "无") + "）");
   OK(big.every(c => c.rows.every(r => Math.abs(r.mid - c.rows[0].mid) < 0.05)), "两行各自居中于同一簇心 x");
   OK(big.every(c => c.ys[1] - c.ys[0] >= 2 * c.r), "行距 " + (big[0] ? (big[0].ys[1] - big[0].ys[0]).toFixed(1) : "—") + " ≥ 2R " + (big[0] ? 2 * big[0].r : "—") + "，两行不相压");
   const qiOld = big[0] ? (31 * (big[0].n - 1) + 27) : 0;
