@@ -5090,6 +5090,25 @@ function drawStateHalos(layer, people, CX, CY, R, NS) {
  * PANO_BADGE_SW 徽记线宽（源文件 2 → 呈现 2.6），以 CSS 覆盖 SVG 呈现属性，源文件不改。
  * 三者与「徽记源文件一律 stroke-width=2」的规约不冲突：改的只是呈现端。 */
 const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";
+/* 顶、底二弧名签错落（r62-X1；team/round61_prompts.md §一百二十一 裁二百五十 二）：
+ * 环之顶、底二弧（|cos θ|≤PANO_MID_COS，与 text-anchor 居中之判同界）名签居中横排，n 增则槽距缩、相邻之名横向相压
+ * （n=49 实测：顶弧「勾践」「鲍叔牙」「陈恒」相压）。治法最小：二弧之名**依序**一近一远，
+ * 远者沿径向再外推 PANO_LABEL_STAGGER（约一行之高；名签框高于 1440 宽实量 15.1、375 宽 17.3，
+ * 皆以 viewBox 单位计，故取 19）。横排不改；左右二弧（左右对齐者）不动。
+ * 「依序」＝同弧之人按角度连排（顶弧跨 θ=-π/2 两侧，展开后连排），排位奇者为远——
+ * 不按环上序号奇偶：n 为奇时首尾二人（序号 n-1 与 0）同在顶弧而奇偶相同，按序号即二人同远近。
+ * 防线：tools/qa/vision_r62x1.js「全景诸名签之框两两不相交」（1440、375，DOM 实量，不写死人数）。 */
+const PANO_MID_COS = 0.25, PANO_LABEL_STAGGER = 19;
+function panoStaggerSet(nodes) {
+  const far = new Set();
+  for (const top of [true, false]) {
+    const arc = nodes.filter(n => !(Math.abs(Math.cos(n.ang)) > PANO_MID_COS) && (Math.sin(n.ang) < 0) === top)
+      .map(n => ({ n, a: top && n.ang > Math.PI ? n.ang - 2 * Math.PI : n.ang }))
+      .sort((u, v) => u.a - v.a);
+    arc.forEach((u, k) => { if (k % 2 === 1) far.add(u.n.p.id); });
+  }
+  return far;
+}
 /* 全景环上的人物集合（r24a-2 裁定 ②b，即 r24a §4.3 三选项之 C）：
  * **默认只画主角**，勾「显示全部」才回到全库。
  *
@@ -5147,6 +5166,7 @@ function drawPanoGraph() {
   // 国别底晕（裁定1·4）：有主角之国各占一段环弧，极淡国色扇形铺底，使各国阵营一眼可辨。
   // 节点已按 STATE_ORDER 连续排布，同国节点成弧；仅为有主角之国着色，配角国不铺（避免喧闹）。
   drawStateHalos(haloLayer, people, CX, CY, R, NS);
+  const labelFar = panoStaggerSet([...relView.nodes.values()]); // 顶、底二弧名签错落（r62-X1）
 
   relView.edges = [];
   const badgeLayer = document.createElementNS(NS, "g");
@@ -5224,10 +5244,10 @@ function drawPanoGraph() {
       });
     }
     const label = document.createElementNS(NS, "text");
-    const out = node.proto ? 24 : 15;
+    const out = (node.proto ? 24 : 15) + (labelFar.has(node.p.id) ? PANO_LABEL_STAGGER : 0);
     label.setAttribute("x", node.x + Math.cos(node.ang) * out);
     label.setAttribute("y", node.y + Math.sin(node.ang) * out + 4);
-    label.setAttribute("text-anchor", Math.cos(node.ang) > 0.25 ? "start" : (Math.cos(node.ang) < -0.25 ? "end" : "middle"));
+    label.setAttribute("text-anchor", Math.cos(node.ang) > PANO_MID_COS ? "start" : (Math.cos(node.ang) < -PANO_MID_COS ? "end" : "middle"));
     label.textContent = node.p.name;
     g.appendChild(label);
     g.addEventListener("click", () => focusRelNode(node.p.id));

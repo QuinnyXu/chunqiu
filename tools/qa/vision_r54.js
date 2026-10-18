@@ -577,7 +577,37 @@ async function snapshot(br, base, hash, sel, w, h) {
     console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(d) 新块改一旧家族之变量名（卫）→ " + (red ? "当场红" : "★ 不红：门自身出错"));
     if (!red) process.exitCode = 2;
   }
-  const srvOldR = await srv(SITE, { "/app.js": oldAppRosterFam, "/index.html": oldHtml, "/styles.css": oldCssFam });
+  /* r62-X1（2026-10-18；§一百二十一 裁二百五十 二）·控制变量之三：全景顶、底二弧名签错落，故关系页之控制再换入 X1 之四处
+   *   （PANO_MID_COS／PANO_LABEL_STAGGER／panoStaggerSet 一块；labelFar 一行；名签径向距一行；text-anchor 之界一行）。
+   *   四处之新文俱自今版 app.js 实取（不抄于此）；每处旧文须于控制码中恰命中 1 次、新文须于今版恰命中 1 次，否则停门（exit 2）。
+   *   换后控制仍对今版整页**逐位全等**（零容忍）——证「X1 之外关系页无一处别改」。
+   *   自证能红：令一处之旧文缺一字（命中 0 次），其判须红；不红即门自身出错。 */
+  const X1_ANCHORS = (() => {
+    const ring = 'const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";';
+    const i0 = newApp.indexOf(ring), i1 = newApp.indexOf("/* 全景环上的人物集合", i0);
+    const lf = newApp.indexOf("  const labelFar = panoStaggerSet("), lfEnd = newApp.indexOf("\n", lf) + 1;
+    const halos = "  drawStateHalos(haloLayer, people, CX, CY, R, NS);";
+    const hNew = newApp.lastIndexOf(halos, lf);
+    return [
+      [ring + newApp.slice(i0 + ring.length, newApp.indexOf("\n", i0) + 1), i0 < 0 || i1 < 0 ? null : newApp.slice(i0, i1)],
+      [newApp.slice(hNew, lf), lf < 0 || hNew < 0 ? null : newApp.slice(hNew, lfEnd)],
+      ["    const out = node.proto ? 24 : 15;", "    const out = (node.proto ? 24 : 15) + (labelFar.has(node.p.id) ? PANO_LABEL_STAGGER : 0);"],
+      ['label.setAttribute("text-anchor", Math.cos(node.ang) > 0.25 ? "start" : (Math.cos(node.ang) < -0.25 ? "end" : "middle"));',
+       'label.setAttribute("text-anchor", Math.cos(node.ang) > PANO_MID_COS ? "start" : (Math.cos(node.ang) < -PANO_MID_COS ? "end" : "middle"));'],
+    ];
+  })();
+  const x1Cnt = (h, s) => { if (!s) return 0; let n = 0, i = -1; while ((i = h.indexOf(s, i + 1)) >= 0) n++; return n; };
+  const x1Judge = (base, anchors) => anchors.map(([o, n], k) => ({ k, o: x1Cnt(base, o), n: x1Cnt(newApp, n) })).filter(r => r.o !== 1 || r.n !== 1);
+  const x1Bad = x1Judge(oldAppRosterFam, X1_ANCHORS);
+  ok(x1Bad.length === 0, "§〇〔(e) 控制变量之三〕关系页之控制换入 r62-X1 之四处（旧文于控制码、新文于今版，各恰命中 1 次）", JSON.stringify(x1Bad));
+  if (x1Bad.length) { console.log("    ⚠ 控制变量之三之锚失效，停门"); process.exit(2); }
+  const oldAppRosterFamX = X1_ANCHORS.reduce((t, [o, n]) => t.replace(o, () => n), oldAppRosterFam);
+  {
+    const red = x1Judge(oldAppRosterFam, X1_ANCHORS.map(([o, n], k) => [k === 2 ? o.slice(1) + "#" : o, n])).length > 0;
+    console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(e) 一处之旧文改一字 → " + (red ? "当场红" : "★ 不红：门自身出错"));
+    if (!red) process.exitCode = 2;
+  }
+  const srvOldR = await srv(SITE, { "/app.js": oldAppRosterFamX, "/index.html": oldHtml, "/styles.css": oldCssFam });
   const baseOldR = "http://127.0.0.1:" + srvOldR.address().port + "/";
   const br = await chromium.launch();
 
