@@ -201,8 +201,10 @@ const OK = (c, t) => { if (!c) nFail++; say((c ? "  [OK]   " : "  [FAIL] ") + t)
       minD = Math.min(minD, Math.hypot(pano.pts[i].x - pano.pts[j].x, pano.pts[i].y - pano.pts[j].y));
     }
     say(`  环半径 R≈${R.toFixed(1)}；现算槽距 2R·sin(π/${pano.n}) = ${slot.toFixed(2)}px；DOM 实测最近两点 ${minD.toFixed(2)}px`);
-    OK(slot > 30, `槽距 ${slot.toFixed(2)} ＞ 节点直径 30`);
-    OK(slot > 22, `槽距 ${slot.toFixed(2)} ＞ 徽记边长 22`);
+    /* r62-X2（2026-10-18；三法之「另路求之」）：环退役，以平均半径现算之「槽距」失其据（力导向图诸点不在一环上）；
+     *   二断改为 DOM 实测之最近两点（诸主角两两，严于相邻二槽）。原二断照录：OK(slot > 30, …)；OK(slot > 22, …)。 */
+    OK(minD > 30, `〔r62-X2 改写〕诸主角最近两点 ${minD.toFixed(2)} ＞ 节点直径 30`);
+    OK(minD > 22, `〔r62-X2 改写〕诸主角最近两点 ${minD.toFixed(2)} ＞ 徽记边长 22`);
   }
   await p.locator("#rel-canvas").screenshot({ path: path.join(OUT, "r28_05_pano_38.png") }).catch(() => {});
 

@@ -584,7 +584,12 @@ async function snapshot(br, base, hash, sel, w, h) {
    *   自证能红：令一处之旧文缺一字（命中 0 次），其判须红；不红即门自身出错。
    *   X1 续（§一百二十四 裁二百五十一 二 3）：常量块添 PANO_STAGGER_COS（0.5）、PANO_LABEL_STAGGER 19→21、panoStaggerSet 之带改用
    *   PANO_STAGGER_COS、labelFar 行注改——俱在四处之内，新文仍自今版实取，故锚法不变；旧文、新文仍须各恰命中 1 次，反证仍须红。 */
+  /* r62-X2（2026-10-18）：X1 之四处已随环退役而不在今版，故其新文改取 X1 续之提交 `X1_REF`（48d93f6）之 app.js——
+   *   照三法之「旧版对照同取其提交之数」；锚法、命中之断、反证一字不改。今版之关系页另由控制变量之四换入 X2（见下）。 */
+  const X1_REF = "48d93f6";
+  const x1App = execFileSync("git", ["show", X1_REF + ":site/app.js"], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString("utf8");
   const X1_ANCHORS = (() => {
+    const newApp = x1App;   // 本块之内「新文」取 X1_REF（见上注），不取今版
     const ring = 'const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";';
     const i0 = newApp.indexOf(ring), i1 = newApp.indexOf("/* 全景环上的人物集合", i0);
     const lf = newApp.indexOf("  const labelFar = panoStaggerSet("), lfEnd = newApp.indexOf("\n", lf) + 1;
@@ -599,9 +604,9 @@ async function snapshot(br, base, hash, sel, w, h) {
     ];
   })();
   const x1Cnt = (h, s) => { if (!s) return 0; let n = 0, i = -1; while ((i = h.indexOf(s, i + 1)) >= 0) n++; return n; };
-  const x1Judge = (base, anchors) => anchors.map(([o, n], k) => ({ k, o: x1Cnt(base, o), n: x1Cnt(newApp, n) })).filter(r => r.o !== 1 || r.n !== 1);
+  const x1Judge = (base, anchors) => anchors.map(([o, n], k) => ({ k, o: x1Cnt(base, o), n: x1Cnt(x1App, n) })).filter(r => r.o !== 1 || r.n !== 1);
   const x1Bad = x1Judge(oldAppRosterFam, X1_ANCHORS);
-  ok(x1Bad.length === 0, "§〇〔(e) 控制变量之三〕关系页之控制换入 r62-X1 之四处（旧文于控制码、新文于今版，各恰命中 1 次）", JSON.stringify(x1Bad));
+  ok(x1Bad.length === 0, "§〇〔(e) 控制变量之三〕关系页之控制换入 r62-X1 之四处（旧文于控制码、新文于 X1_REF＝" + X1_REF + "（r62-X2 起；原取今版），各恰命中 1 次）", JSON.stringify(x1Bad));
   if (x1Bad.length) { console.log("    ⚠ 控制变量之三之锚失效，停门"); process.exit(2); }
   const oldAppRosterFamX = X1_ANCHORS.reduce((t, [o, n]) => t.replace(o, () => n), oldAppRosterFam);
   {
@@ -609,7 +614,41 @@ async function snapshot(br, base, hash, sel, w, h) {
     console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(e) 一处之旧文改一字 → " + (red ? "当场红" : "★ 不红：门自身出错"));
     if (!red) process.exitCode = 2;
   }
-  const srvOldR = await srv(SITE, { "/app.js": oldAppRosterFamX, "/index.html": oldHtml, "/styles.css": oldCssFam });
+  /* r62-X2（2026-10-18；§一百二十一 裁二百五十 三 6、§一百二十四 裁二百五十一 三）·控制变量之四：关系全景之环改为力导向图。
+   *   关系页之控制再换入 X2 之三区，每区以首、尾二标定界（首标含、尾标不含），**其文俱自今版 app.js 实取**：
+   *     ① 全景绘图区：「/* 国别底晕（r14」（控制码）／「/* 全景节点呈现参数」（今版）起，至「const personName = 」止；
+   *     ② 高亮二函数：「function focusRelNode(」起，至「function relDetailTitle(」止（边名随边淡出二行）；
+   *     ③ 放大查看取框之一行：「  const vb = (src.」（控制码）／「  /* 全景（r62-X2）之内嵌视框」（今版，其注一行）起，
+   *        至「  const clone = src.cloneNode(true);」止（取 data-vb-full）。
+   *   每区之首标于控制码与今版各须恰命中 1 次、尾标须在其后（俱照命中之实而定，不赖行号）；换后之码于区外与换前逐字同（机械断之）。
+   *   换后控制仍对今版整页**逐位全等**（零容忍）——证「X2 之外关系页无一处别改」。
+   *   自证能红：令一区之首标缺一字（命中 0 次），其判须红；不红即门自身出错。
+   *   ★ PROTAGONISTS 块之改（文姜明书 home「齐」，裁二百五十一 四 2）已由控制变量之一（名册块取今版）换入，不另列。 */
+  const X2_REGIONS = [
+    ["/* 国别底晕（r14", "/* 全景节点呈现参数", "const personName = "],
+    ["function focusRelNode(", "function focusRelNode(", "function relDetailTitle("],
+    ["  const vb = (src.", "  /* 全景（r62-X2）之内嵌视框", "  const clone = src.cloneNode(true);"],
+  ];
+  const x2Cut = (t, head, tail) => { const i = t.indexOf(head); if (i < 0 || t.indexOf(head, i + 1) >= 0) return null; const j = t.indexOf(tail, i + head.length); return j < 0 ? null : [i, j]; };
+  const x2Judge = (base, regions) => regions.map(([ho, hn, tl], k) => ({ k, o: x2Cut(base, ho, tl), n: x2Cut(newApp, hn, tl) })).filter(r => !r.o || !r.n);
+  const x2Bad = x2Judge(oldAppRosterFamX, X2_REGIONS);
+  ok(x2Bad.length === 0, "§〇〔(f) 控制变量之四〕关系页之控制换入 r62-X2 之三区（首标于控制码、今版各恰命中 1 次，尾标在其后）", JSON.stringify(x2Bad));
+  if (x2Bad.length) { console.log("    ⚠ 控制变量之四之锚失效，停门"); process.exit(2); }
+  let oldAppRosterFamXF = oldAppRosterFamX;
+  {
+    let outside = true;
+    for (const [ho, hn, tl] of X2_REGIONS) {
+      const [i, j] = x2Cut(oldAppRosterFamXF, ho, tl), [p0, p1] = x2Cut(newApp, hn, tl);
+      const next = oldAppRosterFamXF.slice(0, i) + newApp.slice(p0, p1) + oldAppRosterFamXF.slice(j);
+      if (next.slice(0, i) !== oldAppRosterFamXF.slice(0, i) || next.slice(i + (p1 - p0)) !== oldAppRosterFamXF.slice(j)) outside = false;
+      oldAppRosterFamXF = next;
+    }
+    ok(outside, "§〇〔(f) 控制变量之四〕换入三区后，区外与换前逐字同");
+    const red = x2Judge(oldAppRosterFamX, X2_REGIONS.map(([ho, hn, tl], k) => [k === 0 ? ho.slice(1) + "#" : ho, hn, tl])).length > 0;
+    console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(f) 一区之首标改一字 → " + (red ? "当场红" : "★ 不红：门自身出错"));
+    if (!red) process.exitCode = 2;
+  }
+  const srvOldR = await srv(SITE, { "/app.js": oldAppRosterFamXF, "/index.html": oldHtml, "/styles.css": oldCssFam });
   const baseOldR = "http://127.0.0.1:" + srvOldR.address().port + "/";
   const br = await chromium.launch();
 

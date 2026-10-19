@@ -1912,6 +1912,48 @@ button.chron-chip[aria-pressed="true"] {
 }
 .rel-node.proto text { font-weight: 700; font-size: 15px; }
 .rel-node.focused circle { stroke: var(--cinnabar); stroke-width: 3; }
+/* 关系全景之力导向图（r62-X2）：单指纵滑仍滚页、双指缩放归图；按人即拖人 */
+.pano-svg { touch-action: pan-y; }
+.pano-svg .rel-node { touch-action: none; }
+.pano-edge-hit { pointer-events: stroke; cursor: pointer; }
+.pano-state {
+  font-family: var(--serif);
+  font-size: 44px;
+  font-weight: 700;
+  opacity: 0.13;
+  pointer-events: none;
+}
+.pano-elabel {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  paint-order: stroke;
+  stroke: #FBF7EC;
+  stroke-width: 3px;
+  pointer-events: none;
+}
+.pano-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+}
+.pano-bar .rel-filter { margin-right: auto; }
+.pano-zoom {
+  min-width: 44px;
+  height: 44px;
+  font-size: 18px;
+  line-height: 1;
+  border: 1px solid var(--line);
+  background: var(--silk-panel);
+  color: var(--ink);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.pano-zoom:hover { color: var(--ochre); border-color: var(--ochre); }
+@media (min-width: 681px) { .pano-zoom { min-width: 34px; height: 34px; font-size: 16px; } }
 /* 多重关系数字徽记（并线边中点） */
 .edge-multi { cursor: pointer; }
 .edge-multi text {

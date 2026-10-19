@@ -111,7 +111,10 @@ function mountBaseMap(box, where, needs) {
  * 个人色 --p-<id> 已于 r24a 全数退役——新增主角不需要取色，只需一枚徽记（badge）。
  * home：分区归属覆盖项（武姜按 state 首国本为「申」，人物线全在郑，归郑分区，卡上仍标流向）。 */
 const PROTAGONISTS = [
-  { id: "P_WENJIANG",    color: "", badge: "badge_wenjiang",    fallback: "文姜" },
+  /* r62-X2（裁二百五十一 四，站长定）：女性一级之分区取「事迹所系最多、影响最深之国」，所嫁之国是常例、非定则；
+   * 文姜为特例归齐（state「齐/鲁」首国即齐，值同首国，站无所变）。照蒯聩「明书 home 免链序之疑」之例明书之，
+   * 免后人照「所嫁之国」之例误改为鲁。见 docs/conventions.md §6.7 v1.54 加注。 */
+  { id: "P_WENJIANG",    color: "", badge: "badge_wenjiang",    fallback: "文姜", home: "齐" },
   { id: "P_QIXIANG",     color: "", badge: "badge_qixiang",     fallback: "齐襄公" },
   { id: "P_QIHUAN",      color: "", badge: "badge_qihuan",      fallback: "齐桓公" },
   { id: "P_GUANZHONG",   color: "", badge: "badge_guanzhong",   fallback: "管仲" },
@@ -2980,7 +2983,8 @@ function bindZoomGesture(svg, Z) {
 function openRelOverlay() {
   const src = $("#rel-canvas").querySelector("svg");
   if (!src) return;
-  const vb = (src.getAttribute("viewBox") || "0 0 1000 680").split(/\s+/).map(Number);
+  /* 全景（r62-X2）之内嵌视框随缩放平移而变，取其所记之全图之框（data-vb-full）；以人为中心之图无此记，照旧取 viewBox */
+  const vb = (src.dataset.vbFull || src.getAttribute("viewBox") || "0 0 1000 680").split(/\s+/).map(Number);
   const clone = src.cloneNode(true);
   const overlay = $("#map-overlay");
   overlay.setAttribute("aria-label", "关系图全屏查看");
@@ -5049,84 +5053,212 @@ function egoNodeEl(id, pos, isEgo) {
   return g;
 }
 
-/* 国别底晕（r14，裁定1·4）：为有主角之国各铺一段极淡国色环弧，强化阵营分区。
- * 节点按 STATE_ORDER 首国连续排布，故同国节点占一段连续角；取该段首末节点角±半槽为弧幅，
- * 画环形扇（内 R-46、外 R+28），fill-opacity 0.10 只作底晕、不抢节点与连线。 */
-function drawStateHalos(layer, people, CX, CY, R, NS) {
-  const n = people.length;
-  if (!n) return;
-  const slot = (Math.PI * 2) / n;
-  const angAt = (i) => (i / n) * Math.PI * 2 - Math.PI / 2;
-  const spans = new Map(); // stateKey → [minIdx, maxIdx]
-  people.forEach((p, i) => {
-    const st = panoStateKey(p);
-    if (!STATE_FAMILY_VAR[st]) return; // 仅有主角之国铺底晕
-    const s = spans.get(st);
-    if (!s) spans.set(st, [i, i]);
-    else { s[0] = Math.min(s[0], i); s[1] = Math.max(s[1], i); }
-  });
-  const ri = R - 46, ro = R + 28;
-  for (const [st, [lo, hi]] of spans) {
-    const col = familyColor(st);
-    if (!col) continue;
-    const a0 = angAt(lo) - slot * 0.5, a1 = angAt(hi) + slot * 0.5;
-    const large = (a1 - a0) > Math.PI ? 1 : 0;
-    const P = (r, a) => (CX + r * Math.cos(a)) + " " + (CY + r * Math.sin(a));
-    const d = "M" + P(ro, a0) + " A" + ro + " " + ro + " 0 " + large + " 1 " + P(ro, a1) +
-              " L" + P(ri, a1) + " A" + ri + " " + ri + " 0 " + large + " 0 " + P(ri, a0) + " Z";
-    const wedge = document.createElementNS(NS, "path");
-    wedge.setAttribute("d", d);
-    wedge.setAttribute("fill", col);
-    wedge.setAttribute("fill-opacity", "0.1");
-    wedge.setAttribute("stroke", "none");
-    wedge.setAttribute("class", "rel-halo");
-    layer.appendChild(wedge);
-  }
-}
-
 /* 全景节点呈现参数（r24a §9.3 硬性项实测后上调一档，实测对照见 delivery_vision_r24a §四）：
  * PANO_RING_W  主角节点的绢帛分隔描边宽（2 → 3.4）——国色制下同国同色，靠它划出盘缘；
  * PANO_BADGE   节点内嵌徽记边长（20 → 22）；
  * PANO_BADGE_SW 徽记线宽（源文件 2 → 呈现 2.6），以 CSS 覆盖 SVG 呈现属性，源文件不改。
- * 三者与「徽记源文件一律 stroke-width=2」的规约不冲突：改的只是呈现端。 */
+ * 三者与「徽记源文件一律 stroke-width=2」的规约不冲突：改的只是呈现端。r62-X2 环退役后三者照旧用于力导向图之节点。 */
 const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";
-/* 顶、底二弧名签错落（r62-X1；team/round61_prompts.md §一百二十一 裁二百五十 二；X1 续：§一百二十四 裁二百五十一 二）：
- * 环之顶、底二弧（|cos θ|≤PANO_MID_COS，与 text-anchor 居中之判同界）名签居中横排，n 增则槽距缩、相邻之名横向相压
- * （n=49 实测：顶弧「勾践」「鲍叔牙」「陈恒」相压）。治法最小：近顶底之名**依序**一近一远，
- * 远者沿径向再外推 PANO_LABEL_STAGGER（约一行之高；名签框高于 1440 宽实量 15.1、375 宽 17.3，皆以 viewBox 单位计）。
- * 错落之带另立 PANO_STAGGER_COS（|cos θ|<0.5），宽于居中横排之界 PANO_MID_COS（0.25，不动——左右二弧仍左右对齐）：
- * 过渡带（0.25<|cos θ|<0.5）之名虽左右对齐，同侧相邻二名纵距＝槽距·|cos θ|，小于框高即相压
- * （X1 首笔门实量：1440 韩厥×晋文公，375 另四对；改前即有）。裁二百五十一 二 取甲：带放宽至 0.5、外推 19→21。
- * 按算，带界 0.5 于 375 宽近其限（不错落须 |cos θ|≥0.54），守之者是门，不是余量。
- * 「依序」＝同弧（带内）之人按角度连排（顶弧跨 θ=-π/2 两侧，展开后连排），排位奇者为远——
- * 不按环上序号奇偶：n 为奇时首尾二人（序号 n-1 与 0）同在顶弧而奇偶相同，按序号即二人同远近。
- * 防线：tools/qa/vision_r62x1.js「全景诸名签之框两两不相交」（1440、375，DOM 实量，不写死人数）。 */
-const PANO_MID_COS = 0.25, PANO_STAGGER_COS = 0.5, PANO_LABEL_STAGGER = 21;
-function panoStaggerSet(nodes) {
-  const far = new Set();
-  for (const top of [true, false]) {
-    const arc = nodes.filter(n => Math.abs(Math.cos(n.ang)) < PANO_STAGGER_COS && (Math.sin(n.ang) < 0) === top)
-      .map(n => ({ n, a: top && n.ang > Math.PI ? n.ang - 2 * Math.PI : n.ang }))
-      .sort((u, v) => u.a - v.a);
-    arc.forEach((u, k) => { if (k % 2 === 1) far.add(u.n.p.id); });
-  }
-  return far;
+/* ================================================================== *
+ * 关系全景：力导向图（r62-X2；team/round61_prompts.md §一百二十一 裁二百五十 三、§一百二十四 裁二百五十一 三）
+ * ------------------------------------------------------------------
+ * 由：主角增至 54（U-丙）则旧环（R=252 等分）之槽距 29.3 小于节点直径 30，节点相叠——固定之环已到其限。
+ *   站长定「自写的力导向图」（丁），锚「按甲」（各国团锚于环上扇区，今环之序）。
+ *   自写，不引 ECharts（红线 6，零运行时依赖）；力参照 StoryMatrix（repulsion 900、edgeLength 140–260、gravity 0.05）而自调。
+ *   旧环之国别底晕（扇形）与顶底名签错落（r62-X1：PANO_MID_COS／PANO_STAGGER_COS／PANO_LABEL_STAGGER／panoStaggerSet）随环退役；
+ *   「名签两两不相交」之门（tools/qa/vision_r62x1.js）于本图之上重立。
+ *
+ * 力（单位＝viewBox 单位；以下所书即 PANO_FORCE 之实参）：
+ *   斥力   F = REP/d              诸对；REP 200（StoryMatrix 900 原样则图铺约 2000 宽）；异国二人之对再乘 XREP 1.2
+ *   边引力 F = KS·(d − L)         KS 0.04；L 由此对关系之数定：1→200、2→170、≥3→140，再乘 ELK 0.6
+ *   向心   F = GRAV·(c − x)       GRAV 0.08；c＝(500, 340)
+ *   国聚   F = COH·(锚 − x)       COH 0.1；锚甲＝其国于今环之序上所占扇区之中角，半径 RA 300
+ *   国心   F = CTR·(本国他人之心 − x)   CTR 0.02（其国在图二人以上者）
+ *   阻尼 FRIC 0.55；每步位移之限 2＋40·(1 − s/STEPS)；STEPS 600。
+ *   名签不相压：后半程（s ＞ 0.45·STEPS）起，各人「节点＋名签」之矩形两两相斥；终以逐对推开收尾，至无交为止（至多 800 遍）。
+ *     二者共一开关 LABEL（默认开）；门之反证（tools/qa/vision_r62x1.js §四）关之，「名签两两不相交」须红。
+ * 调参之由（离群之量，裁二百五十一 三3；量法见 panoOutliers）：出稿之参（COH 0.08，无 CTR、XREP）只主角视图离群 3
+ *   （晋文公、宣姜、楚成王）；COH 0.08→0.1、加国心 CTR 0.02、异国斥力 ×1.2 后为 0。未硬调国聚：COH 只增 0.02；
+ *   边长对其本长之比，中位 1.13→1.11，P90 1.92→2.13（跨国之边略长）。量表见交付说明。
+ * 网格分桶（n ＞ GRID_MIN 100，即「显示全部」）：格边 CELL 150；同格及八邻之对逐对算（斥力＋名签矩形），
+ *   远格以其质心与人数代之（远场不分国，不施 XREP）；收尾推开亦只查近格。
+ * 定形：初位＝其国之锚＋由 id 之 FNV-1a 哈希所定之偏移；步数定；无 Math.random；不读屏宽、不量字
+ *   （名签之宽以字数估之：汉字 1em、余 0.6em），故同数据同图、诸宽同坐标。
+ *   布局所用之边取在图诸人间之全部关系，不随「仅主角边」而变（该开关只滤所绘之边），故切之不重排；
+ *   拖动只改所绘之位，重绘即复其定形。
+ */
+const PANO_FORCE = { REP: 200, KS: 0.04, GRAV: 0.08, COH: 0.1, CTR: 0.02, XREP: 1.2, ELK: 0.6, FRIC: 0.55,
+                     STEPS: 600, RA: 300, CELL: 150, GRID_MIN: 100, PAD: 2, LABEL: true };
+function panoHash(s) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h >>> 0;
 }
-/* 全景环上的人物集合（r24a-2 裁定 ②b，即 r24a §4.3 三选项之 C）：
+const panoLabelEm = (name) => [...name].reduce((w, ch) => w + (/[⺀-鿿豈-﫿]/.test(ch) ? 1 : 0.6), 0);
+/* 布局本体（纯函数，不碰 DOM）：N[i] = { id, st, r, fs, lw }，须已按 panoPeople 之序；links[k] = { i, j, k: 此对关系之数 }。
+ * 返其 x、y 写回 N[i]；另返 { pass, left }（收尾推开之遍数、余交之数）。 */
+function panoLayout(N, links, over) {
+  const P = Object.assign({}, PANO_FORCE, over || {});
+  const n = N.length, STEPS = P.STEPS, PAD = P.PAD, CX = 500, CY = 340;
+  const spans = new Map();
+  N.forEach((v, i) => { const s = spans.get(v.st); if (!s) spans.set(v.st, [i, i]); else s[1] = i; });
+  const sid = new Map([...spans.keys()].map((k, i) => [k, i])), nst = sid.size;
+  const X = new Float64Array(n), Y = new Float64Array(n), VX = new Float64Array(n), VY = new Float64Array(n),
+        AX = new Float64Array(n), AY = new Float64Array(n), HW = new Float64Array(n), T = new Float64Array(n),
+        B = new Float64Array(n), S = new Int32Array(n), FX = new Float64Array(n), FY = new Float64Array(n);
+  N.forEach((v, i) => {
+    const [lo, hi] = spans.get(v.st), a = ((lo + hi) / 2 / n) * Math.PI * 2 - Math.PI / 2;
+    AX[i] = CX + P.RA * Math.cos(a); AY[i] = CY + P.RA * Math.sin(a); S[i] = sid.get(v.st);
+    HW[i] = Math.max(v.r, v.lw * 0.56 + 2) + PAD; T[i] = v.r + PAD; B[i] = v.r + 3 + v.fs * 1.25 + PAD;
+    const h = panoHash(v.id), ang = (h % 3600) / 3600 * Math.PI * 2, rr = 20 + ((h >>> 12) % 1000) / 1000 * 50;
+    X[i] = AX[i] + Math.cos(ang) * rr; Y[i] = AY[i] + Math.sin(ang) * rr;
+  });
+  const LI = new Int32Array(links.length), LJ = new Int32Array(links.length), LL = new Float64Array(links.length);
+  links.forEach((L, k) => { LI[k] = L.i; LJ[k] = L.j; LL[k] = (L.k >= 3 ? 140 : (L.k === 2 ? 170 : 200)) * P.ELK; });
+  const REP = P.REP, XREP = P.REP * P.XREP;
+  /* 一对之力：斥力（异国者乘 XREP）；后半程另加「节点＋名签」矩形之相斥 */
+  const pair = (i, j, late) => {
+    let dx = X[i] - X[j], dy = Y[i] - Y[j], d2 = dx * dx + dy * dy;
+    if (d2 < 1e-4) { dx = (i - j) * 0.01; dy = 0.01; d2 = dx * dx + dy * dy; }
+    const f = (S[i] === S[j] ? REP : XREP) / d2;
+    FX[i] += dx * f; FY[i] += dy * f; FX[j] -= dx * f; FY[j] -= dy * f;
+    if (!late || !P.LABEL) return;
+    const ox = Math.min(X[i] + HW[i], X[j] + HW[j]) - Math.max(X[i] - HW[i], X[j] - HW[j]);
+    if (ox <= 0) return;
+    const oy = Math.min(Y[i] + B[i], Y[j] + B[j]) - Math.max(Y[i] - T[i], Y[j] - T[j]);
+    if (oy <= 0) return;
+    if (ox < oy) { const k = (dx >= 0 ? 0.5 : -0.5) * ox; FX[i] += k; FX[j] -= k; }
+    else { const k = (dy >= 0 ? 0.5 : -0.5) * oy; FY[i] += k; FY[j] -= k; }
+  };
+  /* 网格分桶：以诸人之外框之左上为原点，格边 C；计数排序入格（格号升序、格内序号升序，定序）；各格之质心每步一算。
+   * 只用定长之类型数组（不足方扩），每步不另生 Map／数组——免「显示全部」反复重绘时垃圾回收落入布局之计时。 */
+  const grid = n > P.GRID_MIN, C = P.CELL;
+  const ORD = new Int32Array(n), CID = new Int32Array(n);
+  let CNT = new Int32Array(64), ST = new Int32Array(64), GX = new Float64Array(64), GY = new Float64Array(64);
+  let LIVE = new Int32Array(64), gn = 0, gw = 1;
+  const bucket = () => {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (let i = 0; i < n; i++) { if (X[i] < x0) x0 = X[i]; if (X[i] > x1) x1 = X[i]; if (Y[i] < y0) y0 = Y[i]; if (Y[i] > y1) y1 = Y[i]; }
+    gw = Math.floor((x1 - x0) / C) + 1;
+    const cells = gw * (Math.floor((y1 - y0) / C) + 1);
+    if (cells > CNT.length) { const z = cells * 2; CNT = new Int32Array(z); ST = new Int32Array(z); GX = new Float64Array(z); GY = new Float64Array(z); LIVE = new Int32Array(z); }
+    CNT.fill(0, 0, cells); GX.fill(0, 0, cells); GY.fill(0, 0, cells);
+    for (let i = 0; i < n; i++) {
+      const c = Math.floor((X[i] - x0) / C) + Math.floor((Y[i] - y0) / C) * gw;
+      CID[i] = c; CNT[c]++; GX[c] += X[i]; GY[c] += Y[i];
+    }
+    gn = 0;
+    for (let c = 0, acc = 0; c < cells; c++) {
+      ST[c] = acc; acc += CNT[c];
+      if (CNT[c]) { LIVE[gn++] = c; GX[c] /= CNT[c]; GY[c] /= CNT[c]; }
+    }
+    for (let i = 0; i < n; i++) ORD[ST[CID[i]]++] = i;      // 入格（序号升序）
+    for (let k = 0; k < gn; k++) ST[LIVE[k]] -= CNT[LIVE[k]]; // 复各格之起
+  };
+  const near = (ca, cb) => { const dx = cb % gw - ca % gw, dy = Math.floor(cb / gw) - Math.floor(ca / gw);
+    return dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1; };
+  const SCX = new Float64Array(nst), SCY = new Float64Array(nst), SCN = new Float64Array(nst);
+  for (let s = 0; s < STEPS; s++) {
+    const alpha = 1 - s / STEPS, late = s > STEPS * 0.45;
+    FX.fill(0); FY.fill(0);
+    if (!grid) {
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) pair(i, j, late);
+    } else {
+      bucket();
+      for (let a = 0; a < gn; a++) {
+        const ca = LIVE[a], a0 = ST[ca], a1 = a0 + CNT[ca];
+        let gfx = 0, gfy = 0;
+        for (let p = a0; p < a1; p++) for (let q = p + 1; q < a1; q++) pair(ORD[p], ORD[q], late);
+        for (let b = 0; b < gn; b++) {
+          if (b === a) continue;
+          const cb = LIVE[b];
+          if (near(ca, cb)) {                    // 近格：逐对（每对只算一次）
+            if (b > a) for (let p = a0; p < a1; p++) for (let q = ST[cb], q1 = q + CNT[cb]; q < q1; q++) pair(ORD[p], ORD[q], late);
+            continue;
+          }
+          const m = CNT[cb], dx = GX[ca] - GX[cb], dy = GY[ca] - GY[cb], f = REP * m / (dx * dx + dy * dy);
+          gfx += dx * f; gfy += dy * f;          // 远格：以其质心与人数代之
+        }
+        for (let p = a0; p < a1; p++) { FX[ORD[p]] += gfx; FY[ORD[p]] += gfy; }
+      }
+    }
+    for (let k = 0; k < LI.length; k++) {
+      const i = LI[k], j = LJ[k], dx = X[j] - X[i], dy = Y[j] - Y[i];
+      const d = Math.max(Math.sqrt(dx * dx + dy * dy), 0.01), f = P.KS * (d - LL[k]) / d;
+      FX[i] += dx * f; FY[i] += dy * f; FX[j] -= dx * f; FY[j] -= dy * f;
+    }
+    SCX.fill(0); SCY.fill(0); SCN.fill(0);
+    for (let i = 0; i < n; i++) { SCX[S[i]] += X[i]; SCY[S[i]] += Y[i]; SCN[S[i]]++; }
+    const cap = 2 + 40 * alpha;
+    for (let i = 0; i < n; i++) {
+      let fx = FX[i] + P.GRAV * (CX - X[i]) + P.COH * (AX[i] - X[i]);
+      let fy = FY[i] + P.GRAV * (CY - Y[i]) + P.COH * (AY[i] - Y[i]);
+      const m = SCN[S[i]];
+      if (m > 1) { fx += P.CTR * ((SCX[S[i]] - X[i]) / (m - 1) - X[i]); fy += P.CTR * ((SCY[S[i]] - Y[i]) / (m - 1) - Y[i]); }
+      let vx = (VX[i] + fx) * P.FRIC, vy = (VY[i] + fy) * P.FRIC;
+      const sp = Math.sqrt(vx * vx + vy * vy);
+      if (sp > cap) { vx *= cap / sp; vy *= cap / sp; }
+      VX[i] = vx; VY[i] = vy; X[i] += vx; Y[i] += vy;
+    }
+  }
+  /* 收尾：逐对推开至无交（i＜j 之序；同位则以序定向） */
+  const push = (i, j) => {
+    const ox = Math.min(X[i] + HW[i], X[j] + HW[j]) - Math.max(X[i] - HW[i], X[j] - HW[j]);
+    if (ox <= 0) return 0;
+    const oy = Math.min(Y[i] + B[i], Y[j] + B[j]) - Math.max(Y[i] - T[i], Y[j] - T[j]);
+    if (oy <= 0) return 0;
+    if (ox < oy) { const k = (X[i] - X[j] > 0 || X[i] === X[j] ? 1 : -1) * (ox / 2 + 0.5); X[i] += k; X[j] -= k; }
+    else { const k = (Y[i] - Y[j] > 0 || Y[i] === Y[j] ? 1 : -1) * (oy / 2 + 0.5); Y[i] += k; Y[j] -= k; }
+    return 1;
+  };
+  let pass = 0, left = P.LABEL ? 1 : 0;
+  for (; pass < 800 && left; pass++) {
+    left = 0;
+    if (!grid) { for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) left += push(i, j); continue; }
+    bucket();
+    for (let a = 0; a < gn; a++) {
+      const ca = LIVE[a], a0 = ST[ca], a1 = a0 + CNT[ca];
+      for (let p = a0; p < a1; p++) for (let q = p + 1; q < a1; q++) left += push(ORD[p], ORD[q]);
+      for (let b = a + 1; b < gn; b++) {
+        const cb = LIVE[b];
+        if (!near(ca, cb)) continue;
+        for (let p = a0; p < a1; p++) for (let q = ST[cb], q1 = q + CNT[cb]; q < q1; q++) left += push(Math.min(ORD[p], ORD[q]), Math.max(ORD[p], ORD[q]));
+      }
+    }
+  }
+  N.forEach((v, i) => { v.x = X[i]; v.y = Y[i]; v.hw = HW[i]; v.t = T[i]; v.b = B[i]; });
+  return { pass, left };
+}
+/* 离群之量（裁二百五十一 三3）：a＝其人与本国在图诸人心距之均；b＝其人与他国（在图二人以上之国）诸人心距之均之最小者；
+ * b＜a 者为离群（同 silhouette 之号为负）。其国在图只其一人者无「本国诸人」，不计。
+ * 另书宽量 loose：b 之「他国」连只一人之国亦计（备查，不入判）。只主角默认视图以 list 为 0 为的（门：tools/qa/vision_r62x2.js）。 */
+function panoOutliers(N) {
+  const by = new Map();
+  for (const v of N) { if (!by.has(v.st)) by.set(v.st, []); by.get(v.st).push(v); }
+  const mean = (v, vs) => { let s = 0, c = 0; for (const u of vs) if (u !== v) { s += Math.hypot(u.x - v.x, u.y - v.y); c++; } return c ? s / c : Infinity; };
+  const list = [], loose = [];
+  for (const v of N) {
+    const own = by.get(v.st);
+    if (own.length < 2) continue;
+    const a = mean(v, own);
+    let b = Infinity, near = "", b1 = Infinity, near1 = "";
+    for (const [st, vs] of by) {
+      if (st === v.st) continue;
+      const m = mean(v, vs);
+      if (vs.length >= 2 && m < b) { b = m; near = st; }
+      if (m < b1) { b1 = m; near1 = st; }
+    }
+    if (b < a) list.push({ id: v.id, st: v.st, a: +a.toFixed(1), b: +b.toFixed(1), near });
+    if (b1 < a) loose.push({ id: v.id, st: v.st, a: +a.toFixed(1), b: +b1.toFixed(1), near: near1 });
+  }
+  return { list, loose };
+}
+/* 全景上的人物集合（r24a-2 裁定 ②b，即 r24a §4.3 三选项之 C）：
  * **默认只画主角**，勾「显示全部」才回到全库。
- *
- * 根据（实测，非观感）：环半径 R=252 固定，相邻槽距＝2R·sin(π/n)。
- *   n=127 → 12.46px，**小于主角节点直径 30**，故主角盘面本就相互叠压，
- *           国色制下同国同色更并作一块色团，同弧徽记必然互相压边（r24a §四）；
- *   n 取现行主角数 → 槽距**仍大于节点直径 30、大于徽记边长 22**，
- *           同弧徽记两两不相接——余量随人数递减，代入上式现算即得，此处不记死数；
- *           按此式，槽距跌破节点直径 30 要到 n=53，跌破徽记 22 要到 n=72。
- * 这是 r24a 三条 costed 选项中唯一不改环几何、不改视觉性格即可根治的一条：
- * A（不等角槽）要把 viewBox 由 680 扩到约 800、图整体变大；B（双环错排）把「清爽单环」
- * 改成双环，属观感取向变更；C 只改「默认画谁」，且被改掉的信息量由一个开关原样取回。
- *
- * 单一来源：绘图与工具条计数取同一函数，故「环上几人」与「工具条报几人」不会脱节。
- * 排序键与旧版一字不差（STATE_ORDER 首国 → 主角优先 → id），故同国仍连续成弧。 */
+ * 旧由（环之槽距 2R·sin(π/n) 于全库时小于节点直径）随环退役而失其据；然全库 248 人之图密而字小（375 宽约 3.4px），
+ * 默认只画主角之定不改（r62-X2 未涉）。
+ * 单一来源：绘图与工具条计数取同一函数，故「图上几人」与「工具条报几人」不会脱节。
+ * 排序键与旧版一字不差（STATE_ORDER 首国 → 主角优先 → id），故同国仍连续——力导向图之锚甲即取此序之扇区。 */
 function panoPeople() {
   return [...DATA.people]
     .filter(p => relView.showAll || isProto(p.id))
@@ -5138,52 +5270,102 @@ function panoPeople() {
              a.id.localeCompare(b.id);
     });
 }
-/* ----- 全景视图（分组环形布局，round6 原样保留；本轮加过滤器与国别底晕） ----- */
+/* 全景之态：视框（full＝全图、box＝今之视框）、拖动之守（moved）、边名之开关、布局之存（同一人集只算一次）、量（供门） */
+const panoView = { full: null, box: null, moved: false, edgeLabels: false, cache: null, stats: null };
+/* 布局（带存）：人集同则取存。存其定形之坐标（拖动不污之），故重绘即复原。 */
+function panoLayoutFor(people) {
+  const key = people.map(p => p.id).join(",");
+  if (panoView.cache && panoView.cache.key === key) return { ...panoView.cache, cached: true };
+  const t0 = performance.now();
+  const idx = new Map(people.map((p, i) => [p.id, i]));
+  const N = people.map(p => {
+    const proto = isProto(p.id), r = proto ? 15 : 8, fs = proto ? 15 : 13.5;
+    return { id: p.id, st: panoStateKey(p), r, fs, lw: panoLabelEm(p.name) * fs };
+  });
+  const links = [];
+  for (const pr of groupRelPairs(null)) {
+    if (idx.has(pr.a) && idx.has(pr.b)) links.push({ i: idx.get(pr.a), j: idx.get(pr.b), k: pr.rels.length });
+  }
+  const res = panoLayout(N, links);
+  const layoutMs = performance.now() - t0;
+  /* 移至正象限，定全图之框（M 为边距）；纵横比限于 0.75–1.6（不读屏宽，故诸宽同框） */
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const v of N) { x0 = Math.min(x0, v.x - v.hw); x1 = Math.max(x1, v.x + v.hw); y0 = Math.min(y0, v.y - v.t); y1 = Math.max(y1, v.y + v.b); }
+  const M = 40;
+  let W = x1 - x0 + 2 * M, H = y1 - y0 + 2 * M, ox = M - x0, oy = M - y0;
+  const aspect = Math.min(1.6, Math.max(0.75, W / H));
+  if (W / H > aspect) { const h2 = W / aspect; oy += (h2 - H) / 2; H = h2; }
+  else { const w2 = H * aspect; ox += (w2 - W) / 2; W = w2; }
+  W = +W.toFixed(2); H = +H.toFixed(2);
+  const pos = new Map(N.map(v => [v.id, [+(v.x + ox).toFixed(2), +(v.y + oy).toFixed(2)]]));
+  panoView.cache = { key, pos, W, H, layoutMs, links: links.length, pass: res.pass, left: res.left, N };
+  return { ...panoView.cache, cached: false };
+}
 function drawPanoGraph() {
   const NS = "http://www.w3.org/2000/svg";
   relView.detailReg = []; // 本次绘图的边→rels 注册表（供全屏克隆体重绑）
-  const W = 1000, H = 680, CX = 500, CY = 330, R = 252;
   const canvas = $("#rel-canvas");
   canvas.textContent = "";
+  const people = panoPeople();
+  const lay = panoLayoutFor(people);
+  const W = lay.W, H = lay.H;
+  panoView.full = { x: 0, y: 0, w: W, h: H };
+  panoView.box = { ...panoView.full };
+  panoView.stats = { n: people.length, links: lay.links, layoutMs: +lay.layoutMs.toFixed(1), cached: lay.cached, pass: lay.pass, left: lay.left, W, H };
+
   const svg = document.createElementNS(NS, "svg");
   svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  svg.dataset.vbFull = "0 0 " + W + " " + H;   // 放大查看取全图之框（内嵌之视框随缩放而变）
+  svg.classList.add("pano-svg");
   canvas.appendChild(svg);
-  const haloLayer = document.createElementNS(NS, "g"); // 国别底晕（最底层）
-  const edgeLayer = document.createElementNS(NS, "g");
-  const nodeLayer = document.createElementNS(NS, "g");
-  const badgeTop = document.createElementNS(NS, "g"); // 徽记顶层（r24a，见节点绘制处注释）
-  svg.appendChild(haloLayer);
-  svg.appendChild(edgeLayer);
-  svg.appendChild(nodeLayer);
+  const mk = (cls) => { const g = document.createElementNS(NS, "g"); if (cls) g.setAttribute("class", cls); svg.appendChild(g); return g; };
+  const stateLayer = mk(null);              // 国名淡书（最底层）
+  const hitLayer = mk(null);                // 边之触区
+  const edgeLayer = mk(null);
+  const elabLayer = mk("pano-elabels");     // 边名（可开关）
+  const multiLayer = mk(null);              // 多重关系数字徽记
+  const nodeLayer = mk(null);
+  elabLayer.style.display = panoView.edgeLabels ? "" : "none";
 
-  const people = panoPeople();
   relView.nodes.clear();
-  people.forEach((p, i) => {
-    const ang = (i / people.length) * Math.PI * 2 - Math.PI / 2;
-    relView.nodes.set(p.id, {
-      p, x: CX + R * Math.cos(ang), y: CY + R * Math.sin(ang), ang,
-      proto: PROTAGONISTS.find(m => m.id === p.id) || null, el: null, badgeEl: null,
-    });
-  });
+  for (const p of people) {
+    const proto = PROTAGONISTS.find(m => m.id === p.id) || null;
+    const [x, y] = lay.pos.get(p.id);
+    relView.nodes.set(p.id, { p, x, y, proto, r: proto ? 15 : 8, fs: proto ? 15 : 13.5, el: null, badgeEl: null });
+  }
 
-  // 国别底晕（裁定1·4）：有主角之国各占一段环弧，极淡国色扇形铺底，使各国阵营一眼可辨。
-  // 节点已按 STATE_ORDER 连续排布，同国节点成弧；仅为有主角之国着色，配角国不铺（避免喧闹）。
-  drawStateHalos(haloLayer, people, CX, CY, R, NS);
-  const labelFar = panoStaggerSet([...relView.nodes.values()]); // 近顶、底之名签错落（r62-X1；X1 续带至 |cos θ|<0.5）
+  /* 国名淡书于其人之心（有国色、在图二人以上之国）——代旧环之扇形底晕，示国团之所在 */
+  const byState = new Map();
+  for (const node of relView.nodes.values()) {
+    const st = panoStateKey(node.p);
+    if (!STATE_FAMILY_VAR[st]) continue;
+    if (!byState.has(st)) byState.set(st, []);
+    byState.get(st).push(node);
+  }
+  for (const [st, ns] of byState) {
+    if (ns.length < 2) continue;
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("x", (ns.reduce((s, n) => s + n.x, 0) / ns.length).toFixed(1));
+    t.setAttribute("y", (ns.reduce((s, n) => s + n.y, 0) / ns.length + 14).toFixed(1));
+    t.setAttribute("text-anchor", "middle");
+    t.setAttribute("class", "pano-state");
+    t.setAttribute("fill", familyColor(st));
+    t.setAttribute("aria-hidden", "true");
+    t.textContent = st;
+    stateLayer.appendChild(t);
+  }
 
   relView.edges = [];
-  const badgeLayer = document.createElementNS(NS, "g");
   const pairs = groupRelPairs(rel =>
-    !relView.protoOnly || isProto(rel.person_a) || isProto(rel.person_b)); // 仅主角边
+    !relView.protoOnly || isProto(rel.person_a) || isProto(rel.person_b)); // 仅主角边（只滤所绘之边，不改布局）
   for (const pair of pairs) {
     const A = relView.nodes.get(pair.a), B = relView.nodes.get(pair.b);
     if (!A || !B) continue;
     const first = pair.rels[0];
     const color = REL_COLORS[first.rel_type] || "#8A8072";
-    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
-    const seg = quadPath(A.x, A.y, mx + (CX - mx) * 0.45, my + (CY - my) * 0.45, B.x, B.y);
+    const di = relView.detailReg.push(pair.rels) - 1;
+    const open = () => { if (!panoView.moved) showRelDetail(pair.rels, null); };
     const path = document.createElementNS(NS, "path");
-    path.setAttribute("d", seg.d);
     path.setAttribute("fill", "none");
     path.setAttribute("stroke", color);
     path.setAttribute("stroke-width", "1.6");
@@ -5192,24 +5374,40 @@ function drawPanoGraph() {
     const tip = document.createElementNS(NS, "title");
     tip.textContent = pairTip(pair.rels);
     path.appendChild(tip);
-    const di = relView.detailReg.push(pair.rels) - 1;
     path.dataset.detail = di;
-    const open = () => showRelDetail(pair.rels, null);
     path.addEventListener("click", open);
     edgeLayer.appendChild(path);
+    /* 触区：同形之透明粗线（14 单位）垫于其下，手指点得中细边；data-detail 同，放大查看之克隆体亦重绑得着 */
+    const hit = document.createElementNS(NS, "path");
+    hit.setAttribute("class", "pano-edge-hit");
+    hit.setAttribute("fill", "none");
+    hit.setAttribute("stroke", "transparent");
+    hit.setAttribute("stroke-width", "14");
+    hit.dataset.detail = di;
+    hit.addEventListener("click", open);
+    hitLayer.appendChild(hit);
     let badge = null;
     if (pair.rels.length > 1) {
-      badge = edgeBadgeEl(seg.mx, seg.my, pair.rels.length, color, open);
+      badge = edgeBadgeEl(0, 0, pair.rels.length, color, open);
       badge.dataset.detail = di;
       const btip = document.createElementNS(NS, "title");
       btip.textContent = pairTip(pair.rels);
       badge.appendChild(btip);
-      badgeLayer.appendChild(badge);
+      multiLayer.appendChild(badge);
     }
-    relView.edges.push({ a: pair.a, b: pair.b, rels: pair.rels, el: path, badge });
+    /* 边名：此对诸关系之 rel_label，取前二、以「·」连，至多 10 字（照 StoryMatrix 之 edgeLabel 截 10 字） */
+    const lab = document.createElementNS(NS, "text");
+    lab.setAttribute("class", "pano-elabel");
+    lab.setAttribute("text-anchor", "middle");
+    lab.setAttribute("fill", color);
+    lab.textContent = pair.rels.map(r => r.rel_label).filter(Boolean).slice(0, 2).join("·").slice(0, 10);
+    elabLayer.appendChild(lab);
+    const e = { a: pair.a, b: pair.b, rels: pair.rels, el: path, badge, lab, hit, A, B };
+    relView.edges.push(e);
+    panoPlaceEdge(e);
   }
-  edgeLayer.appendChild(badgeLayer);
 
+  const badgeTop = document.createElementNS(NS, "g"); // 徽记顶层（r24a）：置于全部节点盘面之上，须为 svg 之末一 <g>
   for (const node of relView.nodes.values()) {
     const g = document.createElementNS(NS, "g");
     g.setAttribute("class", "rel-node" + (node.proto ? " proto" : ""));
@@ -5218,50 +5416,41 @@ function drawPanoGraph() {
     g.setAttribute("role", "button");
     g.setAttribute("aria-label", node.p.name + "：查看其关系");
     const c = document.createElementNS(NS, "circle");
-    c.setAttribute("cx", node.x); c.setAttribute("cy", node.y);
-    c.setAttribute("r", node.proto ? 15 : 8);
+    c.setAttribute("r", node.r);
     c.setAttribute("fill", node.proto ? node.proto.color : "#FBF7EC");
     c.setAttribute("stroke", node.proto ? "#F4EDDF" : "#7A7166");
-    /* 主角节点的绢帛描边由 2 上调至 PANO_RING_W（r24a §9.3）：
-     * 全库全环时槽距仅 12 余 px，主角节点 r=15 故盘面本就相互叠压；旧制靠同族深浅不同
-     * 尚能看出盘缘，国色制下同国同色，一段弧遂并作一块色团（实测对照截图见交付说明 §四）。
-     * 绢帛色描边是与填充色无关的分隔线——加宽它即可在同色相邻处重新划出盘缘。 */
+    /* 主角节点的绢帛描边 PANO_RING_W（r24a §9.3）：国色制下同国同色，同国相邻者靠它划出盘缘 */
     c.setAttribute("stroke-width", node.proto ? PANO_RING_W : 1.4);
     g.appendChild(c);
-    if (node.proto) {
-      fetchSVG(node.proto.badge).then(t => {
-        const doc = new DOMParser().parseFromString(t, "image/svg+xml");
-        const b = document.importNode(doc.documentElement, true);
-        const h = PANO_BADGE / 2;
-        b.setAttribute("x", node.x - h); b.setAttribute("y", node.y - h);
-        b.setAttribute("width", PANO_BADGE); b.setAttribute("height", PANO_BADGE);
-        b.style.color = "#F4EDDF";
-        b.style.strokeWidth = PANO_BADGE_SW; // CSS 胜过 SVG 呈现属性，故整枚线宽同步上调
-        b.style.pointerEvents = "none";
-        /* 徽记入独立顶层：旧法把徽记塞进各自节点的 <g>，而 <g> 按环序依次追加，
-         * 于是后一节点的盘面正好盖住前一节点的徽记——同弧六人只有最后一枚徽记露得出来。
-         * 提到 badgeTop 层后，环上徽记一律叠在所有盘面之上。 */
-        badgeTop.appendChild(b);
-        node.badgeEl = b;
-        if (relView.focus) b.style.opacity = node.el && node.el.style.opacity || "";
-      });
-    }
     const label = document.createElementNS(NS, "text");
-    const out = (node.proto ? 24 : 15) + (labelFar.has(node.p.id) ? PANO_LABEL_STAGGER : 0);
-    label.setAttribute("x", node.x + Math.cos(node.ang) * out);
-    label.setAttribute("y", node.y + Math.sin(node.ang) * out + 4);
-    label.setAttribute("text-anchor", Math.cos(node.ang) > PANO_MID_COS ? "start" : (Math.cos(node.ang) < -PANO_MID_COS ? "end" : "middle"));
+    label.setAttribute("text-anchor", "middle");
     label.textContent = node.p.name;
     g.appendChild(label);
-    g.addEventListener("click", () => focusRelNode(node.p.id));
+    g.addEventListener("click", () => { if (!panoView.moved) focusRelNode(node.p.id); });
     g.addEventListener("dblclick", () => { if (node.proto) setHash(node.p.id, "timeline"); });
     g.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); focusRelNode(node.p.id); }
     });
     nodeLayer.appendChild(g);
     node.el = g;
+    panoPlaceNode(node);
+    if (node.proto) {
+      fetchSVG(node.proto.badge).then(t => {
+        const doc = new DOMParser().parseFromString(t, "image/svg+xml");
+        const b = document.importNode(doc.documentElement, true);
+        b.setAttribute("width", PANO_BADGE); b.setAttribute("height", PANO_BADGE);
+        b.style.color = "#F4EDDF";
+        b.style.strokeWidth = PANO_BADGE_SW; // CSS 胜过 SVG 呈现属性，故整枚线宽同步上调
+        b.style.pointerEvents = "none";
+        /* 徽记入独立顶层：若塞进各自节点之 <g>，后绘之盘面会盖住先绘者之徽记（r24a） */
+        badgeTop.appendChild(b);
+        node.badgeEl = b;
+        panoPlaceNode(node);
+        if (relView.focus) b.style.opacity = node.el && node.el.style.opacity || "";
+      });
+    }
   }
-  svg.appendChild(badgeTop); // 徽记顶层：置于全部节点盘面之上（见上方注释）
+  svg.appendChild(badgeTop);
 
   // 「仅主角边」下无边可挂的配角淡出
   relView.isolated.clear();
@@ -5272,9 +5461,143 @@ function drawPanoGraph() {
       if (!linked.has(node.p.id) && !node.proto) relView.isolated.add(node.p.id);
     }
   }
-
+  panoBindGestures(svg);
+  panoMountBar(canvas, svg);
   if (relView.focus && relView.nodes.has(relView.focus)) focusRelNode(relView.focus);
   else resetRelFocus();
+}
+/* 一人之位：盘心、名签（盘下，居中）、徽记 */
+function panoPlaceNode(node) {
+  const g = node.el;
+  if (!g) return;
+  const c = g.querySelector("circle"), t = g.querySelector("text");
+  c.setAttribute("cx", node.x); c.setAttribute("cy", node.y);
+  t.setAttribute("x", node.x); t.setAttribute("y", +(node.y + node.r + 3 + node.fs * 0.95).toFixed(2));
+  if (node.badgeEl) {
+    node.badgeEl.setAttribute("x", +(node.x - PANO_BADGE / 2).toFixed(2));
+    node.badgeEl.setAttribute("y", +(node.y - PANO_BADGE / 2).toFixed(2));
+  }
+}
+/* 一边之位：直线；多重徽记与边名居其中点 */
+function panoPlaceEdge(e) {
+  const A = e.A, B = e.B, d = "M" + A.x + " " + A.y + " L" + B.x + " " + B.y;
+  e.el.setAttribute("d", d);
+  e.hit.setAttribute("d", d);
+  const mx = +((A.x + B.x) / 2).toFixed(2), my = +((A.y + B.y) / 2).toFixed(2);
+  if (e.badge) {
+    const c = e.badge.querySelector("circle"), t = e.badge.querySelector("text");
+    c.setAttribute("cx", mx); c.setAttribute("cy", my);
+    t.setAttribute("x", mx); t.setAttribute("y", +(my + 3.2).toFixed(2));
+  }
+  e.lab.setAttribute("x", mx); e.lab.setAttribute("y", +(my - (e.badge ? 10 : 4)).toFixed(2));
+}
+/* 视框：宽限于全图之 0.12–1.5 倍；平移不出全图过远 */
+function panoSetBox(svg, b) {
+  const F = panoView.full;
+  const w = Math.min(F.w * 1.5, Math.max(F.w * 0.12, b.w)), h = w * F.h / F.w;
+  const x = Math.min(F.w - w * 0.25, Math.max(-w * 0.75, b.x)), y = Math.min(F.h - h * 0.25, Math.max(-h * 0.75, b.y));
+  panoView.box = { x, y, w, h };
+  svg.setAttribute("viewBox", x + " " + y + " " + w + " " + h);
+}
+function panoToSvg(svg, cx, cy) {
+  const r = svg.getBoundingClientRect(), b = panoView.box;
+  return [b.x + (cx - r.left) / r.width * b.w, b.y + (cy - r.top) / r.height * b.h];
+}
+function panoZoomAt(svg, k, cx, cy) {
+  const [sx, sy] = panoToSvg(svg, cx, cy), r = svg.getBoundingClientRect(), b = panoView.box;
+  const w = b.w * k, h = b.h * k;
+  panoSetBox(svg, { x: sx - (cx - r.left) / r.width * w, y: sy - (cy - r.top) / r.height * h, w, h });
+}
+/* 手势：按人拖人（鼠标、单指）；拖底平移（鼠标；触屏单指纵滑仍滚页）；滚轮、双指缩放。
+ * 拖动越 4px 即记 moved，其后之 click 不触高亮、不开出处。 */
+function panoBindGestures(svg) {
+  const ptr = new Map();
+  let mode = null, start = null;
+  svg.addEventListener("pointerdown", (e) => {
+    ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    panoView.moved = false;
+    const nodeEl = e.target.closest && e.target.closest(".rel-node");
+    if (ptr.size === 2) {
+      const p = [...ptr.values()];
+      mode = "pinch";
+      start = { box: { ...panoView.box }, d: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y),
+                mid: panoToSvg(svg, (p[0].x + p[1].x) / 2, (p[0].y + p[1].y) / 2) };
+      for (const id of ptr.keys()) { try { svg.setPointerCapture(id); } catch { /* 已释 */ } }
+    } else if (nodeEl) {
+      mode = "node"; start = { id: nodeEl.dataset.node, x: e.clientX, y: e.clientY };
+    } else if (e.pointerType !== "touch") {
+      mode = "pan"; start = { box: { ...panoView.box }, x: e.clientX, y: e.clientY };
+    } else mode = null;
+  });
+  svg.addEventListener("pointermove", (e) => {
+    if (!ptr.has(e.pointerId)) return;
+    ptr.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const r = svg.getBoundingClientRect();
+    if (mode === "pinch" && ptr.size === 2) {
+      const p = [...ptr.values()], d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+      if (d < 10) return;
+      panoView.moved = true;
+      const w = start.box.w * start.d / d, h = w * panoView.full.h / panoView.full.w;
+      const mx = (p[0].x + p[1].x) / 2, my = (p[0].y + p[1].y) / 2;
+      panoSetBox(svg, { x: start.mid[0] - (mx - r.left) / r.width * w, y: start.mid[1] - (my - r.top) / r.height * h, w, h });
+    } else if (mode === "node") {
+      if (!panoView.moved && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 4) return;
+      if (!panoView.moved) { panoView.moved = true; try { svg.setPointerCapture(e.pointerId); } catch { /* 已释 */ } }
+      const node = relView.nodes.get(start.id), [x, y] = panoToSvg(svg, e.clientX, e.clientY);
+      node.x = +x.toFixed(2); node.y = +y.toFixed(2);
+      panoPlaceNode(node);
+      for (const ed of relView.edges) if (ed.a === start.id || ed.b === start.id) panoPlaceEdge(ed);
+    } else if (mode === "pan") {
+      const dx = e.clientX - start.x, dy = e.clientY - start.y;
+      if (!panoView.moved && Math.hypot(dx, dy) < 4) return;
+      if (!panoView.moved) { panoView.moved = true; try { svg.setPointerCapture(e.pointerId); } catch { /* 已释 */ } }
+      panoSetBox(svg, { x: start.box.x - dx / r.width * start.box.w, y: start.box.y - dy / r.height * start.box.h,
+                        w: start.box.w, h: start.box.h });
+    }
+  });
+  const lift = (e) => {
+    ptr.delete(e.pointerId);
+    if (ptr.size === 0) { mode = null; setTimeout(() => { panoView.moved = false; }, 30); }
+    else if (mode === "pinch") mode = null;
+  };
+  svg.addEventListener("pointerup", lift);
+  svg.addEventListener("pointercancel", lift);
+  svg.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    panoZoomAt(svg, e.deltaY < 0 ? 0.85 : 1 / 0.85, e.clientX, e.clientY);
+  }, { passive: false });
+}
+/* 图下之条（在图框内、svg 之下）：「边名」开关＋缩放三钮。随图重绘而重建；以人为中心时图框清空，条亦随去。 */
+function panoMountBar(canvas, svg) {
+  const bar = document.createElement("div");
+  bar.className = "pano-bar";
+  const lab = document.createElement("label");
+  lab.className = "rel-filter";
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.id = "pano-elabel";
+  cb.checked = panoView.edgeLabels;
+  cb.addEventListener("change", () => {
+    panoView.edgeLabels = cb.checked;
+    const l = svg.querySelector(".pano-elabels");
+    if (l) l.style.display = cb.checked ? "" : "none";
+  });
+  lab.appendChild(cb);
+  lab.appendChild(document.createTextNode("边名"));
+  bar.appendChild(lab);
+  const mid = () => { const r = svg.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+  for (const [txt, aria, fn] of [["＋", "放大", () => panoZoomAt(svg, 0.8, ...mid())],
+                                 ["－", "缩小", () => panoZoomAt(svg, 1.25, ...mid())],
+                                 ["⟲", "复位视野", () => panoSetBox(svg, panoView.full)]]) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pano-zoom";
+    b.textContent = txt;
+    b.setAttribute("aria-label", aria);
+    b.addEventListener("click", fn);
+    bar.appendChild(b);
+  }
+  canvas.appendChild(bar);
 }
 const personName = (id) => (PEOPLE[id] ? PEOPLE[id].name : id);
 
@@ -5287,6 +5610,7 @@ function focusRelNode(pid) {
     edge.el.style.opacity = hit ? "0.95" : "0.06";
     edge.el.setAttribute("stroke-width", hit ? "2.6" : "1.2");
     if (edge.badge) edge.badge.style.opacity = hit ? "1" : "0.08";
+    if (edge.lab) edge.lab.style.opacity = hit ? "1" : "0.08"; // 全景边名随其边（r62-X2）
     if (hit) {
       mine.push(...edge.rels);
       neighbors.add(edge.a);
@@ -5307,6 +5631,7 @@ function resetRelFocus() {
     edge.el.style.opacity = "";
     edge.el.setAttribute("stroke-width", "1.6");
     if (edge.badge) edge.badge.style.opacity = "";
+    if (edge.lab) edge.lab.style.opacity = "";
   }
   for (const node of relView.nodes.values()) {
     const op = relView.isolated.has(node.p.id) ? "0.25" : "";

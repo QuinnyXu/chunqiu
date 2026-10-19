@@ -558,13 +558,17 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
     // r24a：徽记已移出各节点 <g>，改入顶层 badgeTop（svg 的最后一个 <g>）
     const svgs = [...document.querySelectorAll("#rel-canvas > svg > g:last-of-type > svg")];
     const c1 = document.querySelector('#rel-canvas [data-node="P_WENJIANG"] circle');
-    const c2 = document.querySelector('#rel-canvas [data-node="P_QIXIANG"] circle');
-    const chord = c1 && c2 ? Math.hypot(+c1.getAttribute("cx") - +c2.getAttribute("cx"), +c1.getAttribute("cy") - +c2.getAttribute("cy")) : null;
+    /* r62-X2（三法之「另路求之」）：环退役，「相邻槽距」失其据；改量诸主角盘心两两之最小心距——
+     *   甲路：DOM 诸 circle 之 cx／cy 两两实量；乙路：页内 relView.nodes 之坐标两两现算。二路须合。 */
+    const cs = [...document.querySelectorAll("#rel-canvas .rel-node.proto circle")].map(c => [+c.getAttribute("cx"), +c.getAttribute("cy")]);
+    const minPair = (pts) => { let m = Infinity; for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) m = Math.min(m, Math.hypot(pts[i][0] - pts[j][0], pts[i][1] - pts[j][1])); return m; };
+    const chord = cs.length > 1 ? minPair(cs) : null;
+    const chordModel = minPair([...relView.nodes.values()].filter(n => n.proto).map(n => [n.x, n.y]));
     return { protoNodes: document.querySelectorAll("#rel-canvas .rel-node.proto").length,
              badges: svgs.length, total: document.querySelectorAll("#rel-canvas .rel-node").length,
              size: svgs[0] ? { w: svgs[0].getAttribute("width"), sw: svgs[0].style.strokeWidth } : null,
              r: c1 ? c1.getAttribute("r") : null, ringW: c1 ? c1.getAttribute("stroke-width") : null,
-             slotChord: chord ? +chord.toFixed(2) : null,
+             slotChord: chord ? +chord.toFixed(2) : null, slotChordModel: +chordModel.toFixed(2),
              onTop: !!(svgs[0] && svgs[0].parentNode === document.querySelector("#rel-canvas > svg").lastElementChild),
              // —— 对账三源：前端名册／数据名册／实际可进者 ——
              roster: (() => { const r = protoRoster();
@@ -584,15 +588,18 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
      R.enterable + " 枚主角节点徽记全部注入（＝可进人数，非写死值）");
   OK(pano.onTop, "徽记在顶层（叠于全部节点盘面之上）——旧法同弧只有最后一枚徽记露得出");
   OK(+pano.ringW === 3.4 && pano.size.w === "22" && pano.size.sw === "2.6", "呈现端已上调一档：环宽 2→3.4、徽记 20→22、线宽 2→2.6");
-  // r24a-2 裁定②b：默认只画主角。槽距按 2R·sin(π/n) 现算，与 DOM 实测对账（不抄旧数 58.55）
+  // r24a-2 裁定②b：默认只画主角。
   OK(pano.total === R.enterable, "A 态默认只画主角（" + pano.total + " 人，r24a-2 裁定②b，即 r24a §4.3 选项 C）");
-  const chordCalc = +(2 * pano.ringR * Math.sin(Math.PI / pano.total)).toFixed(2);
-  say("  槽距公式现算 2R·sin(π/" + pano.total + ")，R=" + pano.ringR + " → " + chordCalc +
-      "px；DOM 实测 " + pano.slotChord + "px");
-  OK(Math.abs(chordCalc - pano.slotChord) < 0.05,
-     "槽距＝公式现算值 2R·sin(π/" + pano.total + ") ＝ " + chordCalc + "（人数一变即重算，故此处不留任何历史数字）");
-  OK(pano.slotChord > 2 * +pano.r, "A 态槽距 " + pano.slotChord + " > 节点直径 " + (2 * +pano.r) + "——盘面不再叠压");
-  OK(pano.slotChord > +pano.size.w, "A 态槽距 " + pano.slotChord + " > 徽记边长 " + pano.size.w + "——同弧徽记不再压边（r24a 遗留的根本矛盾在 A 态解除）");
+  /* r62-X2 改写三断（照三法之「另路求之」；team/round61_prompts.md §一百二十一 三 6）：原断「槽距＝2R·sin(π/n) 现算」与
+   *   「相邻槽距 ＞ 节点直径／徽记边长」——环退役，槽距与其式俱失其据。今改为**诸主角盘心两两之最小心距**（非仅相邻二人，
+   *   所断之对由 n 对增至 n(n−1)/2 对，严不减）：
+   *   ① 二路相合（DOM 实量 ⇔ 页内布局坐标现算）——代「公式现算 ⇔ DOM 实测」；
+   *   ② 最小心距 ＞ 节点直径；③ 最小心距 ＞ 徽记边长。 */
+  say("  诸主角盘心最小心距：DOM 实量 " + pano.slotChord + "；页内布局坐标现算 " + pano.slotChordModel);
+  OK(pano.slotChord != null && Math.abs(pano.slotChordModel - pano.slotChord) < 0.05,
+     "〔r62-X2 改写〕最小心距二路相合：DOM 实量 " + pano.slotChord + " ＝ 页内布局坐标现算 " + pano.slotChordModel + "（不留历史数字）");
+  OK(pano.slotChord > 2 * +pano.r, "〔r62-X2 改写〕A 态诸主角最小心距 " + pano.slotChord + " > 节点直径 " + (2 * +pano.r) + "——盘面两两不叠压");
+  OK(pano.slotChord > +pano.size.w, "〔r62-X2 改写〕A 态诸主角最小心距 " + pano.slotChord + " > 徽记边长 " + pano.size.w + "——徽记两两不压边");
   const showAllUI = await p.evaluate(() => ({
     hasBox: !!document.querySelector("#rel-show-all"),
     showAllVisible: !document.querySelector("#rel-showall-label").hidden,
@@ -623,6 +630,8 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
      "B 态回到全库全环（" + panoB.total + " 人＝ people 表全量 " + R.dataAll + "，非写死 123）");
   OK(panoB.protoNodes === R.enterable, "B 态 " + R.enterable + " 位主角仍带徽记");
   OK(panoB.protoOnlyVisible, "B 态「仅主角边」随之出现（此时它才有意义）");
+  /* r62-X2：环退役，下句所言「槽距」「同弧」是旧环之实，照留备查；今 B 态所印之数为文姜—齐襄公二盘心之距（非槽距）。 */
+  say("  〔r62-X2 起为力导向图，下句为旧环之况，照留〕文姜—齐襄公心距 " + panoB.slotChord + "。");
   say("  ⚠ B 态槽距 " + panoB.slotChord + " < 节点直径 " + (2 * +pano.r) + "——主角盘面相互叠压、同弧徽记压边，"
       + "此为 " + panoB.total + " 人同环的既有密度问题（r23b 即如此），非国色制引入；国色制使其显影。"
       + "r24a-2 的处置不是消灭它，而是把它移出默认态：默认给主角环（现 " + pano.total + " 人），全库全环改为读者主动索取（见交付说明 §十一）");
