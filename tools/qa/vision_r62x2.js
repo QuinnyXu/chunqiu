@@ -19,6 +19,11 @@
  *  §四 交互（1440 鼠标、375 触屏各一套）：点人高亮一度、点边见出处、拖人（边随之、不误触高亮）、滚轮／双指缩放
  *      （双指于图上不缩页面）、拖底平移（鼠标）、复位钮、边名开关、显示全部⇄仅主角边⇄回只主角、ego 往返（图下之条随之去来）、
  *      放大查看（取全图之框，非内嵌缩放后之框）。
+ *  §六 边名之截法（r62-X2 续，裁二百五十二 二3；加断）：诸 .pano-elabel 之文——无括注（「（」）、无未闭之括（「」《》（）()）、
+ *      未逾 10 字者与全文同、逾者以「…」终且为全文（去括注、前二以「·」连）之前缀、至多 11 字；只主角与「显示全部」二图俱断；
+ *      截者点边，出处之列须见其诸 rel_label 之全文。反证：以旧法硬截（前二连、硬取 10 字）之文代之，须红。另路逐条之数印之备查。
+ *  §四 之滚轮（r62-X2 续，裁二百五十二 二5；改断）：原「滚轮缩放」改为三断——内嵌常滚 wheel 不被 preventDefault、页滚过、视框不变；
+ *      Ctrl＋滚轮则缩放（wheel 带 ctrlKey 而被 preventDefault）；放大查看之内滚轮即缩放。反证：于内嵌图注入旧之硬拦，常滚之断须红。
  *  §五 截图：team/r62X2_shots/x2_{proto,all}_{1440,375}.png（图框＋图例）、x2_{proto,all}_375_fullscreen.png（放大查看初开）、
  *      x2_proto_1440_fullscreen.png。
  */
@@ -162,6 +167,58 @@ const fontPx = (pg, sel) => pg.evaluate((sel) => {
     await ctx.close();
   }
 
+  /* ===== §六 边名之截法（r62-X2 续；裁二百五十二 二3） ===== */
+  H("§六 边名之截法（括注不入；逾 10 字截而加「…」；不截于括中）");
+  {
+    /* 另路之量（只读 relations.json，不取页内函数）：逐条之数，以对 Co站长 之量 */
+    const RELS = JSON.parse(fs.readFileSync(path.join(SITE, "data", "relations.json"), "utf8"));
+    const strip = (x) => (x || "").split("（")[0].trim();
+    const len = (x) => [...x].length;
+    const hardInParen = RELS.filter(r => { const h = [...r.rel_label].slice(0, 10).join(""); return len(r.rel_label) > 10 && (h.split("（").length > h.split("）").length); }).length;
+    console.log("    〔另路·逐条〕rel_label " + RELS.length + " 条；逾 10 字 " + RELS.filter(r => len(r.rel_label) > 10).length +
+      "；旧法硬截 10 字而截于括注之中 " + hardInParen + "；去括注后逾 10 字（今法截之）" + RELS.filter(r => len(strip(r.rel_label)) > 10).length);
+    const PAIRS = { "「": "」", "《": "》", "（": "）", "(": ")" };
+    const unclosed = (t) => { const st = []; for (const ch of t) { if (PAIRS[ch]) st.push(ch); else if (st.length && PAIRS[st[st.length - 1]] === ch) st.pop(); } return st.length > 0; };
+    const judgeLabels = (L) => {
+      const bad = []; let cut = 0;
+      for (const e of L) {
+        const full = e.labels.map(strip).filter(Boolean).slice(0, 2).join("·"), t = e.t;
+        let why = "";
+        if (/[（(]/.test(t)) why = "含括注";
+        else if (unclosed(t)) why = "有未闭之括";
+        else if (len(full) <= 10) { if (t !== full) why = "未逾 10 字而与全文不同"; }
+        else if (!t.endsWith("…")) why = "逾 10 字而截者不以「…」终";
+        else if (len(t) > 11 || !full.startsWith(t.slice(0, -1))) why = "截文非全文之前缀或逾 10 字";
+        if (t.endsWith("…")) cut++;
+        if (why) bad.push("「" + t + "」" + why + "（全文「" + e.labels.join("／") + "」）");
+      }
+      return { bad, cut };
+    };
+    const { ctx, pg } = await open(1440);
+    const grab = () => pg.evaluate(() => relView.edges.map(e => ({ t: e.lab.textContent, labels: e.rels.map(r => r.rel_label) })));
+    const L1 = await grab();
+    const j1 = judgeLabels(L1);
+    ok(j1.bad.length === 0 && L1.length > 0, "只主角之图边名 " + L1.length + " 条：无括注、无未闭之括、逾 10 字者截而以「…」终（截 " + j1.cut + "）", j1.bad.slice(0, 4).join("；"));
+    await setAll(pg, true);
+    const L2 = await grab();
+    const j2 = judgeLabels(L2);
+    ok(j2.bad.length === 0 && L2.length > 0, "「显示全部」之图边名 " + L2.length + " 条：同上（截 " + j2.cut + "）", j2.bad.slice(0, 4).join("；"));
+    /* 全文点边可见：取一条截者，点其触区，出处之列须见其诸关系之 rel_label 全文 */
+    const full = await pg.evaluate(() => {
+      const e = relView.edges.find(e => e.lab.textContent.endsWith("…") && e.rels.some(r => r.rel_label.includes("（")));
+      e.hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      const txt = document.querySelector("#rel-panel").textContent;
+      return { lab: e.lab.textContent, all: e.rels.map(r => r.rel_label), seen: e.rels.every(r => txt.includes(r.rel_label)) };
+    });
+    ok(full.seen, "截者点边见全文：「" + full.lab + "」→ 出处列「" + full.all.join("／") + "」");
+    /* 反证：复旧之硬截（前二以「·」连、硬取 10 字），须红 */
+    const L3 = await pg.evaluate(() => relView.edges.map(e => ({ t: e.rels.map(r => r.rel_label).filter(Boolean).slice(0, 2).join("·").slice(0, 10), labels: e.rels.map(r => r.rel_label) })));
+    const j3 = judgeLabels(L3);
+    if (j3.bad.length) console.log("  ✓ 【反证·如期而红】复硬截 → 「显示全部」边名红 " + j3.bad.length + " 条：" + j3.bad.slice(0, 3).join("；"));
+    else { gateErrs++; console.log("  ⚠ 【反证·★ 不红：门自身出错】复硬截而边名之断仍过"); }
+    await ctx.close();
+  }
+
   /* ===== §四 交互 ===== */
   for (const w of [1440, 375]) {
     H("§四 交互 " + w + (w <= 680 ? "（触屏）" : "（鼠标）"));
@@ -212,12 +269,42 @@ const fontPx = (pg, sel) => pg.evaluate((sel) => {
       for (let i = 1; i <= 8; i++) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: cx - 20 - i * 8, y: cy, id: 1 }, { x: cx + 20 + i * 8, y: cy, id: 2 }] });
       await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
     } else {
-      await pg.mouse.move(sb.x + sb.w * 0.5, sb.y + sb.h * 0.5);
+      /* r62-X2 续（裁二百五十二 二5）：内嵌常滚归页——不 preventDefault、页滚过、视框不变；反证（复硬拦）须红 */
+      const plain = async () => {
+        await pg.evaluate(() => { window.scrollTo(0, 0); window.__wp = [];
+          if (!window.__wpOn) { window.__wpOn = 1; window.addEventListener("wheel", e => window.__wp.push({ p: e.defaultPrevented, c: e.ctrlKey }), { passive: true }); } });
+        await pg.waitForTimeout(150);
+        const r0 = await pg.evaluate(() => { const r = document.querySelector("#rel-canvas svg").getBoundingClientRect();
+          return { x: r.left + r.width / 2, y: Math.min(innerHeight - 40, r.top + r.height / 2), sy: scrollY, w: panoView.box.w, max: document.scrollingElement.scrollHeight - innerHeight }; });
+        await pg.mouse.move(r0.x, r0.y);
+        await pg.mouse.wheel(0, 300);
+        await pg.waitForTimeout(400);
+        const r1 = await pg.evaluate(() => ({ sy: scrollY, w: panoView.box.w, ev: window.__wp.slice() }));
+        return { pass: r1.ev.length > 0 && r1.ev.every(v => !v.p && !v.c) && r1.sy > r0.sy && r1.w === r0.w, r0, r1 };
+      };
+      const pl = await plain();
+      ok(pl.pass && pl.r0.max > 0, "内嵌常滚归页：wheel 未被 preventDefault（" + pl.r1.ev.length + " 次）、页滚 " + pl.r0.sy + "→" + pl.r1.sy + "、视框宽不变 " + pl.r1.w.toFixed(0));
+      /* 反证：复旧之硬拦（无条件 preventDefault 而缩放）于内嵌图上，常滚之断须红 */
+      await pg.evaluate(() => { const svg = document.querySelector("#rel-canvas svg");
+        svg.addEventListener("wheel", (e) => { e.preventDefault(); panoZoomAt(svg, e.deltaY < 0 ? 0.85 : 1 / 0.85, e.clientX, e.clientY); }, { passive: false }); });
+      const plz = await plain();
+      if (!plz.pass) console.log("  ✓ 【反证·如期而红】复硬拦 → 常滚之断红（preventDefault " + plz.r1.ev.filter(v => v.p).length + "/" + plz.r1.ev.length + "、页滚 " + plz.r0.sy + "→" + plz.r1.sy + "、视框宽 " + plz.r0.w.toFixed(0) + "→" + plz.r1.w.toFixed(0) + "）");
+      else { gateErrs++; console.log("  ⚠ 【反证·★ 不红：门自身出错】复硬拦而常滚之断仍过"); }
+      await pg.evaluate(() => { drawRel(); window.scrollTo(0, 0); });   // 重绘即去所注之拦（svg 新建）
+      await pg.waitForTimeout(400);
+      const sb2 = await pg.evaluate(() => { const r = document.querySelector("#rel-canvas svg").getBoundingClientRect(); return { x: r.left + r.width / 2, y: Math.min(innerHeight - 40, r.top + r.height / 2), w: panoView.box.w }; });
+      vb0.w = sb2.w;
+      await pg.evaluate(() => { window.__wp = []; });
+      await pg.mouse.move(sb2.x, sb2.y);
+      await pg.keyboard.down("Control");
       await pg.mouse.wheel(0, -300);
+      await pg.keyboard.up("Control");
     }
     await pg.waitForTimeout(300);
     const vb1 = await pg.evaluate(() => ({ ...panoView.box }));
-    ok(vb1.w < vb0.w * 0.9, (touch ? "双指" : "滚轮") + "缩放：视框宽 " + vb0.w.toFixed(0) + "→" + vb1.w.toFixed(0));
+    const cev = touch ? [] : await pg.evaluate(() => window.__wp.slice());
+    ok(vb1.w < vb0.w * 0.9 && (touch || (cev.length > 0 && cev.every(v => v.p && v.c))),
+      (touch ? "双指" : "Ctrl＋滚轮") + "缩放：视框宽 " + vb0.w.toFixed(0) + "→" + vb1.w.toFixed(0) + (touch ? "" : "（wheel 带 ctrlKey、被 preventDefault " + cev.filter(v => v.p).length + "/" + cev.length + "）"));
     if (touch) { const sc = await pg.evaluate(() => window.visualViewport ? window.visualViewport.scale : 1); ok(sc === 1, "双指于图上不缩页面（visualViewport.scale=" + sc + "）"); }
     if (!touch) {
       const bg = await pg.evaluate(() => { const r = document.querySelector("#rel-canvas svg").getBoundingClientRect();
@@ -231,6 +318,13 @@ const fontPx = (pg, sel) => pg.evaluate((sel) => {
     const ov = await pg.evaluate(() => ({ on: !document.querySelector("#map-overlay").hidden, full: panoView.full, vbW: relZoom.vbW, vbH: relZoom.vbH,
       nodes: document.querySelectorAll("#map-overlay-body .rel-node").length, hits: document.querySelectorAll("#map-overlay-body .pano-edge-hit").length }));
     ok(ov.on && ov.vbW === ov.full.w && ov.vbH === ov.full.h && ov.nodes > 0 && ov.hits > 0, "内嵌已缩放后开放大查看：其框取全图（" + ov.vbW + "×" + ov.vbH + "），节点 " + ov.nodes + "、边之触区 " + ov.hits);
+    if (!touch) {
+      /* r62-X2 续：放大查看之内，滚轮（不按 Ctrl）即缩放（照今，bindZoomGesture） */
+      const z0 = await pg.evaluate(() => { const r = document.querySelector("#map-overlay-body svg").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: relZoom.box.w }; });
+      await pg.mouse.move(z0.x, z0.y); await pg.mouse.wheel(0, -300); await pg.waitForTimeout(300);
+      const z1 = await pg.evaluate(() => relZoom.box.w);
+      ok(z1 < z0.w * 0.95, "放大查看之内滚轮即缩放：视框宽 " + z0.w.toFixed(0) + "→" + z1.toFixed(0));
+    }
     await pg.click("#btn-overlay-close"); await pg.waitForTimeout(300);
     await pg.click(".pano-zoom[aria-label='复位视野']");
     const vb3 = await pg.evaluate(() => ({ b: { ...panoView.box }, f: { ...panoView.full } }));

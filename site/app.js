@@ -5395,12 +5395,12 @@ function drawPanoGraph() {
       badge.appendChild(btip);
       multiLayer.appendChild(badge);
     }
-    /* 边名：此对诸关系之 rel_label，取前二、以「·」连，至多 10 字（照 StoryMatrix 之 edgeLabel 截 10 字） */
+    /* 边名：截法见 panoEdgeLabel（r62-X2 续，裁二百五十二 二3）；全文仍于点边之出处与边之悬停见之 */
     const lab = document.createElementNS(NS, "text");
     lab.setAttribute("class", "pano-elabel");
     lab.setAttribute("text-anchor", "middle");
     lab.setAttribute("fill", color);
-    lab.textContent = pair.rels.map(r => r.rel_label).filter(Boolean).slice(0, 2).join("·").slice(0, 10);
+    lab.textContent = panoEdgeLabel(pair.rels);
     elabLayer.appendChild(lab);
     const e = { a: pair.a, b: pair.b, rels: pair.rels, el: path, badge, lab, hit, A, B };
     relView.edges.push(e);
@@ -5478,12 +5478,69 @@ function panoPlaceNode(node) {
     node.badgeEl.setAttribute("y", +(node.y - PANO_BADGE / 2).toFixed(2));
   }
 }
-/* 一边之位：直线；多重徽记与边名居其中点 */
+/* 边名之截法（r62-X2 续；team/round61_prompts.md §一百二十九 裁二百五十二 二3）：
+ *   ① 各条 rel_label 取首个「（」前之文（括注不入边名）；此对诸关系取前二、以「·」连；
+ *   ② 逾 PANO_ELABEL_MAX（10）字则取前 10 字、末加「…」——截点若落在「」《》之中，退至其开符之前（不截于括中；
+ *      括注已于 ① 去之，此只防引号、书名号）；截后末尾之「·」与标点一并去之，再加「…」。
+ *   全文于点边之出处（showRelDetail）与边之悬停（pairTip）仍全见。 */
+const PANO_ELABEL_MAX = 10;
+const PANO_ELABEL_PAIRS = { "「": "」", "《": "》", "（": "）", "(": ")" };
+function panoEdgeLabel(rels) {
+  const full = rels.map(r => (r.rel_label || "").split("（")[0].trim()).filter(Boolean).slice(0, 2).join("·");
+  const cs = [...full];
+  if (cs.length <= PANO_ELABEL_MAX) return full;
+  let cut = cs.slice(0, PANO_ELABEL_MAX);
+  const open = [];
+  cut.forEach((ch, i) => {
+    if (PANO_ELABEL_PAIRS[ch]) open.push(i);
+    else if (open.length && PANO_ELABEL_PAIRS[cut[open[open.length - 1]]] === ch) open.pop();
+  });
+  if (open.length) cut = cut.slice(0, open[0]);
+  while (cut.length && /[·，、；：。,;:\s]/.test(cut[cut.length - 1])) cut.pop();
+  return cut.join("") + "…";
+}
+/* 多重关系之圆签避盘（r62-X2 续；§一百二十九 二「另二事」之一）：
+ *   圆签居边之中点，而 multiLayer 在 nodeLayer 之下——中点若落于第三人之盘或名签之下，签即被掩、其数不可见
+ *   （实例：楚成王—晋文公之边，中点落宣姜盘之右上）。今沿边自中点向两端交替试位，
+ *   取首个与诸盘（含绢帛描边，先求离其缘 DISC_GAP，不得则退求不交）及诸名签之框皆不交之位；线上俱不得（短边、两端相贴）则于中段离线 12／20／28 两侧试之；
+ *   再不得仍居中点。
+ *   候位 17（中点两侧每 0.04 一位，至 0.18／0.82）；名签之框以字数估（同 panoLabelEm），四边各宽于排印。边名随其签而移。
+ *   DODGE 为门之反证所关（tools/qa/vision_r62x1.js §三 之三）。 */
+const PANO_EDGE = { DODGE: true, BADGE_R: 7.2 + 0.65 + 1.5,
+                    TS: [0.5, 0.46, 0.54, 0.42, 0.58, 0.38, 0.62, 0.34, 0.66, 0.3, 0.7, 0.26, 0.74, 0.22, 0.78, 0.18, 0.82],
+                    OFF: [12, -12, 20, -20, 28, -28], DISC_GAP: 8 };   // DISC_GAP：签与盘缘至少隔 8，免贴第三人之盘而误读作其人之签
+function panoBadgeBlocked(x, y, R, gap) {
+  for (const n of relView.nodes.values()) {
+    const dr = n.r + (n.proto ? PANO_RING_W / 2 : 0.7);
+    if (Math.hypot(x - n.x, y - n.y) < R + dr + gap) return true;
+    const hw = panoLabelEm(n.p.name) * n.fs / 2 + 5, t = n.y + n.r + 3 - n.fs * 0.25, b = n.y + n.r + 3 + n.fs * 1.35; // 字框之估宽于排印（375 小字之排印实宽于估约 2.7，故横加 5）
+    const nx = Math.max(n.x - hw, Math.min(x, n.x + hw)), ny = Math.max(t, Math.min(y, b));
+    if (Math.hypot(x - nx, y - ny) < R) return true;
+  }
+  return false;
+}
+function panoEdgeAnchor(e) {
+  const A = e.A, B = e.B, at = (t) => [A.x + (B.x - A.x) * t, A.y + (B.y - A.y) * t];
+  if (!e.badge || !PANO_EDGE.DODGE) return at(0.5);
+  const L = Math.hypot(B.x - A.x, B.y - A.y) || 1, ux = -(B.y - A.y) / L, uy = (B.x - A.x) / L;
+  /* 二级：先求离盘缘 DISC_GAP 之位，不得则退求仅不相交之位（gap 0）。每级先线上，线上无一空位（短边、两端相贴，
+   * 其一之名签横于线上）则于中段九位之两侧，离线 OFF 所列之距试之 */
+  for (const gap of [PANO_EDGE.DISC_GAP, 0]) {
+    for (const t of PANO_EDGE.TS) { const p = at(t); if (!panoBadgeBlocked(p[0], p[1], PANO_EDGE.BADGE_R, gap)) return p; }
+    for (const k of PANO_EDGE.OFF) for (const t of PANO_EDGE.TS.slice(0, 9)) {
+      const p = at(t), q = [p[0] + ux * k, p[1] + uy * k];
+      if (!panoBadgeBlocked(q[0], q[1], PANO_EDGE.BADGE_R, gap)) return q;
+    }
+  }
+  return at(0.5);
+}
+/* 一边之位：直线；多重徽记与边名居其中点（有圆签者照 panoEdgeAnchor 避盘） */
 function panoPlaceEdge(e) {
   const A = e.A, B = e.B, d = "M" + A.x + " " + A.y + " L" + B.x + " " + B.y;
   e.el.setAttribute("d", d);
   e.hit.setAttribute("d", d);
-  const mx = +((A.x + B.x) / 2).toFixed(2), my = +((A.y + B.y) / 2).toFixed(2);
+  const [ax, ay] = panoEdgeAnchor(e);
+  const mx = +ax.toFixed(2), my = +ay.toFixed(2);
   if (e.badge) {
     const c = e.badge.querySelector("circle"), t = e.badge.querySelector("text");
     c.setAttribute("cx", mx); c.setAttribute("cy", my);
@@ -5508,7 +5565,7 @@ function panoZoomAt(svg, k, cx, cy) {
   const w = b.w * k, h = b.h * k;
   panoSetBox(svg, { x: sx - (cx - r.left) / r.width * w, y: sy - (cy - r.top) / r.height * h, w, h });
 }
-/* 手势：按人拖人（鼠标、单指）；拖底平移（鼠标；触屏单指纵滑仍滚页）；滚轮、双指缩放。
+/* 手势：按人拖人（鼠标、单指）；拖底平移（鼠标；触屏单指纵滑仍滚页）；Ctrl／⌘＋滚轮、双指缩放（常滚归页，见下）。
  * 拖动越 4px 即记 moved，其后之 click 不触高亮、不开出处。 */
 function panoBindGestures(svg) {
   const ptr = new Map();
@@ -5562,9 +5619,15 @@ function panoBindGestures(svg) {
   };
   svg.addEventListener("pointerup", lift);
   svg.addEventListener("pointercancel", lift);
+  /* 滚轮（r62-X2 续；裁二百五十二 二5，照站之先例——地图内嵌不拦滚轮，见 bindPanZoom 与 bindZoomGesture 之 wheel）：
+   *   内嵌图常滚归页，不拦、不缩；Ctrl／⌘＋滚轮方缩放（触控板捏合于 Chromium／Firefox 即以 ctrlKey 之 wheel 至）。
+   *   放大查看之克隆体另由 bindZoomGesture 绑，滚轮即缩放，照旧。
+   *   缩放之比随 deltaY 连续（捏合之 deltaY 小而密，固定一步 0.85 则过疾）：鼠标一格（±100）约 0.85／1.17，与旧步同。 */
   svg.addEventListener("wheel", (e) => {
+    if (!(e.ctrlKey || e.metaKey)) return;
     e.preventDefault();
-    panoZoomAt(svg, e.deltaY < 0 ? 0.85 : 1 / 0.85, e.clientX, e.clientY);
+    const dy = e.deltaY * (e.deltaMode === 1 ? 33 : (e.deltaMode === 2 ? 400 : 1));
+    panoZoomAt(svg, Math.exp(Math.max(-100, Math.min(100, dy)) * 0.0016), e.clientX, e.clientY);
   }, { passive: false });
 }
 /* 图下之条（在图框内、svg 之下）：「边名」开关＋缩放三钮。随图重绘而重建；以人为中心时图框清空，条亦随去。 */

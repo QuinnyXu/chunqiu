@@ -648,7 +648,26 @@ async function snapshot(br, base, hash, sel, w, h) {
     console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(f) 一区之首标改一字 → " + (red ? "当场红" : "★ 不红：门自身出错"));
     if (!red) process.exitCode = 2;
   }
-  const srvOldR = await srv(SITE, { "/app.js": oldAppRosterFamXF, "/index.html": oldHtml, "/styles.css": oldCssFam });
+  /* r62-X2 续（2026-10-18；§一百二十九 裁二百五十二 二6「文案改动随 vision_r54 控制变量同换」）·控制变量之五：
+   *   index.html 关系页工具条内之注（「全景默认只画主角……」一行）照今改写（「全库全环」→「全库之人（力导向图）」）。
+   *   注入 #view-relations 之 innerHTML，故关系页之逐位全等须于控制之 html 同换此注。只换此一注：
+   *   首标「<!-- 全景默认只画主角（r24a-2 裁定②b」于旧、今 index.html 各恰命中 1 次，尾标「-->」取其后之首个；
+   *   换后之 html 于注外与旧版逐字同（机械断之）。自证能红：首标改一字（命中 0 次），其判须红；不红即门自身出错。 */
+  const X2C_HEAD = "<!-- 全景默认只画主角（r24a-2 裁定②b", X2C_TAIL = "-->";
+  const x2cCut = (t, head) => { const i = t.indexOf(head); if (i < 0 || t.indexOf(head, i + 1) >= 0) return null; const j = t.indexOf(X2C_TAIL, i); return j < 0 ? null : [i, j + X2C_TAIL.length]; };
+  const x2cO = x2cCut(oldHtml, X2C_HEAD), x2cN = x2cCut(newHtml, X2C_HEAD);
+  ok(!!x2cO && !!x2cN, "§〇〔(g) 控制变量之五〕关系页之控制换入 index.html 工具条之注（首标于旧、今 html 各恰命中 1 次）",
+    x2cO && x2cN ? "旧「" + oldHtml.slice(x2cO[0], x2cO[1]).slice(40, 80) + "…」→ 今「" + newHtml.slice(x2cN[0], x2cN[1]).slice(40, 90) + "…」" : "锚失效");
+  if (!x2cO || !x2cN) { console.log("    ⚠ 控制变量之五之锚失效，停门"); process.exit(2); }
+  const oldHtmlX = oldHtml.slice(0, x2cO[0]) + newHtml.slice(x2cN[0], x2cN[1]) + oldHtml.slice(x2cO[1]);
+  ok(oldHtmlX.slice(0, x2cO[0]) === oldHtml.slice(0, x2cO[0]) && oldHtmlX.slice(x2cO[0] + (x2cN[1] - x2cN[0])) === oldHtml.slice(x2cO[1]),
+    "§〇〔(g) 控制变量之五〕换注后之 html，注外与旧版逐字同");
+  {
+    const red = !x2cCut(oldHtml, X2C_HEAD.slice(1) + "#");
+    console.log("    " + (red ? "✓" : "⚠") + " 〔反证〕(g) 首标改一字 → " + (red ? "当场红" : "★ 不红：门自身出错"));
+    if (!red) process.exitCode = 2;
+  }
+  const srvOldR = await srv(SITE, { "/app.js": oldAppRosterFamXF, "/index.html": oldHtmlX, "/styles.css": oldCssFam });
   const baseOldR = "http://127.0.0.1:" + srvOldR.address().port + "/";
   const br = await chromium.launch();
 
