@@ -581,7 +581,9 @@ async function snapshot(br, base, hash, sel, w, h) {
    *   （PANO_MID_COS／PANO_LABEL_STAGGER／panoStaggerSet 一块；labelFar 一行；名签径向距一行；text-anchor 之界一行）。
    *   四处之新文俱自今版 app.js 实取（不抄于此）；每处旧文须于控制码中恰命中 1 次、新文须于今版恰命中 1 次，否则停门（exit 2）。
    *   换后控制仍对今版整页**逐位全等**（零容忍）——证「X1 之外关系页无一处别改」。
-   *   自证能红：令一处之旧文缺一字（命中 0 次），其判须红；不红即门自身出错。 */
+   *   自证能红：令一处之旧文缺一字（命中 0 次），其判须红；不红即门自身出错。
+   *   X1 续（§一百二十四 裁二百五十一 二 3）：常量块添 PANO_STAGGER_COS（0.5）、PANO_LABEL_STAGGER 19→21、panoStaggerSet 之带改用
+   *   PANO_STAGGER_COS、labelFar 行注改——俱在四处之内，新文仍自今版实取，故锚法不变；旧文、新文仍须各恰命中 1 次，反证仍须红。 */
   const X1_ANCHORS = (() => {
     const ring = 'const PANO_RING_W = 3.4, PANO_BADGE = 22, PANO_BADGE_SW = "2.6";';
     const i0 = newApp.indexOf(ring), i1 = newApp.indexOf("/* 全景环上的人物集合", i0);

@@ -10,15 +10,21 @@
  *
  * 验（1440×900、375×812 二宽；375 另以 DPR 3 复量一次，近真机）：
  *  §一 前提：路由 #/relations 落全景、只主角（showAll=false）；环上节点数 ＝ is_protagonist=1 之数（另路）＞0。
- *  §二 错落之形：顶、底二弧（text-anchor=middle 者）按角度连排，相邻者之名签径向距其节点一近一远、
- *      相差 ≥ 一框之高的 0.9 倍（「约一行之高」）；左右二弧（start／end）之径向距一律同近（不动）。
+ *  §二 错落之形：错落之带（|cos θ|＜STAGGER_COS＝0.5，顶、底各一段；X1 续 裁二百五十一 二）内之名签按角度连排，
+ *      相邻者之名签径向距其节点一近一远、相差 ≥ 一框之高的 0.9 倍（「约一行之高」）；带外之名签径向距一律同近
+ *      （主角 24、配角 15）。首笔（f4d719b）此判以 text-anchor=middle 定带、断「左右二弧不动」——
+ *      其前提（§一百二十一 〇「左右二弧不相压」）已勘不实、二2 已废，故随裁改为以带定；判之严不减。
+ *      带界之值本门自书（不取页内），另以门自检对页内 PANO_STAGGER_COS 对账。
  *  §三 主判：全景诸名签之框两两不相交。所交之对分二类书之——
  *      甲、二人俱在顶底二弧（本笔所治）；乙、涉左右二弧者（本笔不动之区）。二类俱计入判红。
  *  §四 反证：页内令 panoStaggerSet 恒返空集（＝取消错落，回改前之形）、重绘——§三 须红，且红在甲类；不红即 exit 2。
+ *      （乙类于反证态之数另印，备查，不入判。）
  *  ★ 首落（2026-10-18）实况：甲类 0（1440、375、375x3）；**乙类改前即有、本笔未治**——1440：韩厥×晋文公；
  *    375：另加 管仲×齐桓公、郤克×赵盾、夫差×阖庐、阖庐×伍员（俱在 0.25＜|cos θ|＜0.5 之过渡带，相邻二名同侧对齐、
  *    纵距 slot·|cos θ| 小于框高）。任务书定「左右二弧不动」而门定「诸名签两两不相交」，二者于此相抵——
  *    已呈「验收偏差上报」候裁；本门照门之本文计乙类入判红，**不为求绿而缩其量**。
+ *  ★ X1 续（2026-10-18；§一百二十四 裁二百五十一 二 取甲）：错落之带放宽至 |cos θ|＜0.5、远者外推 21；
+ *    §三 甲乙二类与 §四 反证一字不改。
  *  截图：team/r62X1_shots/（after_*＝本笔；anti_*＝反证态＝取消错落；before_* 由改前之码另跑，见 _SOURCE.txt）。
  */
 "use strict";
@@ -27,6 +33,7 @@ const { requireBrowser } = require("./require_browser.js");
 const ROOT = path.resolve(__dirname, "..", "..");
 const SITE = process.env.QA_SITE_DIR ? path.resolve(process.env.QA_SITE_DIR) : path.join(ROOT, "site");
 const SHOT_PREFIX = process.env.QA_SHOT_PREFIX || "";       // 改前之码另跑时书 before_
+const STAGGER_COS = 0.5;   // 错落之带（裁二百五十一 二 1）；门自书，另对页内常量
 const J = (n) => JSON.parse(fs.readFileSync(path.join(SITE, "data", n + ".json"), "utf8"));
 const PROTO_N = J("people").filter(p => Number(p.is_protagonist) === 1).length;
 
@@ -59,7 +66,8 @@ async function measure(pg) {
         ang: Math.atan2(cy - 330, cx - 500), radial: Math.hypot(tx - cx, ty - 4 - cy),
         x0: b.left, y0: b.top, x1: b.right, y1: b.bottom, h: b.height / k };
     });
-    return { mode: relView.mode, showAll: relView.showAll, k, ls };
+    return { mode: relView.mode, showAll: relView.showAll, k, ls,
+      staggerCos: typeof PANO_STAGGER_COS === "number" ? PANO_STAGGER_COS : null };
   });
 }
 function judgeOverlap(m) {
@@ -78,17 +86,17 @@ function judgeOverlap(m) {
 function judgeStagger(m) {
   const errs = [], hMax = Math.max(...m.ls.map(l => l.h));
   for (const top of [true, false]) {
-    const arc = m.ls.filter(l => l.anchor === "middle" && (Math.sin(l.ang) < 0) === top)
+    const arc = m.ls.filter(l => Math.abs(Math.cos(l.ang)) < STAGGER_COS && (Math.sin(l.ang) < 0) === top)
       .map(l => ({ l, a: top && l.ang > Math.PI / 2 ? l.ang - 2 * Math.PI : l.ang })).sort((u, v) => u.a - v.a);
     for (let i = 1; i < arc.length; i++) {
       const d = Math.abs(arc[i].l.radial - arc[i - 1].l.radial);
       if (d < 0.9 * hMax) errs.push((top ? "顶" : "底") + "弧 " + arc[i - 1].l.name + "／" + arc[i].l.name + " 径向差 " + d.toFixed(1) + " ＜ 0.9×框高 " + hMax.toFixed(1));
     }
   }
-  const side = m.ls.filter(l => l.anchor !== "middle");
-  /* 左右二弧：主角 24、配角 15，此外无他值（不动） */
+  const side = m.ls.filter(l => !(Math.abs(Math.cos(l.ang)) < STAGGER_COS));
+  /* 带外：主角 24、配角 15，此外无他值（不错落） */
   const odd = side.filter(l => Math.abs(l.radial - 24) > 0.05 && Math.abs(l.radial - 15) > 0.05);
-  if (odd.length) errs.push("左右二弧名签径向距有异：" + odd.map(l => l.name + " " + l.radial.toFixed(1)).join("、"));
+  if (odd.length) errs.push("带外名签径向距有异：" + odd.map(l => l.name + " " + l.radial.toFixed(1)).join("、"));
   return { errs };
 }
 
@@ -124,9 +132,10 @@ function judgeStagger(m) {
     selfcheck(m.ls.length > 0 && m.ls.length === PROTO_N, "环上 " + m.ls.length + " 人 ＝ is_protagonist=1 之 " + PROTO_N + " 人（另路）");
     const mids = m.ls.filter(l => l.anchor === "middle").length;
     selfcheck(mids >= 2, "顶底二弧有名签可量（" + mids + "）");
+    selfcheck(m.staggerCos === STAGGER_COS, "页内错落之带 PANO_STAGGER_COS ＝ 门所书 " + STAGGER_COS, "页内 " + m.staggerCos);
     if (!SHOT_PREFIX) {
       const st = judgeStagger(m);
-      ok(st.errs.length === 0, "§二 错落之形：顶底二弧相邻一近一远、左右二弧不动", st.errs.slice(0, 4).join("；"));
+      ok(st.errs.length === 0, "§二 错落之形：带内（|cos θ|＜" + STAGGER_COS + "）相邻一近一远、带外同近", st.errs.slice(0, 4).join("；"));
     }
     const hits = judgeOverlap(m);
     const ja = hits.filter(x => x.cls === "甲"), yi = hits.filter(x => x.cls === "乙");
@@ -138,7 +147,8 @@ function judgeStagger(m) {
       await pg.evaluate(() => { panoStaggerSet = () => new Set(); drawRel(); });   // eslint-disable-line no-global-assign
       await pg.waitForTimeout(500);
       const ma = await measure(pg);
-      const ha = judgeOverlap(ma).filter(x => x.cls === "甲");
+      const hall = judgeOverlap(ma), ha = hall.filter(x => x.cls === "甲");
+      console.log("    〔备查〕反证态 §三 甲 " + ha.length + "、乙 " + (hall.length - ha.length));
       if (ha.length) console.log("  ✓ 【反证·如期而红】取消错落 → §三 甲 红：" + ha.map(x => x.s).join("；"));
       else { gateErrs++; console.log("  ⚠ 【反证·★ 不红：门自身出错】取消错落而 §三 甲 不红"); }
       await clipShots(pg, "anti_" + tag);
