@@ -2889,6 +2889,7 @@ function closeOverlay() {
 const relZoom = {
   active: false, svg: null, vbW: 0, vbH: 0, minFrac: 0.2, box: null, aspect: 0,
   pointers: new Map(), pinch: null, panStart: null, panDist: 0,
+  mirror: null,   // r62-X3：全景之镜（内嵌元素 → 克隆元素），见 panoAttr；非全景或未开为 null
 };
 /* aspect＝取景盒的宽高比，进入全屏时按「浮层容器实测宽高」定死（fit-to-container），
  * 之后拖移/缩放全程沿用同一比例，使 viewBox 与容器等比、preserveAspectRatio meet 恰好填满、
@@ -3010,6 +3011,7 @@ function openRelOverlay() {
   // 故克隆出的点边/节点在全屏内「点了没反应」。这里按 data-detail / data-node 标记在克隆体上重新绑定，
   // 且全屏内一律走底部抽屉（与地图全屏一致），而非内嵌态的右侧卡片。
   rebindRelClone(clone);
+  if (src.classList.contains("pano-svg") && relView.mode === "pano") panoMountOverlay(src, clone, body);
   // 关键修复②（取景）：按容器实测宽高做 fit-to-container 取景（见 relZoomInitView）。
   relZoomInitView();
   // 容器尺寸在本帧尚为 0（极端布局时序）时，下一帧再量一次补正，避免 fit 落到「全 viewBox 缩得极小」。
@@ -3058,6 +3060,63 @@ function rebindRelClone(clone) {
     el.addEventListener("click", guarded(() => showRelDetailDrawer(relsTouching(pid), pid)));
   });
 }
+/* 放大查看内之弹性拖拽（r62-X3；§一百四十四 定 4）：
+ *   ① 立镜：内嵌 svg 与克隆体以 querySelectorAll("*") 同序逐一配对（克隆之时二树同构），此后 panoAttr／panoShow 内嵌、克隆同写；
+ *   ② 按人拖人：克隆体上按住一人（单指或鼠标）即拖其人——不平移（清 bindZoomGesture 之 panStart）；第二指落则让于双指缩放；
+ *      拖时以克隆体之视框（relZoom.box）换算坐标，写内嵌之 relView.nodes，力学照内嵌（panoSim*，与内嵌同一份）；
+ *      拖逾 4px 则 panDist 记 99，放手之 click 不开抽屉（同 rebindRelClone 之守）。
+ *   ③ 浮层左上加 ⟲（复位视野与布局）：复初布局、解诸钉（panoResetAll），全屏之视框复其初取景（relZoomInitView）。 */
+function panoMountOverlay(src, clone, body) {
+  const a = src.querySelectorAll("*"), b = clone.querySelectorAll("*");
+  if (a.length !== b.length) return;
+  relZoom.mirror = new Map();
+  for (let i = 0; i < a.length; i++) relZoom.mirror.set(a[i], b[i]);
+  let drag = null;
+  clone.addEventListener("pointerdown", (e) => {
+    const g = e.target.closest && e.target.closest(".rel-node");
+    if (!g || !relZoom.active || relZoom.pointers.size !== 1) { drag = null; return; }
+    drag = { id: g.dataset.node, pid: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+    relZoom.panStart = null;   // 按人则拖人，不平移（本监听绑于 bindZoomGesture 之后，同一 pointerdown 中后行）
+  });
+  clone.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    if (relZoom.pointers.size !== 1) { if (drag.moved) panoSimRelease(drag.id); drag = null; return; }
+    if (!drag.moved) {
+      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 4) return;
+      drag.moved = true;
+      try { clone.setPointerCapture(e.pointerId); } catch { /* 已释 */ }
+      panoSimGrab(drag.id);
+    }
+    relZoom.panDist = 99;
+    const node = relView.nodes.get(drag.id);
+    if (!node) return;
+    const [x, y] = zSvgPoint(clone, relZoom.box, e.clientX, e.clientY);
+    node.x = +x.toFixed(2); node.y = +y.toFixed(2);
+    panoPlaceNode(node);
+    for (const ed of relView.edges) if (ed.a === drag.id || ed.b === drag.id) panoPlaceEdge(ed);
+    panoSimDragTo(drag.id, node.x, node.y);
+  });
+  const lift = (e) => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    if (drag.moved) panoSimRelease(drag.id);
+    drag = null;
+  };
+  clone.addEventListener("pointerup", lift);
+  clone.addEventListener("pointercancel", lift);
+  const box = document.createElement("div");
+  box.className = "overlay-controls";
+  box.id = "overlay-rel-tools";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = "⟲";
+  btn.setAttribute("aria-label", "复位视野与布局");
+  btn.addEventListener("click", () => {
+    panoResetAll($("#rel-canvas svg.pano-svg"));
+    relZoomInitView();
+  });
+  box.appendChild(btn);
+  body.appendChild(box);
+}
 function closeRelOverlay() {
   if (drawer.open) closeDrawer(); // 全屏关闭时一并收起底部抽屉，避免其孤悬
   const overlay = $("#map-overlay");
@@ -3068,6 +3127,7 @@ function closeRelOverlay() {
   $("#map-overlay-body").textContent = "";
   relZoom.active = false;
   relZoom.svg = null;
+  relZoom.mirror = null;
   relZoom.aspect = 0;
   relZoom.panDist = 0;
   relZoom.pointers.clear();
@@ -5095,11 +5155,17 @@ function panoHash(s) {
   return h >>> 0;
 }
 const panoLabelEm = (name) => [...name].reduce((w, ch) => w + (/[⺀-鿿豈-﫿]/.test(ch) ? 1 : 0.6), 0);
-/* 布局本体（纯函数，不碰 DOM）：N[i] = { id, st, r, fs, lw }，须已按 panoPeople 之序；links[k] = { i, j, k: 此对关系之数 }。
- * 返其 x、y 写回 N[i]；另返 { pass, left }（收尾推开之遍数、余交之数）。 */
-function panoLayout(N, links, over) {
+/* 力学之器（r62-X3；裁二百五十五 一之一「同源」）：布局（panoLayout）与弹性拖拽（panoSim*）共用之一器。
+ *   一对之力（斥力、异国斥力 ×XREP、后半程之名签矩形相斥）、网格分桶（n ＞ GRID_MIN）、边引力、向心、国聚、国心、
+ *   逐步之积分（阻尼 FRIC、限速 cap）与逐对推开之式，俱只此一份；布局与弹性皆取之，不两抄。
+ *   N[i] = { id, st, r, fs, lw }（须已按 panoPeople 之序）；links[k] = { i, j, k: 此对关系之数 }。
+ *   ox、oy：坐标之移（布局为 0；弹性在全图之框内算，取 panoLayoutFor 所移之量，向心之心与国聚之锚随之而移，力之式不变）。
+ *   kit.X／Y 由用者写入初位。forces(late, grid)：合力写入 FX／FY（含向心、国聚、国心之常数项，即全式）。
+ *   step(cap, BX, BY, fix, fade)：积分一步；BX／BY 为偏置（弹性用之，布局为 null），fix[i] 为真者不动；返最大速（有 fix 时）。
+ *   pushAll(grid, fix)：逐对推开一遍（i＜j 之序；同位以序定向）；fix 之人不动，其对手全让；返相交之对数。 */
+function panoForceKit(N, links, over, ox, oy) {
   const P = Object.assign({}, PANO_FORCE, over || {});
-  const n = N.length, STEPS = P.STEPS, PAD = P.PAD, CX = 500, CY = 340;
+  const n = N.length, PAD = P.PAD, CX = 500 + (ox || 0), CY = 340 + (oy || 0);
   const spans = new Map();
   N.forEach((v, i) => { const s = spans.get(v.st); if (!s) spans.set(v.st, [i, i]); else s[1] = i; });
   const sid = new Map([...spans.keys()].map((k, i) => [k, i])), nst = sid.size;
@@ -5110,8 +5176,6 @@ function panoLayout(N, links, over) {
     const [lo, hi] = spans.get(v.st), a = ((lo + hi) / 2 / n) * Math.PI * 2 - Math.PI / 2;
     AX[i] = CX + P.RA * Math.cos(a); AY[i] = CY + P.RA * Math.sin(a); S[i] = sid.get(v.st);
     HW[i] = Math.max(v.r, v.lw * 0.56 + 2) + PAD; T[i] = v.r + PAD; B[i] = v.r + 3 + v.fs * 1.25 + PAD;
-    const h = panoHash(v.id), ang = (h % 3600) / 3600 * Math.PI * 2, rr = 20 + ((h >>> 12) % 1000) / 1000 * 50;
-    X[i] = AX[i] + Math.cos(ang) * rr; Y[i] = AY[i] + Math.sin(ang) * rr;
   });
   const LI = new Int32Array(links.length), LJ = new Int32Array(links.length), LL = new Float64Array(links.length);
   links.forEach((L, k) => { LI[k] = L.i; LJ[k] = L.j; LL[k] = (L.k >= 3 ? 140 : (L.k === 2 ? 170 : 200)) * P.ELK; });
@@ -5130,9 +5194,20 @@ function panoLayout(N, links, over) {
     if (ox < oy) { const k = (dx >= 0 ? 0.5 : -0.5) * ox; FX[i] += k; FX[j] -= k; }
     else { const k = (dy >= 0 ? 0.5 : -0.5) * oy; FY[i] += k; FY[j] -= k; }
   };
+  /* 推开之式：二人「节点＋名签」矩形相交则沿交之短边推开（各让交之半＋0.5）；wi、wj 为二人所让之倍
+   * （布局俱 1；弹性中一方钉住或被拖，则其倍 0、对手 2，即对手全让） */
+  const push = (i, j, wi, wj) => {
+    const ox = Math.min(X[i] + HW[i], X[j] + HW[j]) - Math.max(X[i] - HW[i], X[j] - HW[j]);
+    if (ox <= 0) return 0;
+    const oy = Math.min(Y[i] + B[i], Y[j] + B[j]) - Math.max(Y[i] - T[i], Y[j] - T[j]);
+    if (oy <= 0) return 0;
+    if (ox < oy) { const k = (X[i] - X[j] > 0 || X[i] === X[j] ? 1 : -1) * (ox / 2 + 0.5); X[i] += k * wi; X[j] -= k * wj; }
+    else { const k = (Y[i] - Y[j] > 0 || Y[i] === Y[j] ? 1 : -1) * (oy / 2 + 0.5); Y[i] += k * wi; Y[j] -= k * wj; }
+    return 1;
+  };
   /* 网格分桶：以诸人之外框之左上为原点，格边 C；计数排序入格（格号升序、格内序号升序，定序）；各格之质心每步一算。
    * 只用定长之类型数组（不足方扩），每步不另生 Map／数组——免「显示全部」反复重绘时垃圾回收落入布局之计时。 */
-  const grid = n > P.GRID_MIN, C = P.CELL;
+  const C = P.CELL;
   const ORD = new Int32Array(n), CID = new Int32Array(n);
   let CNT = new Int32Array(64), ST = new Int32Array(64), GX = new Float64Array(64), GY = new Float64Array(64);
   let LIVE = new Int32Array(64), gn = 0, gw = 1;
@@ -5158,8 +5233,7 @@ function panoLayout(N, links, over) {
   const near = (ca, cb) => { const dx = cb % gw - ca % gw, dy = Math.floor(cb / gw) - Math.floor(ca / gw);
     return dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1; };
   const SCX = new Float64Array(nst), SCY = new Float64Array(nst), SCN = new Float64Array(nst);
-  for (let s = 0; s < STEPS; s++) {
-    const alpha = 1 - s / STEPS, late = s > STEPS * 0.45;
+  const forces = (late, grid) => {
     FX.fill(0); FY.fill(0);
     if (!grid) {
       for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) pair(i, j, late);
@@ -5189,44 +5263,67 @@ function panoLayout(N, links, over) {
     }
     SCX.fill(0); SCY.fill(0); SCN.fill(0);
     for (let i = 0; i < n; i++) { SCX[S[i]] += X[i]; SCY[S[i]] += Y[i]; SCN[S[i]]++; }
-    const cap = 2 + 40 * alpha;
     for (let i = 0; i < n; i++) {
-      let fx = FX[i] + P.GRAV * (CX - X[i]) + P.COH * (AX[i] - X[i]);
-      let fy = FY[i] + P.GRAV * (CY - Y[i]) + P.COH * (AY[i] - Y[i]);
+      FX[i] = FX[i] + P.GRAV * (CX - X[i]) + P.COH * (AX[i] - X[i]);
+      FY[i] = FY[i] + P.GRAV * (CY - Y[i]) + P.COH * (AY[i] - Y[i]);
       const m = SCN[S[i]];
-      if (m > 1) { fx += P.CTR * ((SCX[S[i]] - X[i]) / (m - 1) - X[i]); fy += P.CTR * ((SCY[S[i]] - Y[i]) / (m - 1) - Y[i]); }
-      let vx = (VX[i] + fx) * P.FRIC, vy = (VY[i] + fy) * P.FRIC;
+      if (m > 1) { FX[i] += P.CTR * ((SCX[S[i]] - X[i]) / (m - 1) - X[i]); FY[i] += P.CTR * ((SCY[S[i]] - Y[i]) / (m - 1) - Y[i]); }
+    }
+  };
+  const step = (cap, BX, BY, fix, fade) => {
+    let vmax = 0;
+    for (let i = 0; i < n; i++) {
+      if (fix && fix[i]) { VX[i] = 0; VY[i] = 0; continue; }
+      let vx = (VX[i] + (BX ? FX[i] - BX[i] : FX[i])) * P.FRIC, vy = (VY[i] + (BY ? FY[i] - BY[i] : FY[i])) * P.FRIC;
       const sp = Math.sqrt(vx * vx + vy * vy);
       if (sp > cap) { vx *= cap / sp; vy *= cap / sp; }
+      if (fade != null && fade !== 1) { vx *= fade; vy *= fade; }
       VX[i] = vx; VY[i] = vy; X[i] += vx; Y[i] += vy;
+      if (fix) vmax = Math.max(vmax, Math.abs(vx), Math.abs(vy));
     }
-  }
-  /* 收尾：逐对推开至无交（i＜j 之序；同位则以序定向） */
-  const push = (i, j) => {
-    const ox = Math.min(X[i] + HW[i], X[j] + HW[j]) - Math.max(X[i] - HW[i], X[j] - HW[j]);
-    if (ox <= 0) return 0;
-    const oy = Math.min(Y[i] + B[i], Y[j] + B[j]) - Math.max(Y[i] - T[i], Y[j] - T[j]);
-    if (oy <= 0) return 0;
-    if (ox < oy) { const k = (X[i] - X[j] > 0 || X[i] === X[j] ? 1 : -1) * (ox / 2 + 0.5); X[i] += k; X[j] -= k; }
-    else { const k = (Y[i] - Y[j] > 0 || Y[i] === Y[j] ? 1 : -1) * (oy / 2 + 0.5); Y[i] += k; Y[j] -= k; }
-    return 1;
+    return vmax;
   };
-  let pass = 0, left = P.LABEL ? 1 : 0;
-  for (; pass < 800 && left; pass++) {
-    left = 0;
-    if (!grid) { for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) left += push(i, j); continue; }
+  const pushAll = (grid, fix) => {
+    const pp = !fix ? (i, j) => push(i, j, 1, 1) : (i, j) => {
+      const fi = fix[i], fj = fix[j];
+      if (fi && fj) return 0;
+      return push(i, j, fi ? 0 : (fj ? 2 : 1), fj ? 0 : (fi ? 2 : 1));
+    };
+    let left = 0;
+    if (!grid) { for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) left += pp(i, j); return left; }
     bucket();
     for (let a = 0; a < gn; a++) {
       const ca = LIVE[a], a0 = ST[ca], a1 = a0 + CNT[ca];
-      for (let p = a0; p < a1; p++) for (let q = p + 1; q < a1; q++) left += push(ORD[p], ORD[q]);
+      for (let p = a0; p < a1; p++) for (let q = p + 1; q < a1; q++) left += pp(ORD[p], ORD[q]);
       for (let b = a + 1; b < gn; b++) {
         const cb = LIVE[b];
         if (!near(ca, cb)) continue;
-        for (let p = a0; p < a1; p++) for (let q = ST[cb], q1 = q + CNT[cb]; q < q1; q++) left += push(Math.min(ORD[p], ORD[q]), Math.max(ORD[p], ORD[q]));
+        for (let p = a0; p < a1; p++) for (let q = ST[cb], q1 = q + CNT[cb]; q < q1; q++) left += pp(Math.min(ORD[p], ORD[q]), Math.max(ORD[p], ORD[q]));
       }
     }
+    return left;
+  };
+  return { P, n, X, Y, VX, VY, FX, FY, AX, AY, HW, T, B, S, forces, step, pushAll, grid: n > P.GRID_MIN };
+}
+/* 布局本体（纯函数，不碰 DOM）：N[i] = { id, st, r, fs, lw }，须已按 panoPeople 之序；links[k] = { i, j, k: 此对关系之数 }。
+ * 返其 x、y 写回 N[i]；另返 { pass, left }（收尾推开之遍数、余交之数）。
+ * 力、积分与推开俱取 panoForceKit（r62-X3 抽出，式与序未改：初布局诸盘心与 33a7523 逐位同，门 tools/qa/vision_r62x3.js §〇 断之）。 */
+function panoLayout(N, links, over) {
+  const K = panoForceKit(N, links, over, 0, 0), P = K.P;
+  const STEPS = P.STEPS, X = K.X, Y = K.Y, grid = K.grid;
+  N.forEach((v, i) => {
+    const h = panoHash(v.id), ang = (h % 3600) / 3600 * Math.PI * 2, rr = 20 + ((h >>> 12) % 1000) / 1000 * 50;
+    X[i] = K.AX[i] + Math.cos(ang) * rr; Y[i] = K.AY[i] + Math.sin(ang) * rr;
+  });
+  for (let s = 0; s < STEPS; s++) {
+    const alpha = 1 - s / STEPS, late = s > STEPS * 0.45;
+    K.forces(late, grid);
+    K.step(2 + 40 * alpha, null, null, null, 1);
   }
-  N.forEach((v, i) => { v.x = X[i]; v.y = Y[i]; v.hw = HW[i]; v.t = T[i]; v.b = B[i]; });
+  /* 收尾：逐对推开至无交 */
+  let pass = 0, left = P.LABEL ? 1 : 0;
+  for (; pass < 800 && left; pass++) left = K.pushAll(grid, null);
+  N.forEach((v, i) => { v.x = X[i]; v.y = Y[i]; v.hw = K.HW[i]; v.t = K.T[i]; v.b = K.B[i]; });
   return { pass, left };
 }
 /* 离群之量（裁二百五十一 三3）：a＝其人与本国在图诸人心距之均；b＝其人与他国（在图二人以上之国）诸人心距之均之最小者；
@@ -5270,7 +5367,7 @@ function panoPeople() {
              a.id.localeCompare(b.id);
     });
 }
-/* 全景之态：视框（full＝全图、box＝今之视框）、拖动之守（moved）、边名之开关、布局之存（同一人集只算一次）、量（供门） */
+/* 全景之态：视框（full＝全图、box＝今之视框）、拖动之守（moved）、「全部关系名」开关（edgeLabels；r62-X3 前称「边名」）、布局之存（同一人集只算一次）、量（供门） */
 const panoView = { full: null, box: null, moved: false, edgeLabels: false, cache: null, stats: null };
 /* 布局（带存）：人集同则取存。存其定形之坐标（拖动不污之），故重绘即复原。 */
 function panoLayoutFor(people) {
@@ -5298,12 +5395,15 @@ function panoLayoutFor(people) {
   else { const w2 = H * aspect; ox += (w2 - W) / 2; W = w2; }
   W = +W.toFixed(2); H = +H.toFixed(2);
   const pos = new Map(N.map(v => [v.id, [+(v.x + ox).toFixed(2), +(v.y + oy).toFixed(2)]]));
-  panoView.cache = { key, pos, W, H, layoutMs, links: links.length, pass: res.pass, left: res.left, N };
+  panoView.cache = { key, pos, W, H, layoutMs, links: links.length, pass: res.pass, left: res.left, N,
+                     L: links, ox, oy };   // L、ox、oy：布局之边与所移之量（r62-X3 弹性拖拽以同一力学之器 panoForceKit 取之）
   return { ...panoView.cache, cached: false };
 }
 function drawPanoGraph() {
   const NS = "http://www.w3.org/2000/svg";
   relView.detailReg = []; // 本次绘图的边→rels 注册表（供全屏克隆体重绑）
+  panoSimStop();          // r62-X3：重绘即止弹性之力学、解诸钉（重绘复其定形，照旧）
+  panoSim = null;
   const canvas = $("#rel-canvas");
   canvas.textContent = "";
   const people = panoPeople();
@@ -5322,10 +5422,10 @@ function drawPanoGraph() {
   const stateLayer = mk(null);              // 国名淡书（最底层）
   const hitLayer = mk(null);                // 边之触区
   const edgeLayer = mk(null);
-  const elabLayer = mk("pano-elabels");     // 边名（可开关）
+  const elabLayer = mk("pano-elabels");     // 边名（点选一人示其所连；「全部关系名」开关示全部；显隐由 panoPlaceLabels 定）
   const multiLayer = mk(null);              // 多重关系数字徽记
   const nodeLayer = mk(null);
-  elabLayer.style.display = panoView.edgeLabels ? "" : "none";
+  elabLayer.style.display = "none";          // r62-X3：显隐由 panoPlaceLabels 定（点选一人或开关开）
 
   relView.nodes.clear();
   for (const p of people) {
@@ -5405,6 +5505,11 @@ function drawPanoGraph() {
     const e = { a: pair.a, b: pair.b, rels: pair.rels, el: path, badge, lab, hit, A, B };
     relView.edges.push(e);
     panoPlaceEdge(e);
+    /* r62-X3：悬停其边即现其名（因相交而隐者）；离开则复判 */
+    for (const el of [hit, path]) {
+      el.addEventListener("pointerenter", () => panoPeekLabel(e, true));
+      el.addEventListener("pointerleave", () => panoPeekLabel(e, false));
+    }
   }
 
   const badgeTop = document.createElementNS(NS, "g"); // 徽记顶层（r24a）：置于全部节点盘面之上，须为 svg 之末一 <g>
@@ -5430,6 +5535,7 @@ function drawPanoGraph() {
     g.addEventListener("dblclick", () => { if (node.proto) setHash(node.p.id, "timeline"); });
     g.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); focusRelNode(node.p.id); }
+      else if (e.key === "Escape" && relView.focus) resetRelFocus();   // r62-X3：Esc 解点选
     });
     nodeLayer.appendChild(g);
     node.el = g;
@@ -5465,18 +5571,33 @@ function drawPanoGraph() {
   panoMountBar(canvas, svg);
   if (relView.focus && relView.nodes.has(relView.focus)) focusRelNode(relView.focus);
   else resetRelFocus();
+  panoPlaceLabels();
 }
 /* 一人之位：盘心、名签（盘下，居中）、徽记 */
 function panoPlaceNode(node) {
   const g = node.el;
   if (!g) return;
   const c = g.querySelector("circle"), t = g.querySelector("text");
-  c.setAttribute("cx", node.x); c.setAttribute("cy", node.y);
-  t.setAttribute("x", node.x); t.setAttribute("y", +(node.y + node.r + 3 + node.fs * 0.95).toFixed(2));
+  panoAttr(c, "cx", node.x); panoAttr(c, "cy", node.y);
+  panoAttr(t, "x", node.x); panoAttr(t, "y", +(node.y + node.r + 3 + node.fs * 0.95).toFixed(2));
   if (node.badgeEl) {
-    node.badgeEl.setAttribute("x", +(node.x - PANO_BADGE / 2).toFixed(2));
-    node.badgeEl.setAttribute("y", +(node.y - PANO_BADGE / 2).toFixed(2));
+    panoAttr(node.badgeEl, "x", +(node.x - PANO_BADGE / 2).toFixed(2));
+    panoAttr(node.badgeEl, "y", +(node.y - PANO_BADGE / 2).toFixed(2));
   }
+}
+/* 放大查看之镜（r62-X3；§一百四十四 定 4「全屏内亦可弹性拖拽」）：放大查看为内嵌图之克隆体（openRelOverlay），
+ * 开时以二树同序之元素对立镜（relZoom.mirror：内嵌元素 → 克隆元素）。凡全景之位与边名之显隐，俱经此二函数写之，
+ * 内嵌与克隆同写——弹性之力学只一份（算于内嵌之 relView），全屏只是其镜。未开放大查看则 mirror 为 null，只写内嵌。 */
+function panoAttr(el, k, v) {
+  el.setAttribute(k, v);
+  const m = relZoom.mirror && relZoom.mirror.get(el);
+  if (m) m.setAttribute(k, v);
+}
+function panoShow(el, on) {
+  const v = on ? "" : "none";
+  el.style.display = v;
+  const m = relZoom.mirror && relZoom.mirror.get(el);
+  if (m) m.style.display = v;
 }
 /* 边名之截法（r62-X2 续；team/round61_prompts.md §一百二十九 裁二百五十二 二3）：
  *   ① 各条 rel_label 取首个「（」前之文（括注不入边名）；此对诸关系取前二、以「·」连；
@@ -5534,20 +5655,304 @@ function panoEdgeAnchor(e) {
   }
   return at(0.5);
 }
-/* 一边之位：直线；多重徽记与边名居其中点（有圆签者照 panoEdgeAnchor 避盘） */
+/* 一边之位：直线；多重徽记与边名居其中点（有圆签者照 panoEdgeAnchor 避盘）。边名显时之位另由 panoPlaceLabels 择之（r62-X3） */
 function panoPlaceEdge(e) {
   const A = e.A, B = e.B, d = "M" + A.x + " " + A.y + " L" + B.x + " " + B.y;
-  e.el.setAttribute("d", d);
-  e.hit.setAttribute("d", d);
+  panoAttr(e.el, "d", d);
+  panoAttr(e.hit, "d", d);
   const [ax, ay] = panoEdgeAnchor(e);
   const mx = +ax.toFixed(2), my = +ay.toFixed(2);
   if (e.badge) {
     const c = e.badge.querySelector("circle"), t = e.badge.querySelector("text");
-    c.setAttribute("cx", mx); c.setAttribute("cy", my);
-    t.setAttribute("x", mx); t.setAttribute("y", +(my + 3.2).toFixed(2));
+    panoAttr(c, "cx", mx); panoAttr(c, "cy", my);
+    panoAttr(t, "x", mx); panoAttr(t, "y", +(my + 3.2).toFixed(2));
   }
-  e.lab.setAttribute("x", mx); e.lab.setAttribute("y", +(my - (e.badge ? 10 : 4)).toFixed(2));
+  panoAttr(e.lab, "x", mx); panoAttr(e.lab, "y", +(my - (e.badge ? 10 : 4)).toFixed(2));
 }
+/* ================================================================== *
+ * r62-X3（team/round61_prompts.md §一百三十八 定；§一百四十三 裁二百五十五；§一百四十四 站长「照荐」；§一百四十七 裁二百五十六）
+ * ------------------------------------------------------------------
+ * 一、边名之显（panoPlaceLabels）：
+ *   ① 点选一人（无需开关）：只示其所连诸边之名；② 「全部关系名」开关开（未点选）：示全部边名。
+ *   二者俱逐条择位：候位先其上次之位，次圆签之上（有圆签者），次沿边诸位（PANO_ELAB.TS，中点起两侧交替），点选态另试离线两侧；
+ *   所择之框不得与诸名签、诸盘、诸圆签（含其边自身之签，见 PANO_ELAB.OWN_BADGE）、已示之边名相交——俱不得则隐（计数；开关开时条上示「另 N 条因重叠未示」，N 即此数）。
+ *   框以字数估（U+2000 以上 1em、余 0.6em），四边各宽于排印 PADX／PADY，另加以屏素计之宽（缩放即复判）。择位之序＝relView.edges 之序（定序）。
+ *   隐者悬停其边即现（panoPeekLabel），离开复判；拖动之中每帧重判（panoSimTick 末），拖开即现。点空白处或 Esc 解点选。
+ *   AVOID 为门之反证所关（tools/qa/vision_r62x3.js）：关之则诸名一律居中点、不避不隐。
+ * 二、弹性拖拽（panoSim*）：拖一人，以布局之同一力学之器（panoForceKit：一对之力、网格、边引力、向心、国聚、国心、积分、推开，
+ *   俱与 panoLayout 共用一份；n ＞ GRID_MIN 时同用网格）逐帧牵动其余；放手后被拖者钉住，余者渐稳；
+ *   ⟲ 复初布局（取 panoView.cache.pos，逐位同）、解诸钉、复视野。放大查看内亦可拖（以 relZoom.mirror 镜之，力学仍只一份）。
+ *   ★ 偏置（裁二百五十五 一、裁二百五十六 二取甲）：初布局非严格平衡（布局末以推开收尾，且限速未尽收敛），
+ *     以初位之合力 F(x0) 为零点，逐帧施 F(x) − F(x0)——不拖则无一人动；力之式与刚度不变，偏置只定静止之处。
+ *     其量（全式，2026-10-21 实测）：只主角 |F(x0)| 中位 0.49、最大 2.49；显示全部（网格）中位 0.69、最大 6.43；
+ *     不加偏置、全式松弛之最大位移：只主角 3.6、显示全部 8.3，俱小于主角盘半径 15（门 vision_r62x3 §五 断只主角 ＜15，见 panoBiasProbe）。
+ *   每帧后另以名签矩形逐对推开一遍（同布局收尾之式；钉者、被拖者不动，其对手全让），拖中名签不相压。
+ *   止：放手后 alpha 每帧乘 DECAY；alpha＜ALPHA_MIN 且诸速＜V_MIN 即止；至迟 SETTLE_MS 必止（末 FADE_MS 内速渐归零，不骤停）。
+ *   ELASTIC、STOP、RESET_LAYOUT 为门之反证所关。初布局（panoLayout）之式与序不动，诸既有之门所量不变。
+ * ================================================================== */
+const PANO_SIM = { ELASTIC: true, STOP: true, RESET_LAYOUT: true, DRAG_ALPHA: 0.3, DECAY: 0.93, ALPHA_MIN: 0.01,
+                   V_MIN: 0.03, SETTLE_MS: 2500, FADE_MS: 500, PUSH: 1, EDGE_EPS: 0.5,
+                   GRID: true };   // GRID：n ＞ GRID_MIN 时同布局用网格（裁二百五十六 二）；门 §六 关之以量逐对精算之帧耗（「前」之数），站上恒开
+let panoSim = null;
+function panoSimInit() {
+  const C = panoView.cache;
+  if (!C || !C.N || !C.L || relView.mode !== "pano") return null;
+  if (panoSim && panoSim.key === C.key) return panoSim;
+  const N = C.N, n = N.length, K = panoForceKit(N, C.L, null, C.ox, C.oy);
+  const ids = N.map(v => v.id), idx = new Map(ids.map((id, i) => [id, i])), nodes = ids.map(id => relView.nodes.get(id));
+  if (nodes.some(v => !v)) return null;
+  /* 偏置：初位（定形坐标 C.pos）处之合力 */
+  N.forEach((v, i) => { const p = C.pos.get(v.id); K.X[i] = p[0]; K.Y[i] = p[1]; });
+  const grid = PANO_SIM.GRID && K.grid;
+  K.forces(true, grid);
+  const BX = Float64Array.from(K.FX), BY = Float64Array.from(K.FY);
+  nodes.forEach((v, i) => { K.X[i] = v.x; K.Y[i] = v.y; });
+  panoSim = { key: C.key, K, grid, n, ids, idx, nodes, BX, BY, pin: new Uint8Array(n), fix: new Uint8Array(n), drag: -1, alpha: 0,
+              raf: 0, running: false, releasedAt: 0, frames: [], split: [], ticks: 0, stoppedAt: 0 };
+  return panoSim;
+}
+function panoSimGrab(id) {
+  const sim = panoSimInit();
+  if (!sim) return;
+  const i = sim.idx.get(id);
+  if (i == null) return;
+  sim.drag = i;
+  sim.pin[i] = 0;
+  sim.alpha = PANO_SIM.DRAG_ALPHA;
+  sim.releasedAt = 0;
+  panoSimRun();
+}
+function panoSimDragTo(id, x, y) {
+  const sim = panoSim;
+  if (!sim || sim.drag < 0 || sim.drag !== sim.idx.get(id)) return;
+  sim.K.X[sim.drag] = x; sim.K.Y[sim.drag] = y; sim.K.VX[sim.drag] = 0; sim.K.VY[sim.drag] = 0;
+}
+function panoSimRelease(id) {
+  const sim = panoSim;
+  if (!sim) return;
+  const i = sim.idx.get(id);
+  if (i != null) { sim.pin[i] = 1; sim.K.VX[i] = 0; sim.K.VY[i] = 0; }   // 放手即钉
+  sim.drag = -1;
+  sim.releasedAt = performance.now();
+  panoSimRun();
+}
+function panoSimRun() {
+  const sim = panoSim;
+  if (!sim || sim.running) return;
+  sim.running = true;
+  sim.raf = requestAnimationFrame(panoSimTick);
+}
+function panoSimStop() {
+  if (!panoSim) return;
+  if (panoSim.raf) cancelAnimationFrame(panoSim.raf);
+  panoSim.running = false; panoSim.raf = 0;
+}
+function panoSimTick() {
+  const sim = panoSim;
+  if (!sim || !sim.running) return;
+  const t0 = performance.now(), K = sim.K, n = sim.n, X = K.X, Y = K.Y, nodes = sim.nodes;
+  if (relView.mode !== "pano" || !nodes[0].el || !nodes[0].el.isConnected) { panoSimStop(); return; }
+  if (sim.drag >= 0) { X[sim.drag] = nodes[sim.drag].x; Y[sim.drag] = nodes[sim.drag].y; }   // 被拖者之位以指针所写为准
+  let fade = 1, vmax = 0;
+  if (sim.releasedAt) {
+    sim.alpha *= PANO_SIM.DECAY;
+    const el = t0 - sim.releasedAt;
+    if (PANO_SIM.STOP && el > PANO_SIM.SETTLE_MS - PANO_SIM.FADE_MS) fade = Math.max(0, (PANO_SIM.SETTLE_MS - el) / PANO_SIM.FADE_MS);
+  }
+  if (PANO_SIM.ELASTIC) {
+    sim.fix.set(sim.pin);
+    if (sim.drag >= 0) sim.fix[sim.drag] = 1;
+    K.forces(true, sim.grid);                                         // 同一力学：与布局后半程同式（n ＞ GRID_MIN 同用网格）
+    vmax = K.step(2 + 40 * sim.alpha, sim.BX, sim.BY, sim.fix, fade); // 减偏置
+    if (K.P.LABEL) for (let pass = 0; pass < PANO_SIM.PUSH; pass++) K.pushAll(sim.grid, sim.fix);   // 名签逐对推开（同布局收尾之式）
+  }
+  for (let i = 0; i < n; i++) {
+    if (i === sim.drag) continue;
+    const v = nodes[i], x = +X[i].toFixed(2), y = +Y[i].toFixed(2);
+    if (x !== v.x || y !== v.y) { v.x = x; v.y = y; panoPlaceNode(v); }
+  }
+  const t1 = performance.now();
+  /* 置边：两端未动者略之；有圆签之边两端自上次避盘以来移不足 EDGE_EPS 者只改线、圆签不重求（避盘逐盘试位，248 人时为帧耗之大宗）；
+   * 止时全数重置一遍（见下），故静止之形与逐边 panoPlaceEdge 全同 */
+  for (const e of relView.edges) {
+    const L = e.simAt, ax = e.A.x, ay = e.A.y, bx = e.B.x, by = e.B.y;
+    if (L && L[0] === ax && L[1] === ay && L[2] === bx && L[3] === by) continue;
+    if (L && e.badge && Math.max(Math.abs(ax - L[0]), Math.abs(ay - L[1]), Math.abs(bx - L[2]), Math.abs(by - L[3])) < PANO_SIM.EDGE_EPS) {
+      const d = "M" + ax + " " + ay + " L" + bx + " " + by; panoAttr(e.el, "d", d); panoAttr(e.hit, "d", d); continue;
+    }
+    panoPlaceEdge(e); e.simAt = [ax, ay, bx, by];
+  }
+  const t2 = performance.now();
+  panoPlaceLabels();
+  const t3 = performance.now();
+  sim.ticks++;
+  if (sim.split.length < 4000) sim.split.push([+(t1 - t0).toFixed(2), +(t2 - t1).toFixed(2), +(t3 - t2).toFixed(2)]);
+  if (sim.frames.length < 4000) sim.frames.push(+(performance.now() - t0).toFixed(2));
+  const settled = sim.releasedAt && (!PANO_SIM.ELASTIC || (sim.alpha < PANO_SIM.ALPHA_MIN && vmax < PANO_SIM.V_MIN) ||
+                                      (PANO_SIM.STOP && performance.now() - sim.releasedAt >= PANO_SIM.SETTLE_MS));
+  if (settled && PANO_SIM.STOP) {
+    sim.running = false; sim.raf = 0; sim.stoppedAt = performance.now();
+    for (const e of relView.edges) { panoPlaceEdge(e); e.simAt = [e.A.x, e.A.y, e.B.x, e.B.y]; }   // 止：全数重置（圆签避盘照定式）
+    panoPlaceLabels();
+    return;
+  }
+  sim.raf = requestAnimationFrame(panoSimTick);
+}
+/* ⟲：复视野；并复初布局（逐位同 panoView.cache.pos）、解诸钉 */
+function panoResetAll(svg) {
+  if (svg) panoSetBox(svg, panoView.full);
+  if (!PANO_SIM.RESET_LAYOUT || !panoView.cache) return;
+  panoSimStop();
+  panoSim = null;
+  for (const v of relView.nodes.values()) {
+    const p = panoView.cache.pos.get(v.p.id);
+    if (!p) continue;
+    v.x = p[0]; v.y = p[1];
+    panoPlaceNode(v);
+  }
+  for (const e of relView.edges) { e.lab.dataset.t = ""; e.simAt = null; panoPlaceEdge(e); }
+  panoPlaceLabels();
+}
+/* 偏置之量与「不加偏置」之松弛（备查，门 tools/qa/vision_r62x3.js §五 取之；裁二百五十六 三）：
+ *   bias：诸人于初位（panoView.cache.pos）所受之合力 |F(x0)|（全式；网格与否同布局）。
+ *   drift：不减偏置、照弹性之参（alpha 自 DRAG_ALPHA 起逐步乘 DECAY，限速 2＋40·alpha）自由松弛 steps 步（不推开），诸人离初位之距。
+ *   门断只主角 drift 最大 ＜ 主角盘半径 15；反证：令一人之初位外移 20 而不重算布局，须红。 */
+function panoBiasProbe(steps) {
+  const C = panoView.cache;
+  if (!C || !C.N || !C.L) return null;
+  const N = C.N, n = N.length, K = panoForceKit(N, C.L, null, C.ox, C.oy);
+  N.forEach((v, i) => { const p = C.pos.get(v.id); K.X[i] = p[0]; K.Y[i] = p[1]; });
+  const X0 = Float64Array.from(K.X), Y0 = Float64Array.from(K.Y);
+  K.forces(true, K.grid);
+  const bias = N.map((v, i) => ({ id: v.id, f: Math.hypot(K.FX[i], K.FY[i]) }));
+  let alpha = PANO_SIM.DRAG_ALPHA;
+  for (let s = 0; s < (steps || 600); s++) { alpha *= PANO_SIM.DECAY; K.forces(true, K.grid); K.step(2 + 40 * alpha, null, null, null, 1); }
+  const drift = N.map((v, i) => ({ id: v.id, d: Math.hypot(K.X[i] - X0[i], K.Y[i] - Y0[i]) }));
+  const med = (a) => { const b = a.slice().sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; };
+  const top = (a, k) => a.slice().sort((x, y) => y[k] - x[k] || (x.id < y.id ? -1 : 1)).slice(0, 5).map(o => ({ id: o.id, name: personName(o.id), v: +o[k].toFixed(3) }));
+  return { n, grid: K.grid, biasMed: +med(bias.map(o => o.f)).toFixed(3), biasMax: +Math.max(...bias.map(o => o.f)).toFixed(3), biasTop: top(bias, "f"),
+           driftMed: +med(drift.map(o => o.d)).toFixed(3), driftMax: +Math.max(...drift.map(o => o.d)).toFixed(3), driftTop: top(drift, "d"),
+           over5: drift.filter(o => o.d > 5).length };
+}
+
+/* 边名之择位 */
+/* OWN_BADGE（落笔时补，x3c_try2 截图所见：「兄·私通」居中而为其边之圆签「2」所压）：其边自身之圆签亦为障，诸候位俱然；
+ * 「圆签之上」一位之基线因之上移，令其框（含四边之宽）之底恰抵圆签之顶（x3c_try3 所见：旧基线 cy−10 之框与签相交）。
+ * 关之即复原型之法（自身圆签一律不计），门之反证所关。 */
+const PANO_ELAB = { AVOID: true, OWN_BADGE: true, FS: 10.5, PADX: 1.5, PADY: 1.5, PX_X: 1.6, PX_Y: 0.8, CELL: 60,
+                    TS: [0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.2, 0.8],
+                    OFF: [14, -14, 24, -24], OFF_TS: [0.5, 0.4, 0.6, 0.3, 0.7] };   // OFF：点选态另试离线两侧之位（所示者少，离线不致误属）
+const panoElabEm = (t) => [...t].reduce((w, ch) => w + (ch.charCodeAt(0) < 0x2000 ? 0.6 : 1), 0);
+let panoElabStats = { mode: "off", shown: 0, hidden: 0, hiddenList: [] };
+function panoPlaceLabels() {
+  if (relView.mode !== "pano") return;
+  const layer = document.querySelector("#rel-canvas .pano-elabels");
+  if (!layer) return;
+  const focus = relView.focus && relView.nodes.has(relView.focus) ? relView.focus : null;
+  const mode = focus ? "focus" : (panoView.edgeLabels ? "all" : "off");
+  panoShow(layer, mode !== "off");
+  const stats = { mode, shown: 0, hidden: 0, hiddenList: [] };
+  panoElabStats = stats;
+  if (mode !== "off") panoPlaceLabelsIn(layer, mode, focus, stats);
+  /* 「另 N 条因重叠未示」（§一百四十四 定 2）：开关开时示之，N＝本次所隐之数（点选态则为其所连诸边中所隐者）；N 为 0 不示 */
+  const hc = document.querySelector("#rel-canvas .pano-hidden");
+  if (hc) {
+    const txt = panoView.edgeLabels && stats.hidden > 0 ? "另 " + stats.hidden + " 条因重叠未示" : "";
+    if (hc.textContent !== txt) hc.textContent = txt;
+    hc.hidden = !txt;
+  }
+}
+function panoPlaceLabelsIn(layer, mode, focus, stats) {
+  /* 屏上小字之排印宽于估（实量：1440 只主角约宽 1.5 单位，375「显示全部」k≈0.26 时约宽 8.6 单位＝约 2.2 屏素），
+   * 故四边另加以屏素计之宽（PX_X／PX_Y 屏素，折为单位＝屏素÷k）；k 随缩放而变，缩放后复判（panoSetBox）。 */
+  const svgEl = layer.ownerSVGElement, ctm = svgEl && svgEl.getScreenCTM && svgEl.getScreenCTM();
+  const k = ctm && ctm.a > 0 ? ctm.a : 1, padX = PANO_ELAB.PADX + PANO_ELAB.PX_X / k, padY = PANO_ELAB.PADY + PANO_ELAB.PX_Y / k;
+  stats.k = +k.toFixed(3);
+  /* 障：诸名签、诸盘、诸圆签、已示之边名（以框计；格 CELL 分桶） */
+  const C = PANO_ELAB.CELL, grid = new Map();
+  const add = (b) => {
+    for (let gx = Math.floor(b[0] / C); gx <= Math.floor(b[2] / C); gx++)
+      for (let gy = Math.floor(b[1] / C); gy <= Math.floor(b[3] / C); gy++) {
+        const key = gx + "," + gy; let a = grid.get(key); if (!a) grid.set(key, a = []); a.push(b);
+      }
+  };
+  const hits = (b, own) => {
+    for (let gx = Math.floor(b[0] / C); gx <= Math.floor(b[2] / C); gx++)
+      for (let gy = Math.floor(b[1] / C); gy <= Math.floor(b[3] / C); gy++) {
+        const a = grid.get(gx + "," + gy); if (!a) continue;
+        for (const o of a) if (o !== own && b[0] < o[2] && o[0] < b[2] && b[1] < o[3] && o[1] < b[3]) return true;
+      }
+    return false;
+  };
+  for (const nd of relView.nodes.values()) {
+    const hw = panoLabelEm(nd.p.name) * nd.fs / 2 + 1 + PANO_ELAB.PX_X / k;
+    add([nd.x - hw, nd.y + nd.r + 3 - nd.fs * 0.1 - PANO_ELAB.PX_Y / k, nd.x + hw, nd.y + nd.r + 3 + nd.fs * 1.3 + PANO_ELAB.PX_Y / k]);   // 名签
+    const R = nd.r + (nd.proto ? PANO_RING_W / 2 : 0.7) + 1;
+    add([nd.x - R, nd.y - R, nd.x + R, nd.y + R]);                                            // 盘
+  }
+  const badgeBox = new Map();
+  for (const e of relView.edges) if (e.badge) {
+    const c = e.badge.querySelector("circle"), x = +c.getAttribute("cx"), y = +c.getAttribute("cy"), R = PANO_EDGE.BADGE_R;
+    const b = [x - R, y - R, x + R, y + R]; badgeBox.set(e, b); add(b);
+  }
+  const FS = PANO_ELAB.FS;
+  const boxAt = (x, base, w) => [x - w / 2 - padX, base - FS * 0.95 - padY, x + w / 2 + padX, base + FS * 0.3 + padY];
+  for (const e of relView.edges) {
+    e.lab.classList.remove("peek");
+    const want = mode === "all" || e.a === focus || e.b === focus;
+    if (!want) { panoShow(e.lab, false); continue; }
+    const text = e.lab.textContent, w = panoElabEm(text) * FS;
+    if (!PANO_ELAB.AVOID) {
+      const mx = (e.A.x + e.B.x) / 2, my = (e.A.y + e.B.y) / 2 - (e.badge ? 10 : 4);
+      panoAttr(e.lab, "x", +mx.toFixed(2)); panoAttr(e.lab, "y", +my.toFixed(2));
+      panoShow(e.lab, true); stats.shown++; continue;
+    }
+    /* 候位：上次之位，次圆签之上（有圆签者），次沿边诸位 */
+    const prev = e.lab.dataset.t || "";
+    const cands = [];
+    if (prev && (mode === "focus" || !prev.includes("@"))) cands.push(prev === "badge" || prev.includes("@") ? prev : +prev);
+    if (e.badge && prev !== "badge") cands.push("badge");
+    for (const t of PANO_ELAB.TS) if (String(t) !== prev) cands.push(t);
+    if (mode === "focus") for (const o of PANO_ELAB.OFF) for (const t of PANO_ELAB.OFF_TS) { const c = t + "@" + o; if (c !== prev) cands.push(c); }
+    const len = Math.hypot(e.B.x - e.A.x, e.B.y - e.A.y) || 1, ux = -(e.B.y - e.A.y) / len, uy = (e.B.x - e.A.x) / len;
+    let placed = null;
+    for (const c of cands) {
+      let x, base;
+      if (c === "badge") { const bb = badgeBox.get(e); x = (bb[0] + bb[2]) / 2; base = PANO_ELAB.OWN_BADGE ? bb[1] - FS * 0.3 - padY - 0.01 : (bb[1] + bb[3]) / 2 - 10; }
+      else if (typeof c === "string") { const [t, o] = c.split("@").map(Number); x = e.A.x + (e.B.x - e.A.x) * t + ux * o; base = e.A.y + (e.B.y - e.A.y) * t + uy * o + FS * 0.33; }
+      else { x = e.A.x + (e.B.x - e.A.x) * c; base = e.A.y + (e.B.y - e.A.y) * c - 4; }
+      const b = boxAt(x, base, w);
+      if (!hits(b, PANO_ELAB.OWN_BADGE ? null : badgeBox.get(e))) { placed = { c, x, base, b }; break; }
+    }
+    if (!placed) {
+      panoShow(e.lab, false); stats.hidden++;
+      stats.hiddenList.push(personName(e.a) + "—" + personName(e.b) + "「" + text + "」");
+      continue;
+    }
+    e.lab.dataset.t = String(placed.c);
+    panoAttr(e.lab, "x", +placed.x.toFixed(2)); panoAttr(e.lab, "y", +placed.base.toFixed(2));
+    panoShow(e.lab, true); stats.shown++;
+    add(placed.b);
+  }
+}
+/* 悬停其边：因相交而隐者即现（移至层顶）；离开复判 */
+function panoPeekLabel(e, on) {
+  if (relView.mode !== "pano" || !e.lab) return;
+  const focus = relView.focus;
+  const active = focus ? (e.a === focus || e.b === focus) : panoView.edgeLabels;
+  if (!active) return;
+  if (on) {
+    if (e.lab.style.display !== "none") return;
+    const mx = (e.A.x + e.B.x) / 2, my = (e.A.y + e.B.y) / 2 - (e.badge ? 10 : 4);
+    e.lab.setAttribute("x", +mx.toFixed(2)); e.lab.setAttribute("y", +my.toFixed(2));
+    e.lab.style.display = ""; e.lab.classList.add("peek");
+    e.lab.parentNode.appendChild(e.lab);
+  } else if (e.lab.classList.contains("peek")) {
+    panoPlaceLabels();
+  }
+}
+/* 条上之小注（§一百四十四 定 1，取 a，一字不改） */
+const PANO_NOTE = "点人物看其关系名；拖动人物可拉开";
 /* 视框：宽限于全图之 0.12–1.5 倍；平移不出全图过远 */
 function panoSetBox(svg, b) {
   const F = panoView.full;
@@ -5555,6 +5960,7 @@ function panoSetBox(svg, b) {
   const x = Math.min(F.w - w * 0.25, Math.max(-w * 0.75, b.x)), y = Math.min(F.h - h * 0.25, Math.max(-h * 0.75, b.y));
   panoView.box = { x, y, w, h };
   svg.setAttribute("viewBox", x + " " + y + " " + w + " " + h);
+  panoPlaceLabels();   // r62-X3：缩放则屏素之宽随之，边名复判
 }
 function panoToSvg(svg, cx, cy) {
   const r = svg.getBoundingClientRect(), b = panoView.box;
@@ -5599,11 +6005,12 @@ function panoBindGestures(svg) {
       panoSetBox(svg, { x: start.mid[0] - (mx - r.left) / r.width * w, y: start.mid[1] - (my - r.top) / r.height * h, w, h });
     } else if (mode === "node") {
       if (!panoView.moved && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 4) return;
-      if (!panoView.moved) { panoView.moved = true; try { svg.setPointerCapture(e.pointerId); } catch { /* 已释 */ } }
+      if (!panoView.moved) { panoView.moved = true; try { svg.setPointerCapture(e.pointerId); } catch { /* 已释 */ } panoSimGrab(start.id); }
       const node = relView.nodes.get(start.id), [x, y] = panoToSvg(svg, e.clientX, e.clientY);
       node.x = +x.toFixed(2); node.y = +y.toFixed(2);
       panoPlaceNode(node);
       for (const ed of relView.edges) if (ed.a === start.id || ed.b === start.id) panoPlaceEdge(ed);
+      panoSimDragTo(start.id, node.x, node.y);   // r62-X3：余者由 panoSimTick 逐帧牵动
     } else if (mode === "pan") {
       const dx = e.clientX - start.x, dy = e.clientY - start.y;
       if (!panoView.moved && Math.hypot(dx, dy) < 4) return;
@@ -5614,11 +6021,17 @@ function panoBindGestures(svg) {
   });
   const lift = (e) => {
     ptr.delete(e.pointerId);
+    if (mode === "node" && panoView.moved) panoSimRelease(start.id);   // r62-X3：放手即钉，余者渐稳
     if (ptr.size === 0) { mode = null; setTimeout(() => { panoView.moved = false; }, 30); }
     else if (mode === "pinch") mode = null;
   };
   svg.addEventListener("pointerup", lift);
   svg.addEventListener("pointercancel", lift);
+  /* r62-X3：点空白处（未拖）解点选——点选一人即示其边名，须有退路 */
+  svg.addEventListener("click", (e) => {
+    if (panoView.moved || !relView.focus) return;
+    if (e.target === svg) resetRelFocus();
+  });
   /* 滚轮（r62-X2 续；裁二百五十二 二5，照站之先例——地图内嵌不拦滚轮，见 bindPanZoom 与 bindZoomGesture 之 wheel）：
    *   内嵌图常滚归页，不拦、不缩；Ctrl／⌘＋滚轮方缩放（触控板捏合于 Chromium／Firefox 即以 ctrlKey 之 wheel 至）。
    *   放大查看之克隆体另由 bindZoomGesture 绑，滚轮即缩放，照旧。
@@ -5630,7 +6043,8 @@ function panoBindGestures(svg) {
     panoZoomAt(svg, Math.exp(Math.max(-100, Math.min(100, dy)) * 0.0016), e.clientX, e.clientY);
   }, { passive: false });
 }
-/* 图下之条（在图框内、svg 之下）：「边名」开关＋缩放三钮。随图重绘而重建；以人为中心时图框清空，条亦随去。 */
+/* 图下之条（在图框内、svg 之下）：「全部关系名」开关（r62-X3 由「边名」改名，§一百四十四 定 5）＋「另 N 条因重叠未示」＋小注＋缩放三钮。
+ * 随图重绘而重建；以人为中心时图框清空，条亦随去。点选一人即示其关系名，无需开关；开关开则示全部，相交者先隐（见 panoPlaceLabels）。 */
 function panoMountBar(canvas, svg) {
   const bar = document.createElement("div");
   bar.className = "pano-bar";
@@ -5642,16 +6056,27 @@ function panoMountBar(canvas, svg) {
   cb.checked = panoView.edgeLabels;
   cb.addEventListener("change", () => {
     panoView.edgeLabels = cb.checked;
-    const l = svg.querySelector(".pano-elabels");
-    if (l) l.style.display = cb.checked ? "" : "none";
+    panoPlaceLabels();     // r62-X3：开则示全部关系名，相交者先隐（悬停其边即现）
   });
   lab.appendChild(cb);
-  lab.appendChild(document.createTextNode("边名"));
+  lab.appendChild(document.createTextNode("全部关系名"));
   bar.appendChild(lab);
+  /* r62-X3：开关旁「另 N 条因重叠未示」（N 照实，panoPlaceLabels 写之）与小注；窄屏二者另起一行 */
+  const aside = document.createElement("span");
+  aside.className = "pano-aside";
+  const hid = document.createElement("span");
+  hid.className = "pano-hidden";
+  hid.hidden = true;
+  aside.appendChild(hid);
+  const note = document.createElement("span");
+  note.className = "pano-note";
+  note.textContent = PANO_NOTE;
+  aside.appendChild(note);
+  bar.appendChild(aside);
   const mid = () => { const r = svg.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
   for (const [txt, aria, fn] of [["＋", "放大", () => panoZoomAt(svg, 0.8, ...mid())],
                                  ["－", "缩小", () => panoZoomAt(svg, 1.25, ...mid())],
-                                 ["⟲", "复位视野", () => panoSetBox(svg, panoView.full)]]) {
+                                 ["⟲", "复位视野与布局", () => panoResetAll(svg)]]) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "pano-zoom";
@@ -5687,6 +6112,7 @@ function focusRelNode(pid) {
     node.el.classList.toggle("focused", node.p.id === pid);
   }
   showRelDetail(mine, pid);
+  panoPlaceLabels();   // r62-X3：点选一人即示其所连诸边之名
 }
 function resetRelFocus() {
   relView.focus = null;
@@ -5702,6 +6128,7 @@ function resetRelFocus() {
     if (node.badgeEl) node.badgeEl.style.opacity = op; // 同上
     node.el.classList.remove("focused");
   }
+  panoPlaceLabels();   // r62-X3
   const panel = $("#rel-panel");
   panel.textContent = "";
   const h3 = document.createElement("h3");

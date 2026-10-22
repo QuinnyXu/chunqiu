@@ -1940,7 +1940,17 @@ button.chron-chip[aria-pressed="true"] {
   border-top: 1px solid var(--line);
   font-size: 0.8rem;
 }
-.pano-bar .rel-filter { margin-right: auto; }
+.pano-bar .rel-filter { margin-right: 4px; }
+/* r62-X3：开关旁「另 N 条因重叠未示」与小注（§一百四十四 定 1、2）；窄屏二者另起一行，居条之末 */
+.pano-aside { margin-right: auto; color: var(--ink-soft); font-size: 0.78rem; line-height: 1.35; }
+.pano-hidden { margin-right: 0.8em; color: var(--ink); }
+.pano-hidden[hidden] { display: none; }
+@media (max-width: 680px) {
+  .pano-bar { flex-wrap: wrap; }
+  .pano-aside { order: 9; flex-basis: 100%; margin-right: 0; }
+  .pano-bar .rel-filter { margin-right: auto; }
+}
+.pano-elabel.peek { font-weight: 700; }
 .pano-zoom {
   min-width: 44px;
   height: 44px;

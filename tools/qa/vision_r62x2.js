@@ -326,7 +326,7 @@ const fontPx = (pg, sel) => pg.evaluate((sel) => {
       ok(z1 < z0.w * 0.95, "放大查看之内滚轮即缩放：视框宽 " + z0.w.toFixed(0) + "→" + z1.toFixed(0));
     }
     await pg.click("#btn-overlay-close"); await pg.waitForTimeout(300);
-    await pg.click(".pano-zoom[aria-label='复位视野']");
+    await pg.click(".pano-zoom[aria-label='复位视野与布局']");   // r62-X3（裁二百五十五 三）：⟲ 之 aria-label 由「复位视野」改，其义兼复初布局；判法未改
     const vb3 = await pg.evaluate(() => ({ b: { ...panoView.box }, f: { ...panoView.full } }));
     ok(Math.abs(vb3.b.w - vb3.f.w) < 0.5 && Math.abs(vb3.b.x) < 0.5, "复位钮复全图");
     await pg.click(".pano-zoom[aria-label='放大']");
