@@ -3,6 +3,8 @@
  * 任务书 team/round61_prompts.md：§一百三十八 定 1–4；§一百四十三 裁二百五十五 一之三约、三；§一百四十四 站长「照荐」五定；
  *   §一百四十七 裁二百五十六（取甲：偏置；加「不加偏置之松弛位移」之门）。
  * 来源：Vision 子代理 r62-X3 落笔，2026-10-22；承原型门 team/r62X3_proto/tools/qa/vision_r62x3.js（原型目录不动），随所定改其断言与反证。
+ * X3 续·治颤（§一百五十三 裁二百五十八）：§三 另印止之由（自然止／限时）与止前 0.5 s 之最大每帧位移。
+ * X3 续（2026-10-22，§一百五十 裁二百五十七）：拖中之交改印备查（门量止动后之静态）；§三 加印渐停前之颤；§四 加断提示句及其行数；§六 改量只主角与显示全部（CPU ×4），印其的。
  *
  * 用法（自 tools/qa/ 起跑）：  node vision_r62x3.js
  *   SITE＝仓根 site/；BASE＝以 `git show <X3_BASE>:site/{app.js,index.html,styles.css}` 代今版三件（X3_BASE 默认 33a7523），数据取今 site/data，
@@ -27,8 +29,8 @@
  *  §五 偏置（裁二百五十六 三）：印偏置 |F(x0)| 之中位、最大与最大五人（只主角、显示全部）；
  *      不加偏置、全式松弛之最大位移：只主角须 ＜ 15（主角盘半径）——断之；显示全部印其数备查。
  *      反证：令一人初位外移 20 单位而不重算布局，此断须红。
- *  §六 帧耗（三约之三）：「显示全部」248 人拖动——375 触屏于 CDP CPU ×4 实测（书 panoSimTick 之中位／P95／最大、rAF 帧距），
- *      网格（后，站上之态）与逐对精算（前，PANO_SIM.GRID＝false 只为量）各一；另书 1440、375 不降速之数备查。只书，不入判（P95 逾 33 ms 之治已由裁二百五十六 二定：n＞GRID_MIN 一律用网格）。
+ *  §六 帧耗：375 触屏于 CDP CPU ×4 实测只主角与「显示全部」拖动（书 panoSimTick 之中位／P95／最大、rAF 帧距、分项；印其的：只主角 P95 ≤ 33、
+ *      显示全部 ≤ 50，裁二百五十七 二1），另书 1440、375 不降速之「显示全部」备查。只书，不入判（无头机之时不稳）。
  */
 "use strict";
 const fs = require("fs"), path = require("path"), http = require("http"), cp = require("child_process");
@@ -117,7 +119,7 @@ const coordMap = (pg) => pg.evaluate(() => Object.fromEntries([...relView.nodes.
 const setAll = async (pg, on) => { await pg.evaluate((on) => { const c = document.querySelector("#rel-show-all"); c.checked = on; c.dispatchEvent(new Event("change")); }, on); await pg.waitForTimeout(700); };
 const setSwitch = async (pg, on) => { await pg.evaluate((on) => { const c = document.querySelector("#pano-elabel"); if (c.checked !== on) c.click(); }, on); await pg.waitForTimeout(150); };
 const waitStop = (pg, ms) => pg.evaluate((ms) => new Promise(res => { const t0 = performance.now();
-  const f = () => { if (!panoSim || !panoSim.running) res({ stopped: true, after: panoSim && panoSim.stoppedAt && panoSim.releasedAt ? +(panoSim.stoppedAt - panoSim.releasedAt).toFixed(0) : null });
+  const f = () => { if (!panoSim || !panoSim.running) res({ stopped: true, by: panoSim ? panoSim.stoppedBy : "", after: panoSim && panoSim.stoppedAt && panoSim.releasedAt ? +(panoSim.stoppedAt - panoSim.releasedAt).toFixed(0) : null });
     else if (performance.now() - t0 > ms) res({ stopped: false, after: null }); else setTimeout(f, 30); }; f(); }), ms);
 const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? b[Math.min(b.length - 1, Math.floor(p * b.length))] : NaN; };
 
@@ -309,7 +311,8 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
       await pg.waitForTimeout(60);
       const md = await measure(pg);
       const bd = judge(md), jd = judgeN(md);
-      ok(bd.length === 0 && jd.okN, tag + "：拖动之中（指针未放）所示边名 " + md.labs.length + " 两两不交、不压名签；条上 N 随之（" + jd.got + "）", bd.slice(0, 4).join("；"));
+      /* X3 续（裁二百五十七 二1）：拖动之中边名隔帧一判、圆签随中点移，门量止动后之静态；拖中之交只印备查（5e14000 时为断） */
+      console.log("    〔备查〕" + tag + "：拖动之中（指针未放）所示边名 " + md.labs.length + "，相交 " + bd.length + " 处" + (bd.length ? "（" + bd.slice(0, 3).join("；") + "）" : "") + "；条上「" + jd.got + "」");
       await up();
       await waitStop(pg, 4000);
       const ms = await measure(pg);
@@ -355,9 +358,21 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
       await pg.waitForTimeout(80);
       const mid = await coordMap(pg);
       const movedOthers = Object.keys(mid).filter(id => id !== pick && Math.hypot(mid[id][0] - pre[id][0], mid[id][1] - pre[id][1]) > 0.5).length;
+      if (st === "switch") await scr(pg, "x3d_dragging_" + w);
       await up();
       const rel = await pg.evaluate((id) => { const v = relView.nodes.get(id); return [v.x, v.y]; }, pick);
       const ws = await waitStop(pg, limit + 300);
+      /* 渐停前之颤（裁二百五十七 二3）：放手后各帧诸人之最大位移；印渐停前 0.5 s（[SETTLE−FADE−500, SETTLE−FADE)）与渐停之 0.5 s 内之最大者；逾 0.5 则停而报 */
+      {
+        const dz = await pg.evaluate(() => ({ d: panoSim ? panoSim.disp.slice() : [], S: PANO_SIM.SETTLE_MS, F: PANO_SIM.FADE_MS }));
+        const pre05 = dz.d.filter(a => a[0] >= dz.S - dz.F - 500 && a[0] < dz.S - dz.F).map(a => a[1]);
+        const fade = dz.d.filter(a => a[0] >= dz.S - dz.F).map(a => a[1]);
+        const m1 = pre05.length ? Math.max(...pre05) : NaN, m2 = fade.length ? Math.max(...fade) : NaN;
+        const last05 = dz.d.filter(a => a[0] >= (ws.after || 0) - 500).map(a => a[1]), m3 = last05.length ? Math.max(...last05) : NaN;
+        console.log("    " + (m1 > 0.5 || m2 > 0.5 ? "★★ 逾 0.5" : "〔备查〕") + " " + tag + " 止于放手后 " + ws.after + " ms（" + (ws.by === "calm" ? "自然止：连续 10 帧实移＜V_MIN" : "2.5 s 之限兜底") + "）；" +
+          "渐停前 0.5 s（" + (dz.S - dz.F - 500) + "–" + (dz.S - dz.F) + " ms，" + pre05.length + " 帧）每帧最大位移 " + (isNaN(m1) ? "—（已止）" : m1.toFixed(3)) +
+          "；渐停之 0.5 s（" + fade.length + " 帧）" + (isNaN(m2) ? "—（已止）" : m2.toFixed(3)) + "；止前 0.5 s（" + last05.length + " 帧）" + (isNaN(m3) ? "—" : m3.toFixed(3)) + "（单位：viewBox）");
+      }
       const s1 = await coordMap(pg);
       await pg.waitForTimeout(600);
       const s2 = await coordMap(pg);
@@ -366,11 +381,12 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
       const focusKept = await pg.evaluate(() => relView.focus);
       ok(movedOthers > 0, tag + "：拖「" + name + "」，拖中余者随动 " + movedOthers + " 人");
       ok(pinned, tag + "：放手后被拖者钉住（" + rel.join(",") + "）");
-      ok(ws.stopped && still, tag + "：放手后 " + (ws.after != null ? ws.after + " ms" : "？") + " 止动（限 " + limit + "＋300），止后 600 ms 坐标不变");
+      ok(ws.stopped && still, tag + "：放手后 " + (ws.after != null ? ws.after + " ms" : "？") + " 止动（" + (ws.by === "calm" ? "自然止" : "限时") + "；限 " + limit + "＋300），止后 600 ms 坐标不变");
       ok(st !== "select" || focusKept === pick, tag + "：拖动不改点选（不误触）");
       const lm = await measure(pg);
       ok(judge(lm).length === 0 && judgeN(lm).okN, tag + "：止后所示边名不交，N 照实", judge(lm).slice(0, 3).join("；"));
       await scr(pg, "x3c_drag_after_" + st + "_" + w);
+      if (st === "switch") await scr(pg, "x3d_stopped_" + w);
       if (st === "switch") {
         const oth = await pg.evaluate((p) => { const a = relView.nodes.get(p); let best = null, bd = 1e9;
           for (const v of relView.nodes.values()) { if (v.p.id === p) continue; const d = Math.hypot(v.x - a.x, v.y - a.y); if (d < bd) { bd = d; best = v.p.id; } } return best; }, pick);
@@ -437,6 +453,14 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
     await openOv();
     const cl0 = await cloneCoords(pg);
     selfcheck(cl0 === init, w + " 放大查看：克隆体初开与初布局逐位同");
+    {
+      const hint = await pg.evaluate(() => { const h = document.querySelector("#map-overlay-hint"), cs = getComputedStyle(h);
+        const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2, r = h.getBoundingClientRect();
+        return { t: h.textContent, lines: Math.round(r.height / lh), h: +r.height.toFixed(1), lh: +lh.toFixed(1) }; });
+      ok(hint.t === "拖空白处平移 · 拖人物可拉开 · 滚轮/双指缩放 · 点连线/节点看关系" && hint.lines <= 2,
+        w + " 放大查看之提示句「" + hint.t + "」，占 " + hint.lines + " 行（高 " + hint.h + "／行高 " + hint.lh + "；375 宽须不逾二行）");
+      if (w === 375) await scr(pg, "x3d_fullscreen_hint_375", "page");
+    }
     /* 择克隆体内可见之度最高者 */
     const pick = await pg.evaluate(() => { const deg = new Map(); for (const e of relView.edges) for (const x of [e.a, e.b]) deg.set(x, (deg.get(x) || 0) + 1);
       const body = document.querySelector("#map-overlay-body").getBoundingClientRect();
@@ -461,7 +485,7 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
     const tag = w + " 放大查看";
     ok(draggedMoved > 5 && movedOthers > 0, tag + "：拖「" + nameOf(pick) + "」（移 " + draggedMoved.toFixed(1) + "），拖中余者随动 " + movedOthers + " 人");
     ok(s2[pick][0] === rel[0] && s2[pick][1] === rel[1], tag + "：放手后被拖者钉住");
-    ok(ws.stopped && JSON.stringify(s1) === JSON.stringify(s2), tag + "：放手后 " + (ws.after != null ? ws.after + " ms" : "？") + " 止动（限 " + limit + "＋300），止后 600 ms 坐标不变");
+    ok(ws.stopped && JSON.stringify(s1) === JSON.stringify(s2), tag + "：放手后 " + (ws.after != null ? ws.after + " ms" : "？") + " 止动（" + (ws.by === "calm" ? "自然止" : "限时") + "；限 " + limit + "＋300），止后 600 ms 坐标不变");
     ok(!drawerOpen, tag + "：拖人放手不开抽屉（不误触）");
     const [ce, cc] = [await coords(pg), await cloneCoords(pg)];
     ok(ce === cc && ce !== init, tag + "：克隆体诸盘心与内嵌逐位同（镜），且已离初布局");
@@ -551,10 +575,10 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
   }
 
   /* ===== §六 帧耗 ===== */
-  H("§六 「显示全部」拖动之帧耗（只书，不入判）");
-  for (const [w, rate, grid] of [[1440, 1, true], [375, 1, true], [375, 4, true], [375, 4, false]]) {
+  H("§六 拖动之帧耗（只书，不入判；的：375 CPU ×4 只主角 P95 ≤ 33 ms、显示全部 ≤ 50 ms，裁二百五十七 二1）");
+  for (const [w, rate, grid, all] of [[1440, 1, true, true], [375, 1, true, true], [375, 4, true, false], [375, 4, true, true]]) {
     const { ctx, pg, touch } = await open(w);
-    await setAll(pg, true);
+    if (all) await setAll(pg, true);
     await pg.evaluate((g) => { PANO_SIM.GRID = g; panoSim = null; }, grid);   // grid＝false：逐对精算（「前」之数），只为量
     const n = await pg.evaluate(() => relView.nodes.size);
     const pickAll = await topDeg(pg);
@@ -568,7 +592,9 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
       await drag(pg, ctx, touch, pickAll, 120, 80, 60);
       await waitStop(pg, limit * 3 + 300);
       const fr = await pg.evaluate(() => { window.__rafOn = false; return { tick: panoSim.frames.slice(), split: panoSim.split.slice(), raf: window.__raf.slice(2), grid: panoSim.grid }; });
-      console.log("    ★ " + w + (rate > 1 ? "（CDP CPU ×" + rate + "）" : "（不降速）") + " 「显示全部」" + n + " 人" + (fr.grid ? "（网格，后）" : "（逐对精算，前）") +
+      const goal = rate > 1 ? (all ? 50 : 33) : null, p95 = q(fr.tick, 0.95);
+      console.log("    ★ " + w + (rate > 1 ? "（CDP CPU ×" + rate + "）" : "（不降速）") + (all ? " 「显示全部」" : " 只主角 ") + n + " 人" + (fr.grid ? "（网格）" : "（逐对）") +
+        (goal ? "〔的 P95 ≤ " + goal + "：" + (p95 <= goal ? "达" : "未达") + "〕" : "") +
         (st === "switch" ? "，开关开" : "，点选「" + nameOf(pickAll) + "」") +
         "：panoSimTick " + fr.tick.length + " 帧，中位 " + q(fr.tick, 0.5).toFixed(1) + "、P95 " + q(fr.tick, 0.95).toFixed(1) + "、最大 " + Math.max(...fr.tick).toFixed(1) +
         " ms；rAF 帧距中位 " + q(fr.raf, 0.5).toFixed(1) + "、P95 " + q(fr.raf, 0.95).toFixed(1) + " ms");
