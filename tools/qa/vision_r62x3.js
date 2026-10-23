@@ -16,7 +16,7 @@
  *   圆签＝多重关系圆签之 circle（含其边自身之签；落笔时加，见 §二 反证三）。所示边名与名签、圆签、他边名俱不得相交。
  * 验：
  *  §〇 前提：初布局诸盘心与 X3_BASE 逐位同（只主角、显示全部；1440、375）——三约之一「同源」之断；
- *      未点选、开关关：边名层隐；开关之字「全部关系名」；小注一字合 a；⟲ 之 aria-label「复位视野与布局」。
+ *      未点选、开关关：边名层隐；开关之字「全部关系名」；小注一字合 a；⟲ 之 aria-label「复位视野、布局与点选」（X3 续二改，旧「复位视野与布局」须无）。
  *  §一 点选一人（1440、375；只主角与显示全部）：逐一点选全部主角，所示边名只属其所连之边，与诸名签、他所示边名两两不相交；
  *      真点度最高者一次；点空白处解点选；Esc 解点选。反证 PANO_ELAB.AVOID＝false 须红。
  *  §二 开关开：所示两两不交、不压名签；「另 N 条因重叠未示」之 N＝DOM 实隐之数＝panoElabStats.hidden（开关开且点选一人时亦断）；
@@ -29,6 +29,14 @@
  *  §五 偏置（裁二百五十六 三）：印偏置 |F(x0)| 之中位、最大与最大五人（只主角、显示全部）；
  *      不加偏置、全式松弛之最大位移：只主角须 ＜ 15（主角盘半径）——断之；显示全部印其数备查。
  *      反证：令一人初位外移 20 单位而不重算布局，此断须红。
+ *  §七 X3 续二（§一百六十一 裁二百六十 一）：
+ *      1 ⟲ 兼解点选——内嵌与放大查看之 ⟲：点选一人 → ⟲ → relView.focus 空、无 .focused（内嵌与克隆）、右栏「关系详情」复初句；
+ *        「全部关系名」「显示全部」二开关不动。反证 PANO_SIM.RESET_FOCUS＝false 须红。
+ *      2 条上开关不竖排——六宽 375、682、768、900、1024、1440：「全部关系名」之签高 ≤ 1.5 行高、条（.pano-row）无横溢、条不出图框；
+ *        反证（682）：甲 只去 nowrap——今制条可折、签本不受挤，不红，印之备查（x3e_try1 所见，交付上报）；
+ *        乙 去 nowrap ＋ 条不折，须红（nowrap 之守）；丙 复旧（条不折、小注不另起、签可折），须红（复现生产之病）。
+ *      3 放大查看之提示句——各「·」分段（.hint-seg）只占一行（段内不折），375 不逾二行；textContent 一字合；
+ *        反证：注入 .hint-seg { white-space: normal } 于 375 须红。
  *  §六 帧耗：375 触屏于 CDP CPU ×4 实测只主角与「显示全部」拖动（书 panoSimTick 之中位／P95／最大、rAF 帧距、分项；印其的：只主角 P95 ≤ 33、
  *      显示全部 ≤ 50，裁二百五十七 二1），另书 1440、375 不降速之「显示全部」备查。只书，不入判（无头机之时不稳）。
  */
@@ -43,7 +51,9 @@ fs.mkdirSync(OUT, { recursive: true });
 const PEOPLE = JSON.parse(fs.readFileSync(path.join(SITE, "data", "people.json"), "utf8"));
 const PROTO_N = PEOPLE.filter(p => +p.is_protagonist === 1).length;
 const NOTE_A = "点人物看其关系名；拖动人物可拉开";
-const RESET_SEL = ".pano-zoom[aria-label='复位视野与布局']";
+const RESET_SEL = ".pano-zoom[aria-label='复位视野、布局与点选']";
+const OV_RESET_SEL = "#overlay-rel-tools button[aria-label='复位视野、布局与点选']";
+const PANEL_INIT = "点人物节点，高亮其一度关系；点连线看出处。";
 
 let fails = 0, gateErrs = 0, asserts = 0;
 const ok = (c, l, d) => { asserts++; if (!c) fails++; console.log("  " + (c ? "✓" : "✗") + " " + l + (d ? "  —— " + d : "")); };
@@ -180,13 +190,13 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
     ok(ca2 === cb2 && ca2.length > 0, w + " 显示全部：初布局诸盘心与 " + X3_BASE + " 逐位同（" + n2 + " 人）");
     const lay = await a.pg.evaluate(() => ({ off: getComputedStyle(document.querySelector("#rel-canvas .pano-elabels")).display,
       note: (document.querySelector(".pano-note") || {}).textContent, sw: document.querySelector("#pano-elabel").parentNode.textContent.trim(),
-      reset: !!document.querySelector(".pano-zoom[aria-label='复位视野与布局']"), oldReset: !!document.querySelector(".pano-zoom[aria-label='复位视野']"),
+      reset: !!document.querySelector(".pano-zoom[aria-label='复位视野、布局与点选']"), oldReset: !!document.querySelector(".pano-zoom[aria-label='复位视野'], .pano-zoom[aria-label='复位视野与布局']"),
       hid: (() => { const h = document.querySelector(".pano-hidden"); return h ? (h.hidden ? "隐" : h.textContent) : "无"; })(),
       ov: document.scrollingElement.scrollWidth > innerWidth }));
     ok(lay.off === "none", w + " 未点选、开关关：边名层隐（" + lay.off + "）");
     ok(lay.note === NOTE_A, w + " 小注一字合 a：「" + lay.note + "」");
     ok(lay.sw === "全部关系名", w + " 开关之字：「" + lay.sw + "」");
-    ok(lay.reset && !lay.oldReset, w + " ⟲ 之 aria-label 为「复位视野与布局」");
+    ok(lay.reset && !lay.oldReset, w + " ⟲ 之 aria-label 为「复位视野、布局与点选」");
     ok(lay.hid === "隐", w + " 开关关：「另 N 条」不示（" + lay.hid + "）");
     ok(!lay.ov, w + " 页无横溢");
     await a.ctx.close(); await b.ctx.close();
@@ -490,7 +500,7 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
     const [ce, cc] = [await coords(pg), await cloneCoords(pg)];
     ok(ce === cc && ce !== init, tag + "：克隆体诸盘心与内嵌逐位同（镜），且已离初布局");
     await scr(pg, "x3c_fullscreen_after_" + w, "page");
-    await pg.click("#overlay-rel-tools button[aria-label='复位视野与布局']");
+    await pg.click(OV_RESET_SEL);
     await pg.waitForTimeout(200);
     const pins = await pg.evaluate(() => panoSim ? [...panoSim.pin].reduce((a, b) => a + b, 0) : 0);
     ok((await coords(pg)) === init && (await cloneCoords(pg)) === init && pins === 0, tag + "：浮层 ⟲ 后内嵌与克隆俱与初布局逐位同、钉者俱解");
@@ -604,6 +614,133 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
       await pg.waitForTimeout(rate > 1 ? 600 : 150);
     }
     if (cdp) { await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 }); await cdp.detach(); }
+    await ctx.close();
+  }
+
+  /* ===== §七 X3 续二 ===== */
+  H("§七 X3 续二（裁二百六十 一）：⟲ 兼解点选；条上开关不竖排（六宽）；提示句「·」分段不折；反证");
+  const stateOf = (pg) => pg.evaluate(() => ({ focus: relView.focus, fe: document.querySelectorAll("#rel-canvas .rel-node.focused").length,
+    fc: document.querySelectorAll("#map-overlay-body .rel-node.focused").length,
+    dimE: [...document.querySelectorAll("#rel-canvas .rel-node")].filter(g => g.style.opacity && g.style.opacity !== "0.25").length,
+    dimC: [...document.querySelectorAll("#map-overlay-body .rel-node")].filter(g => g.style.opacity && g.style.opacity !== "0.25").length,
+    panel: (() => { const p = document.querySelector("#rel-panel"); const h = p.querySelector("h3"), s = p.querySelector("p.map-status");
+      return (h ? h.textContent : "") + "｜" + (s ? s.textContent : "") + "｜" + p.children.length; })(),
+    sw: document.querySelector("#pano-elabel").checked, all: document.querySelector("#rel-show-all").checked, ev: panoView.edgeLabels }));
+  const panelInit = "关系详情｜" + PANEL_INIT + "｜2";
+  for (const w of [1440, 375]) {
+    const { ctx, pg } = await open(w);
+    const pick = await topDeg(pg);
+    for (const [all, swOn] of [[false, false], [true, true]]) {
+      await setAll(pg, all); await setSwitch(pg, swOn);
+      const tag = w + (all ? " 显示全部、全部关系名开" : " 只主角、开关关");
+      /* 内嵌：真点其人（点盘心）→ ⟲ */
+      const [x, y] = await nodeXY(pg, pick);
+      if (w <= 680) await pg.touchscreen.tap(x, y); else await pg.mouse.click(x, y);
+      await pg.waitForTimeout(200);
+      const s0 = await stateOf(pg);
+      selfcheck(s0.focus === pick && s0.fe === 1 && s0.panel !== panelInit, tag + "：点「" + nameOf(pick) + "」已点选（focus " + s0.focus + "、focused " + s0.fe + "）");
+      await pg.click(RESET_SEL); await pg.waitForTimeout(200);
+      const s1 = await stateOf(pg);
+      ok(s1.focus === null && s1.fe === 0 && s1.dimE === 0 && s1.panel === panelInit, tag + "：内嵌 ⟲ 后 focus 空、无 focused、无淡出、右栏复初句", JSON.stringify(s1));
+      ok(s1.sw === swOn && s1.ev === swOn && s1.all === all, tag + "：内嵌 ⟲ 不动「全部关系名」「显示全部」二开关（" + s1.sw + "／" + s1.all + "）");
+      if (w === 375 && all) await scr(pg, "x3e_reset_focus_embed_375");
+      /* 放大查看：内嵌点选后开浮层（克隆带点选之态）→ 浮层 ⟲ */
+      await pg.evaluate((id) => focusRelNode(id), pick);
+      await pg.click("#btn-rel-zoom"); await pg.waitForTimeout(500);
+      const s2 = await stateOf(pg);
+      selfcheck(s2.focus === pick && s2.fc === 1, tag + "：放大查看开，克隆体带点选之态（focused " + s2.fc + "）");
+      await pg.click(OV_RESET_SEL); await pg.waitForTimeout(200);
+      const s3 = await stateOf(pg);
+      ok(s3.focus === null && s3.fe === 0 && s3.fc === 0 && s3.dimE === 0 && s3.dimC === 0 && s3.panel === panelInit,
+        tag + "：浮层 ⟲ 后 focus 空、内嵌与克隆俱无 focused、无淡出、右栏复初句", JSON.stringify(s3));
+      ok(s3.sw === swOn && s3.all === all, tag + "：浮层 ⟲ 不动二开关");
+      if (w === 375 && all) await scr(pg, "x3e_reset_focus_overlay_375", "page");
+      await pg.click("#btn-overlay-close"); await pg.waitForTimeout(300);
+    }
+    /* 反证：RESET_FOCUS＝false（⟲ 不解点选） */
+    await setAll(pg, false); await setSwitch(pg, false);
+    await pg.evaluate((id) => { PANO_SIM.RESET_FOCUS = false; focusRelNode(id); }, pick);
+    await pg.click(RESET_SEL); await pg.waitForTimeout(200);
+    const r1 = await stateOf(pg);
+    anti(!(r1.focus === null && r1.fe === 0 && r1.panel === panelInit), w + " RESET_FOCUS＝false → 内嵌 ⟲ 后 focus 仍 " + r1.focus + "、focused " + r1.fe + "（「解点选」之断红）");
+    await pg.click("#btn-rel-zoom"); await pg.waitForTimeout(500);
+    await pg.click(OV_RESET_SEL); await pg.waitForTimeout(200);
+    const r2 = await stateOf(pg);
+    anti(!(r2.focus === null && r2.fc === 0 && r2.panel === panelInit), w + " RESET_FOCUS＝false → 浮层 ⟲ 后 focus 仍 " + r2.focus + "、克隆 focused " + r2.fc + "（「解点选」之断红）");
+    await pg.click("#btn-overlay-close"); await pg.waitForTimeout(300);
+    await pg.evaluate(() => { PANO_SIM.RESET_FOCUS = true; resetRelFocus(); });
+    await ctx.close();
+  }
+  /* 2 条上开关不竖排 */
+  const barM = (pg) => pg.evaluate(() => {
+    const lab = document.querySelector("#rel-canvas .pano-bar .rel-filter"), row = document.querySelector("#rel-canvas .pano-row"),
+      bar = document.querySelector("#rel-canvas .pano-bar"), cv = document.querySelector("#rel-canvas");
+    const cs = getComputedStyle(lab), fs = parseFloat(cs.fontSize), lh = parseFloat(cs.lineHeight) || fs * 1.2;
+    const lr = lab.getBoundingClientRect(), br = bar.getBoundingClientRect(), cr = cv.getBoundingClientRect();
+    const kids = [...row.children].filter(k => getComputedStyle(k).display !== "none").map(k => k.getBoundingClientRect());
+    const out = kids.filter(k => k.right > br.right + 0.5 || k.left < br.left - 0.5).length;
+    const aside = document.querySelector("#rel-canvas .pano-aside").getBoundingClientRect();
+    return { lw: +lr.width.toFixed(1), lh: +lr.height.toFixed(1), line: +lh.toFixed(1), frame: +cr.width.toFixed(0),
+      rowOv: row.scrollWidth - row.clientWidth, out, barOut: br.right > cr.right + 0.5 ? 1 : 0, pageOv: document.scrollingElement.scrollWidth > innerWidth,
+      asideOwnLine: aside.top >= lr.bottom - 0.5, asideH: +aside.height.toFixed(1), asideW: +aside.width.toFixed(0) };
+  });
+  for (const w of [375, 682, 768, 900, 1024, 1440]) {
+    const { ctx, pg } = await open(w);
+    for (const swOn of [false, true]) {
+      await setSwitch(pg, swOn);
+      const m = await barM(pg);
+      const good = m.lh <= 1.5 * m.line && m.rowOv <= 0 && m.out === 0 && m.barOut === 0 && !m.pageOv;
+      ok(good, w + (swOn ? "（开关开，示「另 N 条」）" : "（开关关）") + "：图框宽 " + m.frame + "，「全部关系名」签 " + m.lw + "×" + m.lh + "（≤ 1.5×" + m.line + "＝" + (1.5 * m.line).toFixed(1) +
+        "），条横溢 " + m.rowOv + "、出条 " + m.out + "、页横溢 " + m.pageOv + "；小注" + (m.asideOwnLine ? "另起一行" : "同行") + "（" + m.asideW + "×" + m.asideH + "）");
+      if (swOn) await scr(pg, "x3e_bar_" + w, "#rel-canvas .pano-bar");
+    }
+    if (w === 682) {
+      /* 反证三式（x3e_try1：只去 nowrap 不红——今制条可折、图框窄则小注另起一行，签本不受挤；nowrap 为条不能折时之守。见交付「验收偏差上报」）：
+       *   甲 只去 nowrap、可缩：印之备查，不入判；
+       *   乙 去 nowrap ＋ 条不折（.pano-row nowrap）：须红——nowrap 之守；
+       *   丙 复旧（条不折、小注不另起、签可折，即 28dcd46 于 681–… 宽之式）：须红——复现生产之病。 */
+      const css = {
+        甲: ".pano-bar .rel-filter { white-space: normal !important; flex-shrink: 1 !important; }",
+        乙: ".pano-bar .rel-filter { white-space: normal !important; flex-shrink: 1 !important; } .pano-row { flex-wrap: nowrap !important; }",
+        丙: ".pano-bar .rel-filter { white-space: normal !important; flex-shrink: 1 !important; margin-right: 4px !important; } .pano-row { flex-wrap: nowrap !important; } " +
+            ".pano-aside { order: 0 !important; flex-basis: auto !important; margin-right: auto !important; }",
+      };
+      for (const k of ["甲", "乙", "丙"]) {
+        const tagEl = await pg.addStyleTag({ content: css[k] });
+        await setSwitch(pg, true);
+        const m = await barM(pg);
+        const red = !(m.lh <= 1.5 * m.line);
+        const msg = "682 反证" + k + "（" + (k === "甲" ? "只去 nowrap、可缩" : k === "乙" ? "去 nowrap ＋ 条不折" : "复旧：条不折、小注不另起、签可折") + "）→ 签 " + m.lw + "×" + m.lh + "（1.5×" + m.line + "＝" + (1.5 * m.line).toFixed(1) + "）";
+        if (k === "甲") console.log("    〔备查·不入判〕" + msg + (red ? "，红" : "，不红（条可折，签不受挤）"));
+        else anti(red, msg + "（「签高」之断红）");
+        await scr(pg, "x3e_bar_682_anti_" + (k === "甲" ? "a" : k === "乙" ? "b" : "c"), "#rel-canvas .pano-bar");
+        await tagEl.evaluate(el => el.remove());
+      }
+    }
+    await ctx.close();
+  }
+  /* 3 提示句之段 */
+  const hintM = (pg) => pg.evaluate(() => { const h = document.querySelector("#map-overlay-hint"), cs = getComputedStyle(h);
+    const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2, r = h.getBoundingClientRect();
+    const segs = [...h.querySelectorAll(".hint-seg")].map(s => ({ t: s.textContent, n: [...s.getClientRects()].filter(x => x.width > 0).length }));
+    return { t: h.textContent, lines: Math.round(r.height / lh), segs }; });
+  for (const w of [375, 682, 1440]) {
+    const { ctx, pg } = await open(w);
+    await pg.click("#btn-rel-zoom"); await pg.waitForTimeout(500);
+    const m = await hintM(pg);
+    const broken = m.segs.filter(s => s.n !== 1).map(s => s.t);
+    ok(m.t === "拖空白处平移 · 拖人物可拉开 · 滚轮/双指缩放 · 点连线/节点看关系" && m.segs.length === 4 && broken.length === 0 && m.lines <= 2,
+      w + " 放大查看之提示句：" + m.segs.length + " 段，段内折者 " + broken.length + (broken.length ? "（" + broken.join("、") + "）" : "") + "，占 " + m.lines + " 行（须 ≤ 2）");
+    if (w === 375) {
+      await scr(pg, "x3e_fullscreen_hint_375", "page");
+      await pg.addStyleTag({ content: ".hint-seg { white-space: normal !important; }" });
+      await pg.waitForTimeout(100);
+      const a = await hintM(pg);
+      const b2 = a.segs.filter(s => s.n !== 1).map(s => s.t);
+      anti(b2.length > 0, "375 注入 .hint-seg 去 nowrap → 段内折者 " + b2.length + "（" + b2.join("、") + "；「段内不折」之断红）");
+      await scr(pg, "x3e_fullscreen_hint_375_anti", "page");
+    }
+    await pg.click("#btn-overlay-close"); await pg.waitForTimeout(300);
     await ctx.close();
   }
 

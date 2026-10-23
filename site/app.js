@@ -2990,8 +2990,8 @@ function openRelOverlay() {
   const overlay = $("#map-overlay");
   overlay.setAttribute("aria-label", "关系图全屏查看");
   /* 全景（r62-X3 续，裁二百五十七 二4）可拖人物，提示句加之；以人为中心之图照旧 */
-  $("#map-overlay-hint").textContent = src.classList.contains("pano-svg") && relView.mode === "pano"
-    ? PANO_OVERLAY_HINT : "拖移平移 · 滚轮/双指缩放 · 点连线/节点看关系";
+  setOverlayHint(src.classList.contains("pano-svg") && relView.mode === "pano"
+    ? PANO_OVERLAY_HINT : "拖移平移 · 滚轮/双指缩放 · 点连线/节点看关系");
   const body = $("#map-overlay-body");
   body.textContent = "";
   unmountOverlayControls(); // 关系图无轨迹播放，本浮层不挂控件（body 已清空，此处显式声明意图）
@@ -3067,7 +3067,7 @@ function rebindRelClone(clone) {
  *   ② 按人拖人：克隆体上按住一人（单指或鼠标）即拖其人——不平移（清 bindZoomGesture 之 panStart）；第二指落则让于双指缩放；
  *      拖时以克隆体之视框（relZoom.box）换算坐标，写内嵌之 relView.nodes，力学照内嵌（panoSim*，与内嵌同一份）；
  *      拖逾 4px 则 panDist 记 99，放手之 click 不开抽屉（同 rebindRelClone 之守）。
- *   ③ 浮层左上加 ⟲（复位视野与布局）：复初布局、解诸钉（panoResetAll），全屏之视框复其初取景（relZoomInitView）。 */
+ *   ③ 浮层左上加 ⟲（复位视野、布局与点选）：复初布局、解诸钉（panoResetAll），解点选（panoResetFocus），全屏之视框复其初取景（relZoomInitView）。 */
 function panoMountOverlay(src, clone, body) {
   const a = src.querySelectorAll("*"), b = clone.querySelectorAll("*");
   if (a.length !== b.length) return;
@@ -3111,20 +3111,34 @@ function panoMountOverlay(src, clone, body) {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.textContent = "⟲";
-  btn.setAttribute("aria-label", "复位视野与布局");
+  btn.setAttribute("aria-label", "复位视野、布局与点选");
   btn.addEventListener("click", () => {
     panoResetAll($("#rel-canvas svg.pano-svg"));
+    panoResetFocus();
     relZoomInitView();
   });
   box.appendChild(btn);
   body.appendChild(box);
+}
+/* 浮层提示句（r62-X3 续二，裁二百六十 一3）：以「 · 」分段，各段入 .hint-seg（white-space: nowrap），段内不折、只于「·」处折行。
+ * textContent 与旧一字不差（门与读屏所闻不变）。 */
+function setOverlayHint(text) {
+  const el = $("#map-overlay-hint");
+  el.textContent = "";
+  text.split(" · ").forEach((seg, i) => {
+    if (i) el.appendChild(document.createTextNode(" · "));
+    const sp = document.createElement("span");
+    sp.className = "hint-seg";
+    sp.textContent = seg;
+    el.appendChild(sp);
+  });
 }
 function closeRelOverlay() {
   if (drawer.open) closeDrawer(); // 全屏关闭时一并收起底部抽屉，避免其孤悬
   const overlay = $("#map-overlay");
   overlay.hidden = true;
   overlay.setAttribute("aria-label", "地图全屏查看");
-  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点击地点看详情";
+  setOverlayHint("拖移平移 · 滚轮/双指缩放 · 点击地点看详情");
   document.body.classList.remove("no-scroll");
   $("#map-overlay-body").textContent = "";
   relZoom.active = false;
@@ -4300,7 +4314,7 @@ function openCmpOverlay() {
   if (!cmp.svg) return;
   const overlay = $("#map-overlay");
   overlay.setAttribute("aria-label", "并观地图全屏查看");
-  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点交会点看详情";
+  setOverlayHint("拖移平移 · 滚轮/双指缩放 · 点交会点看详情");
   const body = $("#map-overlay-body");
   body.textContent = "";
   body.appendChild(cmp.svg);
@@ -4322,7 +4336,7 @@ function closeCmpOverlay() {
   const overlay = $("#map-overlay");
   overlay.hidden = true;
   overlay.setAttribute("aria-label", "地图全屏查看");
-  $("#map-overlay-hint").textContent = "拖移平移 · 滚轮/双指缩放 · 点击地点看详情";
+  setOverlayHint("拖移平移 · 滚轮/双指缩放 · 点击地点看详情");
   document.body.classList.remove("no-scroll");
   unmountOverlayControls();
   cmpZoom.active = false;
@@ -5708,9 +5722,9 @@ function panoPlaceEdgeFast(e) {
  *   止：放手后 alpha 每帧乘 DECAY；连续 CALM_FRAMES（10）帧诸人之实移（积分与推开之后）俱＜V_MIN 即自然止（X3 续，裁二百五十八 一2；
  *     旧判取内速，不计推开之移）；至迟 SETTLE_MS 必止（末 FADE_MS 内速渐归零，不骤停）。弹性之推开余量 PUSH_GAP 0（裁二百五十八 一1）。
  *   帧耗（X3 续，裁二百五十七 二1）：拖动之中圆签不重求避盘（随边中点移）、边名隔帧一判；止动后二者俱全数重求，静止之形不变。
- *   ELASTIC、STOP、RESET_LAYOUT 为门之反证所关。初布局（panoLayout）之式与序不动，诸既有之门所量不变。
+ *   ELASTIC、STOP、RESET_LAYOUT、RESET_FOCUS 为门之反证所关。初布局（panoLayout）之式与序不动，诸既有之门所量不变。
  * ================================================================== */
-const PANO_SIM = { ELASTIC: true, STOP: true, RESET_LAYOUT: true, DRAG_ALPHA: 0.3, DECAY: 0.93,
+const PANO_SIM = { ELASTIC: true, STOP: true, RESET_LAYOUT: true, RESET_FOCUS: true, DRAG_ALPHA: 0.3, DECAY: 0.93,
                    V_MIN: 0.03, SETTLE_MS: 2500, FADE_MS: 500, PUSH: 1, PUSH_GAP: 0, CALM_FRAMES: 10, LABEL_EVERY: 2,
                    GRID: true };   // LABEL_EVERY：拖动之中边名每二帧一判（X3 续，裁二百五十七 二1），止动后必再判   // GRID：n ＞ GRID_MIN 时同布局用网格（裁二百五十六 二）；门 §六 关之以量逐对精算之帧耗（「前」之数），站上恒开
 let panoSim = null;
@@ -5820,6 +5834,11 @@ function panoSimTick() {
     return;
   }
   sim.raf = requestAnimationFrame(panoSimTick);
+}
+/* ⟲（内嵌与放大查看同）：panoResetAll 复视野、复初布局、解诸钉；panoResetFocus 解点选（r62-X3 续二，裁二百六十 一1：站长所请）。
+ * 「全部关系名」「显示全部」二开关是读者所设，⟲ 不动之。 */
+function panoResetFocus() {
+  if (PANO_SIM.RESET_FOCUS) resetRelFocus();
 }
 /* ⟲：复视野；并复初布局（逐位同 panoView.cache.pos）、解诸钉 */
 function panoResetAll(svg) {
@@ -6073,6 +6092,11 @@ function panoBindGestures(svg) {
 function panoMountBar(canvas, svg) {
   const bar = document.createElement("div");
   bar.className = "pano-bar";
+  /* r62-X3 续二（裁二百六十 一2）：条为容器（container-type: inline-size），其内一行为 flex；
+   * 小注与「另 N 条」之另起一行以条（即图框）之宽为准，不以视窗之宽——两栏而框窄时亦折，开关不竖排 */
+  const row = document.createElement("div");
+  row.className = "pano-row";
+  bar.appendChild(row);
   const lab = document.createElement("label");
   lab.className = "rel-filter";
   const cb = document.createElement("input");
@@ -6085,8 +6109,8 @@ function panoMountBar(canvas, svg) {
   });
   lab.appendChild(cb);
   lab.appendChild(document.createTextNode("全部关系名"));
-  bar.appendChild(lab);
-  /* r62-X3：开关旁「另 N 条因重叠未示」（N 照实，panoPlaceLabels 写之）与小注；窄屏二者另起一行 */
+  row.appendChild(lab);
+  /* r62-X3：开关旁「另 N 条因重叠未示」（N 照实，panoPlaceLabels 写之）与小注；图框窄时二者另起一行（容器查询，见 styles.css .pano-bar） */
   const aside = document.createElement("span");
   aside.className = "pano-aside";
   const hid = document.createElement("span");
@@ -6097,18 +6121,18 @@ function panoMountBar(canvas, svg) {
   note.className = "pano-note";
   note.textContent = PANO_NOTE;
   aside.appendChild(note);
-  bar.appendChild(aside);
+  row.appendChild(aside);
   const mid = () => { const r = svg.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
   for (const [txt, aria, fn] of [["＋", "放大", () => panoZoomAt(svg, 0.8, ...mid())],
                                  ["－", "缩小", () => panoZoomAt(svg, 1.25, ...mid())],
-                                 ["⟲", "复位视野与布局", () => panoResetAll(svg)]]) {
+                                 ["⟲", "复位视野、布局与点选", () => { panoResetAll(svg); panoResetFocus(); }]]) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "pano-zoom";
     b.textContent = txt;
     b.setAttribute("aria-label", aria);
     b.addEventListener("click", fn);
-    bar.appendChild(b);
+    row.appendChild(b);
   }
   canvas.appendChild(bar);
 }
@@ -6141,17 +6165,17 @@ function focusRelNode(pid) {
 }
 function resetRelFocus() {
   relView.focus = null;
+  /* r62-X3 续二：放大查看开时（relZoom.mirror 非空），克隆体系于点选之态克隆而来，亦同解（浮层 ⟲ 所需） */
+  const both = (el, f) => { if (!el) return; f(el); const m = relZoom.mirror && relZoom.mirror.get(el); if (m) f(m); };
   for (const edge of relView.edges) {
-    edge.el.style.opacity = "";
-    edge.el.setAttribute("stroke-width", "1.6");
-    if (edge.badge) edge.badge.style.opacity = "";
-    if (edge.lab) edge.lab.style.opacity = "";
+    both(edge.el, (el) => { el.style.opacity = ""; el.setAttribute("stroke-width", "1.6"); });
+    both(edge.badge, (el) => { el.style.opacity = ""; });
+    both(edge.lab, (el) => { el.style.opacity = ""; });
   }
   for (const node of relView.nodes.values()) {
     const op = relView.isolated.has(node.p.id) ? "0.25" : "";
-    node.el.style.opacity = op;
-    if (node.badgeEl) node.badgeEl.style.opacity = op; // 同上
-    node.el.classList.remove("focused");
+    both(node.el, (el) => { el.style.opacity = op; el.classList.remove("focused"); });
+    both(node.badgeEl, (el) => { el.style.opacity = op; }); // 同上
   }
   panoPlaceLabels();   // r62-X3
   const panel = $("#rel-panel");
