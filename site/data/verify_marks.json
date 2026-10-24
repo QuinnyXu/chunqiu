@@ -1603,6 +1603,30 @@
   },
   {
     "table": "places",
+    "row_id": "L_KUI",
+    "col": "coord_basis",
+    "offset": 215,
+    "status": [
+      {
+        "name": "本轮无从核",
+        "negated": false
+      },
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "纸本已核",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
     "row_id": "L_XIAN",
     "col": "coord_basis",
     "offset": 0,
@@ -1669,6 +1693,85 @@
     "status": [
       {
         "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YI",
+    "col": "coord_basis",
+    "offset": 218,
+    "status": [
+      {
+        "name": "已核",
+        "negated": false
+      },
+      {
+        "name": "本轮无从核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YI",
+    "col": "coord_basis",
+    "offset": 405,
+    "status": [
+      {
+        "name": "纸本已核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YI",
+    "col": "coord_basis",
+    "offset": 771,
+    "status": [
+      {
+        "name": "未见",
+        "negated": false
+      },
+      {
+        "name": "转引",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YI",
+    "col": "coord_basis",
+    "offset": 918,
+    "status": []
+  },
+  {
+    "table": "places",
+    "row_id": "L_YI",
+    "col": "coord_basis",
+    "offset": 1404,
+    "status": [
+      {
+        "name": "转引",
+        "negated": false
+      },
+      {
+        "name": "未核",
+        "negated": false
+      }
+    ]
+  },
+  {
+    "table": "places",
+    "row_id": "L_YI",
+    "col": "coord_basis",
+    "offset": 1561,
+    "status": [
+      {
+        "name": "转引",
         "negated": false
       }
     ]
