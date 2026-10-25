@@ -28,7 +28,8 @@
  *      反证：STOP＝false、RESET_LAYOUT＝false、断镜（relZoom.mirror＝null）俱须红。
  *  §五 偏置（裁二百五十六 三）：印偏置 |F(x0)| 之中位、最大与最大五人（只主角、显示全部）；
  *      不加偏置、全式松弛之最大位移：只主角须 ＜ 15（主角盘半径）——断之；显示全部印其数备查。
- *      反证：令一人初位外移 20 单位而不重算布局，此断须红。
+ *      反证：令一人初位外移 30 单位（盘径；r62-U-丙 乙段由 20 改，53 人之图 20 不红）而不重算布局，此断须红。
+ *  〔r62-U-丙 乙段〕§二 反证三（OWN_BADGE）：只主角开关开态无例时，另求点选态之例（逐一点选主角，取首个）；§〇 对照本之名册随今（见 BASE_FILES 注）。
  *  §七 X3 续二（§一百六十一 裁二百六十 一）：
  *      1 ⟲ 兼解点选——内嵌与放大查看之 ⟲：点选一人 → ⟲ → relView.focus 空、无 .focused（内嵌与克隆）、右栏「关系详情」复初句；
  *        「全部关系名」「显示全部」二开关不动。反证 PANO_SIM.RESET_FOCUS＝false 须红。
@@ -37,6 +38,12 @@
  *        乙 去 nowrap ＋ 条不折，须红（nowrap 之守）；丙 复旧（条不折、小注不另起、签可折），须红（复现生产之病）。
  *      3 放大查看之提示句——各「·」分段（.hint-seg）只占一行（段内不折），375 不逾二行；textContent 一字合；
  *        反证：注入 .hint-seg { white-space: normal } 于 375 须红。
+ *      4 〔r62-U-丙 乙段，裁二百六十一 二2 登记、裁二百六十三 七2〕浮层 ⟲ 兼收底部抽屉——放大查看内点一人开抽屉，焦点移至 ⟲ 以键盘（Enter）触之：
+ *        抽屉闭（drawer.open 假、#place-drawer 无 .open 且 250 ms 后 hidden）、点选与视野之复照 1；焦点留于 ⟲。1440、375。
+ *        ★ 指针之途：抽屉开时其幕（#drawer-backdrop，z 58）覆浮层（z 50）全屏，点 ⟲ 之位实中幕而收抽屉、⟲ 之处理不行——印之备查（交付上报）。
+ *        反证 PANO_SIM.RESET_DRAWER＝false：键盘触 ⟲ 后抽屉仍开，须红。
+ *      5 〔同上，裁二百六十一 三登记〕条上小注以「；」分段（.pano-note .hint-seg，「；」随前段），各段只占一行（段内不折）；textContent 一字合 a。
+ *        六宽 375、682、768、900、1024、1440，开关开（示「另 N 条」）与关。反证：682 开关开注入 .pano-note .hint-seg { white-space: normal } 须红（复现「可｜拉开」）。
  *  §六 帧耗：375 触屏于 CDP CPU ×4 实测只主角与「显示全部」拖动（书 panoSimTick 之中位／P95／最大、rAF 帧距、分项；印其的：只主角 P95 ≤ 33、
  *      显示全部 ≤ 50，裁二百五十七 二1），另书 1440、375 不降速之「显示全部」备查。只书，不入判（无头机之时不稳）。
  */
@@ -66,6 +73,12 @@ let BASE_FILES = null;
 try {
   BASE_FILES = {};
   for (const f of ["app.js", "index.html", "styles.css"]) BASE_FILES["/" + f] = cp.execSync("git show " + X3_BASE + ":site/" + f, { cwd: ROOT, maxBuffer: 1 << 26 });
+  /* 〔r62-U-丙 乙段 改〕名册随今：对照本之 PROTAGONISTS 数组代以今 app.js 之数组（一字照搬）。
+   * 由：§〇 所断者「初布局之函数与 X3_BASE 同源」，人集是其入参；X3_BASE 之名册只 49 人，今库与今前端俱 53（4c57411 升四人），
+   *   不同步则二本人集不同，逐位之比必红而与布局之函数无涉。名册之对账另由 vision_r24a §17（protoRoster）与本门 §〇 之人数自检守之。 */
+  const cur = fs.readFileSync(path.join(SITE, "app.js"), "utf8"), old = BASE_FILES["/app.js"].toString("utf8");
+  const arr = (t) => { const i = t.indexOf("const PROTAGONISTS = ["), j = t.indexOf("\n];", i); if (i < 0 || j < 0) throw new Error("PROTAGONISTS 数组不得"); return t.slice(i, j + 3); };
+  BASE_FILES["/app.js"] = Buffer.from(old.replace(arr(old), () => arr(cur)), "utf8");
 } catch (e) { console.log("门自身出错：取 " + X3_BASE + " 之三件不得：" + e.message); process.exit(2); }
 
 function srv(root, over) {
@@ -284,8 +297,23 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
        *   显示全部之例随宽而定（x3c_try3：1440 有 3 处、375 无），只印备查 */
       await pg.evaluate(() => { PANO_ELAB.OWN_BADGE = false; for (const e of relView.edges) e.lab.dataset.t = ""; panoPlaceLabels(); });
       const bo = judge(await measure(pg)).filter(x => x.includes("×圆签"));
-      if (!all) anti(bo.length > 0, tag + " OWN_BADGE＝false → 边名压圆签 " + bo.length + " 处", bo[0]);
-      else console.log("    〔备查〕" + tag + " OWN_BADGE＝false → 边名压圆签 " + bo.length + " 处（此图之例不定，不入反证；只主角二宽俱有「兄·私通」之例）" + (bo[0] ? "：" + bo[0] : ""));
+      if (!all && bo.length > 0) anti(true, tag + " OWN_BADGE＝false → 边名压圆签 " + bo.length + " 处", bo[0]);
+      else if (!all) {
+        /* 〔r62-U-丙 乙段 改〕53 人之只主角图，开关开态已无其例（u3_try1：1440、375 俱 0；x3c_try3 之「兄·私通」例系 49 人之图）。
+         * 照「另路求之」：逐一点选在图诸主角（PROTAGONISTS 之序），取首个 OWN_BADGE＝false 下边名压圆签之点选态为反证之例；俱无则门自身出错。
+         * 断言（「不压圆签」）一字未动，只换反证取例之途。 */
+        console.log("    〔备查〕" + tag + " 开关开态 OWN_BADGE＝false → 边名压圆签 0 处（53 人之图此态无例），改求点选态之例");
+        let hit = null;
+        const ids = await pg.evaluate(() => PROTAGONISTS.map(m => m.id).filter(id => relView.nodes.has(id)));
+        for (const id of ids) {
+          await pg.evaluate((id) => { for (const e of relView.edges) e.lab.dataset.t = ""; focusRelNode(id); }, id);
+          const bf = judge(await measure(pg)).filter(x => x.includes("×圆签"));
+          if (bf.length) { hit = { id, n: bf.length, ex: bf[0] }; break; }
+        }
+        await pg.evaluate(() => resetRelFocus());
+        anti(!!hit, tag + " OWN_BADGE＝false → 点选「" + (hit ? nameOf(hit.id) : "—") + "」之态边名压圆签 " + (hit ? hit.n : 0) + " 处", hit ? hit.ex : "");
+      }
+      else console.log("    〔备查〕" + tag + " OWN_BADGE＝false → 边名压圆签 " + bo.length + " 处（此图之例不定，不入反证；只主角之例见上，53 人之图起取点选态）" + (bo[0] ? "：" + bo[0] : ""));
       await pg.evaluate(() => { PANO_ELAB.OWN_BADGE = true; for (const e of relView.edges) e.lab.dataset.t = ""; panoPlaceLabels(); });
       /* 反证二：令一条隐者之名私自现出（不经 panoPlaceLabels），条上 N 与实隐脱节 */
       if (m.domHidden > 0) {
@@ -576,9 +604,12 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
       if (!all) {
         ok(r.driftMax < 15, "只主角：不加偏置、全式松弛之最大位移 " + r.driftMax + " ＜ 15（主角盘半径）");
         const victim = r.biasTop[0].id;
-        const rz = await pg.evaluate((id) => { const p = panoView.cache.pos.get(id), old = p.slice(); p[0] = +(p[0] + 20).toFixed(2);
+        /* 〔r62-U-丙 乙段 改〕外移之量 20 → 30（＝主角盘之径，2×15）。由：53 人之图外移 20 者（息妫）松弛只回 10.971，「＜15」之断不红（u3_try1）；
+         *   探之 25 → 15.52、30 → 20.283、40 → 22.677（team/r62U_bing_luobi/logs/probe_anti_53.log）。取盘径为量，不取恰过之 25。
+         *   断言（只主角最大位移 ＜ 15）一字未动，只增反证之扰。 */
+        const rz = await pg.evaluate((id) => { const p = panoView.cache.pos.get(id), old = p.slice(); p[0] = +(p[0] + 30).toFixed(2);
           const res = panoBiasProbe(600); panoView.cache.pos.set(id, old); return res; }, victim);
-        anti(!(rz.driftMax < 15), "令「" + nameOf(victim) + "」初位外移 20 而不重算布局 → 最大位移 " + rz.driftMax + "（「＜15」之断红）");
+        anti(!(rz.driftMax < 15), "令「" + nameOf(victim) + "」初位外移 30（盘径）而不重算布局 → 最大位移 " + rz.driftMax + "（「＜15」之断红）");
       }
     }
     await ctx.close();
@@ -741,6 +772,78 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
       await scr(pg, "x3e_fullscreen_hint_375_anti", "page");
     }
     await pg.click("#btn-overlay-close"); await pg.waitForTimeout(300);
+    await ctx.close();
+  }
+
+  /* 4 浮层 ⟲ 兼收底部抽屉（r62-U-丙 乙段） */
+  H("§七 4 浮层 ⟲ 兼收底部抽屉（键盘触 ⟲；指针之途印备查）；反证 RESET_DRAWER＝false");
+  const drawerS = (pg) => pg.evaluate(() => ({ open: drawer.open, cls: document.querySelector("#place-drawer").classList.contains("open"),
+    hid: document.querySelector("#place-drawer").hidden, bd: document.querySelector("#drawer-backdrop").hidden,
+    act: document.activeElement && document.activeElement.getAttribute("aria-label"), focus: relView.focus,
+    fc: document.querySelectorAll("#map-overlay-body .rel-node.focused").length }));
+  const openDrawerInOverlay = async (pg, pick) => {
+    await pg.click("#btn-rel-zoom"); await pg.waitForTimeout(500);
+    await pg.evaluate((id) => document.querySelector('#map-overlay-body .rel-node[data-node="' + id + '"]').dispatchEvent(new MouseEvent("click", { bubbles: true })), pick);
+    await pg.waitForTimeout(350);
+    return drawerS(pg);
+  };
+  const kbReset = async (pg) => { await pg.focus(OV_RESET_SEL); await pg.keyboard.press("Enter"); await pg.waitForTimeout(400); return drawerS(pg); };
+  for (const w of [1440, 375]) {
+    const { ctx, pg } = await open(w);
+    const pick = await topDeg(pg);
+    const d0 = await openDrawerInOverlay(pg, pick);
+    selfcheck(d0.open && d0.cls && !d0.hid, w + "：放大查看内点「" + nameOf(pick) + "」，底部抽屉开");
+    if (w === 375) await scr(pg, "u3_overlay_drawer_open_375", "page");
+    const d1 = await kbReset(pg);
+    ok(!d1.open && !d1.cls && d1.hid && d1.bd && d1.focus === null && d1.fc === 0 && d1.act === "复位视野、布局与点选",
+      w + "：键盘触浮层 ⟲ → 抽屉闭（drawer.open " + d1.open + "、.open " + d1.cls + "、hidden " + d1.hid + "、幕 hidden " + d1.bd + "）、点选解、焦点留于 ⟲（" + d1.act + "）");
+    if (w === 375) await scr(pg, "u3_overlay_drawer_reset_375", "page");
+    /* 指针之途（备查，不入判）：抽屉开时点 ⟲ 之位 */
+    await pg.evaluate((id) => document.querySelector('#map-overlay-body .rel-node[data-node="' + id + '"]').dispatchEvent(new MouseEvent("click", { bubbles: true })), pick);
+    await pg.waitForTimeout(350);
+    const hitTop = await pg.evaluate((sel) => { const r = document.querySelector(sel).getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return e ? (e.id || e.className || e.tagName) : "无"; }, OV_RESET_SEL);
+    const bb = await (await pg.$(OV_RESET_SEL)).boundingBox();
+    if (w <= 680) await pg.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2); else await pg.mouse.click(bb.x + bb.width / 2, bb.y + bb.height / 2);
+    await pg.waitForTimeout(400);
+    const dp = await drawerS(pg);
+    console.log("    〔备查·不入判〕" + w + " 抽屉开时 ⟲ 之位最上之元素：" + hitTop + "；以指针点之 → 抽屉 " + (dp.open ? "仍开" : "闭") + "（幕收之）");
+    /* 反证 */
+    await pg.evaluate(() => { PANO_SIM.RESET_DRAWER = false; });
+    await pg.evaluate((id) => document.querySelector('#map-overlay-body .rel-node[data-node="' + id + '"]').dispatchEvent(new MouseEvent("click", { bubbles: true })), pick);
+    await pg.waitForTimeout(350);
+    const z = await kbReset(pg);
+    anti(z.open || z.cls, w + " RESET_DRAWER＝false → 键盘触浮层 ⟲ 后抽屉仍开（drawer.open " + z.open + "；「抽屉闭」之断红）");
+    if (w === 375) await scr(pg, "u3_overlay_drawer_anti_375", "page");
+    await pg.evaluate(() => { PANO_SIM.RESET_DRAWER = true; if (drawer.open) closeDrawer(); });
+    await pg.waitForTimeout(300);
+    await pg.click("#btn-overlay-close"); await pg.waitForTimeout(300);
+    await ctx.close();
+  }
+  /* 5 条上小注「；」分段不折（r62-U-丙 乙段） */
+  H("§七 5 条上小注以「；」分段、段内不折（六宽，开关开与关）；反证 682 开关开去段之 nowrap");
+  const noteM = (pg) => pg.evaluate(() => { const n = document.querySelector("#rel-canvas .pano-note");
+    const segs = [...n.querySelectorAll(".hint-seg")].map(s => ({ t: s.textContent, n: [...s.getClientRects()].filter(x => x.width > 0).length }));
+    const lh = parseFloat(getComputedStyle(n).lineHeight) || 14, r = n.getBoundingClientRect();
+    return { t: n.textContent, segs, lines: Math.round(r.height / lh), w: +r.width.toFixed(0) }; });
+  for (const w of [375, 682, 768, 900, 1024, 1440]) {
+    const { ctx, pg } = await open(w);
+    for (const swOn of [false, true]) {
+      await setSwitch(pg, swOn);
+      const m = await noteM(pg);
+      const broken = m.segs.filter(x => x.n !== 1).map(x => x.t);
+      ok(m.t === NOTE_A && m.segs.length === 2 && m.segs[0].t.endsWith("；") && broken.length === 0,
+        w + (swOn ? "（开关开）" : "（开关关）") + "：小注 " + m.segs.length + " 段（" + m.segs.map(x => "「" + x.t + "」").join("") + "），段内折者 " + broken.length + "，占 " + m.lines + " 行，textContent 一字合 a");
+      if (swOn && (w === 682 || w === 375)) await scr(pg, "u3_note_" + w, "#rel-canvas .pano-bar");
+    }
+    if (w === 682) {
+      const t = await pg.addStyleTag({ content: "#rel-canvas .pano-note .hint-seg { white-space: normal !important; }" });
+      await pg.waitForTimeout(100);
+      const a = await noteM(pg);
+      const b2 = a.segs.filter(x => x.n !== 1).map(x => x.t);
+      anti(b2.length > 0, "682 开关开注入小注之段去 nowrap → 段内折者 " + b2.length + "（" + b2.join("、") + "；「段内不折」之断红）");
+      await scr(pg, "u3_note_682_anti", "#rel-canvas .pano-bar");
+      await t.evaluate(el => el.remove());
+    }
     await ctx.close();
   }
 

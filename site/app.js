@@ -136,6 +136,16 @@ const PROTAGONISTS = [
   { id: "P_LUHUAN",      color: "", badge: "badge_luhuan",      fallback: "鲁桓公" },
   { id: "P_LUZHUANG",    color: "", badge: "badge_luzhuang",    fallback: "鲁庄公" },
   { id: "P_CAOGUI",      color: "", badge: "badge_caogui",      fallback: "曹刿" },
+  /* r62-U-丙（裁二百六十三 四、五；站长「照荐」§一百七十六）：升秦、晋、楚、鲁四人，秦 2→3、晋 8→9、楚 4→5、鲁 8→9，全库 49→53。
+   * 插序之则（裁二百六十三 五，新定、自此通用）：组内既有之序不动；新人以 people.csv active_years_bce 之**首年**为准，
+   *   插于组内首位首年晚于新人者之前，无则殿后。徽记取材俱经传与《国语》本文，画其人之行；出稿与撞形之量见 team/r62U_bing_drafts/。
+   * 各人之注随其行。 */
+  /* r62-U-丙：哀姜（首年前 670）插于曹刿之后、季文子之前（季文子首年 前 621 为组内首位晚于前 670 者）。
+   * 徽记＝柩车（badge_aijiang）：Q750（僖元经）「夫人姜氏薨于夷，齊人以歸……夫人氏之喪至自齊」、Q749（闵二传）「以其尸歸」
+   *   ——一柩（首高尾低）置于车上、二轮：「以归」「丧至」之物象。车为示意之器（经只书「以歸」「喪至」，不书车）。
+   *   取材照编年著录之调：只取其死后之物象，不画其身、不画杀之状。
+   * state「齐/鲁」，首国为齐，照任务书明书 home「鲁」（所嫁之国，其事俱在鲁）。 */
+  { id: "P_AIJIANG",     color: "", badge: "badge_aijiang",     fallback: "哀姜", home: "鲁" },
   /* r62-U-乙（同上）：鲁三人续曹刿、在孔子前（序之由见齐组注）。徽记取材：
    *   季文子＝马不食粟（badge_jiwenzi）：Q777（襄五传）「無衣帛之妾．無食粟之馬」、Q778（《国语·鲁语上》）「妾不衣帛，馬不食粟」
    *     ——马首侧影、前一丛刍（画其俭之所见，不画粟）；
@@ -161,12 +171,21 @@ const PROTAGONISTS = [
   { id: "P_QINMU",       color: "", badge: "badge_qinmu",       fallback: "秦穆公" },
   { id: "P_CHUCHENG",    color: "", badge: "badge_chucheng",    fallback: "楚成王" },
   { id: "P_CHUZHUANG",   color: "", badge: "badge_chuzhuang",   fallback: "楚庄王" },
+  /* r62-U-丙（插序之则见鲁组哀姜注）：申包胥（首年前 522）插于楚庄王之后、楚昭王（首年前 516）之前。
+   * 徽记＝庭墙（badge_shenbaoxu）：Q374（定四传）「立依於庭牆而哭，日夜不絕聲，勺飲不入口七日」——版筑之墙三层、墙下一勺横置。
+   * state 只「楚」，省 home。 */
+  { id: "P_SHENBAOXU",   color: "", badge: "badge_shenbaoxu",   fallback: "申包胥" },
   /* r62-M（裁二百四十 三1、裁二百四十三 三1 站长择定徽记甲）：楚昭王升一级，楚分区一级 3→4。徽记＝望山（badge_chuzhao）：
    * 取《左传·哀公六年》「三代命祀，祭不越望。江、漢、雎、章，楚之望也……河非所獲罪也」（Q477）——一山二峰、下一水，山川之望。
    * 楚君之序续于庄王之后；state 只「楚」，home 照任务书明书。 */
   { id: "P_CHUZHAO",     color: "", badge: "badge_chuzhao",     fallback: "楚昭王", home: "楚" },
   { id: "P_XIGUI",       color: "", badge: "badge_xigui",       fallback: "息妫", home: "楚" },
   { id: "P_LIJI",        color: "", badge: "badge_liji",        fallback: "骊姬" },
+  /* r62-U-丙（插序之则见鲁组哀姜注）：怀嬴（首年前 638）插于骊姬之后、叔向之前（晋组今序本非年序，照则以首年定：
+   *   晋文公、骊姬之后首位首年晚于前 638 者为叔向）。徽记＝沃盥（badge_huaiying）：Q648（僖二十三传）「奉匜沃盥，既而揮之」、
+   *   Q092（《国语·晋语四》）同事——匜（流在右、鋬在左）倾而水滴下于盘。
+   * state 首国为秦，照任务书明书 home「晋」。 */
+  { id: "P_HUAIYING",    color: "", badge: "badge_huaiying",    fallback: "怀嬴", home: "晋" },
   { id: "P_SHUXIANG",    color: "", badge: "badge_shuxiang",    fallback: "叔向" },
   /* r61-H（裁二百一十九）：介之推降二级（裁二百一十五 ④；badge_jiezhitui.svg 留档不删，只解其挂），祁奚、韩厥升一级。
    * 晋组续于叔向之后，二人依主事年先后：韩厥（成公二年鞌之战）先、祁奚（襄公三年举贤）后。二人 state 只「晋」，无需 home。 */
@@ -180,6 +199,10 @@ const PROTAGONISTS = [
   { id: "P_LUANSHU",     color: "", badge: "badge_luanshu",     fallback: "栾书" },
   { id: "P_QIXIDAFU",    color: "", badge: "badge_qixidafu",    fallback: "祁奚" },
   { id: "P_MUJI",        color: "", badge: "badge_muji",        fallback: "穆姬", home: "秦" },
+  /* r62-U-丙（插序之则见鲁组哀姜注）：蹇叔（首年约前 655）组内无首年晚于之者，殿后——秦穆公、穆姬、蹇叔。
+   * 徽记＝二陵（badge_jianshu）：Q646（僖三十二传）「晉人禦師必於殽，殽有二陵焉……必死是間，余收爾骨焉」
+   *   ——二丘相对、中一路蜿蜒入其间：其人哭送之时所言之地。state 只「秦」，省 home。 */
+  { id: "P_JIANSHU",     color: "", badge: "badge_jianshu",     fallback: "蹇叔" },
   { id: "P_ZHUANGJIANG", color: "", badge: "badge_zhuangjiang", fallback: "庄姜", home: "卫" },
   { id: "P_XUANJIANG",   color: "", badge: "badge_xuanjiang",   fallback: "宣姜", home: "卫" },
   /* r62-U-甲（裁二百四十六；裁二百四十七 站长示可 §一百〇七）：升卫五人，卫分区一级 2→7。
@@ -3067,7 +3090,8 @@ function rebindRelClone(clone) {
  *   ② 按人拖人：克隆体上按住一人（单指或鼠标）即拖其人——不平移（清 bindZoomGesture 之 panStart）；第二指落则让于双指缩放；
  *      拖时以克隆体之视框（relZoom.box）换算坐标，写内嵌之 relView.nodes，力学照内嵌（panoSim*，与内嵌同一份）；
  *      拖逾 4px 则 panDist 记 99，放手之 click 不开抽屉（同 rebindRelClone 之守）。
- *   ③ 浮层左上加 ⟲（复位视野、布局与点选）：复初布局、解诸钉（panoResetAll），解点选（panoResetFocus），全屏之视框复其初取景（relZoomInitView）。 */
+ *   ③ 浮层左上加 ⟲（复位视野、布局与点选）：复初布局、解诸钉（panoResetAll），解点选（panoResetFocus），全屏之视框复其初取景（relZoomInitView）；
+ *      r62-U-丙 乙段起兼收底部抽屉（PANO_SIM.RESET_DRAWER）。aria-label 不改（抽屉即「点选」之所示）。 */
 function panoMountOverlay(src, clone, body) {
   const a = src.querySelectorAll("*"), b = clone.querySelectorAll("*");
   if (a.length !== b.length) return;
@@ -3115,6 +3139,8 @@ function panoMountOverlay(src, clone, body) {
   btn.addEventListener("click", () => {
     panoResetAll($("#rel-canvas svg.pano-svg"));
     panoResetFocus();
+    /* r62-U-丙 乙段：浮层 ⟲ 兼收底部抽屉（内嵌之 ⟲ 复右栏初句，浮层与之相当者即抽屉）；收后焦点留于 ⟲ */
+    if (PANO_SIM.RESET_DRAWER && drawer.open) { closeDrawer(); btn.focus(); }
     relZoomInitView();
   });
   box.appendChild(btn);
@@ -5718,13 +5744,17 @@ function panoPlaceEdgeFast(e) {
  *     以初位之合力 F(x0) 为零点，逐帧施 F(x) − F(x0)——不拖则无一人动；力之式与刚度不变，偏置只定静止之处。
  *     其量（全式，2026-10-21 实测）：只主角 |F(x0)| 中位 0.49、最大 2.49；显示全部（网格）中位 0.69、最大 6.43；
  *     不加偏置、全式松弛之最大位移：只主角 3.6、显示全部 8.3，俱小于主角盘半径 15（门 vision_r62x3 §五 断只主角 ＜15，见 panoBiasProbe）。
+ *     〔r62-U-丙 乙段，2026-10-25，53 人实测〕只主角 |F(x0)| 中位 0.684、最大 3.543，松弛最大 5.233；显示全部中位 0.747、最大 8.802，
+ *     松弛最大 15.345（伍参；逾盘半径，门只断只主角，备查上报）。力之式与参一字未动。
  *   每帧后另以名签矩形逐对推开一遍（同布局收尾之式；钉者、被拖者不动，其对手全让），拖中名签不相压。
  *   止：放手后 alpha 每帧乘 DECAY；连续 CALM_FRAMES（10）帧诸人之实移（积分与推开之后）俱＜V_MIN 即自然止（X3 续，裁二百五十八 一2；
  *     旧判取内速，不计推开之移）；至迟 SETTLE_MS 必止（末 FADE_MS 内速渐归零，不骤停）。弹性之推开余量 PUSH_GAP 0（裁二百五十八 一1）。
  *   帧耗（X3 续，裁二百五十七 二1）：拖动之中圆签不重求避盘（随边中点移）、边名隔帧一判；止动后二者俱全数重求，静止之形不变。
  *   ELASTIC、STOP、RESET_LAYOUT、RESET_FOCUS 为门之反证所关。初布局（panoLayout）之式与序不动，诸既有之门所量不变。
  * ================================================================== */
-const PANO_SIM = { ELASTIC: true, STOP: true, RESET_LAYOUT: true, RESET_FOCUS: true, DRAG_ALPHA: 0.3, DECAY: 0.93,
+/* RESET_DRAWER（r62-U-丙 乙段，裁二百六十一 二2 登记、裁二百六十三 七2）：浮层 ⟲ 兼收底部抽屉——浮层内点人只开抽屉，抽屉即内嵌右栏之当；
+ * 门 vision_r62x3 §七 4 断之，关之为其反证。 */
+const PANO_SIM = { ELASTIC: true, STOP: true, RESET_LAYOUT: true, RESET_FOCUS: true, RESET_DRAWER: true, DRAG_ALPHA: 0.3, DECAY: 0.93,
                    V_MIN: 0.03, SETTLE_MS: 2500, FADE_MS: 500, PUSH: 1, PUSH_GAP: 0, CALM_FRAMES: 10, LABEL_EVERY: 2,
                    GRID: true };   // LABEL_EVERY：拖动之中边名每二帧一判（X3 续，裁二百五十七 二1），止动后必再判   // GRID：n ＞ GRID_MIN 时同布局用网格（裁二百五十六 二）；门 §六 关之以量逐对精算之帧耗（「前」之数），站上恒开
 let panoSim = null;
@@ -6087,6 +6117,19 @@ function panoBindGestures(svg) {
     panoZoomAt(svg, Math.exp(Math.max(-100, Math.min(100, dy)) * 0.0016), e.clientX, e.clientY);
   }, { passive: false });
 }
+/* 条上小注（r62-U-丙 乙段，裁二百六十一 三登记）：照 setOverlayHint 之法，以「；」分段——「；」随前段，各段入 .hint-seg（nowrap），
+ * 段间置 <wbr> 为折行之机；段内不折、只于「；」后折行（682 开关开时旧折于「可｜拉开」词中）。textContent 与旧一字不差。 */
+function setNoteSegs(el, text) {
+  el.textContent = "";
+  const segs = text.split("；");
+  segs.forEach((seg, i) => {
+    if (i) el.appendChild(document.createElement("wbr"));
+    const sp = document.createElement("span");
+    sp.className = "hint-seg";
+    sp.textContent = seg + (i < segs.length - 1 ? "；" : "");
+    el.appendChild(sp);
+  });
+}
 /* 图下之条（在图框内、svg 之下）：「全部关系名」开关（r62-X3 由「边名」改名，§一百四十四 定 5）＋「另 N 条因重叠未示」＋小注＋缩放三钮。
  * 随图重绘而重建；以人为中心时图框清空，条亦随去。点选一人即示其关系名，无需开关；开关开则示全部，相交者先隐（见 panoPlaceLabels）。 */
 function panoMountBar(canvas, svg) {
@@ -6119,7 +6162,7 @@ function panoMountBar(canvas, svg) {
   aside.appendChild(hid);
   const note = document.createElement("span");
   note.className = "pano-note";
-  note.textContent = PANO_NOTE;
+  setNoteSegs(note, PANO_NOTE);
   aside.appendChild(note);
   row.appendChild(aside);
   const mid = () => { const r = svg.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };

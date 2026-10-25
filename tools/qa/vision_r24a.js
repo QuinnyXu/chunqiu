@@ -1541,7 +1541,7 @@ const STATE_HEX = { "齐": "#A5322A", "鲁": "#97561F", "郑": "#35706A", "晋":
    * 故本门一律对账式：不问「是不是 29」，只问「六处呈现各自数出来的人，跟名册对不对得上」。 */
   H("17) r26b 晏婴（齐7）· 叔向（晋4）上线：名册对账与六处呈现");
   const NEWP = [{ id: "P_YANYING", name: "晏婴", state: "齐", badge: "badge_yanying", nth: 7 },   // r62-M：齐僖公降二级（原齐组第 6 位），晏婴顺位 7→6；r62-U-乙：崔杼升一级、序在晏婴前，晏婴顺位 6→7；只随名单同步，断言不变
-                { id: "P_SHUXIANG", name: "叔向", state: "晋", badge: "badge_shuxiang", nth: 3 }]; // r61-H：介之推降二级（原晋组第 2 位），叔向顺位 4→3；只随名单同步，断言不变
+                { id: "P_SHUXIANG", name: "叔向", state: "晋", badge: "badge_shuxiang", nth: 4 }]; // r61-H：介之推降二级（原晋组第 2 位），叔向顺位 4→3；r62-U-丙：怀嬴升一级、序在叔向前（裁二百六十三 五），叔向顺位 3→4；只随名单同步，断言不变
   await p.goto(origin + "/#/?home=list", { waitUntil: "load" }); await p.waitForTimeout(1200);
   const pick = await p.evaluate((NEWP) => {
     const r = protoRoster();
