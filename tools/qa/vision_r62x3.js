@@ -41,9 +41,14 @@
  *      4 〔r62-U-丙 乙段，裁二百六十一 二2 登记、裁二百六十三 七2〕浮层 ⟲ 兼收底部抽屉——放大查看内点一人开抽屉，焦点移至 ⟲ 以键盘（Enter）触之：
  *        抽屉闭（drawer.open 假、#place-drawer 无 .open 且 250 ms 后 hidden）、点选与视野之复照 1；焦点留于 ⟲。1440、375。
  *        ★ 指针之途：抽屉开时其幕（#drawer-backdrop，z 58）覆浮层（z 50）全屏，点 ⟲ 之位实中幕而收抽屉、⟲ 之处理不行——印之备查（交付上报）。
+ *        〔r62-U-丙 乙段续，裁二百六十四 四〕治以幕之孔（drawerBackdropHole），指针之途入判：拖后点人开抽屉，以指针（1440 鼠标、375 触屏）实点 ⟲ 中心，
+ *        断一按即抽屉闭、点选解、内嵌与克隆坐标复初；反证 PANO_SIM.HOLE＝false（复旧层叠）须红。键盘之断留。
  *        反证 PANO_SIM.RESET_DRAWER＝false：键盘触 ⟲ 后抽屉仍开，须红。
  *      5 〔同上，裁二百六十一 三登记〕条上小注以「；」分段（.pano-note .hint-seg，「；」随前段），各段只占一行（段内不折）；textContent 一字合 a。
  *        六宽 375、682、768、900、1024、1440，开关开（示「另 N 条」）与关。反证：682 开关开注入 .pano-note .hint-seg { white-space: normal } 须红（复现「可｜拉开」）。
+ *  §八 〔r62-U-丙 乙段续，裁二百六十四 三〕定步可复之弹性：测试之钩 panoSimSync（不经 rAF，虚拟之钟每帧 1000/60 ms）拖度最高之主角八向各 100 屏 px，
+ *      断「放手后 150 帧内自然止」「止前 30 帧每帧最大位移 ≤ 0.5」——只主角（开关关）／开关开 × 内嵌／放大查看 四式，1440、375 俱断；
+ *      门自检：同拖再跑逐一同。反证：复旧（PANO_SIM.PUSH＝1、CONTACT＝false）须红；甲独（PUSH 20、CONTACT 关）与「显示全部」印备查。rAF 实时之数仍于 §三 印之。
  *  §六 帧耗：375 触屏于 CDP CPU ×4 实测只主角与「显示全部」拖动（书 panoSimTick 之中位／P95／最大、rAF 帧距、分项；印其的：只主角 P95 ≤ 33、
  *      显示全部 ≤ 50，裁二百五十七 二1），另书 1440、375 不降速之「显示全部」备查。只书，不入判（无头机之时不稳）。
  */
@@ -407,7 +412,7 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
         const fade = dz.d.filter(a => a[0] >= dz.S - dz.F).map(a => a[1]);
         const m1 = pre05.length ? Math.max(...pre05) : NaN, m2 = fade.length ? Math.max(...fade) : NaN;
         const last05 = dz.d.filter(a => a[0] >= (ws.after || 0) - 500).map(a => a[1]), m3 = last05.length ? Math.max(...last05) : NaN;
-        console.log("    " + (m1 > 0.5 || m2 > 0.5 ? "★★ 逾 0.5" : "〔备查〕") + " " + tag + " 止于放手后 " + ws.after + " ms（" + (ws.by === "calm" ? "自然止：连续 10 帧实移＜V_MIN" : "2.5 s 之限兜底") + "）；" +
+        console.log("    " + (m1 > 0.5 || m2 > 0.5 ? "★★ 逾 0.5" : "〔备查〕") + " " + tag + " 止于放手后 " + ws.after + " ms（" + (ws.by === "calm" ? "自然止：连续 10 帧实移＜V_MIN" : "2.5 s 之限兜底") + "；rAF " + dz.d.length + " 帧，均 " + (ws.after && dz.d.length ? (ws.after / dz.d.length).toFixed(1) : "—") + " ms／帧）；" +
           "渐停前 0.5 s（" + (dz.S - dz.F - 500) + "–" + (dz.S - dz.F) + " ms，" + pre05.length + " 帧）每帧最大位移 " + (isNaN(m1) ? "—（已止）" : m1.toFixed(3)) +
           "；渐停之 0.5 s（" + fade.length + " 帧）" + (isNaN(m2) ? "—（已止）" : m2.toFixed(3)) + "；止前 0.5 s（" + last05.length + " 帧）" + (isNaN(m3) ? "—" : m3.toFixed(3)) + "（单位：viewBox）");
       }
@@ -776,7 +781,7 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
   }
 
   /* 4 浮层 ⟲ 兼收底部抽屉（r62-U-丙 乙段） */
-  H("§七 4 浮层 ⟲ 兼收底部抽屉（键盘触 ⟲；指针之途印备查）；反证 RESET_DRAWER＝false");
+  H("§七 4 浮层 ⟲ 兼收底部抽屉（键盘触 ⟲；指针实点 ⟲ 中心）；反证 RESET_DRAWER＝false、HOLE＝false");
   const drawerS = (pg) => pg.evaluate(() => ({ open: drawer.open, cls: document.querySelector("#place-drawer").classList.contains("open"),
     hid: document.querySelector("#place-drawer").hidden, bd: document.querySelector("#drawer-backdrop").hidden,
     act: document.activeElement && document.activeElement.getAttribute("aria-label"), focus: relView.focus,
@@ -798,15 +803,37 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
     ok(!d1.open && !d1.cls && d1.hid && d1.bd && d1.focus === null && d1.fc === 0 && d1.act === "复位视野、布局与点选",
       w + "：键盘触浮层 ⟲ → 抽屉闭（drawer.open " + d1.open + "、.open " + d1.cls + "、hidden " + d1.hid + "、幕 hidden " + d1.bd + "）、点选解、焦点留于 ⟲（" + d1.act + "）");
     if (w === 375) await scr(pg, "u3_overlay_drawer_reset_375", "page");
-    /* 指针之途（备查，不入判）：抽屉开时点 ⟲ 之位 */
-    await pg.evaluate((id) => document.querySelector('#map-overlay-body .rel-node[data-node="' + id + '"]').dispatchEvent(new MouseEvent("click", { bubbles: true })), pick);
-    await pg.waitForTimeout(350);
-    const hitTop = await pg.evaluate((sel) => { const r = document.querySelector(sel).getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return e ? (e.id || e.className || e.tagName) : "无"; }, OV_RESET_SEL);
-    const bb = await (await pg.$(OV_RESET_SEL)).boundingBox();
-    if (w <= 680) await pg.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2); else await pg.mouse.click(bb.x + bb.width / 2, bb.y + bb.height / 2);
-    await pg.waitForTimeout(400);
-    const dp = await drawerS(pg);
-    console.log("    〔备查·不入判〕" + w + " 抽屉开时 ⟲ 之位最上之元素：" + hitTop + "；以指针点之 → 抽屉 " + (dp.open ? "仍开" : "闭") + "（幕收之）");
+    /* 指针之途（r62-U-丙 乙段续，裁二百六十四 四：入判）：放大查看内拖一人（坐标离初）→ 点一人开抽屉 → 以指针实点 ⟲ 之中心
+     * （1440 鼠标、375 触屏 tap）→ 断一按：抽屉闭、点选解、内嵌与克隆之坐标复初。反证 PANO_SIM.HOLE＝false（复旧层叠：幕全覆浮层）须红 */
+    const ptrRound = async (tag) => {
+      await drag(pg, ctx, w <= 680, pick, 70, 40, 12, false, true);
+      await waitStop(pg, 2800);
+      await pg.waitForTimeout(120);
+      const moved = (await coords(pg)) !== init0;
+      await pg.evaluate((id) => document.querySelector('#map-overlay-body .rel-node[data-node="' + id + '"]').dispatchEvent(new MouseEvent("click", { bubbles: true })), pick);
+      await pg.waitForTimeout(350);
+      const hit = await pg.evaluate((sel) => { const r = document.querySelector(sel).getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        return e ? (e.id ? "#" + e.id : (e.getAttribute("aria-label") || e.tagName)) : "无"; }, OV_RESET_SEL);
+      const op = await drawerS(pg);
+      const bb = await (await pg.$(OV_RESET_SEL)).boundingBox();
+      if (w <= 680) await pg.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2); else await pg.mouse.click(bb.x + bb.width / 2, bb.y + bb.height / 2);
+      await pg.waitForTimeout(400);
+      const dp = await drawerS(pg), back = (await coords(pg)) === init0 && (await cloneCoords(pg)) === init0;
+      return { moved, open: op.open, hit, dp, back, pass: !dp.open && !dp.cls && dp.hid && dp.focus === null && dp.fc === 0 && back };
+    };
+    const init0 = await coords(pg);
+    {
+      const r = await ptrRound("正");
+      selfcheck(r.moved && r.open, w + "：指针之途前提——拖后坐标已离初、点人抽屉已开");
+      ok(r.pass, w + "：抽屉开时以" + (w <= 680 ? "触屏 tap" : "鼠标") + "实点 ⟲ 中心（其位最上者 " + r.hit + "）→ 一按：抽屉闭（drawer.open " + r.dp.open + "、hidden " + r.dp.hid + "）、点选解（focus " + r.dp.focus + "）、内嵌与克隆坐标复初 " + r.back);
+      if (w === 375) await scr(pg, "u3b_ptr_reset_375", "page");
+      await pg.evaluate(() => { PANO_SIM.HOLE = false; });
+      const z2 = await ptrRound("反");
+      anti(!z2.pass, w + " HOLE＝false（复旧层叠）→ 指针点 ⟲ 之位最上者 " + z2.hit + "；抽屉 " + (z2.dp.open ? "仍开" : "闭") + "、坐标复初 " + z2.back + "（「一按复初」之断红）");
+      await pg.evaluate(() => { PANO_SIM.HOLE = true; if (drawer.open) closeDrawer(); });
+      await pg.waitForTimeout(300);
+      await pg.click(OV_RESET_SEL); await pg.waitForTimeout(200);
+    }
     /* 反证 */
     await pg.evaluate(() => { PANO_SIM.RESET_DRAWER = false; });
     await pg.evaluate((id) => document.querySelector('#map-overlay-body .rel-node[data-node="' + id + '"]').dispatchEvent(new MouseEvent("click", { bubbles: true })), pick);
@@ -845,6 +872,63 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
       await t.evaluate(el => el.remove());
     }
     await ctx.close();
+  }
+
+  /* ===== §八 定步之弹性（r62-U-丙 乙段续，裁二百六十四 三） ===== */
+  H("§八 定步可复之弹性（panoSimSync：不经 rAF，虚拟之钟每帧 1000/60 ms）：放手后 150 帧内自然止、止前 30 帧每帧最大位移 ≤ 0.5；四式 × 二宽；反证复旧（PUSH 1、CONTACT 关）");
+  /* 扇：度最高之主角，自其初位沿八向（0°、45°…315°）各拖屏上 100 px（以所在 svg 之 getScreenCTM 换 viewBox），14 帧拖、放手后至多 600 帧。
+   * 每拖之前 panoResetAll 复初布局（内嵌与克隆同）。四式：只主角（开关关）／开关开 × 内嵌／放大查看。 */
+  const FAN = [0, 1, 2, 3, 4, 5, 6, 7].map(k => [100 * Math.cos(k * Math.PI / 4), 100 * Math.sin(k * Math.PI / 4)]);
+  const runFan = (pg, inClone, cfg) => pg.evaluate(([inClone, cfg, FAN]) => {
+    const SAVE = { ...PANO_SIM }; Object.assign(PANO_SIM, cfg || {});
+    const svg = document.querySelector("#rel-canvas svg"), m = (inClone ? document.querySelector("#map-overlay-body svg") : svg).getScreenCTM();
+    const deg = new Map(); for (const e of relView.edges) for (const x of [e.a, e.b]) deg.set(x, (deg.get(x) || 0) + 1);
+    const pick = [...deg.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0];
+    const out = FAN.map(([dx, dy]) => {
+      panoResetAll(svg);
+      const o = panoSimSync(pick, dx / m.a, dy / m.d, 14, 600);
+      const f = o.frames, tail = f ? o.disp.slice(Math.max(0, f - 30), f) : o.disp.slice(-30);
+      return { f, by: o.by, tail: +Math.max(0, ...tail).toFixed(3), pmax: Math.max(0, ...o.pushes) };
+    });
+    panoResetAll(svg); Object.assign(PANO_SIM, SAVE);
+    return { pick, out };
+  }, [inClone, cfg || null, FAN]);
+  const fanPass = (o) => o.by === "calm" && o.f != null && o.f <= 150 && o.tail <= 0.5;
+  const fanBad = (r) => r.out.filter(o => !fanPass(o)).length;
+  const fanStr = (r) => r.out.map((o, k) => (k * 45) + "°:" + (o.f == null ? "未止" : o.f + (o.by === "calm" ? "" : "限")) + "/" + o.tail).join(" ");
+  {
+    const OLD = { PUSH: 1, CONTACT: false }, JIA = { PUSH: 20, CONTACT: false };
+    let antiBad = 0;
+    for (const w of [1440, 375]) {
+      const { ctx, pg } = await open(w);
+      for (const inClone of [false, true]) {
+        if (inClone) { await pg.click("#btn-rel-zoom"); await pg.waitForTimeout(500); }
+        for (const swOn of [false, true]) {
+          await setSwitch(pg, swOn);
+          const tag = w + " " + (inClone ? "放大查看" : "内嵌") + " " + (swOn ? "开关开" : "只主角");
+          const init = await coords(pg);
+          const r = await runFan(pg, inClone);
+          if (!inClone && !swOn) {
+            const r2 = await runFan(pg, inClone);
+            selfcheck(JSON.stringify(r) === JSON.stringify(r2), tag + "：同拖再跑，帧数与位移逐一同（定步可复）");
+          }
+          ok(fanBad(r) === 0, tag + "：拖「" + nameOf(r.pick) + "」八向，放手后至止之帧／止前 30 帧最大位移 —— " + fanStr(r) + "（推开每帧至多 " + Math.max(...r.out.map(o => o.pmax)) + " 遍）");
+          const o = await runFan(pg, inClone, OLD), j = await runFan(pg, inClone, JIA);
+          antiBad += fanBad(o);
+          console.log("    〔反证之量〕" + tag + " 复旧（PUSH 1、CONTACT 关）未过 " + fanBad(o) + "／8：" + fanStr(o));
+          console.log("    〔备查〕" + tag + " 甲独（PUSH 20、CONTACT 关）未过 " + fanBad(j) + "／8：" + fanStr(j));
+          selfcheck((await coords(pg)) === init, tag + "：扇毕复初布局");
+        }
+        if (inClone) { await pg.click("#btn-overlay-close"); await pg.waitForTimeout(250); }
+      }
+      if (w === 1440) {
+        await setSwitch(pg, false); await setAll(pg, true);
+        const a = await runFan(pg, false), o = await runFan(pg, false, OLD);
+        console.log("    〔备查·不入判〕1440 内嵌「显示全部」今未过 " + fanBad(a) + "／8：" + fanStr(a) + "；复旧未过 " + fanBad(o) + "／8：" + fanStr(o));
+      }
+      await ctx.close();
+    }
+    anti(antiBad > 0, "复旧（PUSH 1、CONTACT 关）→ 四式二宽之扇共未过 " + antiBad + "（「150 帧内自然止、止前 30 帧 ≤0.5」之断红）");
   }
 
   await browser.close(); s.close(); sb.close();
