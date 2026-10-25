@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T17:58:30+00:00",
+  "generated_at": "2026-10-25T23:39:30+00:00",
   "tables": {
     "archaeology": 8,
     "background": 11,
@@ -9,7 +9,7 @@
     "passages": 762,
     "people": 248,
     "places": 119,
-    "relations": 419,
+    "relations": 420,
     "sources": 248,
     "verify_marks": 908
   },
