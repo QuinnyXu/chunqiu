@@ -5218,7 +5218,9 @@ const panoLabelEm = (name) => [...name].reduce((w, ch) => w + (/[⺀-鿿豈-﫿]
  *   ox、oy：坐标之移（布局为 0；弹性在全图之框内算，取 panoLayoutFor 所移之量，向心之心与国聚之锚随之而移，力之式不变）。
  *   kit.X／Y 由用者写入初位。forces(late, grid)：合力写入 FX／FY（含向心、国聚、国心之常数项，即全式）。
  *   step(cap, BX, BY, fix, fade)：积分一步；BX／BY 为偏置（弹性用之，布局为 null），fix[i] 为真者不动；返最大速（有 fix 时）。
- *   pushAll(grid, fix, gap)：逐对推开一遍（i＜j 之序；同位以序定向）；fix 之人不动，其对手全让；返相交之对数。
+ *   pushAll(grid, fix, gap, tol)：逐对推开一遍（i＜j 之序；同位以序定向）；fix 之人不动，其对手全让；返相交之对数。
+ *     tol：交之容差（交之二边有一 ≤ tol 即作不交，不推、不计）；缺省 0，即旧式（布局不传，式与序一字不变）。
+ *     弹性止时之收尾推尽传 PANO_SIM.FIN_TOL（1e-6；gap 0 推后浮点余交 ~1e-13 常存，不以容差判则永不「无交」，裁二百六十五 一3）。
  *     gap：推过界之余量（各让「交之半＋gap」）——布局 0.5（式与序同 33a7523）；弹性 0，只推至恰不相交（X3 续，裁二百五十八 一1：
  *     有余量则推过界、下一帧偏置之力又拉回，成往复之颤）。 */
 function panoForceKit(N, links, over, ox, oy) {
@@ -5254,11 +5256,11 @@ function panoForceKit(N, links, over, ox, oy) {
   };
   /* 推开之式：二人「节点＋名签」矩形相交则沿交之短边推开（各让交之半＋gap）；wi、wj 为二人所让之倍
    * （布局俱 1；弹性中一方钉住或被拖，则其倍 0、对手 2，即对手全让）；gap 见 pushAll 之注 */
-  const push = (i, j, wi, wj, gap) => {
+  const push = (i, j, wi, wj, gap, tol) => {
     const ox = Math.min(X[i] + HW[i], X[j] + HW[j]) - Math.max(X[i] - HW[i], X[j] - HW[j]);
-    if (ox <= 0) return 0;
+    if (ox <= tol) return 0;
     const oy = Math.min(Y[i] + B[i], Y[j] + B[j]) - Math.max(Y[i] - T[i], Y[j] - T[j]);
-    if (oy <= 0) return 0;
+    if (oy <= tol) return 0;
     if (ox < oy) { const k = (X[i] - X[j] > 0 || X[i] === X[j] ? 1 : -1) * (ox / 2 + gap); X[i] += k * wi; X[j] -= k * wj; }
     else { const k = (Y[i] - Y[j] > 0 || Y[i] === Y[j] ? 1 : -1) * (oy / 2 + gap); Y[i] += k * wi; Y[j] -= k * wj; }
     return 1;
@@ -5341,12 +5343,12 @@ function panoForceKit(N, links, over, ox, oy) {
     }
     return vmax;
   };
-  const pushAll = (grid, fix, gap) => {
-    const g = gap == null ? 0.5 : gap;
-    const pp = !fix ? (i, j) => push(i, j, 1, 1, g) : (i, j) => {
+  const pushAll = (grid, fix, gap, tol) => {
+    const g = gap == null ? 0.5 : gap, e = tol || 0;
+    const pp = !fix ? (i, j) => push(i, j, 1, 1, g, e) : (i, j) => {
       const fi = fix[i], fj = fix[j];
       if (fi && fj) return 0;
-      return push(i, j, fi ? 0 : (fj ? 2 : 1), fj ? 0 : (fi ? 2 : 1), g);
+      return push(i, j, fi ? 0 : (fj ? 2 : 1), fj ? 0 : (fi ? 2 : 1), g, e);
     };
     let left = 0;
     if (!grid) { for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) left += pp(i, j); return left; }
@@ -5761,20 +5763,25 @@ function panoPlaceEdgeFast(e) {
  *     不加偏置、全式松弛之最大位移：只主角 3.6、显示全部 8.3，俱小于主角盘半径 15（门 vision_r62x3 §五 断只主角 ＜15，见 panoBiasProbe）。
  *     〔r62-U-丙 乙段，2026-10-25，53 人实测〕只主角 |F(x0)| 中位 0.684、最大 3.543，松弛最大 5.233；显示全部中位 0.747、最大 8.802，
  *     松弛最大 15.345（伍参；逾盘半径，门只断只主角，备查上报）。力之式与参一字未动。
- *   每帧后另以名签矩形逐对推开（同布局收尾之式、同一 pushAll；钉者、被拖者不动，其对手全让），拖中名签不相压。
- *     〔r62-U-丙 乙段续，裁二百六十四 三甲〕旧每帧只一遍（PUSH 1），53 人之图名签成串、往复不息而多靠 SETTLE_MS 兜底；
- *     今每帧推至无交，至多 PUSH（20）遍（gap 0 推至恰不相交，浮点之余交 ~1e-13 常存，故多至上限；余交之实数照 pushAll 所返）。
- *     乙（CONTACT，裁二百六十四 三乙「甲不足方加」）：甲独行，定步之门 375 内嵌仍多兜底（扫 48 拖：旧 15、甲 18 未自然止），故加——
- *     被推者消其逆推之速（非弹性接触），见 panoSimFrame。PUSH＝1 且 CONTACT＝false 即复旧（门 §八 之反证）。CALM_FRAMES、V_MIN、SETTLE_MS 不动。
- *   止：放手后 alpha 每帧乘 DECAY；连续 CALM_FRAMES（10）帧诸人之实移（积分与推开之后）俱＜V_MIN 即自然止（X3 续，裁二百五十八 一2；
- *     旧判取内速，不计推开之移）；至迟 SETTLE_MS 必止（末 FADE_MS 内速渐归零，不骤停）。弹性之推开余量 PUSH_GAP 0（裁二百五十八 一1）。
+ *   每帧后另以名签矩形逐对推开一遍（PUSH 1；同布局收尾之式、同一 pushAll；钉者、被拖者不动，其对手全让），拖中名签不相压。
+ *     〔r62-U-丙 乙段续 38608d9 曾改每帧推满 20 遍（甲）、被推者消逆推之速（乙 CONTACT）；帧耗退二至四倍、换样即复红，
+ *      裁二百六十五 一1 撤之，PUSH 复 1、CONTACT 去。〕
+ *   ★ 冷却收束（r62-U-丙 乙段再续，裁二百六十五 一2、3；同布局之法「先冷却、后一次推尽」）：
+ *     放手后每帧 κ 乘 DECAY（κ 自 1 起，无底；拖中 κ 恒 1 不衰），积分每帧之位移（step 之速）乘 κ——力不改，只其所致之移渐收；
+ *     κ ＜ KAPPA_MIN（0.01）即止，以帧计不以毫秒：DECAY 0.93 则放手后第 ⌈ln 0.01／ln 0.93⌉＝64 帧止（慢机帧少而形同）。
+ *     止时（无论何由）以同一 pushAll 推至无交只一回：容差 FIN_TOL（1e-6）、至多 FIN_MAX（50）遍；其遍数、余交、最大位移记于 sim.fin。
+ *     COOL＝false 即去冷却（κ 恒 1，门 vision_r62x3 §八 之反证）。
+ *   止之由：κ 之限（cool）；连续 CALM_FRAMES（10）帧诸人之实移俱＜V_MIN 即提早止（calm；X3 续，裁二百五十八 一2）；
+ *     至迟 SETTLE_MS 必止（limit；末 FADE_MS 内速渐归零，兜底）。CALM_FRAMES、V_MIN、SETTLE_MS 三值不动（裁二百六十五 一4）。
+ *     alpha（限速 2＋40·alpha）每帧乘 DECAY 照旧。弹性每帧之推开余量 PUSH_GAP 0（裁二百五十八 一1）。
  *   帧耗（X3 续，裁二百五十七 二1）：拖动之中圆签不重求避盘（随边中点移）、边名隔帧一判；止动后二者俱全数重求，静止之形不变。
  *   ELASTIC、STOP、RESET_LAYOUT、RESET_FOCUS 为门之反证所关。初布局（panoLayout）之式与序不动，诸既有之门所量不变。
  * ================================================================== */
 /* RESET_DRAWER（r62-U-丙 乙段，裁二百六十一 二2 登记、裁二百六十三 七2）：浮层 ⟲ 兼收底部抽屉——浮层内点人只开抽屉，抽屉即内嵌右栏之当；
  * 门 vision_r62x3 §七 4 断之，关之为其反证。 */
 const PANO_SIM = { ELASTIC: true, STOP: true, RESET_LAYOUT: true, RESET_FOCUS: true, RESET_DRAWER: true, DRAG_ALPHA: 0.3, DECAY: 0.93,
-                   V_MIN: 0.03, SETTLE_MS: 2500, FADE_MS: 500, PUSH: 20, PUSH_GAP: 0, CONTACT: true, HOLE: true, CALM_FRAMES: 10, LABEL_EVERY: 2,
+                   V_MIN: 0.03, SETTLE_MS: 2500, FADE_MS: 500, PUSH: 1, PUSH_GAP: 0, HOLE: true, CALM_FRAMES: 10, LABEL_EVERY: 2,
+                   COOL: true, KAPPA_MIN: 0.01, FIN_TOL: 1e-6, FIN_MAX: 50,   // 冷却收束（裁二百六十五 一）：见上注
                    GRID: true };   // LABEL_EVERY：拖动之中边名每二帧一判（X3 续，裁二百五十七 二1），止动后必再判   // GRID：n ＞ GRID_MIN 时同布局用网格（裁二百五十六 二）；门 §六 关之以量逐对精算之帧耗（「前」之数），站上恒开
 let panoSim = null;
 function panoSimInit() {
@@ -5790,8 +5797,8 @@ function panoSimInit() {
   K.forces(true, grid);
   const BX = Float64Array.from(K.FX), BY = Float64Array.from(K.FY);
   nodes.forEach((v, i) => { K.X[i] = v.x; K.Y[i] = v.y; });
-  panoSim = { key: C.key, K, grid, n, ids, idx, nodes, BX, BY, pin: new Uint8Array(n), fix: new Uint8Array(n), drag: -1, alpha: 0,
-              raf: 0, running: false, releasedAt: 0, frames: [], split: [], disp: [], pushes: [], ticks: 0, stoppedAt: 0, calm: 0, stoppedBy: "" };
+  panoSim = { key: C.key, K, grid, n, ids, idx, nodes, BX, BY, pin: new Uint8Array(n), fix: new Uint8Array(n), drag: -1, alpha: 0, kappa: 1,
+              raf: 0, running: false, releasedAt: 0, frames: [], split: [], disp: [], ticks: 0, stoppedAt: 0, calm: 0, stoppedBy: "", fin: null };
   return panoSim;
 }
 function panoSimGrab(id) {
@@ -5802,8 +5809,9 @@ function panoSimGrab(id) {
   sim.drag = i;
   sim.pin[i] = 0;
   sim.alpha = PANO_SIM.DRAG_ALPHA;
+  sim.kappa = 1;                      // 拖中 κ 恒 1（裁二百六十五 一2）
   sim.releasedAt = 0;
-  sim.calm = 0; sim.stoppedBy = "";
+  sim.calm = 0; sim.stoppedBy = ""; sim.fin = null;
   panoSimRun();
 }
 function panoSimDragTo(id, x, y) {
@@ -5847,6 +5855,7 @@ function panoSimFrame(sim, t0, tEnd) {
   let fade = 1;
   if (sim.releasedAt) {
     sim.alpha *= PANO_SIM.DECAY;
+    if (PANO_SIM.COOL) sim.kappa *= PANO_SIM.DECAY;                 // 冷却：放手后每帧乘 DECAY，无底（裁二百六十五 一2）
     const el = t0 - sim.releasedAt;
     if (PANO_SIM.STOP && el > PANO_SIM.SETTLE_MS - PANO_SIM.FADE_MS) fade = Math.max(0, (PANO_SIM.SETTLE_MS - el) / PANO_SIM.FADE_MS);
   }
@@ -5854,22 +5863,8 @@ function panoSimFrame(sim, t0, tEnd) {
     sim.fix.set(sim.pin);
     if (sim.drag >= 0) sim.fix[sim.drag] = 1;
     K.forces(true, sim.grid);                                         // 同一力学：与布局后半程同式（n ＞ GRID_MIN 同用网格）
-    K.step(2 + 40 * sim.alpha, sim.BX, sim.BY, sim.fix, fade);        // 减偏置
-    /* 名签逐对推开至无交（同布局收尾之式，同一 pushAll，余量取 0）；至多 PUSH 遍（裁二百六十四 三甲：旧只一遍，人多则名签成串，
-     * 一对推开又生他对之交，次帧力又拉回，往复不息）。sim.pushes 记每帧所用之遍数（备查） */
-    let pass = 0;
-    if (K.P.LABEL) {
-      const C = PANO_SIM.CONTACT, PX = C ? Float64Array.from(X) : null, PY = C ? Float64Array.from(Y) : null;
-      while (pass < PANO_SIM.PUSH && K.pushAll(sim.grid, sim.fix, PANO_SIM.PUSH_GAP)) pass++;
-      /* 乙（CONTACT）：被推者消其逆推之速（非弹性接触）——推开之移 d，速 V 与 d 相逆（V·d＜0）则去 V 在 d 上之分量 */
-      if (C) for (let i = 0; i < n; i++) {
-        const dx = X[i] - PX[i], dy = Y[i] - PY[i], dd = dx * dx + dy * dy;
-        if (dd < 1e-18) continue;
-        const vd = K.VX[i] * dx + K.VY[i] * dy;
-        if (vd < 0) { K.VX[i] -= vd / dd * dx; K.VY[i] -= vd / dd * dy; }
-      }
-    }
-    if (sim.pushes.length < 4000) sim.pushes.push(pass);
+    K.step(2 + 40 * sim.alpha, sim.BX, sim.BY, sim.fix, fade * sim.kappa);   // 减偏置；每帧之位移乘 κ（冷却）
+    if (K.P.LABEL) for (let pass = 0; pass < PANO_SIM.PUSH; pass++) K.pushAll(sim.grid, sim.fix, PANO_SIM.PUSH_GAP);   // 名签逐对推开（同布局收尾之式，余量取 0）
   }
   let dmax = 0;   // 本帧诸人（被拖者除外）之最大位移（备查：渐停前之颤，裁二百五十七 二3）
   for (let i = 0; i < n; i++) {
@@ -5893,22 +5888,43 @@ function panoSimFrame(sim, t0, tEnd) {
   sim.ticks++;
   if (sim.split.length < 4000) sim.split.push([+(t1 - tr).toFixed(2), +(t2 - t1).toFixed(2), +(t3 - t2).toFixed(2)]);
   if (sim.frames.length < 4000) sim.frames.push(+(performance.now() - tr).toFixed(2));
-  /* 止：放手后连续 CALM_FRAMES 帧诸人之实移（积分与推开之后之位置变）俱＜V_MIN，即自然止；SETTLE_MS 之限兜底 */
+  /* 止：κ ＜ KAPPA_MIN（冷却之限，以帧计）；或连续 CALM_FRAMES 帧诸人之实移（积分与推开之后之位置变）俱＜V_MIN（提早止）；SETTLE_MS 之限兜底 */
   const calm = !PANO_SIM.ELASTIC || sim.calm >= PANO_SIM.CALM_FRAMES;
-  const settled = sim.releasedAt && (calm || (PANO_SIM.STOP && now() - sim.releasedAt >= PANO_SIM.SETTLE_MS));
+  const cool = PANO_SIM.COOL && sim.kappa < PANO_SIM.KAPPA_MIN;
+  const settled = sim.releasedAt && (calm || cool || (PANO_SIM.STOP && now() - sim.releasedAt >= PANO_SIM.SETTLE_MS));
   if (settled && PANO_SIM.STOP) {
-    sim.running = false; sim.raf = 0; sim.stoppedAt = now(); sim.stoppedBy = calm ? "calm" : "limit";
+    sim.running = false; sim.raf = 0; sim.stoppedAt = now(); sim.stoppedBy = calm ? "calm" : (cool ? "cool" : "limit");
+    if (PANO_SIM.ELASTIC) panoSimFinish(sim);   // 收尾推尽，只此一回（裁二百六十五 一3）
     for (const e of relView.edges) { panoPlaceEdge(e); e.simAt = [e.A.x, e.A.y, e.B.x, e.B.y]; }   // 止：全数重置（圆签避盘照定式）
     panoPlaceLabels();
     return false;
   }
   return true;
 }
+/* 收尾推尽（裁二百六十五 一3）：止时以同一 pushAll（余量 PUSH_GAP 0、容差 FIN_TOL）推至无交，至多 FIN_MAX 遍，只此一回；
+ *   钉者不动（fix 同末帧）。推后诸人之位照帧之式写回（两位小数）、重置其盘。sim.fin＝{ pass：所用遍数（含末一遍之验）, left：末遍所见相交之对数（0＝已无交；FIN_MAX 遍未尽则 ＞0）, d：最大位移 }。 */
+function panoSimFinish(sim) {
+  const K = sim.K, n = sim.n, X = K.X, Y = K.Y, nodes = sim.nodes;
+  let pass = 0, left = 0, d = 0;
+  if (K.P.LABEL) {
+    sim.fix.set(sim.pin);
+    const PX = Float64Array.from(X), PY = Float64Array.from(Y);
+    left = 1;
+    for (; pass < PANO_SIM.FIN_MAX && left; pass++) left = K.pushAll(sim.grid, sim.fix, PANO_SIM.PUSH_GAP, PANO_SIM.FIN_TOL);
+    for (let i = 0; i < n; i++) {
+      d = Math.max(d, Math.hypot(X[i] - PX[i], Y[i] - PY[i]));
+      const v = nodes[i], x = +X[i].toFixed(2), y = +Y[i].toFixed(2);
+      if (x !== v.x || y !== v.y) { v.x = x; v.y = y; panoPlaceNode(v); }
+    }
+  }
+  sim.fin = { pass, left, d: +d.toFixed(4) };
+}
 /* 测试之钩（r62-U-丙 乙段续，裁二百六十四 三；门 tools/qa/vision_r62x3.js §八 取之，站上无人调之）：
  *   不经 rAF，以虚拟之钟（每帧 dt，默认 1000/60 ms）同步推进弹性，定步可复。拖 id 之人自其今位沿直线移 (dx, dy)（viewBox 之单位）
  *   共 steps 帧（同指针之途：写 relView.nodes、panoPlaceNode、panoSimDragTo），放手，再逐帧推进至止或至 maxFrames。
  *   放手前先止 rAF 之循环（panoSimStop）；帧之式与 rAF 同一 panoSimFrame。
- *   返 { frames：放手后至止之帧数（未止为 null）, by, disp：放手后每帧诸人之最大位移, pushes：放手后每帧推开之遍数 }。 */
+ *   返 { frames：放手后至止之帧数（未止为 null）, by：止之由（cool／calm／limit）, disp：放手后每帧诸人之最大位移（收尾推尽之前）,
+ *        fin：收尾推尽之 { pass, left, d }（见 panoSimFinish） }。 */
 function panoSimSync(id, dx, dy, steps, maxFrames, dt) {
   const sim = panoSimInit();
   if (!sim) return null;
@@ -5917,7 +5933,7 @@ function panoSimSync(id, dx, dy, steps, maxFrames, dt) {
   panoSimStop();
   const D = dt || 1000 / 60, S = steps || 14, M = maxFrames || 600;
   let t = 0;
-  sim.drag = i; sim.pin[i] = 0; sim.alpha = PANO_SIM.DRAG_ALPHA; sim.releasedAt = 0; sim.calm = 0; sim.stoppedBy = "";
+  sim.drag = i; sim.pin[i] = 0; sim.alpha = PANO_SIM.DRAG_ALPHA; sim.kappa = 1; sim.releasedAt = 0; sim.calm = 0; sim.stoppedBy = ""; sim.fin = null;
   sim.running = true;
   const x0 = v.x, y0 = v.y;
   for (let k = 1; k <= S; k++) {
@@ -5928,12 +5944,12 @@ function panoSimSync(id, dx, dy, steps, maxFrames, dt) {
     panoSimFrame(sim, t, t);
   }
   sim.pin[i] = 1; sim.K.VX[i] = 0; sim.K.VY[i] = 0; sim.drag = -1; sim.releasedAt = t; sim.calm = 0;
-  const d0 = sim.disp.length, p0 = sim.pushes.length;
+  const d0 = sim.disp.length;
   let f = 0, live = true;
   while (live && f < M) { t += D; f++; live = panoSimFrame(sim, t, t); }
   sim.running = live;
   if (live) panoSimStop();
-  return { frames: live ? null : f, by: live ? "" : sim.stoppedBy, disp: sim.disp.slice(d0).map(a => a[1]), pushes: sim.pushes.slice(p0) };
+  return { frames: live ? null : f, by: live ? "" : sim.stoppedBy, disp: sim.disp.slice(d0).map(a => a[1]), fin: sim.fin };
 }
 /* ⟲（内嵌与放大查看同）：panoResetAll 复视野、复初布局、解诸钉；panoResetFocus 解点选（r62-X3 续二，裁二百六十 一1：站长所请）。
  * 「全部关系名」「显示全部」二开关是读者所设，⟲ 不动之。 */

@@ -10,6 +10,9 @@
  *      b＜a 者为离群。★ 本门**另路**算之（由 DOM 诸盘心之 cx、cy 与 site/data/people.json 之 state 首国、app.js 名册之 home），
  *      不取页内 panoOutliers；再与页内 panoOutliers 之所报对账（二路之名单须同）。
  *      只主角默认视图（1440）以 0 为的——**断之**（离群即红）；「显示全部」之数只印备查，不入判。
+ *      〔r62-U-丙 乙段再续，裁二百六十五 二〕立「事迹使然之离群」名单 OUTLIER_EXEMPT（照 tools/validate.py PROTAG_PLACE_EXEMPT 之式，比值不比名）：
+ *      断离群之集与名单所列（今仍离群者）逐人同，且其所近之国（b 所取之国）与名单所书同；名单中人不复离群 → 印「豁免未用」（不红）；
+ *      名单外有人离群 → 照旧红；名单之人须在 people.json、名同、仍为一级，否则红。反证：名单去申包胥 → 红；所近之国改他国（吴）→ 红。
  *      宽量（「他国」连在图只一人之国亦计）另印备查。
  *      反证：页内令 PANO_FORCE.COH＝0、CTR＝0、XREP＝1（去国聚、国心、异国斥力三力），清存重绘——离群须 ＞0，不红即 exit 2。
  *  §二 「显示全部」之耗时（裁二百五十一 三3）：1440、375 各三绘（每绘清布局之存），取布局之中位数（ms，页内 performance.now）；
@@ -41,6 +44,27 @@ const HOME = (() => {
   return m;
 })();
 const stOf = (id) => HOME[id] || (PEOPLE.find(p => p.id === id).state || "").split("/")[0];
+/* 事迹使然之离群（裁二百六十五 二）：id → [名, 所近之国, 所据之裁]。★ 增删须裁。
+ *   比值不比名（照 tools/validate.py :171 PROTAG_PLACE_EXEMPT）：id 须存于 people.json、name 与此全同、is_protagonist 1，
+ *   否则红「名单已失其人，须裁」；所近之国须与另路所算之 b 之国全同。 */
+const OUTLIER_EXEMPT = {
+  P_SHENBAOXU: ["申包胥", "秦", "裁二百六十五"],   // 一生之事在秦（乞师）、吴（伍员）、越（使越），与楚主角世次不及；补 R470 后仍离群
+};
+/* 判离群之集与名单：strict＝另路之离群（{id, nb, s}）；返 { bad：红之由, unused：豁免未用 } */
+function judgeOutliers(strict, list) {
+  const bad = [], unused = [];
+  for (const [id, [name]] of Object.entries(list)) {
+    const p = PEOPLE.find(x => x.id === id);
+    if (!p || p.name !== name || +p.is_protagonist !== 1) bad.push("名单已失其人，须裁：" + id + "（" + name + "）");
+  }
+  for (const o of strict) {
+    const e = list[o.id];
+    if (!e) bad.push("名单外离群：" + o.s);
+    else if (o.nb !== e[1]) bad.push("所近之国与名单不合：" + o.s + "（名单书「" + e[1] + "」）");
+  }
+  for (const [id, [name, st, ruling]] of Object.entries(list)) if (!strict.some(o => o.id === id)) unused.push("豁免未用：" + name + "（" + id + "）今不离群，名单所书「近" + st + "」（" + ruling + "）今未生效");
+  return { bad, unused };
+}
 const OUT = path.join(ROOT, "team", "r62X2_shots");
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -48,6 +72,7 @@ let fails = 0, gateErrs = 0, asserts = 0;
 const ok = (c, l, d) => { asserts++; if (!c) fails++; console.log("  " + (c ? "✓" : "✗") + " " + l + (d ? "  —— " + d : "")); };
 const selfcheck = (c, l, d) => { if (!c) gateErrs++; console.log("  " + (c ? "✓" : "⚠") + " 〔门自检〕" + l + (d ? "  —— " + d : "")); };
 const H = (s) => console.log("\n" + s);
+const anti = (red, l) => { if (red) console.log("  ✓ 【反证·如期而红】" + l); else { gateErrs++; console.log("  ⚠ 【反证·★ 不红：门自身出错】" + l); } };
 
 function srv() {
   const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png" };
@@ -73,7 +98,7 @@ function outliers(pts) {
     let b = Infinity, nb = "", b1 = Infinity, nb1 = "";
     for (const [st, vs] of by) { if (st === v.st) continue; const m = mean(v, vs); if (vs.length >= 2 && m < b) { b = m; nb = st; } if (m < b1) { b1 = m; nb1 = st; } }
     const name = PEOPLE.find(p => p.id === v.id).name;
-    if (b < a) strict.push({ id: v.id, s: name + "（" + v.st + "；本国 " + a.toFixed(1) + "／" + nb + " " + b.toFixed(1) + "）" });
+    if (b < a) strict.push({ id: v.id, nb, s: name + "（" + v.st + "；本国 " + a.toFixed(1) + "／" + nb + " " + b.toFixed(1) + "）" });
     if (b1 < a) loose.push({ id: v.id, s: name + "（" + v.st + "→" + nb1 + "）" });
   }
   return { strict, loose };
@@ -116,7 +141,22 @@ const fontPx = (pg, sel) => pg.evaluate((sel) => {
     const o = outliers(await centers(pg));
     const pageList = await pageOutliers(pg);
     selfcheck(o.strict.map(x => x.id).sort().join(",") === pageList, "另路之离群名单与页内 panoOutliers 同", "另路 [" + o.strict.map(x => x.id).join(",") + "]／页内 [" + pageList + "]");
-    ok(o.strict.length === 0, "只主角默认视图离群 0（裁二百五十一 三3：以 0 为的）", o.strict.map(x => x.s).join("、"));
+    /* 〔裁二百六十五 二〕旧断「离群 0」改为与「事迹使然之离群」名单逐人同 */
+    const jo = judgeOutliers(o.strict, OUTLIER_EXEMPT);
+    ok(jo.bad.length === 0, "只主角默认视图离群之集与「事迹使然」名单逐人同、所近之国同（裁二百六十五 二；名单外离群即红）——离群 " + o.strict.length +
+      (o.strict.length ? "：" + o.strict.map(x => x.s).join("、") : ""), jo.bad.join("；"));
+    for (const u of jo.unused) console.log("    ★ " + u);
+    {
+      const listed = Object.keys(OUTLIER_EXEMPT).filter(id => o.strict.some(x => x.id === id));
+      if (listed.length) {
+        const noSBX = Object.fromEntries(Object.entries(OUTLIER_EXEMPT).filter(([id]) => id !== "P_SHENBAOXU"));
+        const j1 = judgeOutliers(o.strict, noSBX);
+        anti(j1.bad.length > 0, "名单去申包胥 → " + (j1.bad.join("；") || "无红"));
+        const alt = { ...OUTLIER_EXEMPT, P_SHENBAOXU: ["申包胥", "吴", "裁二百六十五"] };
+        const j2 = judgeOutliers(o.strict, alt);
+        anti(j2.bad.length > 0, "名单所书之国改为「吴」→ " + (j2.bad.join("；") || "无红"));
+      } else console.log("    〔反证无从〕名单中人今俱不离群（豁免未用），名单之二反证不跑");
+    }
     console.log("    〔备查〕宽量（他国连在图只一人之国）离群 " + o.loose.length + (o.loose.length ? "：" + o.loose.map(x => x.s).join("、") : ""));
     await setAll(pg, true);
     const oa = outliers(await centers(pg));
