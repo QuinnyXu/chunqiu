@@ -54,6 +54,11 @@
  *      「显示全部」（内嵌）照 id 取 64 拖；1440、375 俱跑。逐拖断四事：冷却之限（⌈ln KAPPA_MIN／ln DECAY⌉＝64 帧）内止（非兜底）、收尾推尽之最大位移 ≤0.5、
  *      止前 30 帧每帧最大位移 ≤0.5、止后名签无交（力学器之矩形，容差 FIN_TOL）。印各式之分布（止帧、收尾位移、止前位移）。
  *      反证：COOL＝false（κ 恒 1）——逐式各自须红（每式四断有一红），不以合计论。门自检：首 32 拖再跑逐数同。
+ *      〔r62-U-丙 乙段三续，裁二百六十六；上段「止前 30 帧」之窗与「显示全部」四断俱断之式代以下式，原文存档不删〕
+ *      一、「止前」之窗改取 (max(放手后第 10 帧, 止帧−30), 止帧]（裁文措辞之误：提早止约 30 帧即止，旧窗回含放手初之牵动；所量本在止前之颤），界 0.5 不动；
+ *        止帧 ≤10 者窗空，作 0。二、收尾推尽 FIN_MAX 50→800（同布局收尾之上限），「止后无交」四式（含显示全部）俱断；书推尽之遍数与耗时。
+ *      三、「显示全部」之「收尾 ≤0.5」「止前 ≤0.5」改只印备查（r62-X4 登记，俟 U-丙 推后议；届时复为断言），其「限内止」「止后无交」照断；
+ *        反证逐式须红，只计该式所断者。§六 另于 375 CPU ×4 书收尾推尽之遍数与耗时（定步各 32 拖之中位、最大）。
  *  §六 帧耗：375 触屏于 CDP CPU ×4 实测只主角与「显示全部」拖动（书 panoSimTick 之中位／P95／最大、rAF 帧距、分项；印其的：只主角 P95 ≤ 33、
  *      显示全部 ≤ 50，裁二百五十七 二1），另书 1440、375 不降速之「显示全部」备查。只书，不入判（无头机之时不稳）。
  */
@@ -642,17 +647,36 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
         const f = (t) => { window.__raf.push(t - last); last = t; if (window.__rafOn) requestAnimationFrame(f); }; requestAnimationFrame(f); });
       await drag(pg, ctx, touch, pickAll, 120, 80, 60);
       await waitStop(pg, limit * 3 + 300);
-      const fr = await pg.evaluate(() => { window.__rafOn = false; return { tick: panoSim.frames.slice(), split: panoSim.split.slice(), raf: window.__raf.slice(2), grid: panoSim.grid }; });
+      const fr = await pg.evaluate(() => { window.__rafOn = false; return { tick: panoSim.frames.slice(), split: panoSim.split.slice(), raf: window.__raf.slice(2), grid: panoSim.grid, fin: panoSim.fin, by: panoSim.stoppedBy }; });
       const goal = rate > 1 ? (all ? 50 : 33) : null, p95 = q(fr.tick, 0.95);
       console.log("    ★ " + w + (rate > 1 ? "（CDP CPU ×" + rate + "）" : "（不降速）") + (all ? " 「显示全部」" : " 只主角 ") + n + " 人" + (fr.grid ? "（网格）" : "（逐对）") +
         (goal ? "〔的 P95 ≤ " + goal + "：" + (p95 <= goal ? "达" : "未达") + "〕" : "") +
         (st === "switch" ? "，开关开" : "，点选「" + nameOf(pickAll) + "」") +
         "：panoSimTick " + fr.tick.length + " 帧，中位 " + q(fr.tick, 0.5).toFixed(1) + "、P95 " + q(fr.tick, 0.95).toFixed(1) + "、最大 " + Math.max(...fr.tick).toFixed(1) +
         " ms；rAF 帧距中位 " + q(fr.raf, 0.5).toFixed(1) + "、P95 " + q(fr.raf, 0.95).toFixed(1) + " ms");
-      console.log("      分项中位：力学＋推开＋置点 " + q(fr.split.map(a => a[0]), 0.5).toFixed(1) + "／置边 " + q(fr.split.map(a => a[1]), 0.5).toFixed(1) + "／边名择位 " + q(fr.split.map(a => a[2]), 0.5).toFixed(1) + " ms");
+      console.log("      分项中位：力学＋推开＋置点 " + q(fr.split.map(a => a[0]), 0.5).toFixed(1) + "／置边 " + q(fr.split.map(a => a[1]), 0.5).toFixed(1) + "／边名择位 " + q(fr.split.map(a => a[2]), 0.5).toFixed(1) + " ms" +
+        "；止由 " + fr.by + "，收尾推尽（只一回）" + (fr.fin ? fr.fin.pass + " 遍、" + fr.fin.ms + " ms、余交 " + fr.fin.left + "、最大位移 " + fr.fin.d : "—"));
       if (w === 1440 && st === "switch" && rate === 1 && grid) await scr(pg, "x3c_all_drag_after_1440");
       await pg.click(RESET_SEL);
       await pg.waitForTimeout(rate > 1 ? 600 : 150);
+    }
+    /* 收尾推尽之遍数与耗时（裁二百六十六 二）：降速时另以定步之钩 panoSimSync 拖 32 回（ids 按 id 升序之首四人 × 八向 × 60 屏 px），书中位、最大。只书，不入判 */
+    if (rate > 1) {
+      await setSwitch(pg, false); await pg.click(RESET_SEL); await pg.waitForTimeout(600);
+      const finS = await pg.evaluate((all) => {
+        const svg = document.querySelector("#rel-canvas svg"), m = svg.getScreenCTM();
+        const ids = all ? [...relView.nodes.keys()].sort() : [...relView.nodes.values()].filter(v => v.proto).map(v => v.p.id).sort();
+        const out = [];
+        for (const id of ids.slice(0, 4)) for (let a = 0; a < 8; a++) {
+          panoResetAll(svg);
+          const o = panoSimSync(id, 60 * Math.cos(a * Math.PI / 4) / m.a, 60 * Math.sin(a * Math.PI / 4) / m.d, 14, 600);
+          if (o && o.fin) out.push([o.fin.pass, o.fin.ms, o.fin.left]);
+        }
+        panoResetAll(svg);
+        return out;
+      }, all);
+      console.log("    ★ " + w + "（CDP CPU ×" + rate + "）" + (all ? " 「显示全部」" : " 只主角 ") + "收尾推尽（定步 " + finS.length + " 拖）：遍数中位 " + q(finS.map(a => a[0]), 0.5) + "、最大 " + Math.max(...finS.map(a => a[0])) +
+        "；耗时中位 " + q(finS.map(a => a[1]), 0.5).toFixed(2) + "、最大 " + Math.max(...finS.map(a => a[1])).toFixed(2) + " ms；余交之拖 " + finS.filter(a => a[2]).length);
     }
     if (cdp) { await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 }); await cdp.detach(); }
     await ctx.close();
@@ -881,12 +905,15 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
 
   /* ===== §八 定步之弹性·冷却收束（r62-U-丙 乙段再续，裁二百六十五 一；前式 裁二百六十四 三之八向一扇，今扩样代之） ===== */
   H("§八 定步可复之弹性·冷却收束（panoSimSync：不经 rAF，虚拟之钟每帧 1000/60 ms）：扩样——只主角 53 人每人 × 八向 × 二距（60、140 屏 px）＝848 拖；" +
-    "开关开、放大查看照 id 取四分之一；「显示全部」照 id 取 64 拖。断：冷却之限内止、收尾推尽最大位移 ≤0.5、止前 30 帧每帧最大位移 ≤0.5、止后名签无交；反证 κ 恒 1（COOL＝false）逐式俱红");
+    "开关开、放大查看照 id 取四分之一；「显示全部」照 id 取 64 拖。断：冷却之限内止、收尾推尽最大位移 ≤0.5、止前之窗 (max(10, 止帧−30), 止帧] 每帧最大位移 ≤0.5、止后名签无交" +
+    "（「显示全部」之收尾、止前只印备查：r62-X4 登记，俟 U-丙 推后议）；反证 κ 恒 1（COOL＝false）逐式俱红（裁二百六十六）");
   /* 样（照 id 定样，不随机）：ids＝在图之人（只主角之式取一级，「显示全部」取全部）按 id 升序；L＝ids × 距 [60, 140] × 向 k·45°（k＝0…7）之序。
    *   只主角 内嵌（开关关）：全 L（53×2×8＝848）；开关开、放大查看：只取 ids 中序号 i % 4 ＝ 0 之人（14 人，224 拖）；
    *   「显示全部」（内嵌、开关关）：全 L 中取第 ⌊k·|L|／64⌋ 拖（k＝0…63）。每拖之前 panoResetAll 复初布局。
-   * 每拖记：f＝放手后至止之帧，by＝止之由（cool 冷却之限／calm 提早止／limit 兜底），tail＝止前 30 帧（含止之帧，收尾推尽之前）每帧诸人最大位移，
-   *   last＝放手后末一帧位移逾 0.5 者之帧序（备查），fin＝收尾推尽之最大位移、left＝其末遍所见相交之对数，
+   * 每拖记：f＝放手后至止之帧，by＝止之由（cool 冷却之限／calm 提早止／limit 兜底），
+   *   tail＝止前之窗 (max(TW0, f−30), f]（放手后之帧序；含止之帧，收尾推尽之前；TW0＝10，裁二百六十六 一）每帧诸人最大位移（窗空作 0；未止取末 30 帧），
+   *   tail30＝旧窗（止前 30 帧，备查），last＝放手后末一帧位移逾 0.5 者之帧序（备查），fin＝收尾推尽之最大位移、left＝其末遍所见相交之对数、
+   *   pass＝推尽所用遍数、fms＝推尽耗时（ms，实钟），
    *   ov＝止后诸名签矩形（力学器之状，HW／T／B）两两之交之最大者（min(交宽, 交高)），ovR＝同上而取所呈之坐标（两位小数）——备查。
    *   冷却之限 LIM＝⌈ln KAPPA_MIN／ln DECAY⌉ 帧（页内算）。 */
   const runSample = (pg, inClone, all, quarter, cfg, lim) => pg.evaluate(([inClone, all, quarter, cfg, lim]) => {
@@ -907,19 +934,21 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
     const out = L.map(([id, d, a]) => {
       panoResetAll(svg);
       const o = panoSimSync(id, d * Math.cos(a * Math.PI / 4) / m.a, d * Math.sin(a * Math.PI / 4) / m.d, 14, 600);
-      const f = o.frames, tail = f ? o.disp.slice(Math.max(0, f - 30), f) : o.disp.slice(-30);
+      const f = o.frames, tail = f ? o.disp.slice(Math.max(10, f - 30), f) : o.disp.slice(-30), tail30 = f ? o.disp.slice(Math.max(0, f - 30), f) : tail;
       const K = panoSim.K, nodes = panoSim.nodes;
       let last = 0; o.disp.forEach((x, k) => { if (x > 0.5) last = k + 1; });
-      return { id, d, a, f, by: o.by, tail: Math.max(0, ...tail), last, fin: o.fin ? o.fin.d : NaN, left: o.fin ? o.fin.left : -1,
+      return { id, d, a, f, by: o.by, tail: Math.max(0, ...tail), tail30: Math.max(0, ...tail30), last, fin: o.fin ? o.fin.d : NaN, left: o.fin ? o.fin.left : -1,
+               pass: o.fin ? o.fin.pass : -1, fms: o.fin ? o.fin.ms : NaN,
                ov: ovOf(K, K.X, K.Y), ovR: ovOf(K, nodes.map(v => v.x), nodes.map(v => v.y)) };
     });
     panoResetAll(svg); Object.assign(PANO_SIM, SAVE);
     return out;
   }, [inClone, all, quarter, cfg || null, lim || 0]);
   const LIMF = (pg) => pg.evaluate(() => ({ lim: Math.ceil(Math.log(PANO_SIM.KAPPA_MIN) / Math.log(PANO_SIM.DECAY)), tol: PANO_SIM.FIN_TOL, fmax: PANO_SIM.FIN_MAX }));
-  /* 四断，逐拖判 */
+  /* 四断，逐拖判；asr＝该式所断者（「显示全部」不断收尾、止前，裁二百六十六 三） */
   const P_STOP = (o, C) => o.f != null && o.by !== "limit" && o.f <= C.lim, P_FIN = (o) => o.fin <= 0.5, P_TAIL = (o) => o.tail <= 0.5,
-        P_OV = (o, C) => o.left === 0 && o.ov <= C.tol, P_ALL = (o, C) => P_STOP(o, C) && P_FIN(o) && P_TAIL(o) && P_OV(o, C);
+        P_OV = (o, C) => o.left === 0 && o.ov <= C.tol,
+        P_ALL = (o, C, asr) => P_STOP(o, C) && (!asr || asr.fin ? P_FIN(o) : true) && (!asr || asr.tail ? P_TAIL(o) : true) && P_OV(o, C);
   const crit = (r, C) => ({ stop: r.filter(o => !P_STOP(o, C)).length, fin: r.filter(o => !P_FIN(o)).length,
                             tail: r.filter(o => !P_TAIL(o)).length, ov: r.filter(o => !P_OV(o, C)).length });
   const qs = (a) => { const b = a.slice().sort((x, y) => x - y), g = (p) => b[Math.min(b.length - 1, Math.floor(p * b.length))]; return [b[0], g(0.5), g(0.9), b[b.length - 1]]; };
@@ -927,12 +956,13 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
   const dist = (r) => {
     const by = {}; r.forEach(o => { const k = o.by || "未止"; by[k] = (by[k] || 0) + 1; });
     return "止帧（最小／中位／P90／最大）" + fx(qs(r.map(o => (o.f == null ? 9999 : o.f))), 0) + "，由 " + Object.entries(by).map(([k, v]) => k + " " + v).join("、") +
-      "；收尾推尽位移 " + fx(qs(r.map(o => o.fin)), 3) + "；止前 30 帧最大位移 " + fx(qs(r.map(o => o.tail)), 3) +
-      "；末逾 0.5 之帧序最大 " + Math.max(...r.map(o => o.last)) +
+      "；收尾推尽位移 " + fx(qs(r.map(o => o.fin)), 3) + "；推尽遍数 " + fx(qs(r.map(o => o.pass)), 0) + "、耗时 " + fx(qs(r.map(o => o.fms)), 2) + " ms" +
+      "；止前之窗最大位移 " + fx(qs(r.map(o => o.tail)), 3) + "（旧窗止前 30 帧 " + fx(qs(r.map(o => o.tail30)), 3) + "）" +
+      "；末逾 0.5 之帧序最大 " + Math.max(...r.map(o => o.last)) + "；余交之拖 " + r.filter(o => o.left !== 0).length +
       "；止后名签之交（力学器）最大 " + Math.max(...r.map(o => o.ov)).toExponential(2) + "、（所呈两位小数）最大 " + Math.max(...r.map(o => o.ovR)).toFixed(4);
   };
   const badEx = (r) => r.slice(0, 5).map(o => nameOf(o.id) + " " + o.d + "px/" + (o.a * 45) + "°：" + (o.f == null ? "未止" : o.f + " 帧 " + o.by) +
-    "，止前 " + o.tail.toFixed(3) + "（末逾 0.5 之帧 " + o.last + "），收尾 " + (+o.fin).toFixed(3) + "，交 " + o.ov.toExponential(1) + "／余 " + o.left).join("；");
+    "，止前 " + o.tail.toFixed(3) + "（末逾 0.5 之帧 " + o.last + "），收尾 " + (+o.fin).toFixed(3) + "（" + o.pass + " 遍），交 " + o.ov.toExponential(1) + "／余 " + o.left).join("；");
   {
     const MODES = [
       { tag: "内嵌 只主角", inClone: false, sw: false, all: false, quarter: false },
@@ -956,18 +986,22 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
         const secs = ((Date.now() - t0) / 1000).toFixed(1);
         if (!M.inClone && !M.sw && !M.all) {
           const r2 = await runSample(pg, M.inClone, M.all, M.quarter, null, 32);
-          selfcheck(JSON.stringify(r.slice(0, 32)) === JSON.stringify(r2), tag + "：首 32 拖再跑，逐数同（定步可复）");
+          const det = (a) => JSON.stringify(a.map(({ fms, ...o }) => o));   // fms 为实钟之耗时，不入逐数之比（r62-U-丙 乙段三续）
+          selfcheck(det(r.slice(0, 32)) === det(r2), tag + "：首 32 拖再跑，逐数同（定步可复；推尽耗时不比）");
         }
         const c = crit(r, C);
         console.log("    〔分布〕" + tag + "（" + r.length + " 拖，" + secs + " s）：" + dist(r));
         ok(c.stop === 0, tag + "：" + r.length + " 拖俱于冷却之限（" + C.lim + " 帧）内止（非兜底）", c.stop ? "未过 " + c.stop + "：" + badEx(r.filter(o => !P_STOP(o, C))) : "");
-        ok(c.fin === 0, tag + "：收尾推尽之最大位移俱 ≤ 0.5", c.fin ? "未过 " + c.fin + "：" + badEx(r.filter(o => !P_FIN(o))) : "");
-        ok(c.tail === 0, tag + "：止前 30 帧每帧最大位移俱 ≤ 0.5", c.tail ? "未过 " + c.tail + "：" + badEx(r.filter(o => !P_TAIL(o))) : "");
+        const asr = { fin: !M.all, tail: !M.all };   // 显示全部：收尾、止前只印备查（裁二百六十六 三；r62-X4 登记，俟 U-丙 推后议，届时复为断言）
+        const note = (cond, l, d) => console.log("  · 〔备查·r62-X4 登记，俟 U-丙 推后议〕" + l + "：" + (cond ? "俱是" : "否") + (d ? "  —— " + d : ""));
+        (asr.fin ? ok : note)(c.fin === 0, tag + "：收尾推尽之最大位移俱 ≤ 0.5", c.fin ? "未过 " + c.fin + "：" + badEx(r.filter(o => !P_FIN(o))) : "");
+        (asr.tail ? ok : note)(c.tail === 0, tag + "：止前之窗 (max(10, 止帧−30), 止帧] 每帧最大位移俱 ≤ 0.5", c.tail ? "未过 " + c.tail + "：" + badEx(r.filter(o => !P_TAIL(o))) : "");
         ok(c.ov === 0, tag + "：止后名签俱无交（容差 " + C.tol + "）", c.ov ? "未过 " + c.ov + "：" + badEx(r.filter(o => !P_OV(o, C))) : "");
         /* 反证：去冷却（κ 恒 1）——本式自红（四断有一红即是），不以诸式合计论 */
         const z = await runSample(pg, M.inClone, M.all, M.quarter, { COOL: false });
-        const cz = crit(z, C), nz = z.filter(o => !P_ALL(o, C)).length;
-        anti(nz > 0, tag + " COOL＝false（κ 恒 1）→ " + z.length + " 拖未过 " + nz + "（冷却之限内止 " + cz.stop + "、收尾 " + cz.fin + "、止前 " + cz.tail + "、无交 " + cz.ov + "）");
+        const cz = crit(z, C), nz = z.filter(o => !P_ALL(o, C, asr)).length;
+        anti(nz > 0, tag + " COOL＝false（κ 恒 1）→ " + z.length + " 拖未过所断者 " + nz + "（冷却之限内止 " + cz.stop + "、收尾 " + cz.fin + (asr.fin ? "" : "〔备查〕") +
+          "、止前 " + cz.tail + (asr.tail ? "" : "〔备查〕") + "、无交 " + cz.ov + "）");
         console.log("      〔反证之分布〕" + dist(z));
         selfcheck((await coords(pg)) === init, tag + "：样毕复初布局");
         if (M.inClone) { await pg.click("#btn-overlay-close"); await pg.waitForTimeout(250); }

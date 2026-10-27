@@ -5769,7 +5769,8 @@ function panoPlaceEdgeFast(e) {
  *   ★ 冷却收束（r62-U-丙 乙段再续，裁二百六十五 一2、3；同布局之法「先冷却、后一次推尽」）：
  *     放手后每帧 κ 乘 DECAY（κ 自 1 起，无底；拖中 κ 恒 1 不衰），积分每帧之位移（step 之速）乘 κ——力不改，只其所致之移渐收；
  *     κ ＜ KAPPA_MIN（0.01）即止，以帧计不以毫秒：DECAY 0.93 则放手后第 ⌈ln 0.01／ln 0.93⌉＝64 帧止（慢机帧少而形同）。
- *     止时（无论何由）以同一 pushAll 推至无交只一回：容差 FIN_TOL（1e-6）、至多 FIN_MAX（50）遍；其遍数、余交、最大位移记于 sim.fin。
+ *     止时（无论何由）以同一 pushAll 推至无交只一回：容差 FIN_TOL（1e-6）、至多 FIN_MAX（800）遍；其遍数、余交、最大位移、耗时记于 sim.fin。
+ *     〔r62-U-丙 乙段三续，裁二百六十六 二〕FIN_MAX 50→800，与布局收尾（panoLayout 之「pass ＜ 800」）同上限、同源；FIN_TOL 不动。50 遍推不尽（只主角须至 112、显示全部 363 遍）。
  *     COOL＝false 即去冷却（κ 恒 1，门 vision_r62x3 §八 之反证）。
  *   止之由：κ 之限（cool）；连续 CALM_FRAMES（10）帧诸人之实移俱＜V_MIN 即提早止（calm；X3 续，裁二百五十八 一2）；
  *     至迟 SETTLE_MS 必止（limit；末 FADE_MS 内速渐归零，兜底）。CALM_FRAMES、V_MIN、SETTLE_MS 三值不动（裁二百六十五 一4）。
@@ -5781,7 +5782,7 @@ function panoPlaceEdgeFast(e) {
  * 门 vision_r62x3 §七 4 断之，关之为其反证。 */
 const PANO_SIM = { ELASTIC: true, STOP: true, RESET_LAYOUT: true, RESET_FOCUS: true, RESET_DRAWER: true, DRAG_ALPHA: 0.3, DECAY: 0.93,
                    V_MIN: 0.03, SETTLE_MS: 2500, FADE_MS: 500, PUSH: 1, PUSH_GAP: 0, HOLE: true, CALM_FRAMES: 10, LABEL_EVERY: 2,
-                   COOL: true, KAPPA_MIN: 0.01, FIN_TOL: 1e-6, FIN_MAX: 50,   // 冷却收束（裁二百六十五 一）：见上注
+                   COOL: true, KAPPA_MIN: 0.01, FIN_TOL: 1e-6, FIN_MAX: 800,   // 冷却收束（裁二百六十五 一；FIN_MAX 裁二百六十六 二）：见上注
                    GRID: true };   // LABEL_EVERY：拖动之中边名每二帧一判（X3 续，裁二百五十七 二1），止动后必再判   // GRID：n ＞ GRID_MIN 时同布局用网格（裁二百五十六 二）；门 §六 关之以量逐对精算之帧耗（「前」之数），站上恒开
 let panoSim = null;
 function panoSimInit() {
@@ -5902,10 +5903,12 @@ function panoSimFrame(sim, t0, tEnd) {
   return true;
 }
 /* 收尾推尽（裁二百六十五 一3）：止时以同一 pushAll（余量 PUSH_GAP 0、容差 FIN_TOL）推至无交，至多 FIN_MAX 遍，只此一回；
- *   钉者不动（fix 同末帧）。推后诸人之位照帧之式写回（两位小数）、重置其盘。sim.fin＝{ pass：所用遍数（含末一遍之验）, left：末遍所见相交之对数（0＝已无交；FIN_MAX 遍未尽则 ＞0）, d：最大位移 }。 */
+ *   钉者不动（fix 同末帧）。推后诸人之位照帧之式写回（两位小数）、重置其盘。sim.fin＝{ pass：所用遍数（含末一遍之验）, left：末遍所见相交之对数（0＝已无交；FIN_MAX 遍未尽则 ＞0）, d：最大位移,
+ *   ms：推尽之耗时（实钟，含写回；裁二百六十六 二书之） }。 */
 function panoSimFinish(sim) {
   const K = sim.K, n = sim.n, X = K.X, Y = K.Y, nodes = sim.nodes;
   let pass = 0, left = 0, d = 0;
+  const t0 = performance.now();
   if (K.P.LABEL) {
     sim.fix.set(sim.pin);
     const PX = Float64Array.from(X), PY = Float64Array.from(Y);
@@ -5917,14 +5920,14 @@ function panoSimFinish(sim) {
       if (x !== v.x || y !== v.y) { v.x = x; v.y = y; panoPlaceNode(v); }
     }
   }
-  sim.fin = { pass, left, d: +d.toFixed(4) };
+  sim.fin = { pass, left, d: +d.toFixed(4), ms: +(performance.now() - t0).toFixed(2) };
 }
 /* 测试之钩（r62-U-丙 乙段续，裁二百六十四 三；门 tools/qa/vision_r62x3.js §八 取之，站上无人调之）：
  *   不经 rAF，以虚拟之钟（每帧 dt，默认 1000/60 ms）同步推进弹性，定步可复。拖 id 之人自其今位沿直线移 (dx, dy)（viewBox 之单位）
  *   共 steps 帧（同指针之途：写 relView.nodes、panoPlaceNode、panoSimDragTo），放手，再逐帧推进至止或至 maxFrames。
  *   放手前先止 rAF 之循环（panoSimStop）；帧之式与 rAF 同一 panoSimFrame。
  *   返 { frames：放手后至止之帧数（未止为 null）, by：止之由（cool／calm／limit）, disp：放手后每帧诸人之最大位移（收尾推尽之前）,
- *        fin：收尾推尽之 { pass, left, d }（见 panoSimFinish） }。 */
+ *        fin：收尾推尽之 { pass, left, d, ms }（见 panoSimFinish） }。 */
 function panoSimSync(id, dx, dy, steps, maxFrames, dt) {
   const sim = panoSimInit();
   if (!sim) return null;
