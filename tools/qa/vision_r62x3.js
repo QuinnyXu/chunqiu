@@ -59,6 +59,10 @@
  *        止帧 ≤10 者窗空，作 0。二、收尾推尽 FIN_MAX 50→800（同布局收尾之上限），「止后无交」四式（含显示全部）俱断；书推尽之遍数与耗时。
  *      三、「显示全部」之「收尾 ≤0.5」「止前 ≤0.5」改只印备查（r62-X4 登记，俟 U-丙 推后议；届时复为断言），其「限内止」「止后无交」照断；
  *        反证逐式须红，只计该式所断者。§六 另于 375 CPU ×4 书收尾推尽之遍数与耗时（定步各 32 拖之中位、最大）。
+ *      〔r62-U-丙 乙段四续，裁二百六十七 一〕§八 立样本单列 FIN_EXEMPT（照 tools/validate.py PROTAG_PLACE_EXEMPT、vision_r62x2.js OUTLIER_EXEMPT 之式，
+ *        比值不比名；增删须裁）：今唯「1440 内嵌 只主角」文姜 140px/45° 之收尾，限 0.6。断：单列之样收尾须 ≤ 其限；余拖及他式照 ≤0.5；
+ *        单列以外有逾者照红；单列之样今 ≤0.5 → 印「单列未用」（不红）；单列所书之样不在所跑之集、或其人非一级、或所断非「收尾」→ 红。
+ *        反证（同一 r 判，不另跑）：(i) 去单列 → 红；(ii) 限改 0.55 → 红。单列未用时二反证无可红，印之而不判。
  *  §六 帧耗：375 触屏于 CDP CPU ×4 实测只主角与「显示全部」拖动（书 panoSimTick 之中位／P95／最大、rAF 帧距、分项；印其的：只主角 P95 ≤ 33、
  *      显示全部 ≤ 50，裁二百五十七 二1），另书 1440、375 不降速之「显示全部」备查。只书，不入判（无头机之时不稳）。
  */
@@ -77,6 +81,11 @@ const RESET_SEL = ".pano-zoom[aria-label='复位视野、布局与点选']";
 const OV_RESET_SEL = "#overlay-rel-tools button[aria-label='复位视野、布局与点选']";
 const PANEL_INIT = "点人物节点，高亮其一度关系；点连线看出处。";
 
+/* §八 样本单列（裁二百六十七 一；照 PROTAG_PLACE_EXEMPT、OUTLIER_EXEMPT 之式，比值不比名；增删须裁）。
+ *   式＝§八 之 tag（宽＋式名），距＝屏 px，向＝度（a·45），断今只「收尾」，限＝此样之界（余拖照 0.5）。 */
+const FIN_EXEMPT = [
+  { 式: "1440 内嵌 只主角", 人: "P_WENJIANG", 距: 140, 向: 45, 断: "收尾", 限: 0.6, 裁: "裁二百六十七" },   // 0.567（推尽 112 遍）；约半像素；r62-X4 复量，能去则去
+];
 let fails = 0, gateErrs = 0, asserts = 0;
 const ok = (c, l, d) => { asserts++; if (!c) fails++; console.log("  " + (c ? "✓" : "✗") + " " + l + (d ? "  —— " + d : "")); };
 const selfcheck = (c, l, d) => { if (!c) gateErrs++; console.log("  " + (c ? "✓" : "⚠") + " 〔门自检〕" + l + (d ? "  —— " + d : "")); };
@@ -963,6 +972,27 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
   };
   const badEx = (r) => r.slice(0, 5).map(o => nameOf(o.id) + " " + o.d + "px/" + (o.a * 45) + "°：" + (o.f == null ? "未止" : o.f + " 帧 " + o.by) +
     "，止前 " + o.tail.toFixed(3) + "（末逾 0.5 之帧 " + o.last + "），收尾 " + (+o.fin).toFixed(3) + "（" + o.pass + " 遍），交 " + o.ov.toExponential(1) + "／余 " + o.left).join("；");
+  /* 收尾之断（单列，裁二百六十七 一）：r＝该式之拖，tag＝式，list＝单列。返 { bad：红之由, used：单列所免, unused：单列未用 } */
+  const judgeFin = (r, tag, list) => {
+    const bad = [], used = [], unused = [];
+    const mine = list.filter(e => e.式 === tag);
+    for (const e of mine) {
+      const p = PEOPLE.find(x => x.id === e.人);
+      if (!p || +p.is_protagonist !== 1) bad.push("单列已失其人，须裁：" + e.人 + "（" + e.裁 + "）");
+      if (e.断 !== "收尾") bad.push("单列所断非「收尾」，须裁：" + e.人 + " " + e.断 + "（" + e.裁 + "）");
+      const o = r.find(o => o.id === e.人 && o.d === e.距 && o.a * 45 === e.向);
+      if (!o) { bad.push("单列之样不在所跑之集，须裁：" + nameOf(e.人) + " " + e.距 + "px/" + e.向 + "°（" + e.裁 + "）"); continue; }
+      if (P_FIN(o)) unused.push("单列未用：" + tag + " " + nameOf(e.人) + " " + e.距 + "px/" + e.向 + "° 收尾 " + (+o.fin).toFixed(3) + " ≤ 0.5（单列限 " + e.限 + "，" + e.裁 + "）");
+    }
+    for (const o of r.filter(o => !P_FIN(o))) {
+      const e = mine.find(e => e.断 === "收尾" && e.人 === o.id && e.距 === o.d && e.向 === o.a * 45);
+      const s = nameOf(o.id) + " " + o.d + "px/" + (o.a * 45) + "° 收尾 " + (+o.fin).toFixed(3);
+      if (!e) bad.push("单列以外逾 0.5：" + badEx([o]));
+      else if (!(o.fin <= e.限)) bad.push("单列之样逾其限 " + e.限 + "：" + s + "（" + e.裁 + "）");
+      else used.push(s + " ≤ 单列限 " + e.限 + "（" + e.裁 + "）");
+    }
+    return { bad, used, unused };
+  };
   {
     const MODES = [
       { tag: "内嵌 只主角", inClone: false, sw: false, all: false, quarter: false },
@@ -994,7 +1024,21 @@ const q = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? 
         ok(c.stop === 0, tag + "：" + r.length + " 拖俱于冷却之限（" + C.lim + " 帧）内止（非兜底）", c.stop ? "未过 " + c.stop + "：" + badEx(r.filter(o => !P_STOP(o, C))) : "");
         const asr = { fin: !M.all, tail: !M.all };   // 显示全部：收尾、止前只印备查（裁二百六十六 三；r62-X4 登记，俟 U-丙 推后议，届时复为断言）
         const note = (cond, l, d) => console.log("  · 〔备查·r62-X4 登记，俟 U-丙 推后议〕" + l + "：" + (cond ? "俱是" : "否") + (d ? "  —— " + d : ""));
-        (asr.fin ? ok : note)(c.fin === 0, tag + "：收尾推尽之最大位移俱 ≤ 0.5", c.fin ? "未过 " + c.fin + "：" + badEx(r.filter(o => !P_FIN(o))) : "");
+        if (asr.fin) {
+          /* 收尾 ≤0.5，单列之样照其限（裁二百六十七 一） */
+          const jf = judgeFin(r, tag, FIN_EXEMPT);
+          ok(jf.bad.length === 0, tag + "：收尾推尽之最大位移俱 ≤ 0.5（单列之样照其限，裁二百六十七；单列以外逾者即红）" +
+            (jf.used.length ? "——单列所免 " + jf.used.length + "：" + jf.used.join("；") : ""), jf.bad.length ? "未过 " + jf.bad.length + "：" + jf.bad.join("；") : "");
+          for (const u of jf.unused) console.log("    ★ " + u);
+          if (FIN_EXEMPT.some(e => e.式 === tag)) {
+            if (jf.used.length) {
+              const j1 = judgeFin(r, tag, FIN_EXEMPT.filter(e => e.式 !== tag));
+              anti(j1.bad.length > 0, tag + " 反证 (i) 去单列 → " + (j1.bad.join("；") || "无红"));
+              const j2 = judgeFin(r, tag, FIN_EXEMPT.map(e => (e.式 === tag ? { ...e, 限: 0.55 } : e)));
+              anti(j2.bad.length > 0, tag + " 反证 (ii) 限改 0.55 → " + (j2.bad.join("；") || "无红"));
+            } else console.log("    〔反证〕" + tag + " 单列未用，(i)(ii) 无可红，不判");
+          }
+        } else note(c.fin === 0, tag + "：收尾推尽之最大位移俱 ≤ 0.5", c.fin ? "未过 " + c.fin + "：" + badEx(r.filter(o => !P_FIN(o))) : "");
         (asr.tail ? ok : note)(c.tail === 0, tag + "：止前之窗 (max(10, 止帧−30), 止帧] 每帧最大位移俱 ≤ 0.5", c.tail ? "未过 " + c.tail + "：" + badEx(r.filter(o => !P_TAIL(o))) : "");
         ok(c.ov === 0, tag + "：止后名签俱无交（容差 " + C.tol + "）", c.ov ? "未过 " + c.ov + "：" + badEx(r.filter(o => !P_OV(o, C))) : "");
         /* 反证：去冷却（κ 恒 1）——本式自红（四断有一红即是），不以诸式合计论 */
